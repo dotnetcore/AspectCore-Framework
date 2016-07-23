@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A788F1C7-E518-43F1-A6B1-AA883D956F30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DDC8D9C5-9258-4B10-ABF2-26B590DBB028}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite", "src\AspectCore.Lite\AspectCore.Lite.xproj", "{DFF0CC73-7813-4883-A9C2-17ACDFE618C6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1479BFF8-AB58-4911-AB62-E5EB4A3BF888}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Test", "test\AspectCore.Lite.Test\AspectCore.Lite.Test.xproj", "{6FC73670-2AA7-4E9E-A54B-D21FF00CB530}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DFF0CC73-7813-4883-A9C2-17ACDFE618C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFF0CC73-7813-4883-A9C2-17ACDFE618C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFF0CC73-7813-4883-A9C2-17ACDFE618C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFF0CC73-7813-4883-A9C2-17ACDFE618C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FC73670-2AA7-4E9E-A54B-D21FF00CB530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FC73670-2AA7-4E9E-A54B-D21FF00CB530}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FC73670-2AA7-4E9E-A54B-D21FF00CB530}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FC73670-2AA7-4E9E-A54B-D21FF00CB530}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DFF0CC73-7813-4883-A9C2-17ACDFE618C6} = {A788F1C7-E518-43F1-A6B1-AA883D956F30}
+		{6FC73670-2AA7-4E9E-A54B-D21FF00CB530} = {1479BFF8-AB58-4911-AB62-E5EB4A3BF888}
+	EndGlobalSection
+EndGlobal
