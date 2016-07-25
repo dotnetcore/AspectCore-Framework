@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite
+namespace AspectCore.Lite.Methods
 {
-    public class Class1
+    public class MethodAspect
     {
-        public Class1()
-        {
-        }
     }
 }
