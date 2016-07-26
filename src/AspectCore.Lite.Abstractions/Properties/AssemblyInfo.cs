@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AspectCore.Lite.Test")]
+[assembly: AssemblyProduct("AspectCore.Lite.Abstractions")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,4 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6fc73670-2aa7-4e9e-a54b-d21ff00cb530")]
+[assembly: Guid("ecf5a0e5-3d63-410d-bcdc-4c46b2c79f23")]

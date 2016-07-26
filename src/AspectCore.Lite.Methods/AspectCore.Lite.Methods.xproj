@@ -7,8 +7,8 @@
 
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>dff0cc73-7813-4883-a9c2-17acdfe618c6</ProjectGuid>
-    <RootNamespace>AspectCore.Lite</RootNamespace>
+    <ProjectGuid>c7241d5a-240e-4d97-baef-f22327cfcc80</ProjectGuid>
+    <RootNamespace>AspectCore.Lite.Methods</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
