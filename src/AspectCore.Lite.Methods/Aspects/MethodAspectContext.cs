@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions.Aspects;
+using AspectCore.Lite.Abstractions.Descriptors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,6 @@ namespace AspectCore.Lite.Methods.Aspects
         public MethodInfo TargetMethod { get; }
         public MethodInfo ProxyMethod { get; }
         public ParameterCollection Parameters { get; }
-        public object ReturnValue { get; set; }
+        public ParameterDescriptor ReturnParameter { get; }
     }
 }

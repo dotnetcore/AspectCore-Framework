@@ -2,12 +2,14 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "AspectCore.Lite.Abstractions": "0.0.1-*",
-    "NETStandard.Library": "1.6.0"
+    "AspectCore.Lite.Abstractions": "0.0.1-*"
   },
 
   "frameworks": {
     "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      },
       "imports": "dnxcore50"
     }
   }
