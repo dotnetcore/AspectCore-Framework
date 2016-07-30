@@ -10,9 +10,56 @@ namespace AspectCore.Lite.Methods.Aspects
 {
     public sealed class MethodAspectContext : AspectContext
     {
-        public MethodInfo TargetMethod { get; }
-        public MethodInfo ProxyMethod { get; }
         public ParameterCollection Parameters { get; }
+
         public ParameterDescriptor ReturnParameter { get; }
+
+        public MethodAspectContext(ITarget target , IProxy proxy , ParameterCollection parameters , ParameterDescriptor returnParameter)
+            : base(target , proxy)
+        {
+            Parameters = parameters;
+            ReturnParameter = returnParameter;
+        }
+
+        private MethodInfo targetMethod;
+
+        private MethodInfo proxyMethod;
+
+        public MethodInfo TargetMethod
+        {
+            get
+            {
+                return targetMethod ??
+                    CastMethodInfo()(() => Target.GetTargetMemberInfo())("Unable to resolve target method.")(targetMethod);
+            }
+        }
+
+        public MethodInfo ProxyMethod
+        {
+            get
+            {
+                return proxyMethod ??
+                    CastMethodInfo()(() => Proxy.GetProxyMemberAsync())("Unable to resolve proxy method.")(proxyMethod);
+            }
+        }
+
+        private Func<Func<Task<MemberInfo>> , Func<string , Func<MethodInfo , MethodInfo>>> CastMethodInfo()
+        {
+            return memberInfoFactory =>
+            {
+                return exceptionMessage =>
+                {
+                    return methodInfo =>
+                    {
+                        if (methodInfo == null)
+                        {
+                            methodInfo = memberInfoFactory().Result as MethodInfo;
+                            if (methodInfo == null) throw new InvalidCastException(exceptionMessage);
+                        }
+                        return methodInfo;
+                    };
+                };
+            };
+        }
     }
 }

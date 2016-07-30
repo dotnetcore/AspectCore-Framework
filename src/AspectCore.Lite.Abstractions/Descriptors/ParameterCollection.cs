@@ -31,8 +31,8 @@ namespace AspectCore.Lite.Abstractions.Descriptors
             get
             {
                 if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index), "index value out of range.");
-                ParameterDescriptor[] values = parameterEntries.Select(pair => pair.Value).ToArray();
-                return values[index];
+                ParameterDescriptor[] descriptors = parameterEntries.Select(pair => pair.Value).ToArray();
+                return descriptors[index];
             }
         }
 
@@ -43,7 +43,7 @@ namespace AspectCore.Lite.Abstractions.Descriptors
                 if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
                 ParameterDescriptor descriptor;
                 if (parameterEntries.TryGetValue(name, out descriptor)) return descriptor;
-                throw new MissingMemberException($"does not exist the parameter nameof \"{name}\".");
+                throw new KeyNotFoundException($"does not exist the parameter nameof \"{name}\".");
             }
         }
 

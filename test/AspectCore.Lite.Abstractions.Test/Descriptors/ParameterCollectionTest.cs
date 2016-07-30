@@ -37,7 +37,7 @@ namespace AspectCore.Lite.Abstractions.Test.Descriptors
             ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
             Assert.Equal(collection[0].Name, "name");
             Assert.Equal(collection[0].Value, "L");
-            Assert.Equal(collection[0].ParamterType, typeof(string));
+            Assert.Equal(collection[0].ParameterType, typeof(string));
         }
 
         [Theory]
@@ -57,7 +57,7 @@ namespace AspectCore.Lite.Abstractions.Test.Descriptors
             ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
             Assert.Equal(collection[name].Name, "name");
             Assert.Equal(collection[name].Value, "L");
-            Assert.Equal(collection[name].ParamterType, typeof(string));
+            Assert.Equal(collection[name].ParameterType, typeof(string));
         }
 
         [Theory]
@@ -73,10 +73,10 @@ namespace AspectCore.Lite.Abstractions.Test.Descriptors
         [Theory]
         [InlineData("age")]
         [InlineData("Name")]
-        public void IndexedProperty_Name_Get_ThrowsMissingMemberException(string name)
+        public void IndexedProperty_Name_Get_ThrowsKeyNotFoundException(string name)
         {
             ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
-            ExceptionAssert.Throws<MissingMemberException>(() => { var value = collection[name]; }, $"does not exist the parameter nameof \"{name}\".");
+            ExceptionAssert.Throws<KeyNotFoundException>(() => { var value = collection[name]; }, $"does not exist the parameter nameof \"{name}\".");
         }
 
         [Fact]

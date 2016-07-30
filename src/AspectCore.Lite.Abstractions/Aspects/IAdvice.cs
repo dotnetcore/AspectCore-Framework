@@ -7,6 +7,6 @@ namespace AspectCore.Lite.Abstractions.Aspects
 {
     public interface IAdvice
     {
-        Task Execute(AspectContext aspectContext);
+        Task ExecuteAsync(AspectContext aspectContext);
     }
 }

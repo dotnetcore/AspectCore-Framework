@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Descriptors
 {
-    public sealed class ParameterDescriptor
+    public class ParameterDescriptor
     {
         private object value;
         private ParameterInfo metaDataInfo;
+
         public ParameterDescriptor(object value, ParameterInfo parameterInfo)
         {
             if (parameterInfo == null)
@@ -17,6 +18,7 @@ namespace AspectCore.Lite.Abstractions.Descriptors
             this.metaDataInfo = parameterInfo;
             this.Value = value;         
         }
+
         public string Name
         {
             get
@@ -24,37 +26,44 @@ namespace AspectCore.Lite.Abstractions.Descriptors
                 return metaDataInfo.Name;
             }
         }
-        public object Value
+
+        public virtual object Value
         {
             get
             {
                 return value;
             }
+
             set
             {
                 if (value == null)
                 {
-                    if (ParamterType.GetTypeInfo().IsValueType && ParamterType != typeof(Nullable<>))
+                    if (ParameterType.GetTypeInfo().IsValueType && ParameterType != typeof(Nullable<>))
                         throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                     this.value = value;
                     return;
                 }
+
                 Type valueType = value.GetType();
-                if (valueType != ParamterType)
+
+                if (valueType != ParameterType)
                 {
-                    if (!ParamterType.GetTypeInfo().IsAssignableFrom(valueType.GetTypeInfo()))
+                    if (!ParameterType.GetTypeInfo().IsAssignableFrom(valueType.GetTypeInfo()))
                         throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                 }
+
                 this.value = value;
             }
         }
-        public Type ParamterType
+
+        public Type ParameterType
         {
             get
             {
                 return metaDataInfo.ParameterType;
             }
         }
+
         public ParameterInfo MetaDataInfo
         {
             get
@@ -62,6 +71,7 @@ namespace AspectCore.Lite.Abstractions.Descriptors
                 return metaDataInfo;
             }
         }
+
         public Attribute[] CustomAttributes
         {
             get

@@ -7,6 +7,6 @@ namespace AspectCore.Lite.Abstractions.Aspects
 {
     public interface IAspectContextFactory
     {
-        AspectContext CreateAspectContext();
+        AspectContext Create();
     }
 }

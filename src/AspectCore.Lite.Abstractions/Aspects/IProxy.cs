@@ -9,6 +9,9 @@ namespace AspectCore.Lite.Abstractions.Aspects
     public interface IProxy
     {
         object GetProxyInstance();
-        MemberInfo GetProxyMetaData();
+
+        MemberInfo GetProxyMemberInfo();
+
+        TypeInfo GetProxyTypeInfo();
     }
 }

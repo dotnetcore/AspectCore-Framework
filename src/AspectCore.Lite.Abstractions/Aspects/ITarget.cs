@@ -8,6 +8,8 @@ namespace AspectCore.Lite.Abstractions.Aspects
 {
     public interface ITarget
     {
-        MemberInfo GetTargetMetaData();
+        MemberInfo GetTargetMemberInfo();
+
+        TypeInfo GetTargetTypeInfo();
     }
 }

@@ -8,6 +8,6 @@ namespace AspectCore.Lite.Abstractions.Aspects
 {
     public interface IPointcut
     {
-        Task<bool> IsMatch(MemberInfo memberInfo);
+        bool IsMatch(MemberInfo memberInfo);
     }
 }

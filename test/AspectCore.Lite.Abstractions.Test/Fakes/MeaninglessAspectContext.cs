@@ -13,7 +13,7 @@ namespace AspectCore.Lite.Abstractions.Test.Fakes
 
     public class MeaninglessTarget : ITarget
     {
-        public MemberInfo GetTargetMetaData()
+        public MemberInfo GetTargetMetaDataInfoAsync()
         {
             throw new NotImplementedException();
         }
@@ -21,12 +21,12 @@ namespace AspectCore.Lite.Abstractions.Test.Fakes
 
     public class MeaninglessProxy : IProxy
     {
-        public object GetProxyInstance()
+        public object GetProxyInstanceAsync()
         {
             throw new NotImplementedException();
         }
 
-        public MemberInfo GetProxyMetaData()
+        public MemberInfo GetProxyMetaDataInfo()
         {
             throw new NotImplementedException();
         }

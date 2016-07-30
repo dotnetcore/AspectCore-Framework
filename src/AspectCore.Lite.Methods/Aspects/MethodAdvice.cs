@@ -8,16 +8,17 @@ namespace AspectCore.Lite.Methods.Aspects
 {
     public abstract class MethodAdvice : IAdvice
     {
-        public Task Execute(AspectContext aspectContext)
+        public Task ExecuteAsync(AspectContext aspectContext)
         {
-            if (aspectContext == null) throw new ArgumentNullException(nameof(aspectContext));
-            if (!(aspectContext is MethodAspectContext)) throw new ArgumentException("Invalid AspectContext.", nameof(aspectContext));
+            if (aspectContext == null)
+                throw new ArgumentNullException(nameof(aspectContext));
+
+            if (!(aspectContext is MethodAspectContext))
+                throw new InvalidCastException("Invalid AspectContext Type.");
+
             return MethodExecute((MethodAspectContext)aspectContext);
         }
 
-        protected virtual Task MethodExecute(MethodAspectContext aspectContext)
-        {
-            return aspectContext.Next(aspectContext);
-        }
+        protected abstract Task MethodExecute(MethodAspectContext aspectContext);
     }
 }

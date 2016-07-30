@@ -8,7 +8,13 @@ namespace AspectCore.Lite.Abstractions.Aspects
     public abstract class AspectContext
     {
         public AspectDelegate Next { get; set; }
-        public ITarget Target { get; set; }
-        public IProxy Proxy { get; set; }
+        public ITarget Target { get; }
+        public IProxy Proxy { get; }
+
+        public AspectContext(ITarget target , IProxy proxy)
+        {
+            Target = target;
+            Proxy = proxy;
+        }
     }
 }

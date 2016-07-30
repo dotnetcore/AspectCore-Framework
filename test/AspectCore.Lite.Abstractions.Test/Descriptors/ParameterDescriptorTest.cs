@@ -95,7 +95,7 @@ namespace AspectCore.Lite.Abstractions.Test.Descriptors
             Assert.Equal(descriptor.MetaDataInfo, info);
             Assert.Equal(descriptor.Name, info.Name);
             Assert.Equal(descriptor.Value, "LLL");
-            Assert.Equal(descriptor.ParamterType, info.ParameterType);
+            Assert.Equal(descriptor.ParameterType, info.ParameterType);
             Assert.Equal(descriptor.CustomAttributes.Length, info.GetCustomAttributes().Count());
         }
     }
