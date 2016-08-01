@@ -9,16 +9,16 @@ namespace AspectCore.Lite.Methods.Aspects
 {
     public class MethodPointcut : IPointcut
     {
-        public Task<bool> IsMatch(MemberInfo memberInfo)
+        public bool IsMatch(MemberInfo memberInfo)
         {
             MethodInfo methodInfo = memberInfo as MethodInfo;
-            if (methodInfo == null) return Task.FromResult(false);
+            if (methodInfo == null) return false;
             return IsMatch(methodInfo);
         }
 
-        protected virtual Task<bool> IsMatch(MethodInfo methodInfo)
+        protected virtual bool IsMatch(MethodInfo methodInfo)
         {
-            return Task.FromResult(true);
+            return true;
         }
     }
 }

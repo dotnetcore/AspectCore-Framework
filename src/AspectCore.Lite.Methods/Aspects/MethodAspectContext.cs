@@ -39,11 +39,11 @@ namespace AspectCore.Lite.Methods.Aspects
             get
             {
                 return proxyMethod ??
-                    CastMethodInfo()(() => Proxy.GetProxyMemberAsync())("Unable to resolve proxy method.")(proxyMethod);
+                    CastMethodInfo()(() => Proxy.GetProxyMemberInfo())("Unable to resolve proxy method.")(proxyMethod);
             }
         }
 
-        private Func<Func<Task<MemberInfo>> , Func<string , Func<MethodInfo , MethodInfo>>> CastMethodInfo()
+        private Func<Func<MemberInfo> , Func<string , Func<MethodInfo , MethodInfo>>> CastMethodInfo()
         {
             return memberInfoFactory =>
             {
@@ -53,7 +53,7 @@ namespace AspectCore.Lite.Methods.Aspects
                     {
                         if (methodInfo == null)
                         {
-                            methodInfo = memberInfoFactory().Result as MethodInfo;
+                            methodInfo = memberInfoFactory() as MethodInfo;
                             if (methodInfo == null) throw new InvalidCastException(exceptionMessage);
                         }
                         return methodInfo;

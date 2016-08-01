@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Aspects
 {
-    public interface IProxy
+    public interface IProxy<TService, TImplementation>
     {
-        object GetProxyInstance();
+        TService GetProxyInstance();
 
         MemberInfo GetProxyMemberInfo();
 

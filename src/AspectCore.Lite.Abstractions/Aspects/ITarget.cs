@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Aspects
 {
-    public interface ITarget
+    public interface ITarget<TService, TImplementation>
     {
         MemberInfo GetTargetMemberInfo();
 
