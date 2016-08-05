@@ -12,10 +12,6 @@ namespace AspectCore.Lite.Methods.Aspects
 
         public IPointcut Pointcut { get; set; }
 
-        public ITarget Target { get; set; }
-
-        public IProxy Proxy { get; set; }
-
         public AspectDelegate CreateDelegate()
         {
             throw new NotImplementedException();

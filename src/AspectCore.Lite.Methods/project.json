@@ -2,7 +2,7 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "AspectCore.Lite.Abstractions": "0.0.1-*"
+    "AspectCore.Lite": "0.0.1-*"
   },
 
   "frameworks": {

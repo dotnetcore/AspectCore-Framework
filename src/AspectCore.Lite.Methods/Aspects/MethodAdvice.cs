@@ -16,9 +16,9 @@ namespace AspectCore.Lite.Methods.Aspects
             if (!(aspectContext is MethodAspectContext))
                 throw new InvalidCastException("Invalid AspectContext Type.");
 
-            return MethodExecute((MethodAspectContext)aspectContext);
+            return MethodExecuteAsync((MethodAspectContext)aspectContext);
         }
 
-        protected abstract Task MethodExecute(MethodAspectContext aspectContext);
+        protected abstract Task MethodExecuteAsync(MethodAspectContext aspectContext);
     }
 }

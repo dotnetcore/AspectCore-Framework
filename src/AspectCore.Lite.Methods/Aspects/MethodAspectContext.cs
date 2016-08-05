@@ -30,7 +30,7 @@ namespace AspectCore.Lite.Methods.Aspects
             get
             {
                 return targetMethod ??
-                    CastMethodInfo()(() => Target.GetTargetMemberInfo())("Unable to resolve target method.")(targetMethod);
+                    CastMethodInfo()(() => Target.GetTargetMethodInfo())("Unable to resolve target method.")(targetMethod);
             }
         }
 
@@ -39,7 +39,7 @@ namespace AspectCore.Lite.Methods.Aspects
             get
             {
                 return proxyMethod ??
-                    CastMethodInfo()(() => Proxy.GetProxyMemberInfo())("Unable to resolve proxy method.")(proxyMethod);
+                    CastMethodInfo()(() => Proxy.GetProxyMethodInfo())("Unable to resolve proxy method.")(proxyMethod);
             }
         }
 

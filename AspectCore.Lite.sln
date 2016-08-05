@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Abstractions", "src\AspectCore.Lite.Abstractions\AspectCore.Lite.Abstractions.xproj", "{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2DFB45E4-F9D9-472C-93E4-224E3C210FCB}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Methods", "src\AspectCore.Lite.Methods\AspectCore.Lite.Methods.xproj", "{C7241D5A-240E-4D97-BAEF-F22327CFCC80}"
@@ -21,16 +19,18 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Abstraction
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Methods.Test", "test\AspectCore.Lite.Methods.Test\AspectCore.Lite.Methods.Test.xproj", "{59562349-D853-4450-9268-A6F98DDD30A6}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite", "src\AspectCore.Lite\AspectCore.Lite.xproj", "{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{329F8C44-9C3F-4E29-BEC9-9164275E5ED4}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Sample.Web", "sample\AspectCore.Lite.Sample.Web\AspectCore.Lite.Sample.Web.xproj", "{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7241D5A-240E-4D97-BAEF-F22327CFCC80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C7241D5A-240E-4D97-BAEF-F22327CFCC80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7241D5A-240E-4D97-BAEF-F22327CFCC80}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -43,14 +43,23 @@ Global
 		{59562349-D853-4450-9268-A6F98DDD30A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59562349-D853-4450-9268-A6F98DDD30A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59562349-D853-4450-9268-A6F98DDD30A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
 		{C7241D5A-240E-4D97-BAEF-F22327CFCC80} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
 		{F1DDD0FC-BEBC-4479-8BBA-10D7C8AE1A46} = {2DFB45E4-F9D9-472C-93E4-224E3C210FCB}
 		{59562349-D853-4450-9268-A6F98DDD30A6} = {2DFB45E4-F9D9-472C-93E4-224E3C210FCB}
+		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
+		{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E} = {329F8C44-9C3F-4E29-BEC9-9164275E5ED4}
 	EndGlobalSection
 EndGlobal

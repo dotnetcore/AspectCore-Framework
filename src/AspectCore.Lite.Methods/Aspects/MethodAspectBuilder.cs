@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Methods.Aspects
 {
-    public class MethodAspectBuilder : IAspectBuilder
+    public class MethodAspectBuilder : IAspectFactory
     {
-        public 
+         
 
         public IAspect Build()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAspect Create(object advice, IPointcut pointcut)
         {
             throw new NotImplementedException();
         }

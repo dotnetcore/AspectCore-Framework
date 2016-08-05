@@ -18,6 +18,7 @@ namespace AspectCore.Lite.Methods.Aspects
 
         protected virtual bool IsMatch(MethodInfo methodInfo)
         {
+            if (!methodInfo.IsVirtual) return false;
             return true;
         }
     }
