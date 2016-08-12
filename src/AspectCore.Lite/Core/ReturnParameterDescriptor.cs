@@ -4,11 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Descriptors
+namespace AspectCore.Lite.Core
 {
     public sealed class ReturnParameterDescriptor : ParameterDescriptor
     {
-        public ReturnParameterDescriptor(object value , ParameterInfo parameterInfo) : base(value , parameterInfo)
+        internal ReturnParameterDescriptor(object value , ParameterInfo parameterInfo) : base(value , parameterInfo)
         {
         }
 

@@ -1,4 +1,8 @@
-﻿using AspectCore.Lite.Abstractions.Aspects;
+﻿
+using AspectCore.Lite.Abstractions.Internal;
+using AspectCore.Lite.Core;
+using AspectCore.Lite.Extensions;
+using AspectCore.Lite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -9,32 +13,47 @@ namespace AspectCore.Lite.Abstractions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAspects(this IServiceCollection services, Action<IAspectCollection, IAspectFactory> configure)
+        public static IServiceProvider BuildAspectServiceProvider(this IServiceCollection services)
         {
-            return AddAspects(services, null, null, configure);
-        }
-
-        public static IServiceCollection AddAspects(this IServiceCollection services, IAspectCollection aspectFactory, IAspectFactory factoryFactory, Action<IAspectCollection, IAspectFactory> configure)
-        {
-
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            IAspectCollection aspects = aspectFactory ?? new AspectCollection();
-            IAspectFactory factory = factoryFactory;
+            return services.BuildServiceProvider();
+        }
 
-            if (configure != null)
-                configure(aspects, factory);
+        public static IServiceCollection AddAspects(this IServiceCollection services, 
+            Action<IAspectCollection, IAspectFactory> configure = default(Action<IAspectCollection, IAspectFactory>))
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddSingleton<IAspectFactory>(factory);
-            services.AddSingleton<IAspectCollection>(aspects);
+            IAspectCollection aspectCollection = new AspectCollection();
+            IAspectFactory aspectFactory = new AspectFactory();
 
-            foreach (IAspect aspect in aspects)
-            {
+            configure?.Invoke(aspectCollection, aspectFactory);
 
-                //  services.AddTransient(aspect.);
-            }
+            services.AddSingleton(aspectFactory);
+            services.AddSingleton(aspectCollection);
+            services.AddTransient<IAspectContextFactoryFactory, AspectContextFactoryFactory>();
+
+            aspectCollection.ForEach(aspect => AddAspect(services, aspect));
 
             return services;
+        }
+
+        private static void AddAspect(IServiceCollection services, Aspect aspect)
+        {
+            if (aspect.Advice != null)
+            {
+                object advice = aspect.Advice;
+                services.AddSingleton(advice.GetType(), advice);
+            }
+            else if (aspect.AdviceType != null)
+            {
+                services.AddTransient(aspect.AdviceType);
+            }
+            else
+            {
+                throw new ArgumentException("Aspect information description is not complete.");
+            }
         }
     }
 }

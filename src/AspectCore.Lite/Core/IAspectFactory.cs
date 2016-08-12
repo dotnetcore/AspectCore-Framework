@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Aspects
+namespace AspectCore.Lite.Core
 {
     public interface IAspectFactory
     {
-        IAspect Create(IAdvice advice, IPointcut pointcut);
+        Aspect Create(IAdvice advice, IPointcut pointcut);
+
+        Aspect Create(Type adviceType, IPointcut pointcut);
     }
 }

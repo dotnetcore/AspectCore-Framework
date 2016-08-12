@@ -9,12 +9,12 @@ namespace AspectCore.Lite.Methods.Aspects
 {
     internal class MethodAspectContextFactory : IAspectContextFactory
     {
-        private readonly ITarget target;
-        private readonly IProxy proxy;
+        private readonly Target target;
+        private readonly Proxy proxy;
         private readonly ParameterCollection parameters;
         private readonly ParameterDescriptor returnParameter;
 
-        public MethodAspectContextFactory(ITarget target , IProxy proxy , ParameterCollection parameters , ParameterDescriptor returnParameter)
+        public MethodAspectContextFactory(Target target , Proxy proxy , ParameterCollection parameters , ParameterDescriptor returnParameter)
         {
             this.target = target;
             this.proxy = proxy;

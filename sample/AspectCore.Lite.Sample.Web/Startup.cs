@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Sample.Web
 
     public static class AspectFactoryExtensions
     {
-        public static IAspect CreateLoggingAspect(this IAspectFactory factory)
+        public static Aspect CreateLoggingAspect(this IAspectFactory factory)
         {
             return factory.Create(new LoggingAdvice(), new LoggingPointCut());
         }
@@ -63,7 +63,7 @@ namespace AspectCore.Lite.Sample.Web
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
@@ -75,6 +75,9 @@ namespace AspectCore.Lite.Sample.Web
                 aspects.Add(factory.CreateLoggingAspect());
 
             });
+
+
+            return services.BuildAspectServiceProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

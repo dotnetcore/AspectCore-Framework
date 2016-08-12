@@ -10,12 +10,12 @@ namespace AspectCore.Lite.Methods.Aspects
     {
          
 
-        public IAspect Build()
+        public Aspect Build()
         {
             throw new NotImplementedException();
         }
 
-        public IAspect Create(object advice, IPointcut pointcut)
+        public Aspect Create(object advice, IPointcut pointcut)
         {
             throw new NotImplementedException();
         }

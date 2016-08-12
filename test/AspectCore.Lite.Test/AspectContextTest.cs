@@ -1,12 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Aspects;
-using AspectCore.Lite.Abstractions.Test.Fakes;
-using Microsoft.AspNetCore.Testing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Xunit;
+﻿using Xunit;
 
 namespace AspectCore.Lite.Abstractions.Test
 {

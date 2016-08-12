@@ -2,7 +2,8 @@
   "version": "0.0.1-*",
 
   "dependencies": {
-    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0"
+    "Microsoft.Extensions.DependencyInjection": "1.1.0-alpha1-21861",
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0-alpha1-21861"
   },
 
   "frameworks": {

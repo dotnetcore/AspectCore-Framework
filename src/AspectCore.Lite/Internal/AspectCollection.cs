@@ -1,16 +1,17 @@
-﻿using System;
+﻿using AspectCore.Lite.Core;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AspectCore.Lite.Abstractions.Aspects;
+
 
 namespace AspectCore.Lite.Abstractions
 {
-    public class AspectCollection : IAspectCollection
+    internal sealed class AspectCollection : IAspectCollection
     {
-        private readonly IList<IAspect> aspects = new List<IAspect>();
-        public IAspect this[int index]
+        private readonly IList<Aspect> aspects = new List<Aspect>();
+        public Aspect this[int index]
         {
             get
             {
@@ -27,7 +28,7 @@ namespace AspectCore.Lite.Abstractions
 
         public bool IsReadOnly { get; } = false;
 
-        public void Add(IAspect aspect)
+        public void Add(Aspect aspect)
         {
             if (aspect == null) throw new ArgumentNullException(nameof(aspect));
             aspects.Add(aspect);
@@ -38,33 +39,33 @@ namespace AspectCore.Lite.Abstractions
             aspects.Clear();
         }
 
-        public bool Contains(IAspect aspect)
+        public bool Contains(Aspect aspect)
         {
             return aspects.Contains(aspect);
         }
 
-        public void CopyTo(IAspect[] array, int arrayIndex)
+        public void CopyTo(Aspect[] array, int arrayIndex)
         {
             aspects.CopyTo(array, arrayIndex);
         }
 
-        public IEnumerator<IAspect> GetEnumerator()
+        public IEnumerator<Aspect> GetEnumerator()
         {
             return aspects.GetEnumerator();
         }
 
-        public int IndexOf(IAspect aspect)
+        public int IndexOf(Aspect aspect)
         {
             return aspects.IndexOf(aspect);
         }
 
-        public void Insert(int index, IAspect aspect)
+        public void Insert(int index, Aspect aspect)
         {
             if (aspect == null) throw new ArgumentNullException(nameof(aspect));
             aspects.Insert(index, aspect);
         }
 
-        public bool Remove(IAspect aspect)
+        public bool Remove(Aspect aspect)
         {
             return aspects.Remove(aspect);
         }

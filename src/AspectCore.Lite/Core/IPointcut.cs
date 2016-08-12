@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Aspects
+namespace AspectCore.Lite.Core
 {
     public interface IPointcut
     {

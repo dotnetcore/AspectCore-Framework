@@ -1,14 +1,12 @@
-﻿using AspectCore.Lite.Abstractions.Descriptors;
-using AspectCore.Lite.Abstractions.Test.Fakes;
+﻿using AspectCore.Lite.Abstractions.Test.Fakes;
+using AspectCore.Lite.Core;
 using Microsoft.AspNetCore.Testing;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace AspectCore.Lite.Abstractions.Test.Descriptors
+namespace AspectCore.Lite.Test.Descriptors
 {
     public class ParameterDescriptorTest
     {

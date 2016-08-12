@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Aspects
+namespace AspectCore.Lite.Core
 {
     public interface IAdvice
     {
-        Task ExecuteAsync(AspectContext context, AspectDelegate next);
+        Task ExecuteAsync(AspectContext aspectContext, AspectDelegate next);
     }
 }

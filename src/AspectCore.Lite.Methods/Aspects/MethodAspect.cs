@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Methods.Aspects
 {
-    public class MethodAspect : IAspect
+    public class MethodAspect : Aspect
     {
         public Func<IServiceProvider , IAdvice> AdviceFactory { get; set; }
 

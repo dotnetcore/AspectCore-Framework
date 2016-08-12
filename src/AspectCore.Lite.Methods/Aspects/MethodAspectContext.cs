@@ -10,11 +10,8 @@ namespace AspectCore.Lite.Methods.Aspects
 {
     public sealed class MethodAspectContext : AspectContext
     {
-        public ParameterCollection Parameters { get; }
-
-        public ParameterDescriptor ReturnParameter { get; }
-
-        public MethodAspectContext(ITarget target , IProxy proxy , ParameterCollection parameters , ParameterDescriptor returnParameter)
+  
+        public MethodAspectContext(Target target , Proxy proxy , ParameterCollection parameters , ParameterDescriptor returnParameter)
             : base(target , proxy)
         {
             Parameters = parameters;
