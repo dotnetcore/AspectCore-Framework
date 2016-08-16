@@ -41,14 +41,14 @@ namespace AspectCore.Lite.Abstractions
 
         private static void AddAspect(IServiceCollection services, Aspect aspect)
         {
-            if (aspect.Advice != null)
+            if (aspect.Interceptor != null)
             {
-                object advice = aspect.Advice;
-                services.AddSingleton(advice.GetType(), advice);
+                object interceptor = aspect.Interceptor;
+                services.AddSingleton(interceptor.GetType(), interceptor);
             }
-            else if (aspect.AdviceType != null)
+            else if (aspect.InterceptorType != null)
             {
-                services.AddTransient(aspect.AdviceType);
+                services.AddTransient(aspect.InterceptorType);
             }
             else
             {

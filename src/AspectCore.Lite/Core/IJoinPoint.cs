@@ -12,8 +12,8 @@ namespace AspectCore.Lite.Core
 
         Proxy Proxy { get; set; }
 
-        void AddDelegate(Func<AspectDelegate, AspectDelegate> @delegate);
+        void AddInterceptor(Func<InterceptorDelegate, InterceptorDelegate> @delegate);
 
-        AspectDelegate Build();
+        InterceptorDelegate Build();
     }
 }

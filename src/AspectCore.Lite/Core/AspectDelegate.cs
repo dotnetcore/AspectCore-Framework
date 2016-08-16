@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
-    public delegate Task AspectDelegate(AspectContext aspectContext);
+    public delegate Task InterceptorDelegate(AspectContext aspectContext);
 }

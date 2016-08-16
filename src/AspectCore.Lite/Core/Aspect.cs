@@ -7,19 +7,19 @@ namespace AspectCore.Lite.Core
 {
     public class Aspect
     {
-        public Type AdviceType { get; }
-        public IAdvice Advice { get; }
+        public Type InterceptorType { get; }
+        public IInterceptor Interceptor { get; }
         public IPointcut Pointcut { get; }
 
-        internal Aspect(Type adviceType, IPointcut pointcut)
+        internal Aspect(Type interceptorType , IPointcut pointcut)
         {
-            AdviceType = adviceType;
+            InterceptorType = interceptorType;
             Pointcut = pointcut;
         }
 
-        internal Aspect(IAdvice advice, IPointcut pointcut)
+        internal Aspect(IInterceptor interceptor , IPointcut pointcut)
         {
-            Advice = advice;
+            Interceptor = interceptor;
             Pointcut = pointcut;
         }
     }

@@ -11,28 +11,28 @@ namespace AspectCore.Lite.Abstractions.Internal
 {
     internal class AspectFactory : IAspectFactory
     {
-        public Aspect Create(Type adviceType, IPointcut pointcut)
+        public Aspect Create(Type interceptorType, IPointcut pointcut)
         {
-            if (adviceType == null) throw new ArgumentNullException(nameof(adviceType));
+            if (interceptorType == null) throw new ArgumentNullException(nameof(interceptorType));
             if (pointcut == null) throw new ArgumentNullException(nameof(pointcut));
 
-            TypeInfo adviceTypeInfo = adviceType.GetTypeInfo();
+            TypeInfo interceptorTypeInfo = interceptorType.GetTypeInfo();
 
-            if (adviceTypeInfo.IsAbstract || adviceTypeInfo.IsInterface)
-                throw new ArgumentException($"Type {adviceType.Name} cannot be abstract class or interface.", nameof(adviceType));
+            if (interceptorTypeInfo.IsAbstract || interceptorTypeInfo.IsInterface)
+                throw new ArgumentException($"Type {interceptorType.Name} cannot be abstract class or interface.", nameof(interceptorType));
 
-            if (!typeof(IAdvice).GetTypeInfo().IsAssignableFrom(adviceTypeInfo))
-                throw new ArgumentException($"Type {adviceType.Name} cannot create an instance of IAdvice.", nameof(adviceType));
+            if (!typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(interceptorTypeInfo))
+                throw new ArgumentException($"Type {interceptorType.Name} cannot create an instance of IInterceptor." , nameof(interceptorType));
 
-            return new Aspect(adviceType, pointcut);
+            return new Aspect(interceptorType , pointcut);
         }
 
-        public Aspect Create(IAdvice advice, IPointcut pointcut)
+        public Aspect Create(IInterceptor interceptor , IPointcut pointcut)
         {
-            if (advice == null) throw new ArgumentNullException(nameof(advice));
+            if (interceptor == null) throw new ArgumentNullException(nameof(interceptor));
             if (pointcut == null) throw new ArgumentNullException(nameof(pointcut));
 
-            return new Aspect(advice, pointcut);
+            return new Aspect(interceptor , pointcut);
         }
     }
 }

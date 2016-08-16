@@ -9,8 +9,8 @@ namespace AspectCore.Lite.Core
 {
     public interface IAspectFactory
     {
-        Aspect Create(IAdvice advice, IPointcut pointcut);
+        Aspect Create(IInterceptor interceptor , IPointcut pointcut);
 
-        Aspect Create(Type adviceType, IPointcut pointcut);
+        Aspect Create(Type interceptorType , IPointcut pointcut);
     }
 }

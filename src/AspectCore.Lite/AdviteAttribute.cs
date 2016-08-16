@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace AspectCore.Lite
 {
     //[AttributeUsage(AttributeTargets.Method)]
-    //public abstract class AdviteAttribute : Attribute, IAdvice
+    //public abstract class AdviteAttribute : Attribute, I
+
     //{
     //    public Task ExecuteAsync(AspectContext aspectContext, AspectDelegate next)
     //    {
