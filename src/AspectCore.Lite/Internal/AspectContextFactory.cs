@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Internal
 
         public AspectContext Create()
         {
-            return new MethodAspectContext(null, null, null, null, _serviceProvider);
+            return new AspectContext(null, null, null, null, _serviceProvider);
         }
     }
 }

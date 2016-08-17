@@ -7,6 +7,6 @@ namespace AspectCore.Lite.Core
 {
     public interface IInterceptor
     {
-        Task ExecuteAsync(AspectContext aspectContext, InterceptorDelegate next);
+        void Execute(AspectContext aspectContext, InterceptorDelegate next);
     }
 }

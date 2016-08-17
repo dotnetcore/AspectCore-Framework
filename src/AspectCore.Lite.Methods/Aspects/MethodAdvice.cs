@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Methods.Aspects
 {
-    public abstract class MethodAdvice : IAdvice
-    {
-        public Task ExecuteAsync(AspectContext aspectContext)
-        {
-            if (aspectContext == null)
-                throw new ArgumentNullException(nameof(aspectContext));
+    //public abstract class MethodAdvice : IAdvice
+    //{
+    //    public Task ExecuteAsync(AspectContext aspectContext)
+    //    {
+    //        if (aspectContext == null)
+    //            throw new ArgumentNullException(nameof(aspectContext));
 
-            if (!(aspectContext is MethodAspectContext))
-                throw new InvalidCastException("Invalid AspectContext Type.");
+    //        if (!(aspectContext is MethodAspectContext))
+    //            throw new InvalidCastException("Invalid AspectContext Type.");
 
-            return MethodExecuteAsync((MethodAspectContext)aspectContext);
-        }
+    //        return MethodExecuteAsync((MethodAspectContext)aspectContext);
+    //    }
 
-        protected abstract Task MethodExecuteAsync(MethodAspectContext aspectContext);
-    }
+    //    protected abstract Task MethodExecuteAsync(MethodAspectContext aspectContext);
+    //}
 }

@@ -8,11 +8,11 @@ namespace AspectCore.Lite.Test
 {
     public class ServiceProxy : Object
     {
-        private readonly IAspectContextFactoryFactory contextFactoryProvider;
+        private readonly IAspectContextFactoryProvider contextFactoryProvider;
         public void Foo(int age)
         {
             IJoinPoint joinPoint = null;
-            var context = contextFactoryProvider.Create().Create();
+            var context = contextFactoryProvider.ContextFactory.Create();
             var @delegate = joinPoint.Build();
             @delegate(context);
         }

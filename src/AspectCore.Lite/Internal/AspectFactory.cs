@@ -13,26 +13,39 @@ namespace AspectCore.Lite.Abstractions.Internal
     {
         public Aspect Create(Type interceptorType, IPointcut pointcut)
         {
-            if (interceptorType == null) throw new ArgumentNullException(nameof(interceptorType));
+            throw new NotImplementedException();
+        }
+
+        public Aspect Create(IAsyncInterceptor asyncInterceptor, IPointcut pointcut)
+        {
+            if (asyncInterceptor == null) throw new ArgumentNullException(nameof(asyncInterceptor));
             if (pointcut == null) throw new ArgumentNullException(nameof(pointcut));
 
-            TypeInfo interceptorTypeInfo = interceptorType.GetTypeInfo();
-
-            if (interceptorTypeInfo.IsAbstract || interceptorTypeInfo.IsInterface)
-                throw new ArgumentException($"Type {interceptorType.Name} cannot be abstract class or interface.", nameof(interceptorType));
-
-            if (!typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(interceptorTypeInfo))
-                throw new ArgumentException($"Type {interceptorType.Name} cannot create an instance of IInterceptor." , nameof(interceptorType));
-
-            return new Aspect(interceptorType , pointcut);
+            return Aspect.Async(asyncInterceptor, pointcut);
         }
+
+        //public Aspect Create(Type interceptorType, IPointcut pointcut)
+        //{
+        //    if (interceptorType == null) throw new ArgumentNullException(nameof(interceptorType));
+        //    if (pointcut == null) throw new ArgumentNullException(nameof(pointcut));
+
+        //    TypeInfo interceptorTypeInfo = interceptorType.GetTypeInfo();
+
+        //    if (interceptorTypeInfo.IsAbstract || interceptorTypeInfo.IsInterface)
+        //        throw new ArgumentException($"Type {interceptorType.Name} cannot be abstract class or interface.", nameof(interceptorType));
+
+        //    if (!typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(interceptorTypeInfo))
+        //        throw new ArgumentException($"Type {interceptorType.Name} cannot create an instance of IInterceptor." , nameof(interceptorType));
+
+        //    return new Aspect(interceptorType , pointcut);
+        //}
 
         public Aspect Create(IInterceptor interceptor , IPointcut pointcut)
         {
             if (interceptor == null) throw new ArgumentNullException(nameof(interceptor));
             if (pointcut == null) throw new ArgumentNullException(nameof(pointcut));
 
-            return new Aspect(interceptor , pointcut);
+            return Aspect.Sync(interceptor, pointcut);
         }
     }
 }

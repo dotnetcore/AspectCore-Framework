@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Methods.Aspects
 {
-    public class MethodAspect : Aspect
-    {
-        public Func<IServiceProvider , IAdvice> AdviceFactory { get; set; }
+    //public class MethodAspect : Aspect
+    //{
+    //    public Func<IServiceProvider , IAdvice> AdviceFactory { get; set; }
 
-        public IPointcut Pointcut { get; set; }
+    //    public IPointcut Pointcut { get; set; }
 
-        public AspectDelegate CreateDelegate()
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public AspectDelegate CreateDelegate()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

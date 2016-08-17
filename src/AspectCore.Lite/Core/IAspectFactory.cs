@@ -11,6 +11,8 @@ namespace AspectCore.Lite.Core
     {
         Aspect Create(IInterceptor interceptor , IPointcut pointcut);
 
+        Aspect Create(IAsyncInterceptor asyncInterceptor, IPointcut pointcut);
+
         Aspect Create(Type interceptorType , IPointcut pointcut);
     }
 }

@@ -32,28 +32,28 @@ namespace AspectCore.Lite.Abstractions
 
             services.AddSingleton(aspectFactory);
             services.AddSingleton(aspectCollection);
-            services.AddTransient<IAspectContextFactoryFactory, AspectContextFactoryFactory>();
+            services.AddTransient<IAspectContextFactoryProvider, AspectContextFactoryProvider>();
 
-            aspectCollection.ForEach(aspect => AddAspect(services, aspect));
+            //aspectCollection.ForEach(aspect => AddAspect(services, aspect));
 
             return services;
         }
 
-        private static void AddAspect(IServiceCollection services, Aspect aspect)
-        {
-            if (aspect.Interceptor != null)
-            {
-                object interceptor = aspect.Interceptor;
-                services.AddSingleton(interceptor.GetType(), interceptor);
-            }
-            else if (aspect.InterceptorType != null)
-            {
-                services.AddTransient(aspect.InterceptorType);
-            }
-            else
-            {
-                throw new ArgumentException("Aspect information description is not complete.");
-            }
-        }
+        //private static void AddAspect(IServiceCollection services, Aspect aspect)
+        //{
+        //    if (aspect.Interceptor != null)
+        //    {
+        //        object interceptor = aspect.Interceptor;
+        //        services.AddSingleton(interceptor.GetType(), interceptor);
+        //    }
+        //    else if (aspect.InterceptorType != null)
+        //    {
+        //        services.AddTransient(aspect.InterceptorType);
+        //    }
+        //    else
+        //    {
+        //        throw new ArgumentException("Aspect information description is not complete.");
+        //    }
+        //}
     }
 }

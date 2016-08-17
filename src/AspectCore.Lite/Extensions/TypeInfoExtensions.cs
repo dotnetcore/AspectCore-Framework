@@ -14,5 +14,7 @@ namespace AspectCore.Lite.Abstractions.Extensions
         {
             return typeInfo.DeclaredMethods.Where(method => pointCut.IsMatch(method));
         }
+
+       
     }
 }
