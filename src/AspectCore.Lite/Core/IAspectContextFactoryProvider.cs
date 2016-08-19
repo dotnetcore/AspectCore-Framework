@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
-    public interface IInterceptor : IOrderable
+    public interface IAspectContextFactoryProvider
     {
-        void Execute(AspectContext aspectContext, InterceptorDelegate next);
+        IAspectContextFactory ContextFactory { get; }
     }
 }

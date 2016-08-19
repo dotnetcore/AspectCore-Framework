@@ -24,6 +24,30 @@ namespace AspectCore.Lite.Extensions
             return source;
         }
 
+        public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+            HashSet<TKey> set = new HashSet<TKey>();
+            foreach (TSource item in source)
+                if (set.Add(keySelector(item)))
+                    yield return item;
+        }
+
+        public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            HashSet<TKey> set = new HashSet<TKey>();
+            foreach (TSource item in source)
+            {
+                if (predicate(item)) if (set.Add(keySelector(item)) == false) continue;
+                yield return item;
+            }
+        }
+
+
         //public static void For<T>(T index, Predicate<T> predicate, Func<T, T> func, Action<T> action)
         //{
         //    for (T i = index; predicate(i); i = func(i))

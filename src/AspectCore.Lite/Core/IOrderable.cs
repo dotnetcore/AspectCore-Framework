@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
-    public interface IInterceptor : IOrderable
+    public interface IOrderable : IComparable<IOrderable>
     {
-        void Execute(AspectContext aspectContext, InterceptorDelegate next);
+        int Order { get; set; }
     }
 }
