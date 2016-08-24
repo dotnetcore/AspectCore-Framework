@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Core.Descriptors
 {
-
     public sealed class ParameterCollection : IEnumerable<ParameterDescriptor>, IReadOnlyList<ParameterDescriptor>
     {
         private readonly IDictionary<string, ParameterDescriptor> parameterEntries;

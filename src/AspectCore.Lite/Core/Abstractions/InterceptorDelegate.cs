@@ -6,6 +6,4 @@ using System.Threading.Tasks;
 namespace AspectCore.Lite.Core
 {
     public delegate void InterceptorDelegate(AspectContext aspectContext);
-
- 
 }

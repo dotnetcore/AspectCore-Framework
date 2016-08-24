@@ -1,24 +1,18 @@
-﻿
-using AspectCore.Lite.Abstractions.Internal;
-using AspectCore.Lite.Core;
+﻿using AspectCore.Lite.Core;
 using AspectCore.Lite.Extensions;
 using AspectCore.Lite.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceProvider BuildAspectServiceProvider(this IServiceCollection services)
-        {
-            if (services == null) throw new ArgumentNullException(nameof(services));
+        //public static IServiceProvider BuildAspectServiceProvider(this IServiceCollection services)
+        //{
+        //    if (services == null) throw new ArgumentNullException(nameof(services));
 
-            return services.BuildServiceProvider();
-        }
+        //    return services.BuildServiceProvider();
+        //}
 
         public static IServiceCollection AddAspects(this IServiceCollection services)
         {
