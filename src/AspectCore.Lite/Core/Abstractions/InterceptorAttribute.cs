@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface , AllowMultiple = false, Inherited = true)]
     public abstract class InterceptorAttribute : Attribute, IInterceptor, IOrderable
     {
         public int Order { get; set; }

@@ -25,6 +25,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Sample.Web"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.Test", "test\AspectCore.Lite.Test\AspectCore.Lite.Test.xproj", "{F1DDD0FC-BEBC-4479-8BBA-10D7C8AE1A46}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspectCore.Lite.DependencyInjection", "src\AspectCore.Lite.DependencyInjection\AspectCore.Lite.DependencyInjection.xproj", "{A6E130F4-8643-4585-8403-0F1879B0A594}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{F1DDD0FC-BEBC-4479-8BBA-10D7C8AE1A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1DDD0FC-BEBC-4479-8BBA-10D7C8AE1A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1DDD0FC-BEBC-4479-8BBA-10D7C8AE1A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6E130F4-8643-4585-8403-0F1879B0A594}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6E130F4-8643-4585-8403-0F1879B0A594}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6E130F4-8643-4585-8403-0F1879B0A594}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6E130F4-8643-4585-8403-0F1879B0A594}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,5 +67,6 @@ Global
 		{28BC1BCF-EE46-44D5-AF8C-D7267D18CB6E} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
 		{2F7F66B6-71FA-4A96-87A4-1A01C33EA42E} = {329F8C44-9C3F-4E29-BEC9-9164275E5ED4}
 		{F1DDD0FC-BEBC-4479-8BBA-10D7C8AE1A46} = {2DFB45E4-F9D9-472C-93E4-224E3C210FCB}
+		{A6E130F4-8643-4585-8403-0F1879B0A594} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
 	EndGlobalSection
 EndGlobal

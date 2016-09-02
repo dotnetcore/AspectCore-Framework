@@ -16,12 +16,14 @@ namespace AspectCore.Lite.Internal
             {
                 if (key == null) return false;
 
-                if (!key.IsVirtual) return false;
-
                 TypeInfo declaringTypeInfo = key.DeclaringType.GetTypeInfo();
 
                 if (!declaringTypeInfo.IsClass)
                     throw new ArgumentException("DeclaringType should be class", nameof(method));
+
+                if (key.IsStatic) return false;
+
+                if (!key.IsVirtual) return false;
 
                 if (PointcutUtils.IsMemberMatch(declaringTypeInfo)) return true;
 

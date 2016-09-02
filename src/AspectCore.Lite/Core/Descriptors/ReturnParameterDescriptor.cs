@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Core.Descriptors
 {
     public sealed class ReturnParameterDescriptor : ParameterDescriptor
     {
