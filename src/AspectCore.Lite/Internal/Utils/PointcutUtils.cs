@@ -18,12 +18,10 @@ namespace AspectCore.Lite.Internal.Utils
         private readonly static IPointcut virtualMethodPointcut = new VirtualMethodPointcut();
         private readonly static IPointcut interfacePointcut = new InterfacePointcut();
 
-        internal static bool IsMemberMatch(MemberInfo member)
+        internal static bool IsMemberMatch(MethodInfo method , TypeInfo declaringTypeInfo)
         {
-            if (member == null) return false;
-            MethodInfo method = member as MethodInfo;
-            bool isAsync = method == null ? true : method.IsAsync();
-            return member.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType, isAsync));
+            if (declaringTypeInfo.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType , method.IsAsync()))) return true;
+            return method.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType , method.IsAsync()));
         }
 
         private static bool IsAssignableFrom(Type attributeType, bool isAsync)
