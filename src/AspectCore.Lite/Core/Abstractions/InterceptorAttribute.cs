@@ -7,17 +7,9 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface , AllowMultiple = false, Inherited = true)]
-    public abstract class InterceptorAttribute : Attribute, IInterceptor, IOrderable
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+    public abstract class InterceptorAttribute : OrderableAttribute, IInterceptor, IOrderable, IInjectable
     {
-        public int Order { get; set; }
-
-        public int CompareTo(IOrderable other)
-        {
-            if (other == null) return 1;
-            return Order.CompareTo(other.Order);
-        }
-
         public abstract void Execute(AspectContext aspectContext, InterceptorDelegate next);
     }
 }

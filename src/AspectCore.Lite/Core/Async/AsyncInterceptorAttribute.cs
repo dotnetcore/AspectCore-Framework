@@ -5,17 +5,9 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core.Async
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface , AllowMultiple = false , Inherited = true)]
-    public abstract class AsyncInterceptorAttribute : Attribute, IAsyncInterceptor, IOrderable
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+    public abstract class AsyncInterceptorAttribute : OrderableAttribute, IAsyncInterceptor, IInjectable
     {
-        public int Order { get; set; }
-
-        public int CompareTo(IOrderable other)
-        {
-            if (other == null) return 1;
-            return Order.CompareTo(other.Order);
-        }
-
-        public abstract Task ExecuteAsync(AspectContext aspectContext , AsyncInterceptorDelegate next);
+        public abstract Task ExecuteAsync(AspectContext aspectContext, AsyncInterceptorDelegate next);
     }
 }
