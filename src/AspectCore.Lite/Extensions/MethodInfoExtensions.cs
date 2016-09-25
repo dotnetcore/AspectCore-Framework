@@ -13,8 +13,9 @@ namespace AspectCore.Lite.Extensions
         {
             if (methodInfo == null) throw new ArgumentNullException(nameof(methodInfo));
             Type returnType = methodInfo.ReturnType;
-            if (!(returnType == typeof(void) || typeof(Task).GetTypeInfo().IsAssignableFrom(returnType))) return false;
-            return methodInfo.IsDefined(typeof(AsyncStateMachineAttribute));
+            if (returnType == typeof(Task) || typeof(Task).GetTypeInfo().IsAssignableFrom(returnType))
+                return true;
+            return false;
         }
     }
 }
