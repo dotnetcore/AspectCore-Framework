@@ -28,7 +28,7 @@ namespace AspectCore.Lite.Core
             ProxyType = proxyType;
         }
 
-        public void InjectionParameters(ParameterCollection parameterCollection)
+        internal void InjectionParameters(ParameterCollection parameterCollection)
         {
             if (parameterCollection == null)
             {

@@ -33,7 +33,7 @@ namespace AspectCore.Lite.Core
             Instance = implementationInstance;
         }
 
-        public void InjectionParameters(ParameterCollection parameterCollection)
+        internal void InjectionParameters(ParameterCollection parameterCollection)
         {
             if (parameterCollection == null)
             {
