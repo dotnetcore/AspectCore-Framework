@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AspectCore.Lite.Abstractions
+namespace AspectCore.Lite.Internal
 {
     internal sealed class AspectCollection : IAspectCollection
     {

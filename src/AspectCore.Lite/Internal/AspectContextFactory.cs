@@ -5,10 +5,8 @@ namespace AspectCore.Lite.Internal
 {
     internal class AspectContextFactory: IAspectContextFactory
     {
-        private readonly IServiceProvider _serviceProvider;
-        public AspectContextFactory(IServiceProvider serviceProvider)
+        public AspectContextFactory()
         {
-            _serviceProvider = serviceProvider;
         }
 
         public AspectContext Create()
