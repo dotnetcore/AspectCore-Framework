@@ -1,8 +1,5 @@
 ﻿using AspectCore.Lite.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Reflection;
 using AspectCore.Lite.Internal.Utils;
 
@@ -28,6 +25,8 @@ namespace AspectCore.Lite.Internal
                 throw new ArgumentException("DeclaringType cannot be sealed" , nameof(method));
 
             if (method.IsStatic) return false;
+
+            if (method.IsPrivate) return false;
 
             if (!method.IsVirtual) return false;
 

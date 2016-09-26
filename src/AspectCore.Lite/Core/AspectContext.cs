@@ -1,9 +1,6 @@
 ﻿using AspectCore.Lite.Core.Descriptors;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
@@ -18,21 +15,24 @@ namespace AspectCore.Lite.Core
         public ParameterCollection Parameters { get; }
         public ParameterDescriptor ReturnParameter { get; }
 
-        protected internal AspectContext(IServiceProvider serviceProvider)
+        protected internal AspectContext(Target target, Proxy proxy, ParameterCollection parameters, ParameterDescriptor returnParameter, IServiceProvider serviceProvider)
         {
-            if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
             ApplicationServices = serviceProvider;
             serviceScope = ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
             AspectServices = serviceScope.ServiceProvider;
-        }
 
-        protected internal AspectContext(Target target, Proxy proxy, ParameterCollection parameters, ParameterDescriptor returnParameter, IServiceProvider serviceProvider)
-            : this(serviceProvider)
-        {
             Proxy = proxy;
             Target = target;
             Parameters = parameters;
             ReturnParameter = returnParameter;
+
+            Proxy.InjectionParameters(Parameters);
+            Target.InjectionParameters(Parameters);
         }
 
         public virtual void Dispose()

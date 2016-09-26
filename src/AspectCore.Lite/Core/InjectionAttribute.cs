@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
@@ -9,10 +6,6 @@ namespace AspectCore.Lite.Core
     public sealed class InjectionAttribute : Attribute
     {
         public Type ServiceType { get; }
-
-        public InjectionAttribute()
-        {
-        }
 
         public InjectionAttribute(Type serviceType)
         {

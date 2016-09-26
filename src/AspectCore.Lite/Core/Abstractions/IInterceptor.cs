@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Core
 {
-    public interface IInterceptor : IOrderable
+    public interface IInterceptor
     {
-        void Execute(AspectContext aspectContext, InterceptorDelegate next);
+        int Order { get; set; }
+        Task ExecuteAsync(AspectContext aspectContext, InterceptorDelegate next);
     }
 }

@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using AspectCore.Lite.Core.Descriptors;
 
 namespace AspectCore.Lite.Core
 {
     public sealed class Target : IMethodInvoker
     {
+        private ParameterCollection parameterCollection;
         public MethodInfo Method { get; }
         public Type ServiceType { get; }
         public Type ImplementationType { get; }
         public object Instance { get; }
 
-        internal Target(MethodInfo method , Type serviceType , Type implementationType , object implementationInstance)
+        internal Target(MethodInfo method, Type serviceType, Type implementationType, object implementationInstance)
         {
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
@@ -34,10 +33,19 @@ namespace AspectCore.Lite.Core
             Instance = implementationInstance;
         }
 
-        public object Invoke(ParameterCollection parameterCollection)
+        public void InjectionParameters(ParameterCollection parameterCollection)
+        {
+            if (parameterCollection == null)
+            {
+                throw new ArgumentNullException(nameof(parameterCollection));
+            }
+            this.parameterCollection = parameterCollection;
+        }
+
+        public object Invoke()
         {
             object[] args = parameterCollection.Select(p => p.Value).ToArray();
-            return Method.Invoke(Instance , args); throw new NotImplementedException();
+            return Method.Invoke(Instance, args);
         }
     }
 }
