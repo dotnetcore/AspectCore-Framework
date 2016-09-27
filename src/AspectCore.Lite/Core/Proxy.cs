@@ -7,7 +7,7 @@ namespace AspectCore.Lite.Core
 {
     public sealed class Proxy : IMethodInvoker
     {
-        private ParameterCollection parameterCollection;
+        internal ParameterCollection ParameterCollection { get; set; }
         public object Instance { get; }
         public MethodInfo Method { get; }
         public Type ProxyType { get; }
@@ -28,18 +28,9 @@ namespace AspectCore.Lite.Core
             ProxyType = proxyType;
         }
 
-        internal void InjectionParameters(ParameterCollection parameterCollection)
-        {
-            if (parameterCollection == null)
-            {
-                throw new ArgumentNullException(nameof(parameterCollection));
-            }
-            this.parameterCollection = parameterCollection;
-        }
-
         public object Invoke()
         {
-            object[] args = parameterCollection.Select(p => p.Value).ToArray();
+            object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
             return Method.Invoke(Instance, args);
         }
     }

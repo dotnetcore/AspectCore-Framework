@@ -7,7 +7,7 @@ namespace AspectCore.Lite.Core
 {
     public sealed class Target : IMethodInvoker
     {
-        private ParameterCollection parameterCollection;
+        internal ParameterCollection ParameterCollection { get; set; }
         public MethodInfo Method { get; }
         public Type ServiceType { get; }
         public Type ImplementationType { get; }
@@ -33,18 +33,9 @@ namespace AspectCore.Lite.Core
             Instance = implementationInstance;
         }
 
-        internal void InjectionParameters(ParameterCollection parameterCollection)
-        {
-            if (parameterCollection == null)
-            {
-                throw new ArgumentNullException(nameof(parameterCollection));
-            }
-            this.parameterCollection = parameterCollection;
-        }
-
         public object Invoke()
         {
-            object[] args = parameterCollection.Select(p => p.Value).ToArray();
+            object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
             return Method.Invoke(Instance, args);
         }
     }

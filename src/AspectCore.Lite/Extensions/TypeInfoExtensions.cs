@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Abstractions.Extensions
+namespace AspectCore.Lite.Extensions
 {
     internal static class TypeInfoExtensions
     {

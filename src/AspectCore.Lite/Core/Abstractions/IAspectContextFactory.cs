@@ -2,7 +2,7 @@
 {
     public interface IAspectContextFactory
     {
-        AspectContext Create();
+        IAspectContext Create();
 
     }
 }

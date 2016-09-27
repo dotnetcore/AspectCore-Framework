@@ -5,13 +5,15 @@ namespace AspectCore.Lite.Internal
 {
     internal class AspectContextFactory: IAspectContextFactory
     {
+        private readonly Proxy proxy;
+        private readonly Target target;
         public AspectContextFactory()
         {
         }
 
-        public AspectContext Create()
+        public IAspectContext Create()
         {
-            return new InternalAspectContext(null, null, null, null);
+            return new AspectContext(null , null , null , null , null);
         }
     }
 }

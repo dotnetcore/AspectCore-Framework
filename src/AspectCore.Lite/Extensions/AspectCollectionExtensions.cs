@@ -1,7 +1,7 @@
 ﻿using AspectCore.Lite.Core;
 using System;
 
-namespace AspectCore.Lite
+namespace AspectCore.Lite.Extensions
 {
     public static class AspectCollectionExtensions
     {
