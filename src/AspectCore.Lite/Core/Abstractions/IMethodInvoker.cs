@@ -1,6 +1,6 @@
-﻿using AspectCore.Lite.Core.Descriptors;
+﻿using AspectCore.Lite.Abstractions.Descriptors;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Abstractions
 {
     public interface IMethodInvoker
     {

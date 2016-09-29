@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Abstractions
 {
     public interface IPointcut
     {

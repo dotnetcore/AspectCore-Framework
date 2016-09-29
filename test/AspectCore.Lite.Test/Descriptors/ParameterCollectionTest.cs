@@ -1,6 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions.Test.Fakes;
-using AspectCore.Lite.Core;
-using AspectCore.Lite.Core.Descriptors;
+using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.Abstractions.Descriptors;
 using Microsoft.AspNetCore.Testing;
 using System;
 using System.Collections;

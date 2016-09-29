@@ -1,9 +1,9 @@
-﻿using AspectCore.Lite.Core;
+﻿using AspectCore.Lite.Abstractions;
 using System;
 
 namespace AspectCore.Lite.Internal
 {
-    internal class AspectContextFactory: IAspectContextFactory
+    internal class AspectContextFactory : IAspectContextFactory
     {
         private readonly Proxy proxy;
         private readonly Target target;
@@ -13,7 +13,7 @@ namespace AspectCore.Lite.Internal
 
         public IAspectContext Create()
         {
-            return new AspectContext(null , null , null , null , null);
+            return new AspectContext(null);
         }
     }
 }

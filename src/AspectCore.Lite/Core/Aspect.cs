@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Abstractions
 {
     public sealed class Aspect
     {

@@ -1,4 +1,4 @@
-﻿namespace AspectCore.Lite.Core
+﻿namespace AspectCore.Lite.Abstractions
 {
     /// <summary>
     /// ImplementType of IInjectable is searched method named Injection , injection type you need in the parameters of the method.
