@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Lite.Core.Descriptors;
+using AspectCore.Lite.Abstractions.Descriptors;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Abstractions
 {
     public sealed class Target : IMethodInvoker
     {

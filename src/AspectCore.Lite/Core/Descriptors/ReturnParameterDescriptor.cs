@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Lite.Core.Descriptors
+namespace AspectCore.Lite.Abstractions
 {
     public sealed class ReturnParameterDescriptor : ParameterDescriptor
     {

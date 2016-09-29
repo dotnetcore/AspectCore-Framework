@@ -1,4 +1,4 @@
-﻿using AspectCore.Lite.Core;
+﻿using AspectCore.Lite.Abstractions;
 using System;
 
 namespace AspectCore.Lite.Internal

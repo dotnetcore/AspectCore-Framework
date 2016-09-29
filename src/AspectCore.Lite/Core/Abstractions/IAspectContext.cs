@@ -1,7 +1,7 @@
-﻿using AspectCore.Lite.Core.Descriptors;
+﻿using AspectCore.Lite.Abstractions.Descriptors;
 using System;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Abstractions
 {
     public interface IAspectContext : IDisposable
     {

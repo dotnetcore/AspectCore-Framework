@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Core.Descriptors
+namespace AspectCore.Lite.Abstractions
 {
     public sealed class ParameterCollection : IEnumerable<ParameterDescriptor>, IReadOnlyList<ParameterDescriptor>
     {
