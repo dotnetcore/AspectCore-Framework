@@ -13,8 +13,19 @@ namespace AspectCore.Lite.Test
         {
             IJoinPoint joinPoint = null;
             var context = contextFactoryProvider.ContextFactory.Create();
+
+            IInterceptor t = null;
+
+            joinPoint.AddInterceptor(next =>
+            {
+                return c =>
+                {
+                    return t.ExecuteAsync(c , next);
+                };
+            });
+
             var @delegate = joinPoint.Build();
-            @delegate(context);
+            var result = @delegate(context);
         }
     }
 }
