@@ -1,11 +1,7 @@
-﻿
-using AspectCore.Lite.Core;
+﻿using AspectCore.Lite.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite
+namespace AspectCore.Lite.Extensions
 {
     public static class AspectCollectionExtensions
     {

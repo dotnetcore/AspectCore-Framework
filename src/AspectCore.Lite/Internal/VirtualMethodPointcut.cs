@@ -1,8 +1,5 @@
 ﻿using AspectCore.Lite.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Reflection;
 using AspectCore.Lite.Internal.Utils;
 
@@ -12,25 +9,30 @@ namespace AspectCore.Lite.Internal
     {
         public bool IsMatch(MethodInfo method)
         {
-            return PointcutUtils.IsMatchCache(method, key =>
-            {
-                if (key == null) return false;
+            return PointcutUtils.IsMatchCache(method , IsMatchCache);
+        }
 
-                TypeInfo declaringTypeInfo = key.DeclaringType.GetTypeInfo();
+        private bool IsMatchCache(MethodInfo method)
+        {
+            if (method == null) return false;
 
-                if (!declaringTypeInfo.IsClass)
-                    throw new ArgumentException("DeclaringType should be class", nameof(method));
+            TypeInfo declaringTypeInfo = method.DeclaringType.GetTypeInfo();
 
-                if (key.IsStatic) return false;
+            if (!declaringTypeInfo.IsClass)
+                throw new ArgumentException("DeclaringType should be class" , nameof(method));
 
-                if (!key.IsVirtual) return false;
+            if (declaringTypeInfo.IsSealed)
+                throw new ArgumentException("DeclaringType cannot be sealed" , nameof(method));
 
-                if (PointcutUtils.IsMemberMatch(declaringTypeInfo)) return true;
+            if (method.IsStatic) return false;
 
-                if (PointcutUtils.IsMemberMatch(key)) return true;
+            if (method.IsPrivate) return false;
 
-                return false;
-            });
+            if (!method.IsVirtual) return false;
+
+            if (PointcutUtils.IsMemberMatch(method , declaringTypeInfo)) return true;
+
+            return false;
         }
     }
 }

@@ -2,11 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-
-namespace AspectCore.Lite.Abstractions
+namespace AspectCore.Lite.Internal
 {
     internal sealed class AspectCollection : IAspectCollection
     {

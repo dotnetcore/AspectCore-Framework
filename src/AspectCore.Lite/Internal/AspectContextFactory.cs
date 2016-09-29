@@ -1,22 +1,19 @@
 ﻿using AspectCore.Lite.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Internal
 {
     internal class AspectContextFactory: IAspectContextFactory
     {
-        private readonly IServiceProvider _serviceProvider;
-        public AspectContextFactory(IServiceProvider serviceProvider)
+        private readonly Proxy proxy;
+        private readonly Target target;
+        public AspectContextFactory()
         {
-            _serviceProvider = serviceProvider;
         }
 
-        public AspectContext Create()
+        public IAspectContext Create()
         {
-            return new AspectContext(null, null, null, null, _serviceProvider);
+            return new AspectContext(null , null , null , null , null);
         }
     }
 }

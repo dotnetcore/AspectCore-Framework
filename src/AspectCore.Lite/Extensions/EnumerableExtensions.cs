@@ -46,19 +46,5 @@ namespace AspectCore.Lite.Extensions
                 yield return item;
             }
         }
-
-
-        //public static void For<T>(T index, Predicate<T> predicate, Func<T, T> func, Action<T> action)
-        //{
-        //    for (T i = index; predicate(i); i = func(i))
-        //    {
-        //        action(i);
-        //    }
-        //}
-
-        //public static void AA()
-        //{
-        //    For(0, i => i < 10, i => i + 1, i => Console.WriteLine(i));
-        //}
     }
 }

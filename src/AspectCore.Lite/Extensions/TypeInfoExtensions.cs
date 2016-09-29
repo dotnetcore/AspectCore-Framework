@@ -1,13 +1,10 @@
-﻿
-using AspectCore.Lite.Core;
+﻿using AspectCore.Lite.Core;
 using AspectCore.Lite.Internal.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Extensions
+namespace AspectCore.Lite.Extensions
 {
     internal static class TypeInfoExtensions
     {
