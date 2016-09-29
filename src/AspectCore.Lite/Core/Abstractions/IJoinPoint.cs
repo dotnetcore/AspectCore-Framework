@@ -1,12 +1,10 @@
 ﻿using System;
 
-namespace AspectCore.Lite.Core
+namespace AspectCore.Lite.Abstractions
 {
     public interface IJoinPoint
     {
-        Target Target { get; set; }
-
-        Proxy Proxy { get; set; }
+        IMethodInvoker ProxyMethodInvoker { get; set; }
 
         void AddInterceptor(Func<InterceptorDelegate, InterceptorDelegate> @delegate);
 

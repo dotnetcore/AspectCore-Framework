@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Core.Descriptors
+namespace AspectCore.Lite.Abstractions
 {
     public class ParameterDescriptor
     {
