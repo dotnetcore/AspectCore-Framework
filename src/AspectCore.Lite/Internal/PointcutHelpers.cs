@@ -4,9 +4,9 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Internal.Utils
+namespace AspectCore.Lite.Internal
 {
-    internal static class PointcutUtils
+    internal static class PointcutHelpers
     {
         private readonly static TypeInfo InterceptorTypeInfo = typeof(IInterceptor).GetTypeInfo();
         private readonly static ConcurrentDictionary<MethodInfo, bool> pointcutCache = new ConcurrentDictionary<MethodInfo, bool>();

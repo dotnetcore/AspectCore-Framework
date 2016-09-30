@@ -1,7 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
 using System.Reflection;
-using AspectCore.Lite.Internal.Utils;
 
 namespace AspectCore.Lite.Internal
 {
@@ -9,7 +8,7 @@ namespace AspectCore.Lite.Internal
     {
         public bool IsMatch(MethodInfo method)
         {
-            return PointcutUtils.IsMatchCache(method , IsMatchCache);
+            return PointcutHelpers.IsMatchCache(method , IsMatchCache);
         }
 
         private bool IsMatchCache(MethodInfo method)
@@ -21,7 +20,7 @@ namespace AspectCore.Lite.Internal
             if (!declaringTypeInfo.IsInterface)
                 throw new ArgumentException("DeclaringType should be Interface" , nameof(method));
 
-            if (PointcutUtils.IsMemberMatch(method , declaringTypeInfo)) return true;
+            if (PointcutHelpers.IsMemberMatch(method , declaringTypeInfo)) return true;
 
             return false;
         }

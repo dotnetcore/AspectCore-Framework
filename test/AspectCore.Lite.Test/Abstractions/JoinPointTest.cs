@@ -1,7 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
@@ -88,8 +87,8 @@ namespace AspectCore.Lite.Test.Abstractions
             }
             var context = Substitute.For<IAspectContext>();
             context.ReturnParameter.Returns(new ReturnParameterDescriptor(0, MeaninglessService.Parameters[1]));
-            var @delegate = joinPoint.Build();
-            await @delegate(context);
+            var interceptorDelegate = joinPoint.Build();
+            await interceptorDelegate(context);
             int returnValue = (int)context.ReturnParameter.Value;
             Assert.Equal(returnValue, 5);
         }

@@ -1,5 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Internal.Utils;
+using AspectCore.Lite.Internal;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,7 +15,7 @@ namespace AspectCore.Lite.Extensions
 
         internal static bool CanProxy(this TypeInfo typeInfo)
         {
-            IPointcut pointcut = PointcutUtils.GetPointcut(typeInfo);
+            IPointcut pointcut = PointcutHelpers.GetPointcut(typeInfo);
             return typeInfo.DeclaredMethods.Any(method => pointcut.IsMatch(method));
         }
     }
