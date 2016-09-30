@@ -4,13 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Test.Fakes
+namespace AspectCore.Lite.Test.Fakes
 {
     public class MeaninglessService
     {
         public void MeaninglessFunc(string name, int count, MeaninglessService service, object obj)
         {
-
         }
 
         public static MethodInfo MeaninglessFuncMethod = typeof(MeaninglessService).GetTypeInfo().GetMethod("MeaninglessFunc");

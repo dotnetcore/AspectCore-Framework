@@ -1,6 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
-using AspectCore.Lite.Abstractions.Descriptors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Lite.Internal

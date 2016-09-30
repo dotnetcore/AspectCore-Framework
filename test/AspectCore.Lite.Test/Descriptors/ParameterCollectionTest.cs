@@ -1,11 +1,9 @@
-﻿using AspectCore.Lite.Abstractions.Test.Fakes;
+﻿using AspectCore.Lite.Test.Fakes;
 using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Abstractions.Descriptors;
 using Microsoft.AspNetCore.Testing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Xunit;
 

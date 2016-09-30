@@ -4,7 +4,7 @@ namespace AspectCore.Lite.Abstractions
 {
     public sealed class ReturnParameterDescriptor : ParameterDescriptor
     {
-        internal ReturnParameterDescriptor(object value , ParameterInfo parameterInfo) : base(value , parameterInfo)
+        public ReturnParameterDescriptor(object value , ParameterInfo parameterInfo) : base(value , parameterInfo)
         {
         }
 
