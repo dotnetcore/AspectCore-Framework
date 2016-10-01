@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
 
-namespace AspectCore.Lite.Test.Descriptors
+namespace AspectCore.Lite.Test.Abstractions.Descriptors
 {
     public class ParameterCollectionTest
     {

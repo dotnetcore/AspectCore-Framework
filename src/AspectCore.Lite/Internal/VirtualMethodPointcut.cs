@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Internal
 {
-    public class VirtualMethodPointcut : IPointcut
+    internal class VirtualMethodPointcut : IPointcut
     {
         public bool IsMatch(MethodInfo method)
         {
