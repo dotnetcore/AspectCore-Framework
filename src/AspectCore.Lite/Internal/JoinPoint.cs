@@ -38,7 +38,7 @@ namespace AspectCore.Lite.Internal
             {
                 var result = ProxyMethodInvoker.Invoke();
                 context.ReturnParameter.Value = result;
-                return TaskHelpers.FromVoid;
+                return CompletedTask.Default;
             };
 
             foreach (var @delegate in delegates.Reverse())
