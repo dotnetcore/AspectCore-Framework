@@ -9,37 +9,55 @@ namespace AspectCore.Lite.Extensions
 {
     public static class TaskExtensions
     {
-        public static void Execute(this Task task , TaskExecutingOptions options = TaskExecutingOptions.CurrentThread)
-        {
-            if(task==null)
-            {
-                throw new ArgumentNullException(nameof(task));
-            }
-            var executingTask = Task.Factory.StartNew(() => task , CancellationToken.None , TaskCreationOptions.None , GetTaskScheduler(options)).Unwrap();
-            executingTask.GetAwaiter().GetResult();
-        }
-
-        public static T Execute<T>(this Task<T> task , TaskExecutingOptions options = TaskExecutingOptions.CurrentThread)
+        public static void WaitWithAsync(this Task task)
         {
             if (task == null)
             {
                 throw new ArgumentNullException(nameof(task));
             }
-            var executingTask = Task.Factory.StartNew(() => task , CancellationToken.None , TaskCreationOptions.None , GetTaskScheduler(options)).Unwrap();
-            return executingTask.GetAwaiter().GetResult();
+            if (task.IsCompleted)
+            {
+                return;
+            }
+            if(task.IsCanceled)
+            {
+                throw new InvalidOperationException("Task has been canceled.");
+            }
+            if(task.IsFaulted)
+            {
+                throw task.Exception;
+            }
+            var executingTask = Task.Factory.StartNew(() => task, CancellationToken.None, TaskCreationOptions.None, TaskSchedulerManager<CurrentThreadTaskScheduler>.Default).Unwrap();
+            executingTask.GetAwaiter().GetResult();
         }
 
-        private static TaskScheduler GetTaskScheduler(TaskExecutingOptions options)
+        public static T WaitWithAsync<T>(this Task<T> task)
         {
-            switch(options)
+            if (task == null)
             {
-                case TaskExecutingOptions.CurrentThread:
-                    return TaskSchedulerManager<CurrentThreadTaskScheduler>.Default;
-                case TaskExecutingOptions.ThreadPer:
-                    return TaskSchedulerManager<ThreadPerTaskScheduler>.Default;
-                default:
-                    return TaskScheduler.Current;
+                throw new ArgumentNullException(nameof(task));
             }
+            if (task.IsCompleted)
+            {
+                return task.Result;
+            }
+            if (task.IsCanceled)
+            {
+                throw new InvalidOperationException("Task has been canceled.");
+            }
+            if (task.IsFaulted)
+            {
+                throw task.Exception;
+            }
+            var executingTask = Task.Factory.StartNew(() => task, CancellationToken.None, TaskCreationOptions.None, TaskSchedulerManager<CurrentThreadTaskScheduler>.Default).Unwrap();
+            return executingTask.GetAwaiter().GetResult();
         }
+    }
+
+    internal enum TaskExecutingOptions
+    {
+        None,
+        CurrentThread,
+        ThreadPer
     }
 }

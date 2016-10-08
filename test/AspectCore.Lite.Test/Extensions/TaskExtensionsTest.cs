@@ -17,18 +17,19 @@ namespace AspectCore.Lite.Test.Extensions
         public void Task_FromResult_Execute_Test(object result)
         {
             var task = Task.FromResult(result);
-            Assert.Equal(task.Execute() , result);
+            Assert.Equal(task.WaitWithAsync() , result);
         }
 
         [Theory]
         [InlineData(0)]
         [InlineData(100)]
         [InlineData(1000)]
+        [InlineData(5000)]
         public void Task_Delay_Execute_Test(int millisecondsDelay)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             var task = Task.Delay(millisecondsDelay);
-            task.Execute();
+            task.WaitWithAsync();
             Assert.True(stopwatch.ElapsedMilliseconds >= millisecondsDelay);
         }
 
@@ -39,7 +40,7 @@ namespace AspectCore.Lite.Test.Extensions
         public void Task_Run_Execute_Test(object result)
         {
             var task = Task.Run(() => result);
-            Assert.Equal(task.Execute() , result);
+            Assert.Equal(task.WaitWithAsync() , result);
         }
 
         [Theory]
@@ -49,7 +50,7 @@ namespace AspectCore.Lite.Test.Extensions
         public void Task_ContinueWith_Execute_Test(object result)
         {
             var task = Task.Run(() => result).ContinueWith(t => t.Result);
-            Assert.Equal(task.Execute() , result);
+            Assert.Equal(task.WaitWithAsync() , result);
         }
 
         [Theory]
@@ -59,7 +60,7 @@ namespace AspectCore.Lite.Test.Extensions
         public void Task_YieldAsync_Execute_Test(object result)
         {
             var task = Yield_Test_Async(result);
-            Assert.Equal(task.Execute() , result);
+            Assert.Equal(task.WaitWithAsync() , result);
         }
 
         [Theory]
@@ -69,7 +70,7 @@ namespace AspectCore.Lite.Test.Extensions
         public void Task_RunAsync_Execute_Test(object result)
         {
             var task = Run_Test_Async(result);
-            Assert.Equal(task.Execute() , result);
+            Assert.Equal(task.WaitWithAsync() , result);
         }
 
         private async Task<object> Yield_Test_Async(object data)
