@@ -9,11 +9,12 @@ namespace AspectCore.Lite.Test
 {
     public static class DependencyResolver
     {
-        public static IServiceProvider GetServiceProvider()
+        public static IServiceProvider GetServiceProvider(Action<IServiceCollection> action = null)
         {
             IServiceCollection services = new ServiceCollection();
 
             services.AddAspectLite();
+            action?.Invoke(services);
 
             return services.BuildServiceProvider();
         }

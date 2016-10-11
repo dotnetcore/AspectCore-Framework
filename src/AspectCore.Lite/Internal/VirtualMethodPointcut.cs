@@ -8,7 +8,7 @@ namespace AspectCore.Lite.Internal
     {
         public bool IsMatch(MethodInfo method)
         {
-            return PointcutHelpers.IsMatchCache(method , IsMatchCache);
+            return PointcutUtilities.IsMatchCache(method , IsMatchCache);
         }
 
         private bool IsMatchCache(MethodInfo method)
@@ -18,10 +18,10 @@ namespace AspectCore.Lite.Internal
             TypeInfo declaringTypeInfo = method.DeclaringType.GetTypeInfo();
 
             if (!declaringTypeInfo.IsClass)
-                throw new ArgumentException("DeclaringType should be class" , nameof(method));
+                throw new ArgumentException("DeclaringType should be class." , nameof(method));
 
             if (declaringTypeInfo.IsSealed)
-                throw new ArgumentException("DeclaringType cannot be sealed" , nameof(method));
+                throw new ArgumentException("DeclaringType cannot be sealed." , nameof(method));
 
             if (method.IsStatic) return false;
 
@@ -29,7 +29,7 @@ namespace AspectCore.Lite.Internal
 
             if (!method.IsVirtual) return false;
 
-            if (PointcutHelpers.IsMemberMatch(method , declaringTypeInfo)) return true;
+            if (PointcutUtilities.IsMemberMatch(method , declaringTypeInfo)) return true;
 
             return false;
         }

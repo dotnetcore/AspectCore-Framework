@@ -15,7 +15,7 @@ namespace AspectCore.Lite.Extensions
 
         internal static bool CanProxy(this TypeInfo typeInfo)
         {
-            IPointcut pointcut = PointcutHelpers.GetPointcut(typeInfo);
+            IPointcut pointcut = PointcutUtilities.GetPointcut(typeInfo);
             return typeInfo.DeclaredMethods.Any(method => pointcut.IsMatch(method));
         }
     }

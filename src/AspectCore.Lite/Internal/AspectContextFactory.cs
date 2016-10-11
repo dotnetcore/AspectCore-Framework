@@ -5,15 +5,15 @@ namespace AspectCore.Lite.Internal
 {
     internal class AspectContextFactory : IAspectContextFactory
     {
-        private readonly Proxy proxy;
-        private readonly Target target;
-        public AspectContextFactory()
+        private readonly IServiceProvider serviceProvider;
+        public AspectContextFactory(IServiceProvider serviceProvider)
         {
+            this.serviceProvider = serviceProvider;
         }
 
         public IAspectContext Create()
         {
-            return new AspectContext(null);
+            return new AspectContext(serviceProvider);
         }
     }
 }

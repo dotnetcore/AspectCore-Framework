@@ -1,8 +1,8 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Internal.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Internal
 {
@@ -38,7 +38,7 @@ namespace AspectCore.Lite.Internal
             {
                 var result = ProxyMethodInvoker.Invoke();
                 context.ReturnParameter.Value = result;
-                return CompletedTask.Default;
+                return Task.FromResult(0);
             };
 
             foreach (var @delegate in delegates.Reverse())

@@ -8,7 +8,7 @@ namespace AspectCore.Lite.Internal
     {
         public bool IsMatch(MethodInfo method)
         {
-            return PointcutHelpers.IsMatchCache(method , IsMatchCache);
+            return PointcutUtilities.IsMatchCache(method , IsMatchCache);
         }
 
         private bool IsMatchCache(MethodInfo method)
@@ -18,9 +18,9 @@ namespace AspectCore.Lite.Internal
             TypeInfo declaringTypeInfo = method.DeclaringType.GetTypeInfo();
 
             if (!declaringTypeInfo.IsInterface)
-                throw new ArgumentException("DeclaringType should be Interface" , nameof(method));
+                throw new ArgumentException("DeclaringType should be Interface." , nameof(method));
 
-            if (PointcutHelpers.IsMemberMatch(method , declaringTypeInfo)) return true;
+            if (PointcutUtilities.IsMemberMatch(method , declaringTypeInfo)) return true;
 
             return false;
         }
