@@ -1,9 +1,8 @@
 ﻿using AspectCore.Lite.Generators;
+using AspectCore.Lite.Test.Fakes;
 using Microsoft.AspNetCore.Testing;
+using NSubstitute;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace AspectCore.Lite.Test.Generators
@@ -19,9 +18,9 @@ namespace AspectCore.Lite.Test.Generators
         [Fact]
         public void InterfaceProxyGenerator_Constructor_Test()
         {
-            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IInterfaceProxyGeneratorTest));
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
             Assert.NotNull(interfaceProxyGenerator);
-            ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(null, typeof(IInterfaceProxyGeneratorTest)), "serviceProvider");
+            ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(null, typeof(IAppService)), "serviceProvider");
             ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(serviceProvider, null), "interfaceType");
             ExceptionAssert.ThrowsArgument(() => new InterfaceProxyGenerator(serviceProvider, typeof(object)), "interfaceType", "Type should be interface.");
         }
@@ -29,36 +28,49 @@ namespace AspectCore.Lite.Test.Generators
         [Fact]
         public void InterfaceProxyGenerator_TypeBuilder_Throw_Test()
         {
-            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IInterfaceProxyGeneratorTest));
-            ExceptionAssert.Throws<InvalidOperationException>(() => interfaceProxyGenerator.TypeBuilder, $"The proxy of {typeof(IInterfaceProxyGeneratorTest).FullName} is not generated.");
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            ExceptionAssert.Throws<InvalidOperationException>(() => interfaceProxyGenerator.TypeBuilder, $"The proxy of {typeof(IAppService).FullName} is not generated.");
+        }
+
+        [Fact]
+        public void InterfaceProxyGenerator_GenerateProxyTypeMock_Test()
+        {
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            var proxyType = interfaceProxyGenerator.GenerateProxyType();
+
+            var targetApp = Substitute.For<IAppService>();
+            targetApp.AppId.Returns(1);
+            targetApp.AppName.Returns("testApp");
+            targetApp.RunApp(null).Returns(true);
+            targetApp.GetAppType().Returns("mockapp");
+
+            var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
+
+            Assert.NotNull(proxyApp);
+            Assert.Equal(proxyApp.AppId, targetApp.AppId);
+            Assert.Equal(proxyApp.AppName, targetApp.AppName);
+            Assert.Equal(proxyApp.GetAppType(), targetApp.GetAppType());
+            Assert.Equal(proxyApp.RunApp(null), targetApp.RunApp(null));
         }
 
         [Fact]
         public void InterfaceProxyGenerator_GenerateProxyType_Test()
         {
-            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IInterfaceProxyGeneratorTest));
-            var type = interfaceProxyGenerator.GenerateProxyType();
-            var instance = (IInterfaceProxyGeneratorTest)Activator.CreateInstance(type, serviceProvider, new InterfaceProxyGeneratorProxy());
-            instance.Id = "proxy";
-            Assert.Equal(instance.Id, "proxy");
-            Assert.Equal(instance.GetName("Test"), "proxyTest");
-        }
-    }
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            var proxyType = interfaceProxyGenerator.GenerateProxyType();
 
-    public interface IInterfaceProxyGeneratorTest
-    {
-        string Id { get; set; }
+            var targetApp = new TestAppService();
 
-        string GetName(string name);
-    }
+            var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
+            Assert.NotNull(proxyApp);
 
-    public class InterfaceProxyGeneratorProxy : IInterfaceProxyGeneratorTest
-    {
-        public string Id { get; set; }
-
-        public string GetName(string name)
-        {
-            return Id + name;
+            proxyApp.AppId = 3;
+            proxyApp.AppName = "proxyApp";
+        
+            Assert.Equal(proxyApp.AppId, targetApp.AppId);
+            Assert.Equal(proxyApp.AppName, targetApp.AppName);
+            Assert.Equal(proxyApp.GetAppType(), targetApp.GetAppType());
+            Assert.Equal(proxyApp.RunApp(null), targetApp.RunApp(null));
         }
     }
 }

@@ -12,7 +12,7 @@ namespace AspectCore.Lite.Generators
         private readonly FieldBuilder builder;
         internal FieldGenerator(TypeBuilder typeBuilder, Type fieldType, string fieldName)
         {
-            builder = typeBuilder.DefineField($"{GeneratorConstants.Field}{fieldName}", fieldType, FieldAttributes.Private | FieldAttributes.InitOnly);
+            builder = typeBuilder.DefineField($"{GeneratorConstants.Field}{fieldName}", fieldType, FieldAttributes.Private);
         }
 
         public FieldBuilder FieldBuilder => builder;

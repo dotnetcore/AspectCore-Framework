@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Generators
 {
@@ -14,6 +11,7 @@ namespace AspectCore.Lite.Generators
         private readonly MethodInfo method;
         private MethodBuilder builder;
         public MethodBuilder MethodBuilder => builder;
+        public MethodInfo TargetMethod => method;
 
         internal InterfaceMethodGenerator(TypeBuilder typeBuilder, MethodInfo method, FieldGenerator serviceInstanceGenerator)
         {
@@ -29,15 +27,8 @@ namespace AspectCore.Lite.Generators
                 MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 method.ReturnType, parameters);
 
-            var il = builder.GetILGenerator();
-            il.EmitLoadArg(0);
-            il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
-            for (int i = 1; i <= parameters.Length; i++)
-            {
-                il.EmitLoadArg(i);
-            }
-            il.Emit(OpCodes.Callvirt, method);
-            il.Emit(OpCodes.Ret);
+            MethodBodyGenerator methodBody = new MethodBodyGenerator(this, serviceInstanceGenerator);
+            methodBody.GenerateMethodBody();
         }
     }
 }
