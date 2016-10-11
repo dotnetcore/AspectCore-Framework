@@ -36,7 +36,7 @@ namespace AspectCore.Lite.Abstractions
             {
                 if (value == null)
                 {
-                    if (ParameterType.GetTypeInfo().IsValueType && ParameterType != typeof(Nullable<>))
+                    if (ParameterType.GetTypeInfo().IsValueType && !(ParameterType.GetTypeInfo().IsGenericType && ParameterType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>)))
                         throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                     this.value = value;
                     return;
