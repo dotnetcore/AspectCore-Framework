@@ -7,15 +7,14 @@ namespace AspectCore.Lite.Generators
 {
     internal sealed class EmitBuilderProvider
     {
-        private const string assemblyName = "AspectCore.Lite.Runtime$Proxys";
         private readonly AssemblyBuilder assemblyBuilder;
         private readonly ModuleBuilder moduleBuilder;
         private readonly ConcurrentDictionary<Type, Type> proxyTypes;
 
         public EmitBuilderProvider()
         {
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
-            moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly), AssemblyBuilderAccess.Run);
+            moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module);
             proxyTypes = new ConcurrentDictionary<Type, Type>();
         }
 

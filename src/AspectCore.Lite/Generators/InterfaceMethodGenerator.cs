@@ -10,12 +10,12 @@ namespace AspectCore.Lite.Generators
     public class InterfaceMethodGenerator
     {
         private readonly TypeBuilder typeBuilder;
-        private readonly ServiceInstanceGenerator serviceInstanceGenerator;
+        private readonly FieldGenerator serviceInstanceGenerator;
         private readonly MethodInfo method;
         private MethodBuilder builder;
         public MethodBuilder MethodBuilder => builder;
 
-        internal InterfaceMethodGenerator(TypeBuilder typeBuilder, MethodInfo method, ServiceInstanceGenerator serviceInstanceGenerator)
+        internal InterfaceMethodGenerator(TypeBuilder typeBuilder, MethodInfo method, FieldGenerator serviceInstanceGenerator)
         {
             this.typeBuilder = typeBuilder;
             this.method = method;
@@ -31,7 +31,7 @@ namespace AspectCore.Lite.Generators
 
             var il = builder.GetILGenerator();
             il.EmitLoadArg(0);
-            il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.ServiceInstanceBuilder);
+            il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
             for (int i = 1; i <= parameters.Length; i++)
             {
                 il.EmitLoadArg(i);

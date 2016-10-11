@@ -9,11 +9,11 @@ namespace AspectCore.Lite.Generators
 {
     public sealed class InterfaceConstructorGenerator
     {
-        private readonly ServiceProviderGenerator serviceProviderGenerator;
-        private readonly ServiceInstanceGenerator serviceInstanceGenerator;
+        private readonly FieldGenerator serviceProviderGenerator;
+        private readonly FieldGenerator serviceInstanceGenerator;
         private readonly TypeBuilder typeBuilder;
         private readonly Type serviceType;
-        internal InterfaceConstructorGenerator(TypeBuilder typeBuilder, Type serviceType, ServiceProviderGenerator serviceProviderGenerator, ServiceInstanceGenerator serviceInstanceGenerator)
+        internal InterfaceConstructorGenerator(TypeBuilder typeBuilder, Type serviceType, FieldGenerator serviceProviderGenerator, FieldGenerator serviceInstanceGenerator)
         {
             this.serviceProviderGenerator = serviceProviderGenerator;
             this.serviceInstanceGenerator = serviceInstanceGenerator;
@@ -29,10 +29,10 @@ namespace AspectCore.Lite.Generators
             il.Emit(OpCodes.Call, typeof(object).GetTypeInfo().DeclaredConstructors.FirstOrDefault());
             il.EmitLoadArg(0);
             il.EmitLoadArg(1);
-            il.Emit(OpCodes.Stfld, serviceProviderGenerator.ServiceProviderBuilder);
+            il.Emit(OpCodes.Stfld, serviceProviderGenerator.FieldBuilder);
             il.EmitLoadArg(0);
             il.EmitLoadArg(2);
-            il.Emit(OpCodes.Stfld, serviceInstanceGenerator.ServiceInstanceBuilder);
+            il.Emit(OpCodes.Stfld, serviceInstanceGenerator.FieldBuilder);
             il.Emit(OpCodes.Ret);
         }
     }

@@ -10,11 +10,11 @@ namespace AspectCore.Lite.Generators
 {
     public class PropertyGenerator
     {
-        protected readonly TypeBuilder typeBuilder;
-        protected readonly PropertyInfo propertyInfo;
-        private readonly ServiceInstanceGenerator serviceInstanceGenerator;
+        private readonly TypeBuilder typeBuilder;
+        private readonly PropertyInfo propertyInfo;
+        private readonly FieldGenerator serviceInstanceGenerator;
 
-        protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, ServiceInstanceGenerator serviceInstanceGenerator)
+        protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator)
         {
             this.typeBuilder = typeBuilder;
             this.propertyInfo = propertyInfo;

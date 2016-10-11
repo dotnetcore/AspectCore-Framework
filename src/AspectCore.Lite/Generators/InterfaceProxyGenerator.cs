@@ -47,10 +47,11 @@ namespace AspectCore.Lite.Generators
         {
             return emitBuilderProvider.DefinedType(interfaceType, key =>
             {
-                builder = emitBuilderProvider.CurrentModuleBuilder.DefineType($"{key.Namespace}.$proxy@interface_<>{key.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), new Type[] { key });
+                builder = emitBuilderProvider.CurrentModuleBuilder.DefineType($"{key.Namespace}.{GeneratorConstants.Interface}{key.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), new Type[] { key });
 
-                var serviceProviderGenerator = new ServiceProviderGenerator(builder);
-                var serviceInstanceGenerator = new ServiceInstanceGenerator(builder, key);
+                var serviceProviderGenerator = new FieldGenerator(builder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
+                var serviceInstanceGenerator = new FieldGenerator(builder, key, GeneratorConstants.ServiceProvider);
+
                 var constructorGenerator = new InterfaceConstructorGenerator(builder, key, serviceProviderGenerator, serviceInstanceGenerator);
 
                 constructorGenerator.GenerateConstructor();
