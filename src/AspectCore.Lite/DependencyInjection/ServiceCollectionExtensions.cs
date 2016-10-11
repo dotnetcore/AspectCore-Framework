@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.Generators;
 using AspectCore.Lite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -18,6 +19,8 @@ namespace AspectCore.Lite.DependencyInjection
             }
 
             serviceCollection.AddTransient<IJoinPoint, JoinPoint>();
+            serviceCollection.AddTransient<IAspectContextFactory, AspectContextFactory>();
+            serviceCollection.AddSingleton<EmitBuilderProvider>();
 
             return serviceCollection;
         }
