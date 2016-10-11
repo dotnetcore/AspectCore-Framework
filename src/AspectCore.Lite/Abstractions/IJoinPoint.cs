@@ -4,9 +4,9 @@ namespace AspectCore.Lite.Abstractions
 {
     public interface IJoinPoint
     {
-        IMethodInvoker ProxyMethodInvoker { get; set; }
+        IMethodInvoker MethodInvoker { get; set; }
 
-        void AddInterceptor(Func<InterceptorDelegate, InterceptorDelegate> @delegate);
+        void AddInterceptor(Func<InterceptorDelegate, InterceptorDelegate> interceptorDelegate);
 
         InterceptorDelegate Build();
     }

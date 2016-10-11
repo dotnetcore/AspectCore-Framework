@@ -10,7 +10,7 @@ namespace AspectCore.Lite.Internal
     {
         private readonly IList<Func<InterceptorDelegate, InterceptorDelegate>> delegates;
 
-        public IMethodInvoker ProxyMethodInvoker { get; set; }
+        public IMethodInvoker MethodInvoker { get; set; }
 
         public JoinPoint()
         {
@@ -29,14 +29,14 @@ namespace AspectCore.Lite.Internal
 
         public InterceptorDelegate Build()
         {
-            if (ProxyMethodInvoker == null)
+            if (MethodInvoker == null)
             {
                 throw new InvalidOperationException("Calling proxy method failed.Because instance of ProxyMethodInvoker is null.");
             }
 
             InterceptorDelegate next = context =>
             {
-                var result = ProxyMethodInvoker.Invoke();
+                var result = MethodInvoker.Invoke();
                 context.ReturnParameter.Value = result;
                 return Task.FromResult(0);
             };

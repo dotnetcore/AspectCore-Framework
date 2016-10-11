@@ -8,21 +8,14 @@ namespace AspectCore.Lite.Internal
     {
         public bool IsMatch(MethodInfo method)
         {
-            return PointcutUtilities.IsMatchCache(method , IsMatchCache);
+            return PointcutUtilities.IsMatchCache(method, IsMatchCache);
         }
 
         private bool IsMatchCache(MethodInfo method)
         {
             if (method == null) return false;
-
             TypeInfo declaringTypeInfo = method.DeclaringType.GetTypeInfo();
-
-            if (!declaringTypeInfo.IsInterface)
-                throw new ArgumentException("DeclaringType should be Interface." , nameof(method));
-
-            if (PointcutUtilities.IsMemberMatch(method , declaringTypeInfo)) return true;
-
-            return false;
+            return declaringTypeInfo.IsInterface && PointcutUtilities.IsMemberMatch(method, declaringTypeInfo);
         }
     }
 }

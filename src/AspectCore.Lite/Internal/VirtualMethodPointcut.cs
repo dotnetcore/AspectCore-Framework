@@ -8,30 +8,16 @@ namespace AspectCore.Lite.Internal
     {
         public bool IsMatch(MethodInfo method)
         {
-            return PointcutUtilities.IsMatchCache(method , IsMatchCache);
+            return PointcutUtilities.IsMatchCache(method, IsMatchCache);
         }
 
         private bool IsMatchCache(MethodInfo method)
         {
             if (method == null) return false;
-
             TypeInfo declaringTypeInfo = method.DeclaringType.GetTypeInfo();
-
-            if (!declaringTypeInfo.IsClass)
-                throw new ArgumentException("DeclaringType should be class." , nameof(method));
-
-            if (declaringTypeInfo.IsSealed)
-                throw new ArgumentException("DeclaringType cannot be sealed." , nameof(method));
-
-            if (method.IsStatic) return false;
-
-            if (method.IsPrivate) return false;
-
-            if (!method.IsVirtual) return false;
-
-            if (PointcutUtilities.IsMemberMatch(method , declaringTypeInfo)) return true;
-
-            return false;
+            if (!declaringTypeInfo.IsClass || declaringTypeInfo.IsSealed) return false;
+            if (method.IsStatic || method.IsPrivate || !method.IsVirtual) return false;
+            return PointcutUtilities.IsMemberMatch(method, declaringTypeInfo);
         }
     }
 }

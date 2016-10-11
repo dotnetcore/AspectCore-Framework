@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions
 {
-    public sealed class Proxy : IMethodInvoker
+    public sealed class Proxy /*: IMethodInvoker*/
     {
         internal ParameterCollection ParameterCollection { get; set; }
         public object Instance { get; }
@@ -27,10 +27,10 @@ namespace AspectCore.Lite.Abstractions
             ProxyType = proxyType;
         }
 
-        public object Invoke()
-        {
-            object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
-            return Method.Invoke(Instance, args);
-        }
+        //public object Invoke()
+        //{
+        //    object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
+        //    return Method.Invoke(Instance, args);
+        //}
     }
 }

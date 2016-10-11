@@ -25,8 +25,8 @@ namespace AspectCore.Lite.Test.Abstractions
             var joinPoint = serviceProvider.GetService<IJoinPoint>();
             var methodInvoker = Substitute.For<IMethodInvoker>();
             methodInvoker.Invoke().Returns(joinPoint);
-            joinPoint.ProxyMethodInvoker = methodInvoker;
-            Assert.Equal(joinPoint.ProxyMethodInvoker, methodInvoker);
+            joinPoint.MethodInvoker = methodInvoker;
+            Assert.Equal(joinPoint.MethodInvoker, methodInvoker);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace AspectCore.Lite.Test.Abstractions
             var joinPoint = serviceProvider.GetService<IJoinPoint>();
             var methodInvoker = Substitute.For<IMethodInvoker>();
             methodInvoker.Invoke().Returns(0);
-            joinPoint.ProxyMethodInvoker = methodInvoker;
+            joinPoint.MethodInvoker = methodInvoker;
             for (int i = 0; i < 5; i++)
             {
                 joinPoint.AddInterceptor(next =>
@@ -99,7 +99,7 @@ namespace AspectCore.Lite.Test.Abstractions
             var joinPoint = serviceProvider.GetService<IJoinPoint>();
             var methodInvoker = Substitute.For<IMethodInvoker>();
             methodInvoker.Invoke().Returns(0);
-            joinPoint.ProxyMethodInvoker = methodInvoker;     
+            joinPoint.MethodInvoker = methodInvoker;     
             var context = Substitute.For<IAspectContext>();
             context.ReturnParameter.Returns(new ReturnParameterDescriptor(0, MeaninglessService.Parameters[1]));
             var @delegate = joinPoint.Build();

@@ -14,6 +14,8 @@ namespace AspectCore.Lite.Internal
         public ParameterDescriptor ReturnParameter { get; set; }
         public Target Target { get; set; }
 
+        private bool dispose = false;
+
         internal AspectContext(IServiceProvider serviceProvider)
              : base()
         {
@@ -26,6 +28,13 @@ namespace AspectCore.Lite.Internal
             AspectServices = serviceScope.ServiceProvider;
         }
 
-        public void Dispose() => serviceScope.Dispose();
+        public void Dispose()
+        {
+            if (!dispose)
+            {
+                serviceScope.Dispose();
+                dispose = true;
+            }
+        }
     }
 }
