@@ -4,13 +4,13 @@
 
   "dependencies": {
     "AspectCore.Lite": "0.0.1-*",
-    "NETStandard.Library": "1.6.0",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Microsoft.AspNetCore.Testing": "1.1.0-*",
-    "xunit": "2.2.0-beta2-build3300",
-    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "NSubstitute": "2.0.0-rc"
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+    "NETStandard.Library": "1.6.*",
+    "NSubstitute": "2.0.0-rc",
+    "xunit": "2.2.0-*"
   },
 
   "frameworks": {

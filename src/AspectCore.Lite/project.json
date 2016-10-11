@@ -2,17 +2,26 @@
   "version": "0.0.1-*",
 
   "dependencies": {
-    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
-    "System.Threading.Thread": "4.0.0-beta-23516"
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    
   },
 
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
         "System.ComponentModel": "4.0.1",
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.0",
+        "Nito.AsyncEx.Context": "1.1.0",
+        "System.Threading.Thread": "4.0.0-*",
+        "System.Reflection.Emit": "4.0.1"
       },
       "imports": "dnxcore50"
+    },
+    "net451": {
+      "dependencies": {
+        "System.Runtime": "4.0.10",
+        "Nito.AsyncEx": "3.0.1"
+      }
     }
   }
 }
