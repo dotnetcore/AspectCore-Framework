@@ -34,7 +34,7 @@ namespace AspectCore.Lite.Test.Generators
         }
 
         [Fact]
-        public void InterfaceProxyGenerator_GenerateProperty_Test()
+        public void InterfaceProxyGenerator_GenerateProxyType_Test()
         {
             var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IInterfaceProxyGeneratorTest));
             var type = interfaceProxyGenerator.GenerateProxyType();
