@@ -27,12 +27,11 @@ namespace AspectCore.Lite.Generators
         {
             var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
             builder = typeBuilder.DefineMethod(method.Name,
-                MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                MethodAttributes.Public |  MethodAttributes.HideBySig | MethodAttributes.Virtual ,
                 method.ReturnType, parameters);
 
             var methodBody = GetMethodBodyGenerator();
             methodBody.GenerateMethodBody();
-
         }
 
 

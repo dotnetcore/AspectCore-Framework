@@ -28,7 +28,7 @@ namespace AspectCore.Lite.Extensions
 
             if (matchers.Length == 1)
             {
-                return matchers[0].AsMethodInfo();
+                return (MethodInfo)matchers[0].AsMethodBase();
             }
 
             foreach (var matcher in matchers)
@@ -51,7 +51,7 @@ namespace AspectCore.Lite.Extensions
                 throw new InvalidOperationException(message);
             }
 
-            return bestMatcher.AsMethodInfo();
+            return (MethodInfo)bestMatcher.AsMethodBase();
         }
     }
 }

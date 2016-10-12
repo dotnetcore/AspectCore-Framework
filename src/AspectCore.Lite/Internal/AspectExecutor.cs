@@ -28,7 +28,7 @@ namespace AspectCore.Lite.Internal
             return AsyncContext.Run(() => ExecuteAsync(targetInstance , proxyInstance , serviceType , method , args));
         }
 
-        public Task<object> ExecuteAsync(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
+        public Task<object> ExecuteAsync(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
         {
             if (targetInstance == null) throw new ArgumentNullException(nameof(targetInstance));
             if (proxyInstance == null) throw new ArgumentNullException(nameof(proxyInstance));
@@ -36,38 +36,39 @@ namespace AspectCore.Lite.Internal
             if (string.IsNullOrEmpty(method)) throw new ArgumentNullException(nameof(method));
             if (args == null) throw new ArgumentNullException(nameof(args));
 
-            var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method , args);
+            var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method, args);
 
-            var parameters = new ParameterCollection(args , serviceMethod.GetParameters());
-            var returnParameter = new ReturnParameterDescriptor(null , serviceMethod.ReturnParameter);
+            var parameters = new ParameterCollection(args, serviceMethod.GetParameters());
+            var returnParameter = new ReturnParameterDescriptor(null, serviceMethod.ReturnParameter);
 
-            var targetMethod = targetInstance.GetType().GetTypeInfo().GetRequiredMethod(method , args);
-            var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
+            var targetMethod = targetInstance.GetType().GetTypeInfo().GetRequiredMethod(method, args);
+            var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
 
-            var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(method , args);
-            var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType()) { ParameterCollection = parameters };
+            var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(method, args);
+            var proxy = new Proxy(proxyInstance, proxyMethod, proxyInstance.GetType()) { ParameterCollection = parameters };
 
             joinPoint.MethodInvoker = target;
-
-            var context = aspectContextFactory.Create();
-            var internalContext = context as AspectContext;
-            if (internalContext != null)
-            {
-                internalContext.Parameters = parameters;
-                internalContext.ReturnParameter = returnParameter;
-                internalContext.Target = target;
-                internalContext.Proxy = proxy;
-            }
-
             var interceptors = serviceMethod.GetCustomAttributes().Concat(serviceType.GetTypeInfo().GetCustomAttributes()).OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
-            InterceptorInjectionFromService(interceptors , serviceProvider);
-            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx , next)));
+            InterceptorInjectionFromService(interceptors, serviceProvider);
+            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx, next)));
 
-            return joinPoint.Build()(context).ContinueWith((task , state) =>
+            using (var context = aspectContextFactory.Create())
             {
-                if (task.IsFaulted) throw task.Exception;
-                return ((IAspectContext)state).ReturnParameter.Value;
-            } , context , TaskContinuationOptions.ExecuteSynchronously);
+                var internalContext = context as AspectContext;
+                if (internalContext != null)
+                {
+                    internalContext.Parameters = parameters;
+                    internalContext.ReturnParameter = returnParameter;
+                    internalContext.Target = target;
+                    internalContext.Proxy = proxy;
+                }
+
+                return joinPoint.Build()(context).ContinueWith((task, state) =>
+                {
+                    if (task.IsFaulted) throw task.Exception;
+                    return ((IAspectContext)state).ReturnParameter.Value;
+                }, context, TaskContinuationOptions.ExecuteSynchronously);
+            }
         }
 
         private void InterceptorInjectionFromService(IEnumerable<IInterceptor> interceptors, IServiceProvider serviceProvider)

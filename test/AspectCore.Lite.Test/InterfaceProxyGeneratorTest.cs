@@ -63,7 +63,7 @@ namespace AspectCore.Lite.Test.Generators
             var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppServiceA));
             var proxyType = interfaceProxyGenerator.GenerateProxyType();
 
-            var targetApp = new TestAppServiceA(output);
+            var targetApp = new TestAppServiceA();
 
             var proxyApp = (IAppServiceA)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
             Assert.NotNull(proxyApp);

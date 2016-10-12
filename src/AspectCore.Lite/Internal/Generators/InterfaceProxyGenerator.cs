@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Generators
                 builder = emitBuilderProvider.CurrentModuleBuilder.DefineType($"{key.Namespace}.{GeneratorConstants.Interface}{key.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), new Type[] { key });
 
                 var serviceProviderGenerator = new FieldGenerator(builder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
-                var serviceInstanceGenerator = new FieldGenerator(builder, key, GeneratorConstants.ServiceProvider);
+                var serviceInstanceGenerator = new FieldGenerator(builder, key, GeneratorConstants.ServiceInstance);
 
                 var constructorGenerator = new InterfaceConstructorGenerator(builder, key, serviceProviderGenerator, serviceInstanceGenerator);
 
@@ -64,7 +64,7 @@ namespace AspectCore.Lite.Generators
 
                 foreach (var method in key.GetTypeInfo().DeclaredMethods)
                 {
-                    if (FilterPropertyMethod(method, key)) continue;
+                    if (GeneratorUtilities.IsPropertyMethod(method, key)) continue;
                     var interfaceMethodGenerator = new InterfaceMethodGenerator(builder, method, serviceInstanceGenerator, serviceProviderGenerator);
                     interfaceMethodGenerator.GenerateMethod();
                 }
@@ -72,9 +72,5 @@ namespace AspectCore.Lite.Generators
                 return builder.CreateTypeInfo().AsType();
             });
         }
-
-        private bool FilterPropertyMethod(MethodInfo method, Type serviceType) => 
-            serviceType.GetTypeInfo().DeclaredProperties.Any(property => (property.CanRead && property.GetMethod == method) || (property.CanWrite && property.SetMethod == method));
-        
     }
 }

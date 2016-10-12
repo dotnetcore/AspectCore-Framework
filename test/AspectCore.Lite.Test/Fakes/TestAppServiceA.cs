@@ -6,32 +6,24 @@ using Xunit.Abstractions;
 
 namespace AspectCore.Lite.Test.Fakes
 {
-    public class TestAppServiceA: IAppServiceA
+    public class TestAppServiceA : IAppServiceA
     {
-        private readonly ITestOutputHelper output;
-
-        public TestAppServiceA(ITestOutputHelper output)
-        {
-            this.output = output;
-        }
-
         public int AppId { get; set; } = 2;
 
         public string AppName { get; set; } = "TestAppService";
 
         public void ExitApp()
         {
-            output.WriteLine("TestAppService Exit.");
         }
 
-        public string GetAppType()
+        [InterceptorApp]
+        public virtual string GetAppType()
         {
-            return "testApp";
+            return "testAppA";
         }
 
         public bool RunApp(string[] args)
         {
-            output.WriteLine("TestAppService Run.");
             return true;
         }
     }

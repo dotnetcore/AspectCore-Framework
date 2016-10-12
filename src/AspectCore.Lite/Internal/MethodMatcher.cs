@@ -8,13 +8,13 @@ namespace AspectCore.Lite.Internal
 {
     internal class MethodMatcher
     {
-        private readonly MethodInfo _methodInfo;
+        private readonly MethodBase _method;
         private readonly ParameterInfo[] _parameters;
 
-        public MethodMatcher(MethodInfo methodinfo)
+        public MethodMatcher(MethodBase method)
         {
-            _methodInfo = methodinfo;
-            _parameters = methodinfo.GetParameters();
+            _method = method;
+            _parameters = method.GetParameters();
         }
 
         public int Match(object[] givenParameters)
@@ -50,9 +50,9 @@ namespace AspectCore.Lite.Internal
             return applyExactLength;
         }
 
-        public MethodInfo AsMethodInfo()
+        public MethodBase AsMethodBase()
         {
-            return _methodInfo;
+            return _method;
         }
     }
 }

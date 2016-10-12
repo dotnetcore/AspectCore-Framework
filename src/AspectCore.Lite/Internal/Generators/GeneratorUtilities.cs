@@ -14,5 +14,8 @@ namespace AspectCore.Lite.Generators
             var mc = (MethodCallExpression)expr.Body;
             return mc.Method;
         }
+
+        internal static bool IsPropertyMethod(MethodInfo method, Type serviceType) =>
+            serviceType.GetTypeInfo().DeclaredProperties.Any(property => (property.CanRead && property.GetMethod == method) || (property.CanWrite && property.SetMethod == method));
     }
 }
