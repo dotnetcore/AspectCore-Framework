@@ -7,21 +7,21 @@ namespace AspectCore.Lite.Abstractions
     public class ParameterDescriptor
     {
         private object value;
-        private ParameterInfo metaDataInfo;
+        private ParameterInfo parameterInfo;
 
         public ParameterDescriptor(object value, ParameterInfo parameterInfo)
         {
             if (parameterInfo == null)
                 throw new ArgumentNullException(nameof(parameterInfo));
-            this.metaDataInfo = parameterInfo;
-            this.Value = value;         
+            this.parameterInfo = parameterInfo;
+            this.value = value;         
         }
 
         public string Name
         {
             get
             {
-                return metaDataInfo.Name;
+                return parameterInfo.Name;
             }
         }
 
@@ -58,7 +58,7 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                return metaDataInfo.ParameterType;
+                return parameterInfo.ParameterType;
             }
         }
 
@@ -66,7 +66,7 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                return metaDataInfo;
+                return parameterInfo;
             }
         }
 
@@ -74,7 +74,7 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                return metaDataInfo.GetCustomAttributes().ToArray();
+                return parameterInfo.GetCustomAttributes().ToArray();
             }
         }
     }

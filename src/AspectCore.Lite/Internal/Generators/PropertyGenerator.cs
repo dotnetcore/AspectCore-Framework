@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Generators
 {
@@ -13,28 +9,30 @@ namespace AspectCore.Lite.Generators
         private readonly TypeBuilder typeBuilder;
         private readonly PropertyInfo propertyInfo;
         private readonly FieldGenerator serviceInstanceGenerator;
+        private readonly FieldGenerator serviceProviderGenerator;
 
-        protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator)
+        protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator)
         {
             this.typeBuilder = typeBuilder;
             this.propertyInfo = propertyInfo;
             this.serviceInstanceGenerator = serviceInstanceGenerator;
+            this.serviceProviderGenerator = serviceProviderGenerator;
         }
 
         public void GenerateProperty()
-        { 
+        {
             var property = typeBuilder.DefineProperty(propertyInfo.Name, PropertyAttributes.None, propertyInfo.PropertyType, Type.EmptyTypes);
 
             if (propertyInfo.CanRead)
             {
-                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.GetMethod, serviceInstanceGenerator);
+                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.GetMethod, serviceInstanceGenerator, serviceProviderGenerator);
                 methodGenerator.GenerateMethod();
                 property.SetGetMethod(methodGenerator.MethodBuilder);
             }
 
             if (propertyInfo.CanWrite)
             {
-                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.SetMethod, serviceInstanceGenerator);
+                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.SetMethod, serviceInstanceGenerator, serviceProviderGenerator);
                 methodGenerator.GenerateMethod();
                 property.SetSetMethod(methodGenerator.MethodBuilder);
             }

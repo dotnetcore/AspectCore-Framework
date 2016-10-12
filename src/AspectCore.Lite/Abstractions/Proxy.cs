@@ -13,8 +13,8 @@ namespace AspectCore.Lite.Abstractions
 
         internal Proxy(object instance, MethodInfo method, Type proxyType)
         {
-            if (Instance == null)
-                throw new ArgumentNullException(nameof(Instance));
+            if (instance == null)
+                throw new ArgumentNullException(nameof(instance));
 
             if (method == null)
                 throw new ArgumentNullException(nameof(method));

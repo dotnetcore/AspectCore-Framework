@@ -20,16 +20,38 @@ namespace AspectCore.Lite.Extensions
             return typeInfo.DeclaredMethods.Any(method => pointcut.IsMatch(method));
         }
 
-        internal static MethodInfo GetRequiredMethod(this Type type, string name, Type[] parameterTypes)
+        internal static MethodInfo GetRequiredMethod(this TypeInfo typeInfo, string name, object[] parameters)
         {
-            var method = type.GetTypeInfo().GetMethod(name, parameterTypes);
+            int bestLength = -1;
+            var bestMatcher = default(MethodMatcher);
+            var matchers = typeInfo.DeclaredMethods.Where(m => m.Name == name && m.GetParameters().Length == parameters.Length).Select(m => new MethodMatcher(m)).ToArray();
 
-            if(method==null)
+            if (matchers.Length == 1)
             {
-                throw new MissingMethodException($"Not found method named {name} in {type}");
+                return matchers[0].AsMethodInfo();
             }
 
-            return method;
+            foreach (var matcher in matchers)
+            {
+                var length = matcher.Match(parameters);
+                if (length == -1)
+                {
+                    continue;
+                }
+                if (bestLength < length)
+                {
+                    bestLength = length;
+                    bestMatcher = matcher;
+                }
+            }
+
+            if (bestMatcher == null)
+            {
+                var message = $"A suitable method for type '{typeInfo.AsType()}' could not be located. Ensure the type is concrete and services are registered for all parameters of a public method.";
+                throw new InvalidOperationException(message);
+            }
+
+            return bestMatcher.AsMethodInfo();
         }
     }
 }

@@ -11,8 +11,10 @@ namespace AspectCore.Lite.Generators
 {
     public class InterceptedMethodBodyGenerator : MethodBodyGenerator
     {
-        private readonly static MethodInfo AspectExecutorMethod = typeof(ServiceProviderServiceExtensions).GetTypeInfo().
-            GetMethod(GeneratorConstants.GetRequiredService, Type.EmptyTypes).MakeGenericMethod(typeof(IAspectExecutor));
+        //private readonly MethodInfo AspectExecutorMethod = typeof(ServiceProviderServiceExtensions).GetTypeInfo().DeclaredMethods.
+        //            Single(m => m.Name == GeneratorConstants.GetRequiredService && m.IsGenericMethod).MakeGenericMethod(typeof(IAspectExecutor));
+
+        private readonly MethodInfo AspectExecutorMethod = GeneratorUtilities.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
 
         protected FieldGenerator serviceProviderGenerator;
 
@@ -26,6 +28,7 @@ namespace AspectCore.Lite.Generators
         {
             var il = methodGenerator.MethodBuilder.GetILGenerator();
             var parameters = methodGenerator.TargetMethod.GetParameters().Select(x => x.ParameterType).ToArray();
+            var method = methodGenerator.TargetMethod;    
 
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, serviceProviderGenerator.FieldBuilder);
@@ -33,7 +36,28 @@ namespace AspectCore.Lite.Generators
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
             il.EmitThis();
+            il.EmitTypeof(method.DeclaringType);
+            il.Emit(OpCodes.Ldstr, method.Name);
+            il.EmitLoadInt(parameters.Length);
+            il.Emit(OpCodes.Newarr,typeof(object));
 
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                il.Emit(OpCodes.Dup);
+                il.EmitLoadInt(i);
+                il.EmitLoadArg(i + 1); 
+                il.EmitConvertToType(parameters[i], typeof(object), false);
+                il.Emit(OpCodes.Stelem_Ref);
+            }
+
+            il.Emit(OpCodes.Callvirt, typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteSynchronously"));
+
+            if (method.ReturnType != typeof(void))
+            {
+                il.EmitConvertToType(method.ReturnType, typeof(object), true);
+            }
+
+            il.Emit(OpCodes.Ret);
         }
     }
 }

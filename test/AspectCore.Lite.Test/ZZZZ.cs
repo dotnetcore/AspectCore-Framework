@@ -13,17 +13,25 @@ namespace AspectCore.Lite.Test
         private readonly IZZZZ zzz;
 
 
-        public void Foo(string name)
+        public void Foo(string name ,int id)
         {
             //zzz.Foo();
             var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
-            aspectExector.ExecuteSynchronously(zzz , this , typeof(IZZZZ) , "Foo" , name);
+            aspectExector.ExecuteSynchronously(zzz, this, typeof(IZZZZ), "Foo", name, id);
+        }
+
+        public void Foo1(ref int id)
+        {
+            var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
+            aspectExector.ExecuteSynchronously(zzz, this, typeof(IZZZZ), "Foo1", id);
         }
     }
 
 
     public interface IZZZZ
     {
-        void Foo(string name);
+        void Foo(string name, int id);
+
+        void Foo1(ref int id);
     }
 }

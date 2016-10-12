@@ -36,16 +36,15 @@ namespace AspectCore.Lite.Internal
             if (string.IsNullOrEmpty(method)) throw new ArgumentNullException(nameof(method));
             if (args == null) throw new ArgumentNullException(nameof(args));
 
-            var parameterTypes = args.Select(a => a.GetType()).ToArray();
-            var serviceMethod = serviceType.GetRequiredMethod(method , parameterTypes);
+            var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method , args);
 
             var parameters = new ParameterCollection(args , serviceMethod.GetParameters());
             var returnParameter = new ReturnParameterDescriptor(null , serviceMethod.ReturnParameter);
 
-            var targetMethod = targetInstance.GetType().GetRequiredMethod(method , parameterTypes);
+            var targetMethod = targetInstance.GetType().GetTypeInfo().GetRequiredMethod(method , args);
             var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
 
-            var proxyMethod = proxyInstance.GetType().GetRequiredMethod(method , parameterTypes);
+            var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(method , args);
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType()) { ParameterCollection = parameters };
 
             joinPoint.MethodInvoker = target;
@@ -60,7 +59,7 @@ namespace AspectCore.Lite.Internal
                 internalContext.Proxy = proxy;
             }
 
-            var interceptors = serviceMethod.GetCustomAttributes().OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
+            var interceptors = serviceMethod.GetCustomAttributes().Concat(serviceType.GetTypeInfo().GetCustomAttributes()).OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
             InterceptorInjectionFromService(interceptors , serviceProvider);
             interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx , next)));
 
@@ -94,8 +93,8 @@ namespace AspectCore.Lite.Internal
                     continue;
                 }
 
-                var injectionMethod = fromService.GetType().GetTypeInfo().DeclaredMethods.FirstOrDefault();
-                
+                var injectionMethod = fromService.GetType().GetTypeInfo().DeclaredMethods.FirstOrDefault(m => m.Name == "FromService" && !m.IsGenericMethod && !m.IsAbstract);
+                                
                 if (injectionMethod == null)
                 {
                     continue;

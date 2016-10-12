@@ -39,16 +39,16 @@ namespace AspectCore.Lite.Test.Generators
         [Fact]
         public void InterfaceProxyGenerator_GenerateProxyTypeMock_Test()
         {
-            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppServiceA));
             var proxyType = interfaceProxyGenerator.GenerateProxyType();
 
-            var targetApp = Substitute.For<IAppService>();
+            var targetApp = Substitute.For<IAppServiceA>();
             targetApp.AppId.Returns(1);
             targetApp.AppName.Returns("testApp");
             targetApp.RunApp(null).Returns(true);
             targetApp.GetAppType().Returns("mockapp");
 
-            var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
+            var proxyApp = (IAppServiceA)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
 
             Assert.NotNull(proxyApp);
             Assert.Equal(proxyApp.AppId, targetApp.AppId);
@@ -60,12 +60,12 @@ namespace AspectCore.Lite.Test.Generators
         [Fact]
         public void InterfaceProxyGenerator_GenerateProxyType_Test()
         {
-            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppServiceA));
             var proxyType = interfaceProxyGenerator.GenerateProxyType();
 
-            var targetApp = new TestAppService(output);
+            var targetApp = new TestAppServiceA(output);
 
-            var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
+            var proxyApp = (IAppServiceA)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
             Assert.NotNull(proxyApp);
 
             proxyApp.AppId = 3;
@@ -75,6 +75,33 @@ namespace AspectCore.Lite.Test.Generators
             Assert.Equal(proxyApp.AppName, targetApp.AppName);
             Assert.Equal(proxyApp.GetAppType(), targetApp.GetAppType());
             Assert.Equal(proxyApp.RunApp(null), targetApp.RunApp(null));
+        }
+
+        [Fact]
+        public void InterfaceProxyGenerator_GenerateProxyTypeWithInterceptor_Test()
+        {
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            var proxyType = interfaceProxyGenerator.GenerateProxyType();
+
+            var targetApp = Substitute.For<IAppService>();
+            targetApp.GetAppType().Returns("mockapp");
+
+            var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
+
+            Assert.NotNull(proxyApp);
+            Assert.NotEqual(proxyApp.GetAppType(), targetApp.GetAppType());
+            Assert.Equal(proxyApp.GetAppType(), "InterceptorApp");
+        }
+
+        [Fact]
+        public void InterfaceProxyGenerator_GenerateProxyTypeWithParameterNotNull_Test()
+        {
+            var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
+            var proxyType = interfaceProxyGenerator.GenerateProxyType();
+
+            var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, new TestAppService(output));
+
+            ExceptionAssert.ThrowsArgumentNull(() => proxyApp.RunApp(null), "args");
         }
     }
 }

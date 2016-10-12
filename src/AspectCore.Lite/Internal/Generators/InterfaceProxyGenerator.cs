@@ -58,14 +58,14 @@ namespace AspectCore.Lite.Generators
 
                 foreach (var propertyInfo in key.GetTypeInfo().DeclaredProperties)
                 {
-                    var interfacePropertyGenerator = new PropertyGenerator(builder, propertyInfo, serviceInstanceGenerator);
+                    var interfacePropertyGenerator = new PropertyGenerator(builder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator);
                     interfacePropertyGenerator.GenerateProperty();
                 }
 
                 foreach (var method in key.GetTypeInfo().DeclaredMethods)
                 {
                     if (FilterPropertyMethod(method, key)) continue;
-                    var interfaceMethodGenerator = new InterfaceMethodGenerator(builder, method, serviceInstanceGenerator);
+                    var interfaceMethodGenerator = new InterfaceMethodGenerator(builder, method, serviceInstanceGenerator, serviceProviderGenerator);
                     interfaceMethodGenerator.GenerateMethod();
                 }
 
