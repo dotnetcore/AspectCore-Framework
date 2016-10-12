@@ -8,7 +8,7 @@ namespace AspectCore.Lite.Generators
         protected readonly InterfaceMethodGenerator methodGenerator;
         protected readonly FieldGenerator serviceInstanceGenerator;
 
-        public MethodBodyGenerator(InterfaceMethodGenerator methodGenerator, FieldGenerator serviceInstanceGenerator)
+        internal MethodBodyGenerator(InterfaceMethodGenerator methodGenerator, FieldGenerator serviceInstanceGenerator)
         {
             this.methodGenerator = methodGenerator;
             this.serviceInstanceGenerator = serviceInstanceGenerator;
@@ -19,7 +19,7 @@ namespace AspectCore.Lite.Generators
             var il = methodGenerator.MethodBuilder.GetILGenerator();
             var parameters = methodGenerator.TargetMethod.GetParameters().Select(x => x.ParameterType).ToArray();
 
-            il.EmitLoadArg(0);
+            il.EmitThis();
             il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
             for (int i = 1; i <= parameters.Length; i++)
             {

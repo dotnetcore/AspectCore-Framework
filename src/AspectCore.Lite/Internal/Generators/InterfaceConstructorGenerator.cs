@@ -25,12 +25,12 @@ namespace AspectCore.Lite.Generators
         {
             var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] { typeof(IServiceProvider), serviceType });
             var il = constructor.GetILGenerator();
-            il.EmitLoadArg(0);
+            il.EmitThis();
             il.Emit(OpCodes.Call, typeof(object).GetTypeInfo().DeclaredConstructors.FirstOrDefault());
-            il.EmitLoadArg(0);
+            il.EmitThis();
             il.EmitLoadArg(1);
             il.Emit(OpCodes.Stfld, serviceProviderGenerator.FieldBuilder);
-            il.EmitLoadArg(0);
+            il.EmitThis();
             il.EmitLoadArg(2);
             il.Emit(OpCodes.Stfld, serviceInstanceGenerator.FieldBuilder);
             il.Emit(OpCodes.Ret);

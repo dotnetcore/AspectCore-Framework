@@ -6,27 +6,17 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 
-#if NETSTANDARD1_6
-using System.Runtime.Loader;
-#endif
-
 namespace AspectCore.Lite.Generators
 {
     internal static class ILGenUtilities
     {
-#if NETSTANDARD1_6
-        //private static readonly Assembly ExpressionsAssembly = AssemblyLoadContext.Default.
-        //    LoadFromAssemblyName(new AssemblyName("System.Linq.Expressions"));
+        private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName(GeneratorConstants.ExpressionsAssembly));
 
-        private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName("System.Linq.Expressions"));
-#elif NET451
-        private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName("System.Linq.Expressions"));
-#endif
-        private static readonly Type ILGenType = ExpressionsAssembly.GetType("System.Linq.Expressions.Compiler.ILGen");
+        private static readonly Type ILGenType = ExpressionsAssembly.GetType(GeneratorConstants.ILGenType);
         
         private static readonly Action<ILGenerator , Type , Type , bool> ConvertToType =
             (Action<ILGenerator , Type , Type , bool>)ILGenType.GetTypeInfo().DeclaredMethods.SingleOrDefault(m =>
-            m.Name == "EmitConvertToType").CreateDelegate(typeof(Action<ILGenerator , Type , Type , bool>));
+            m.Name == GeneratorConstants.EmitConvertToType).CreateDelegate(typeof(Action<ILGenerator , Type , Type , bool>));
         
         internal static void EmitLoadArg(this ILGenerator il, int index)
         {
@@ -54,6 +44,11 @@ namespace AspectCore.Lite.Generators
         internal static void EmitConvertToType(this ILGenerator il , Type typeFrom , Type typeTo , bool isChecked)
         {
             ConvertToType(il , typeFrom , typeTo , isChecked);
+        }
+
+        internal static void EmitThis(this ILGenerator ilGenerator)
+        {
+             ilGenerator.EmitLoadArg(0);
         }
     }
 }

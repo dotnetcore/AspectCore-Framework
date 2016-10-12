@@ -24,5 +24,13 @@ namespace AspectCore.Lite.Generators
         internal const string ServiceProvider = "serviceProvider";
 
         internal const string ServiceInstance = "serviceInstance";
+
+        internal const string ExpressionsAssembly = "System.Linq.Expressions";
+
+        internal const string ILGenType = "System.Linq.Expressions.Compiler.ILGen";
+
+        internal const string EmitConvertToType = "EmitConvertToType";
+
+        internal const string GetRequiredService = "GetRequiredService";
     }
 }

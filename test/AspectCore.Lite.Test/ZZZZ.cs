@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Test
         public void Foo(string name)
         {
             //zzz.Foo();
-            var aspectExector = (IAspectExecutor)serviceProvider.GetRequiredService(typeof(IAspectExecutor));
+            var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
             aspectExector.ExecuteSynchronously(zzz , this , typeof(IZZZZ) , "Foo" , name);
         }
     }
