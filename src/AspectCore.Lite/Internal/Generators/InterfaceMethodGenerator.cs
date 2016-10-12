@@ -6,10 +6,10 @@ namespace AspectCore.Lite.Generators
 {
     public class InterfaceMethodGenerator
     {
-        private readonly TypeBuilder typeBuilder;
-        private readonly FieldGenerator serviceInstanceGenerator;
-        private readonly MethodInfo method;
-        private MethodBuilder builder;
+        protected readonly TypeBuilder typeBuilder;
+        protected readonly FieldGenerator serviceInstanceGenerator;
+        protected readonly MethodInfo method;
+        protected MethodBuilder builder;
         public MethodBuilder MethodBuilder => builder;
         public MethodInfo TargetMethod => method;
 

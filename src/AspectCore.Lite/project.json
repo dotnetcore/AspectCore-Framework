@@ -12,7 +12,8 @@
         "NETStandard.Library": "1.6.0",
         "Nito.AsyncEx.Context": "1.1.0",
         "System.Threading.Thread": "4.0.0-*",
-        "System.Reflection.Emit": "4.0.1"
+        "System.Reflection.Emit": "4.0.1",
+        "System.Runtime.Loader": "4.0.0"
       },
       "imports": "dnxcore50"
     },

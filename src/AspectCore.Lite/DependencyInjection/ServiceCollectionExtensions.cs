@@ -21,6 +21,7 @@ namespace AspectCore.Lite.DependencyInjection
             serviceCollection.AddTransient<IJoinPoint, JoinPoint>();
             serviceCollection.AddTransient<IAspectContextFactory, AspectContextFactory>();
             serviceCollection.AddSingleton<EmitBuilderProvider>();
+            serviceCollection.AddTransient<IAspectExecutor , AspectExecutor>();
 
             return serviceCollection;
         }

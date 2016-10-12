@@ -6,39 +6,51 @@ using AspectCore.Lite.Abstractions;
 using System.Reflection;
 using AspectCore.Lite.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Nito.AsyncEx;
 
 namespace AspectCore.Lite.Internal
 {
-    internal sealed class AspectExecutor
+    internal sealed class AspectExecutor: IAspectExecutor
     {
         private readonly IJoinPoint joinPoint;
         private readonly IAspectContextFactory aspectContextFactory;
         private readonly IServiceProvider serviceProvider;
 
-        public AspectExecutor(IServiceProvider serviceProvider)
+        public AspectExecutor(IServiceProvider serviceProvider,IJoinPoint joinPoint, IAspectContextFactory aspectContextFactory)
         {
             this.serviceProvider = serviceProvider;
-            this.joinPoint = serviceProvider.GetRequiredService<IJoinPoint>();
-            this.aspectContextFactory = serviceProvider.GetRequiredService<IAspectContextFactory>();
+            this.joinPoint = joinPoint;
+            this.aspectContextFactory = aspectContextFactory;
         }
 
-        public Task<IAspectContext> Execute( object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
+        public object ExecuteSynchronously(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
         {
+            return AsyncContext.Run(() => ExecuteAsync(targetInstance , proxyInstance , serviceType , method , args));
+        }
+
+        public Task<object> ExecuteAsync(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
+        {
+            if (targetInstance == null) throw new ArgumentNullException(nameof(targetInstance));
+            if (proxyInstance == null) throw new ArgumentNullException(nameof(proxyInstance));
+            if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
+            if (string.IsNullOrEmpty(method)) throw new ArgumentNullException(nameof(method));
+            if (args == null) throw new ArgumentNullException(nameof(args));
+
             var parameterTypes = args.Select(a => a.GetType()).ToArray();
-            var serviceMethod = serviceType.GetRequiredMethod(method, parameterTypes);
+            var serviceMethod = serviceType.GetRequiredMethod(method , parameterTypes);
 
-            var parameters = new ParameterCollection(args, serviceMethod.GetParameters());
-            var returnParameter = new ReturnParameterDescriptor(null, serviceMethod.ReturnParameter);
+            var parameters = new ParameterCollection(args , serviceMethod.GetParameters());
+            var returnParameter = new ReturnParameterDescriptor(null , serviceMethod.ReturnParameter);
 
-            var targetMethod = targetInstance.GetType().GetRequiredMethod(method, parameterTypes);
-            var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
+            var targetMethod = targetInstance.GetType().GetRequiredMethod(method , parameterTypes);
+            var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
 
-            var proxyMethod = proxyInstance.GetType().GetRequiredMethod(method, parameterTypes);
-            var proxy = new Proxy(proxyInstance, proxyMethod, proxyInstance.GetType()) { ParameterCollection = parameters };
+            var proxyMethod = proxyInstance.GetType().GetRequiredMethod(method , parameterTypes);
+            var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType()) { ParameterCollection = parameters };
 
             joinPoint.MethodInvoker = target;
-            var context = aspectContextFactory.Create();
 
+            var context = aspectContextFactory.Create();
             var internalContext = context as AspectContext;
             if (internalContext != null)
             {
@@ -49,15 +61,14 @@ namespace AspectCore.Lite.Internal
             }
 
             var interceptors = serviceMethod.GetCustomAttributes().OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
-            InterceptorInjectionFromService(interceptors, serviceProvider);
+            InterceptorInjectionFromService(interceptors , serviceProvider);
+            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx , next)));
 
-            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx, next)));
-
-            return joinPoint.Build()(context).ContinueWith((task, state) =>
+            return joinPoint.Build()(context).ContinueWith((task , state) =>
             {
                 if (task.IsFaulted) throw task.Exception;
-                return (IAspectContext)state;
-            }, context, TaskContinuationOptions.ExecuteSynchronously);
+                return ((IAspectContext)state).ReturnParameter.Value;
+            } , context , TaskContinuationOptions.ExecuteSynchronously);
         }
 
         private void InterceptorInjectionFromService(IEnumerable<IInterceptor> interceptors, IServiceProvider serviceProvider)
@@ -66,18 +77,25 @@ namespace AspectCore.Lite.Internal
             {
                 foreach (var property in interceptor.GetType().GetTypeInfo().DeclaredProperties)
                 {
-                    var fromService = property.GetCustomAttribute<FromServiceAttribute>();
-                    if (fromService == null) continue;
+                    var fromServiceAttribute = property.GetCustomAttribute<FromServiceAttribute>();
+
+                    if (fromServiceAttribute == null)
+                    {
+                        continue;
+                    }
+
                     property.SetValue(interceptor, serviceProvider.GetService(property.PropertyType));
                 }
 
-                var fromServiceable = interceptor as IFromServiceable;
-                if (fromServiceable == null)
+                var fromService = interceptor as IFromServiceable;
+
+                if (fromService == null)
                 {
                     continue;
                 }
 
-                var injectionMethod = fromServiceable.GetType().GetTypeInfo().DeclaredMethods.FirstOrDefault();
+                var injectionMethod = fromService.GetType().GetTypeInfo().DeclaredMethods.FirstOrDefault();
+                
                 if (injectionMethod == null)
                 {
                     continue;

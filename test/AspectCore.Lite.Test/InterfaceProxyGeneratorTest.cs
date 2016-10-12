@@ -4,14 +4,18 @@ using Microsoft.AspNetCore.Testing;
 using NSubstitute;
 using System;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace AspectCore.Lite.Test.Generators
 {
     public class InterfaceProxyGeneratorTest
     {
         private readonly IServiceProvider serviceProvider;
-        public InterfaceProxyGeneratorTest()
+        private readonly ITestOutputHelper output;
+
+        public InterfaceProxyGeneratorTest(ITestOutputHelper output)
         {
+            this.output = output;
             serviceProvider = DependencyResolver.GetServiceProvider();
         }
 
@@ -59,14 +63,14 @@ namespace AspectCore.Lite.Test.Generators
             var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
             var proxyType = interfaceProxyGenerator.GenerateProxyType();
 
-            var targetApp = new TestAppService();
+            var targetApp = new TestAppService(output);
 
             var proxyApp = (IAppService)Activator.CreateInstance(proxyType, serviceProvider, targetApp);
             Assert.NotNull(proxyApp);
 
             proxyApp.AppId = 3;
             proxyApp.AppName = "proxyApp";
-        
+
             Assert.Equal(proxyApp.AppId, targetApp.AppId);
             Assert.Equal(proxyApp.AppName, targetApp.AppName);
             Assert.Equal(proxyApp.GetAppType(), targetApp.GetAppType());

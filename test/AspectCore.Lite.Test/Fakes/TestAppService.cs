@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace AspectCore.Lite.Test.Fakes
 {
     public class TestAppService : IAppService
     {
+        private readonly ITestOutputHelper output;
+
+        public TestAppService(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         public int AppId { get; set; } = 2;
 
         public string AppName
@@ -16,7 +24,7 @@ namespace AspectCore.Lite.Test.Fakes
 
         public void ExitApp()
         {
-            Console.WriteLine("TestAppService Exit.");
+            output.WriteLine("TestAppService Exit.");
 
         }
 
@@ -27,7 +35,7 @@ namespace AspectCore.Lite.Test.Fakes
 
         public bool RunApp(string[] args)
         {
-            Console.WriteLine("TestAppService Run.{0}.", args);
+            output.WriteLine("TestAppService Run.");
             return true;
         }
     }
