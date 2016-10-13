@@ -24,6 +24,7 @@ namespace AspectCore.Lite.Extensions
         {
             int bestLength = -1;
             var bestMatcher = default(MethodMatcher);
+
             var matchers = typeInfo.DeclaredMethods.Where(m => m.Name == name && m.GetParameters().Length == parameters.Length).Select(m => new MethodMatcher(m)).ToArray();
 
             if (matchers.Length == 1)

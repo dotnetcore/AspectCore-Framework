@@ -23,12 +23,12 @@ namespace AspectCore.Lite.Internal
             this.aspectContextFactory = aspectContextFactory;
         }
 
-        public object ExecuteSynchronously(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
+        public TResult ExecuteSynchronously<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
         {
-            return AsyncContext.Run(() => ExecuteAsync(targetInstance , proxyInstance , serviceType , method , args));
+            return AsyncContext.Run(() => ExecuteAsync<TResult>(targetInstance , proxyInstance , serviceType , method , args));
         }
 
-        public Task<object> ExecuteAsync(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
+        public Task<TResult> ExecuteAsync<TResult>(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
         {
             if (targetInstance == null) throw new ArgumentNullException(nameof(targetInstance));
             if (proxyInstance == null) throw new ArgumentNullException(nameof(proxyInstance));
@@ -44,7 +44,7 @@ namespace AspectCore.Lite.Internal
             var targetMethod = targetInstance.GetType().GetTypeInfo().GetRequiredMethod(method, args);
             var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
 
-            var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(method, args);
+            var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(serviceType.GetTypeInfo().IsInterface ? $"{serviceType.FullName}.{method}" : method, args);
             var proxy = new Proxy(proxyInstance, proxyMethod, proxyInstance.GetType()) { ParameterCollection = parameters };
 
             joinPoint.MethodInvoker = target;
@@ -66,7 +66,7 @@ namespace AspectCore.Lite.Internal
                 return joinPoint.Build()(context).ContinueWith((task, state) =>
                 {
                     if (task.IsFaulted) throw task.Exception;
-                    return ((IAspectContext)state).ReturnParameter.Value;
+                    return (TResult)context.ReturnParameter.Value;
                 }, context, TaskContinuationOptions.ExecuteSynchronously);
             }
         }

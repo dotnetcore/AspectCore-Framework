@@ -7,8 +7,8 @@ namespace AspectCore.Lite.Abstractions
 {
     public interface IAspectExecutor
     {
-        object ExecuteSynchronously(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args);
+        TResult ExecuteSynchronously<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args);
 
-        Task<object> ExecuteAsync(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args);
+        Task<TResult> ExecuteAsync<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args);
     }
 }

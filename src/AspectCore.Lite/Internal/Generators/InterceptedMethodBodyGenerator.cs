@@ -6,15 +6,15 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
+using AspectCore.Lite.Extensions;
 
 namespace AspectCore.Lite.Generators
 {
     public class InterceptedMethodBodyGenerator : MethodBodyGenerator
     {
-        //private readonly MethodInfo AspectExecutorMethod = typeof(ServiceProviderServiceExtensions).GetTypeInfo().DeclaredMethods.
-        //            Single(m => m.Name == GeneratorConstants.GetRequiredService && m.IsGenericMethod).MakeGenericMethod(typeof(IAspectExecutor));
-
-        private readonly MethodInfo AspectExecutorMethod = GeneratorUtilities.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
+        private readonly MethodInfo GetAspectExecutorMethod = GeneratorUtilities.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
+        private readonly MethodInfo AspectExecuteSynchronouslyMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteSynchronously");
+        private readonly MethodInfo AspectExecuteAsyncMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteAsync");
 
         protected FieldGenerator serviceProviderGenerator;
 
@@ -32,7 +32,7 @@ namespace AspectCore.Lite.Generators
 
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, serviceProviderGenerator.FieldBuilder);
-            il.Emit(OpCodes.Call, AspectExecutorMethod);
+            il.Emit(OpCodes.Call, GetAspectExecutorMethod);
             il.EmitThis();
             il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
             il.EmitThis();
@@ -50,11 +50,17 @@ namespace AspectCore.Lite.Generators
                 il.Emit(OpCodes.Stelem_Ref);
             }
 
-            il.Emit(OpCodes.Callvirt, typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteSynchronously"));
-
-            if (method.ReturnType != typeof(void))
+            if (method.ReturnType == typeof(void))
             {
-                il.EmitConvertToType(method.ReturnType, typeof(object), true);
+                il.Emit(OpCodes.Callvirt, AspectExecuteSynchronouslyMethod.MakeGenericMethod(typeof(object)));
+            }
+            else if(method.IsReturnTask())
+            {
+                il.Emit(OpCodes.Callvirt, AspectExecuteAsyncMethod.MakeGenericMethod(method.ReturnType));
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, AspectExecuteSynchronouslyMethod.MakeGenericMethod(method.ReturnType));
             }
 
             il.Emit(OpCodes.Ret);

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using AspectCore.Lite.Abstractions;
+using System.Reflection;
 
 namespace AspectCore.Lite.Test
 {

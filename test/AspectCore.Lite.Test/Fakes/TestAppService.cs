@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace AspectCore.Lite.Test.Fakes
 {
-    public class TestAppService : IAppService
+    public class TestAppService : IAppService, IAppServiceA
     {
         private readonly ITestOutputHelper output;
 
@@ -28,7 +28,7 @@ namespace AspectCore.Lite.Test.Fakes
         {
             return "testApp";
         }
-    
+
         public bool RunApp(string[] args)
         {
             output.WriteLine("TestAppService Run.");

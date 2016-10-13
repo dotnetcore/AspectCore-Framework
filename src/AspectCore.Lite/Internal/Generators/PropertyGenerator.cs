@@ -6,10 +6,10 @@ namespace AspectCore.Lite.Generators
 {
     public class PropertyGenerator
     {
-        private readonly TypeBuilder typeBuilder;
-        private readonly PropertyInfo propertyInfo;
-        private readonly FieldGenerator serviceInstanceGenerator;
-        private readonly FieldGenerator serviceProviderGenerator;
+        protected readonly TypeBuilder typeBuilder;
+        protected readonly PropertyInfo propertyInfo;
+        protected readonly FieldGenerator serviceInstanceGenerator;
+        protected readonly FieldGenerator serviceProviderGenerator;
 
         protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator)
         {
@@ -19,9 +19,9 @@ namespace AspectCore.Lite.Generators
             this.serviceProviderGenerator = serviceProviderGenerator;
         }
 
-        public void GenerateProperty()
+        public virtual void GenerateProperty()
         {
-            var property = typeBuilder.DefineProperty(propertyInfo.Name, PropertyAttributes.None, propertyInfo.PropertyType, Type.EmptyTypes);
+            var property = typeBuilder.DefineProperty($"{propertyInfo.DeclaringType.FullName}.{propertyInfo.Name}", PropertyAttributes.None, propertyInfo.PropertyType, Type.EmptyTypes);
 
             if (propertyInfo.CanRead)
             {

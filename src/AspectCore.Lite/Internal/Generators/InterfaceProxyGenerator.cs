@@ -7,70 +7,47 @@ using System.Linq;
 
 namespace AspectCore.Lite.Generators
 {
-    public sealed class InterfaceProxyGenerator
+    public sealed class InterfaceProxyGenerator: ProxyGenerator
     {
-        private readonly EmitBuilderProvider emitBuilderProvider;
-        private readonly Type interfaceType;
-        private TypeBuilder builder;
-
-        public TypeBuilder TypeBuilder
+        public InterfaceProxyGenerator(IServiceProvider serviceProvider, Type serviceType, params Type[] impInterfaceTypes) :
+            base(serviceProvider, serviceType, impInterfaceTypes)
         {
-            get
+
+            if (!serviceType.GetTypeInfo().IsInterface)
             {
-                if (builder == null) throw new InvalidOperationException($"The proxy of {interfaceType.FullName} is not generated.");
-                return builder;
+                throw new ArgumentException($"Type {serviceType} should be interface.", nameof(serviceType));
             }
         }
 
-        public InterfaceProxyGenerator(IServiceProvider serviceProvider, Type interfaceType)
+        public override Type GenerateProxyType()
         {
-            if (serviceProvider == null)
+            return emitBuilderProvider.DefinedType(serviceType, key =>
             {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
-            if (interfaceType == null)
-            {
-                throw new ArgumentNullException(nameof(interfaceType));
-            }
-
-            if (!interfaceType.GetTypeInfo().IsInterface)
-            {
-                throw new ArgumentException("Type should be interface.", nameof(interfaceType));
-            }
-
-            this.interfaceType = interfaceType;
-            this.emitBuilderProvider = serviceProvider.GetRequiredService<EmitBuilderProvider>();
-        }
-
-        public Type GenerateProxyType()
-        {
-            return emitBuilderProvider.DefinedType(interfaceType, key =>
-            {
-                builder = emitBuilderProvider.CurrentModuleBuilder.DefineType($"{key.Namespace}.{GeneratorConstants.Interface}{key.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), new Type[] { key });
-
-                var serviceProviderGenerator = new FieldGenerator(builder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
-                var serviceInstanceGenerator = new FieldGenerator(builder, key, GeneratorConstants.ServiceInstance);
-
-                var constructorGenerator = new InterfaceConstructorGenerator(builder, key, serviceProviderGenerator, serviceInstanceGenerator);
-
-                constructorGenerator.GenerateConstructor();
-
-                foreach (var propertyInfo in key.GetTypeInfo().DeclaredProperties)
-                {
-                    var interfacePropertyGenerator = new PropertyGenerator(builder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator);
-                    interfacePropertyGenerator.GenerateProperty();
-                }
-
-                foreach (var method in key.GetTypeInfo().DeclaredMethods)
-                {
-                    if (GeneratorUtilities.IsPropertyMethod(method, key)) continue;
-                    var interfaceMethodGenerator = new InterfaceMethodGenerator(builder, method, serviceInstanceGenerator, serviceProviderGenerator);
-                    interfaceMethodGenerator.GenerateMethod();
-                }
-
-                return builder.CreateTypeInfo().AsType();
+                return GenerateProxyTypeInfo(key).AsType();
             });
+        }
+
+        protected override TypeBuilder GenerateTypeBuilder()
+        {
+            return emitBuilderProvider.CurrentModuleBuilder.DefineType($"{serviceType.Namespace}.{GeneratorConstants.Interface}{serviceType.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), impInterfaceTypes);
+        }
+
+        private TypeInfo GenerateProxyTypeInfo(Type key)
+        {
+            var interfaceTypes = new Type[] { key }.Concat(impInterfaceTypes).ToArray();    
+            var serviceProviderGenerator = new FieldGenerator(TypeBuilder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
+            var serviceInstanceGenerator = new FieldGenerator(TypeBuilder, key, GeneratorConstants.ServiceInstance);
+
+            var constructorGenerator = new InterfaceConstructorGenerator(TypeBuilder, key, serviceProviderGenerator, serviceInstanceGenerator);
+
+            constructorGenerator.GenerateConstructor();
+
+            foreach(var impType in interfaceTypes)
+            {
+                GenerateInterfaceProxy(key, serviceProviderGenerator, serviceInstanceGenerator);
+            }
+
+            return TypeBuilder.CreateTypeInfo();
         }
     }
 }

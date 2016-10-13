@@ -13,25 +13,73 @@ namespace AspectCore.Lite.Test
         private readonly IZZZZ zzz;
 
 
-        public void Foo(string name ,int id)
+        string IZZZZ.Name
         {
-            //zzz.Foo();
-            var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
-            aspectExector.ExecuteSynchronously(zzz, this, typeof(IZZZZ), "Foo", name, id);
+            get; set;
         }
 
-        public void Foo1(ref int id)
+        public Task Foo()
         {
             var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
-            aspectExector.ExecuteSynchronously(zzz, this, typeof(IZZZZ), "Foo1", id);
+            return aspectExector.ExecuteAsync<object>(zzz, this, typeof(IZZZZ), "Foo");
+        }
+
+        public Task<string> Foo1()
+        {
+            var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
+            return aspectExector.ExecuteAsync<string>(zzz, this, typeof(IZZZZ), "Foo1");
+        }
+
+        public virtual void FooS()
+        {
+            var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
+            aspectExector.ExecuteSynchronously<object>(zzz, this, typeof(IZZZZ), "FooS");
+        }
+
+        public string FooS1()
+        {
+            var aspectExector = serviceProvider.GetRequiredService<IAspectExecutor>();
+            return aspectExector.ExecuteSynchronously<string>(zzz, this, typeof(IZZZZ), "FooS1");
         }
     }
 
 
+    public class ZZZZZ2 : ZZZZ
+    {
+        public override void FooS()
+        {
+            base.FooS();
+        }
+
+
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
+    }
+
     public interface IZZZZ
     {
-        void Foo(string name, int id);
 
-        void Foo1(ref int id);
+        string Name { get; set; }
+
+        Task Foo();
+
+        Task<String> Foo1();
+
+        void FooS();
+
+        string FooS1();
     }
 }

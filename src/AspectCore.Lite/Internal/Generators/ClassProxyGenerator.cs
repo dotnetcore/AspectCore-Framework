@@ -9,77 +9,48 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Generators
 {
-    public sealed class ClassProxyGenerator
+    public sealed class ClassProxyGenerator : ProxyGenerator
     {
-        private readonly EmitBuilderProvider emitBuilderProvider;
-        private readonly Type parentType;
-        private TypeBuilder builder;
-
-        public TypeBuilder TypeBuilder
+        public ClassProxyGenerator(IServiceProvider serviceProvider, Type parentType, params Type[] impInterfaceTypes)
+            : base(serviceProvider, parentType, impInterfaceTypes)
         {
-            get
-            {
-                if (builder == null) throw new InvalidOperationException($"The proxy of {parentType.FullName} is not generated.");
-                return builder;
-            }
-        }
-
-        public ClassProxyGenerator(IServiceProvider serviceProvider, Type parentType)
-        {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
-            if (parentType == null)
-            {
-                throw new ArgumentNullException(nameof(parentType));
-            }
-
             if (!parentType.GetTypeInfo().IsClass)
             {
                 throw new ArgumentException($"Type {parentType} should be class.", nameof(parentType));
             }
 
-            if(parentType.GetTypeInfo().IsSealed)
+            if (parentType.GetTypeInfo().IsSealed)
             {
-                throw new ArgumentException($"Type {parentType} cannot be sealed.",nameof(parentType));
+                throw new ArgumentException($"Type {parentType} cannot be sealed.", nameof(parentType));
             }
-
-            this.parentType = parentType;
-            this.emitBuilderProvider = serviceProvider.GetRequiredService<EmitBuilderProvider>();
         }
 
-        public Type GenerateProxyType()
+        private TypeInfo GenerateProxyTypeInfo(Type key)
         {
-            return emitBuilderProvider.DefinedType(parentType, key =>
+
+            var serviceProviderGenerator = new FieldGenerator(TypeBuilder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
+            var serviceInstanceGenerator = new FieldGenerator(TypeBuilder, key, GeneratorConstants.ServiceInstance);
+
+            GenerateClassProxy(serviceType, serviceProviderGenerator, serviceInstanceGenerator);
+
+            foreach (var impType in impInterfaceTypes)
             {
-                builder = emitBuilderProvider.CurrentModuleBuilder.DefineType($"{key.Namespace}.{GeneratorConstants.Class}{key.Name}", TypeAttributes.Class | TypeAttributes.Public, parentType, Type.EmptyTypes);
+                GenerateInterfaceProxy(impType, serviceProviderGenerator, serviceInstanceGenerator);
+            }
 
-                var serviceProviderGenerator = new FieldGenerator(builder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
-                var serviceInstanceGenerator = new FieldGenerator(builder, key, GeneratorConstants.ServiceInstance);
+            return TypeBuilder.CreateTypeInfo();
+        }
 
-                var constructorGenerator = new OverrideConstructorGenerator(builder, key, serviceProviderGenerator, serviceInstanceGenerator);
+        protected override TypeBuilder GenerateTypeBuilder()
+        {
+            return emitBuilderProvider.CurrentModuleBuilder.DefineType($"{serviceType.Namespace}.{GeneratorConstants.Class}{serviceType.Name}", TypeAttributes.Class | TypeAttributes.Public, serviceType, Type.EmptyTypes);
+        }
 
-                constructorGenerator.GenerateConstructor();
-
-                var pointcut = PointcutUtilities.GetPointcut(key.GetTypeInfo());
-
-                foreach (var propertyInfo in key.GetTypeInfo().DeclaredProperties.Where(p =>
-                        (p.CanRead && pointcut.IsMatch(p.GetMethod)) || (p.CanWrite && pointcut.IsMatch(p.SetMethod))))
-                {
-                    var interfacePropertyGenerator = new PropertyGenerator(builder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator);
-                    interfacePropertyGenerator.GenerateProperty();
-                }
-
-                foreach (var method in key.GetTypeInfo().DeclaredMethods.Where(m=> pointcut.IsMatch(m)))
-                {
-                    if (GeneratorUtilities.IsPropertyMethod(method, key)) continue;
-                    var interfaceMethodGenerator = new InterfaceMethodGenerator(builder, method, serviceInstanceGenerator, serviceProviderGenerator);
-                    interfaceMethodGenerator.GenerateMethod();
-                }
-
-                return builder.CreateTypeInfo().AsType();
+        public override Type GenerateProxyType()
+        {
+            return emitBuilderProvider.DefinedType(serviceType, key =>
+            {
+                return GenerateProxyTypeInfo(key).AsType();
             });
         }
     }

@@ -26,16 +26,28 @@ namespace AspectCore.Lite.Generators
         public virtual void GenerateMethod()
         {
             var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
-            builder = typeBuilder.DefineMethod(method.Name,
-                MethodAttributes.Public |  MethodAttributes.HideBySig | MethodAttributes.Virtual ,
+            builder = typeBuilder.DefineMethod($"{method.DeclaringType.FullName}.{method.Name}",
+                MethodAttributes.Private |  MethodAttributes.Final | MethodAttributes.HideBySig|MethodAttributes.NewSlot|MethodAttributes.Virtual ,
                 method.ReturnType, parameters);
+
+            GenerateGenericParameter();
+
+            typeBuilder.DefineMethodOverride(builder, method);
 
             var methodBody = GetMethodBodyGenerator();
             methodBody.GenerateMethodBody();
         }
 
+        protected void GenerateGenericParameter()
+        {
+            if (method.IsGenericMethod)
+            {
+                GenericMethodGenerator genericMethodGenerator = new GenericMethodGenerator(this);
+                genericMethodGenerator.GenerateGenericParameter();
+            }
+        }
 
-        private MethodBodyGenerator GetMethodBodyGenerator()
+        protected MethodBodyGenerator GetMethodBodyGenerator()
         {
             var pointcut = PointcutUtilities.GetPointcut(method.DeclaringType.GetTypeInfo());
             if (pointcut.IsMatch(method))
