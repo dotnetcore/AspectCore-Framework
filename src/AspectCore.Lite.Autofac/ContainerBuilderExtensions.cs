@@ -1,6 +1,7 @@
 ﻿using AspectCore.Lite.Generators;
 using Autofac;
 using Autofac.Core;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
