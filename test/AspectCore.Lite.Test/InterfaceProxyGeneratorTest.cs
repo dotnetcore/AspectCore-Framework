@@ -25,9 +25,9 @@ namespace AspectCore.Lite.Test.Generators
         {
             var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, typeof(IAppService));
             Assert.NotNull(interfaceProxyGenerator);
-            ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(null, typeof(IAppService)), "serviceProvider");
-            ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(serviceProvider, null), "interfaceType");
-            ExceptionAssert.ThrowsArgument(() => new InterfaceProxyGenerator(serviceProvider, typeof(object)), "interfaceType", "Type should be interface.");
+            ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(null , typeof(IAppService)) , "serviceProvider");
+            ExceptionAssert.ThrowsArgumentNull(() => new InterfaceProxyGenerator(serviceProvider , null) , "serviceType");
+            ExceptionAssert.ThrowsArgument(() => new InterfaceProxyGenerator(serviceProvider , typeof(object)) , "serviceType" , $"Type {typeof(object)} should be interface.");
         }
 
         //[Fact]

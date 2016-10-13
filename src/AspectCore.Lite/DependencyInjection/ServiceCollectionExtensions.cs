@@ -6,25 +6,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using AspectCore.Lite.Extensions;
 
 namespace AspectCore.Lite.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAspectLite(this IServiceCollection serviceCollection)
+        public static IEnumerable<ServiceDescriptor> AddAspectLite(this IServiceCollection serviceCollection)
         {
             if (serviceCollection == null)
             {
                 throw new ArgumentNullException(nameof(serviceCollection));
             }
 
-            serviceCollection.AddTransient<IJoinPoint, JoinPoint>();
-            serviceCollection.AddTransient<IAspectContextFactory, AspectContextFactory>();
-            serviceCollection.AddSingleton<EmitBuilderProvider>();
-            serviceCollection.AddTransient<IAspectExecutor , AspectExecutor>();
-            //serviceCollection.AddSingleton<IServiceProvider>(servicer => new AspectServiceProvider());
+            IServiceCollection services = new ServiceCollection();
+            services.AddTransient<IJoinPoint, JoinPoint>();
+            services.AddTransient<IAspectContextFactory, AspectContextFactory>();
+            services.AddSingleton<EmitBuilderProvider>();
+            services.AddTransient<IAspectExecutor , AspectExecutor>();
+            services.ForEach(d => serviceCollection.TryAdd(d));
 
-            return serviceCollection;
+            return services;
         }
     }
 }

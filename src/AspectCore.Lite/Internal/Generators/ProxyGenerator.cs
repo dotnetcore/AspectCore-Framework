@@ -80,17 +80,17 @@ namespace AspectCore.Lite.Generators
             }
         }
 
-        protected void GenerateInterfaceProxy(Type serviceType, FieldGenerator serviceProviderGenerator, FieldGenerator serviceInstanceGenerator)
+        protected void GenerateInterfaceProxy(Type interfaceType, FieldGenerator serviceProviderGenerator, FieldGenerator serviceInstanceGenerator)
         {
-            foreach (var propertyInfo in serviceType.GetTypeInfo().DeclaredProperties)
+            foreach (var propertyInfo in interfaceType.GetTypeInfo().DeclaredProperties)
             {
                 var interfacePropertyGenerator = new PropertyGenerator(TypeBuilder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator);
                 interfacePropertyGenerator.GenerateProperty();
             }
 
-            foreach (var method in serviceType.GetTypeInfo().DeclaredMethods)
+            foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods)
             {
-                if (GeneratorUtilities.IsPropertyMethod(method, serviceType)) continue;
+                if (GeneratorUtilities.IsPropertyMethod(method, interfaceType)) continue;
                 var interfaceMethodGenerator = new InterfaceMethodGenerator(TypeBuilder, method, serviceInstanceGenerator, serviceProviderGenerator);
                 interfaceMethodGenerator.GenerateMethod();
             }
