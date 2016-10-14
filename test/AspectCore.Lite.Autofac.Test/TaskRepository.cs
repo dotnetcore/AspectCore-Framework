@@ -9,5 +9,12 @@ namespace AspectCore.Lite.Autofac.Test
     public class TaskRepository : ITaskRepository
     {
         public virtual int Id { get; set; } = 101;
+
+        public Logger Logger { get; set; }
+
+        public TaskRepository(Logger logger)
+        {
+            Logger = logger;
+        }
     }
 }

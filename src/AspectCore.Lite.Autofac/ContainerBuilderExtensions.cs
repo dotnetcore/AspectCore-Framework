@@ -3,6 +3,7 @@ using AspectCore.Lite.Extensions;
 using AspectCore.Lite.Generators;
 using Autofac;
 using Autofac.Core;
+using Autofac.Core.Activators.Reflection;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -35,11 +36,17 @@ namespace AspectCore.Lite.Autofac
 
         private static void ComponentRegistration_Activating(object sender, ActivatingEventArgs<object> args)
         {
+            if (!(args.Component.Activator is ReflectionActivator))
+            {
+                return;
+            }
+
             var serviceTypes = args.Component.Services.OfType<IServiceWithType>().Select(s => s.ServiceType);
             if (serviceTypes.All(t => !t.GetTypeInfo().CanProxy()))
             {
                 return;
             }
+
             var serviceProvider = args.Context.Resolve<IServiceProvider>();  
             var interfaceTypes = serviceTypes.Where(type => type.GetTypeInfo().IsInterface);
             var classCount = serviceTypes.Count(type => type.GetTypeInfo().IsClass);

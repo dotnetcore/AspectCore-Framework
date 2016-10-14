@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Autofac.Test
 {
-    [ExecutionTimerInterceptor]
-    public interface ITaskRepository
+    public class Logger
     {
-        int Id { get; set; }
+        [ExecutionTimerInterceptor]
+        public virtual void Info()
+        {
 
-        Logger Logger { get; set; }
+        }
     }
 }

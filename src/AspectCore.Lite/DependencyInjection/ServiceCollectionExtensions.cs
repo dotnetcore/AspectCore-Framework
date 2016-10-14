@@ -20,6 +20,12 @@ namespace AspectCore.Lite.DependencyInjection
             services.AddTransient<IAspectContextFactory, AspectContextFactory>();
             services.AddSingleton<EmitBuilderProvider>();
             services.AddTransient<IAspectExecutor, AspectExecutor>();
+            services.AddScoped<IServiceProviderWrapper>(p =>
+            {
+                var ap = p as ProxyServiceProvider;
+                if (ap == null) return new ServiceProviderWrapper(p);
+                return new ServiceProviderWrapper(ap.originalServiceProvider);
+            });
             return services;
         }
 

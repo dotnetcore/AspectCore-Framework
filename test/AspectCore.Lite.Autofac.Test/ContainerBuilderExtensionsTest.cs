@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Autofac;
 using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.DependencyInjection;
 
 namespace AspectCore.Lite.Autofac.Test
 {
@@ -27,11 +28,25 @@ namespace AspectCore.Lite.Autofac.Test
         {
             ContainerBuilder builder = new ContainerBuilder();
             builder.RegisterAspectLite();
-            builder.RegisterType<TaskRepository>().As<ITaskRepository>();
-            builder.RegisterType<TaskRepository>().AsSelf();
+            //builder.Register(c => new Logger()).InstancePerLifetimeScope();
+            //builder.RegisterType<TaskRepository>().As<ITaskRepository>();
+            builder.RegisterType<Logger>().AsSelf().InstancePerLifetimeScope();
+            //IContainer container = builder.Build();
+            //ITaskRepository repository = container.Resolve<ITaskRepository>();
+            //var logger = repository.Logger;
             IContainer container = builder.Build();
-            ITaskRepository repository = container.Resolve<ITaskRepository>();
-            var aaa= container.Resolve<TaskRepository>();
+            var rootProviderWrapper = container.Resolve<IServiceProviderWrapper>();
+            var log1 = rootProviderWrapper.GetOriginalService<Logger>();
+            var log2 = rootProviderWrapper.GetOriginalService<Logger>();
+            var proxyLogger = container.Resolve<Logger>();
+            Assert.Equal(log1, log2);
+            var liftTime = container.BeginLifetimeScope();
+            var liftTimeProviderWrapper = liftTime.Resolve<IServiceProviderWrapper>();
+            var log3 = liftTimeProviderWrapper.GetOriginalService<Logger>();
+            var log4 = liftTimeProviderWrapper.GetOriginalService<Logger>();
+            Assert.Equal(log3, log4);
+            Assert.NotEqual(log1, log4);
+            //Assert.Equal(rootProviderWrapper, liftTimeProviderWrapper);
         }
     }
 }
