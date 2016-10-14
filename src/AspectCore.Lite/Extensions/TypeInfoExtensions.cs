@@ -16,6 +16,16 @@ namespace AspectCore.Lite.Extensions
 
         public static bool CanProxy(this TypeInfo typeInfo)
         {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
+
+            if (typeInfo.IsValueType)
+            {
+                return false;
+            }
+
             IPointcut pointcut = PointcutUtilities.GetPointcut(typeInfo);
             return typeInfo.DeclaredMethods.Any(method => pointcut.IsMatch(method));
         }

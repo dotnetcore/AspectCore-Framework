@@ -13,19 +13,24 @@ namespace AspectCore.Lite.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IEnumerable<ServiceDescriptor> AddAspectLite(this IServiceCollection serviceCollection)
+        public static IEnumerable<ServiceDescriptor> GetAspectLiteServices()
         {
-            if (serviceCollection == null)
-            {
-                throw new ArgumentNullException(nameof(serviceCollection));
-            }
-
             IServiceCollection services = new ServiceCollection();
             services.AddTransient<IJoinPoint, JoinPoint>();
             services.AddTransient<IAspectContextFactory, AspectContextFactory>();
             services.AddSingleton<EmitBuilderProvider>();
-            services.AddTransient<IAspectExecutor , AspectExecutor>();
-            services.ForEach(d => serviceCollection.TryAdd(d));
+            services.AddTransient<IAspectExecutor, AspectExecutor>();
+            return services;
+        }
+
+        public static IServiceCollection AddAspectLite(this IServiceCollection services)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            GetAspectLiteServices().ForEach(d => services.TryAdd(d));
 
             return services;
         }

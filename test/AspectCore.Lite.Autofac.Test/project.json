@@ -1,14 +1,15 @@
-{
+﻿{
   "version": "1.0.0-*",
   "testRunner": "xunit",
 
   "dependencies": {
-    "AspectCore.Lite": "1.0.0-*",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Microsoft.AspNetCore.Testing": "1.1.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "NSubstitute": "2.0.0-rc",
-    "xunit": "2.2.0-*"
+    "xunit": "2.2.0-*",
+    "Autofac.Extensions.DependencyInjection": "4.0.0-*",
+    "AspectCore.Lite.Autofac": "1.0.0-beta1-1013"
   },
 
   "frameworks": {

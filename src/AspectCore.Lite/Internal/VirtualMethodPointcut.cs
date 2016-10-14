@@ -25,7 +25,12 @@ namespace AspectCore.Lite.Internal
                 return false;
             }
 
-            if (method.IsStatic || method.IsPrivate || !method.IsVirtual)
+            if (method.IsStatic || !method.IsVirtual || method.IsFinal)
+            {
+                return false;
+            }
+
+            if (!method.IsFamilyOrAssembly && !method.IsPublic && !method.IsFamily)
             {
                 return false;
             }

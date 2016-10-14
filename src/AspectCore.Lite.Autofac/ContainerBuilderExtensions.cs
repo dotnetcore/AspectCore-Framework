@@ -1,4 +1,6 @@
-﻿using AspectCore.Lite.Generators;
+﻿using AspectCore.Lite.DependencyInjection;
+using AspectCore.Lite.Extensions;
+using AspectCore.Lite.Generators;
 using Autofac;
 using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
@@ -13,14 +15,14 @@ namespace AspectCore.Lite.Autofac
 {
     public static class ContainerBuilderExtensions
     {
-        public static ContainerBuilder RegisterAspectLite(this ContainerBuilder containerBuilder , IEnumerable<ServiceDescriptor> aspectServices)
+        public static ContainerBuilder RegisterAspectLite(this ContainerBuilder containerBuilder)
         {
             if (containerBuilder == null)
             {
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
 
-            containerBuilder.Populate(aspectServices);
+            containerBuilder.Populate(ServiceCollectionExtensions.GetAspectLiteServices());
             containerBuilder.RegisterCallback(registry => registry.Registered += Registry_Registered);
 
             return containerBuilder;
@@ -31,20 +33,50 @@ namespace AspectCore.Lite.Autofac
             args.ComponentRegistration.Activating += ComponentRegistration_Activating;
         }
 
-        private static void ComponentRegistration_Activating(object sender , ActivatingEventArgs<object> args)
+        private static void ComponentRegistration_Activating(object sender, ActivatingEventArgs<object> args)
         {
-            var serviceProvider = args.Context.Resolve<IServiceProvider>();
             var serviceTypes = args.Component.Services.OfType<IServiceWithType>().Select(s => s.ServiceType);
+            if (serviceTypes.All(t => !t.GetTypeInfo().CanProxy()))
+            {
+                return;
+            }
+            var serviceProvider = args.Context.Resolve<IServiceProvider>();  
             var interfaceTypes = serviceTypes.Where(type => type.GetTypeInfo().IsInterface);
             var classCount = serviceTypes.Count(type => type.GetTypeInfo().IsClass);
-            if (classCount == 0)
-            {
+            var instanceType = args.Instance.GetType();
+            Type proxyType = null;
 
-                var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider , interfaceTypes.First() , interfaceTypes.Skip(1).ToArray());
-                var proxyType = interfaceProxyGenerator.GenerateProxyType();
-                var proxyInstance = ActivatorUtilities.CreateInstance(serviceProvider , proxyType , serviceProvider , args.Instance);
-                args.Instance = proxyInstance;
+            switch (classCount)
+            {
+                case 0:
+                    var interfaceProxyGenerator = new InterfaceProxyGenerator(serviceProvider, interfaceTypes.First(), interfaceTypes.Skip(1).ToArray());
+                    proxyType = interfaceProxyGenerator.GenerateProxyType();
+                    break;
+
+                case 1:
+                    var serviceType = serviceTypes.Single(type => type.GetTypeInfo().IsClass);
+                    if (!serviceType.GetTypeInfo().IsAssignableFrom(instanceType))
+                    {
+                        throw new InvalidOperationException($"Not found base type of {instanceType} in registered services.");
+                    }   
+                    var classProxyGenerator = new ClassProxyGenerator(serviceProvider, serviceType, interfaceTypes.ToArray());
+                    proxyType = classProxyGenerator.GenerateProxyType();
+                    break;
+
+                default:
+                    var canProxyTypes = serviceTypes.Where(type => type.GetTypeInfo().IsClass && type.GetTypeInfo().CanProxy()).ToArray();
+                    if (canProxyTypes.Length != 1)
+                    {
+                        throw new InvalidOperationException($"Can not determine the {instanceType} type of inheritance in registered services.");
+                    }
+                    var parentProxyGenerator = new ClassProxyGenerator(serviceProvider, canProxyTypes[0], interfaceTypes.ToArray());
+                    proxyType = parentProxyGenerator.GenerateProxyType();
+                    break;
+                    
             }
+
+            var proxyInstance = ActivatorUtilities.CreateInstance(serviceProvider, proxyType, serviceProvider, args.Instance);
+            args.Instance = proxyInstance;
         }
     }
 }
