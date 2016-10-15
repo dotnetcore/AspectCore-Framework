@@ -1,12 +1,9 @@
 ﻿using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Generators;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspectCore.Lite.Internal
+namespace AspectCore.Lite.Abstractions
 {
     public class ProxyActivator : IProxyActivator
     {
@@ -20,6 +17,7 @@ namespace AspectCore.Lite.Internal
 
             this.serviceProvider = serviceProvider;
         }
+
         public object CreateClassProxy(Type serviceType , object instance , Type[] interfaceTypes)
         {
             var proxyGenerator = new ClassProxyGenerator(serviceProvider , serviceType , interfaceTypes);
