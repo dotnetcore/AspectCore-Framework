@@ -10,7 +10,6 @@ namespace AspectCore.Lite.Generators
 {
     public abstract class ProxyGenerator
     {
-        private readonly object syncobject = new object();
         private readonly Lazy<TypeBuilder> builder;
         internal readonly EmitBuilderProvider emitBuilderProvider;   
         protected readonly Type[] impInterfaceTypes;

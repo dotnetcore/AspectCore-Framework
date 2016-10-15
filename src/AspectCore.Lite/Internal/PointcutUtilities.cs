@@ -15,7 +15,10 @@ namespace AspectCore.Lite.Internal
 
         internal static bool IsMemberMatch(MethodInfo method, TypeInfo declaringTypeInfo)
         {
-            if (declaringTypeInfo.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType))) return true;
+            if (declaringTypeInfo.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType)))
+            {
+                return true;
+            }
             return method.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType));
         }
 

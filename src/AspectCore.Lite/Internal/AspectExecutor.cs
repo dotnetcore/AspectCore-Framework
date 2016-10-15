@@ -30,25 +30,40 @@ namespace AspectCore.Lite.Internal
 
         public Task<TResult> ExecuteAsync<TResult>(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
         {
-            if (targetInstance == null) throw new ArgumentNullException(nameof(targetInstance));
-            if (proxyInstance == null) throw new ArgumentNullException(nameof(proxyInstance));
-            if (serviceType == null) throw new ArgumentNullException(nameof(serviceType));
-            if (string.IsNullOrEmpty(method)) throw new ArgumentNullException(nameof(method));
-            if (args == null) throw new ArgumentNullException(nameof(args));
+            if (targetInstance == null)
+            {
+                throw new ArgumentNullException(nameof(targetInstance));
+            }
+            if (proxyInstance == null)
+            {
+                throw new ArgumentNullException(nameof(proxyInstance));
+            }
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+            if (string.IsNullOrEmpty(method))
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
 
             var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method, args);
 
             var parameters = new ParameterCollection(args, serviceMethod.GetParameters());
-            var returnParameter = new ReturnParameterDescriptor(null, serviceMethod.ReturnParameter);
+            var returnParameter = new ReturnParameterDescriptor(default(object), serviceMethod.ReturnParameter);
 
             var targetMethod = targetInstance.GetType().GetTypeInfo().GetRequiredMethod(method, args);
             var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
 
             var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(serviceType.GetTypeInfo().IsInterface ? $"{serviceType.FullName}.{method}" : method, args);
-            var proxy = new Proxy(proxyInstance, proxyMethod, proxyInstance.GetType()) { ParameterCollection = parameters };
+            var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
 
             joinPoint.MethodInvoker = target;
-            var interceptors = serviceMethod.GetCustomAttributes().Concat(serviceType.GetTypeInfo().GetCustomAttributes()).OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
+            var interceptors = serviceMethod.GetInterceptors();
             InterceptorInjectionFromService(interceptors, serviceProvider);
             interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx, next)));
 
@@ -87,14 +102,7 @@ namespace AspectCore.Lite.Internal
                     property.SetValue(interceptor, serviceProvider.GetService(property.PropertyType));
                 }
 
-                var fromService = interceptor as IFromServiceable;
-
-                if (fromService == null)
-                {
-                    continue;
-                }
-
-                var injectionMethod = fromService.GetType().GetTypeInfo().DeclaredMethods.FirstOrDefault(m => m.Name == "FromService" && !m.IsGenericMethod && !m.IsAbstract);
+                var injectionMethod = interceptor.GetType().GetTypeInfo().DeclaredMethods.FirstOrDefault(m => m.Name == "FromService" && !m.IsGenericMethod && !m.IsAbstract);
                                 
                 if (injectionMethod == null)
                 {

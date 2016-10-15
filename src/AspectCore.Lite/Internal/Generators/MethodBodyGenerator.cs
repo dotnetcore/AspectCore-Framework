@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using AspectCore.Lite.Extensions;
+using System.Linq;
 using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Generators

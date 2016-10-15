@@ -9,10 +9,6 @@ namespace AspectCore.Lite.Extensions
 {
     public static class TypeInfoExtensions
     {
-        internal static IEnumerable<MethodInfo> GetPointcutMethod(this TypeInfo typeInfo, IPointcut pointCut)
-        {
-            return typeInfo.DeclaredMethods.Where(method => pointCut.IsMatch(method));
-        }
 
         public static bool CanProxy(this TypeInfo typeInfo)
         {
@@ -30,7 +26,7 @@ namespace AspectCore.Lite.Extensions
             return typeInfo.DeclaredMethods.Any(method => pointcut.IsMatch(method));
         }
 
-        internal static MethodInfo GetRequiredMethod(this TypeInfo typeInfo, string name, object[] parameters)
+        public static MethodInfo GetRequiredMethod(this TypeInfo typeInfo, string name, object[] parameters)
         {
             int bestLength = -1;
             var bestMatcher = default(MethodMatcher);
