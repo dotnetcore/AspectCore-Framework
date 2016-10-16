@@ -5,16 +5,22 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Generators
 {
-    internal sealed class EmitBuilderProvider
+    public sealed class ModuleGenerator
     {
         private readonly AssemblyBuilder assemblyBuilder;
         private readonly ModuleBuilder moduleBuilder;
         private readonly ConcurrentDictionary<Type, Type> proxyTypes;
 
-        public EmitBuilderProvider()
+        public ModuleGenerator()
         {
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly), AssemblyBuilderAccess.Run);
+#if NETSTANDARD1_6
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly) , AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module);
+#elif NET451
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly), AssemblyBuilderAccess.RunAndSave);
+            moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module , GeneratorConstants.AssemblyFile);
+#endif
+
             proxyTypes = new ConcurrentDictionary<Type, Type>();
         }
 
@@ -34,5 +40,12 @@ namespace AspectCore.Lite.Generators
             }
             return proxyTypes.GetOrAdd(targetType, valueFactory);
         }
+
+#if NET451
+        public void SaveAssembly()
+        {
+            assemblyBuilder.Save(GeneratorConstants.AssemblyFile);
+        }
+#endif
     }
 }

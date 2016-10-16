@@ -3,22 +3,18 @@ using AspectCore.Lite.Generators;
 using AspectCore.Lite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using AspectCore.Lite.Extensions;
 
 namespace AspectCore.Lite.DependencyInjection
 {
-    public static class ServiceCollectionExtensions
+    public static class ServiceCollectionUtilities
     {
-        public static IEnumerable<ServiceDescriptor> GetAspectLiteServices()
+        public static IServiceCollection CreateAspectLiteServices()
         {
             IServiceCollection services = new ServiceCollection();
             services.AddTransient<IJoinPoint, JoinPoint>();
-            services.AddTransient<IAspectContextFactory, AspectContextFactory>();
-            services.AddSingleton<EmitBuilderProvider>();
+            services.AddTransient<IAspectContextFactory, AspectContextFactory>();       
             services.AddTransient<IAspectExecutor, AspectExecutor>();
             services.AddScoped<IServiceProviderWrapper>(p =>
             {
@@ -26,6 +22,7 @@ namespace AspectCore.Lite.DependencyInjection
                 if (ap == null) return new ServiceProviderWrapper(p);
                 return new ServiceProviderWrapper(ap.originalServiceProvider);
             });
+            services.AddSingleton<ModuleGenerator>();
             return services;
         }
 
@@ -36,7 +33,7 @@ namespace AspectCore.Lite.DependencyInjection
                 throw new ArgumentNullException(nameof(services));
             }
 
-            GetAspectLiteServices().ForEach(d => services.TryAdd(d));
+            CreateAspectLiteServices().ForEach(d => services.TryAdd(d));
 
             return services;
         }
