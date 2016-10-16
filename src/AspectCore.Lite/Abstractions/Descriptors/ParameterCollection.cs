@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Internal;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,9 @@ namespace AspectCore.Lite.Abstractions
 
         public ParameterCollection(object[] parameters, ParameterInfo[] parameterInfos)
         {
-            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
-            if (parameterInfos == null) throw new ArgumentNullException(nameof(parameterInfos));
-            if (parameters.Length != parameterInfos.Length)
-                throw new ArgumentException("the number of parameters must equal the number of parameterInfos.");
+            ExceptionUtilities.ThrowArgumentNull(parameters , nameof(parameters));
+            ExceptionUtilities.ThrowArgumentNull(parameterInfos , nameof(parameterInfos));
+            ExceptionUtilities.ThrowArgument(() => parameters.Length != parameterInfos.Length , "The number of parameters must equal the number of parameterInfos.");
 
             parameterEntries = new Dictionary<string, ParameterDescriptor>(parameterInfos.Length);
 
@@ -29,7 +29,7 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index), "index value out of range.");
+                ExceptionUtilities.Throw<ArgumentOutOfRangeException>(() => index < 0 || index >= Count , nameof(index) , "index value out of range.");
                 ParameterDescriptor[] descriptors = parameterEntries.Select(pair => pair.Value).ToArray();
                 return descriptors[index];
             }
@@ -39,10 +39,10 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-                ParameterDescriptor descriptor;
-                if (parameterEntries.TryGetValue(name, out descriptor)) return descriptor;
-                throw new KeyNotFoundException($"does not exist the parameter nameof \"{name}\".");
+                ExceptionUtilities.ThrowArgumentNullOrEmpty(name , nameof(name));
+                ParameterDescriptor descriptor = null;
+                ExceptionUtilities.Throw<KeyNotFoundException>(() => !parameterEntries.TryGetValue(name , out descriptor) , $"Does not exist the parameter nameof \"{name}\".");
+                return descriptor;
             }
         }
 

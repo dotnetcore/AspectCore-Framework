@@ -25,17 +25,5 @@ namespace AspectCore.Lite.DependencyInjection
             services.AddSingleton<ModuleGenerator>();
             return services;
         }
-
-        public static IServiceCollection AddAspectLite(this IServiceCollection services)
-        {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            CreateAspectLiteServices().ForEach(d => services.TryAdd(d));
-
-            return services;
-        }
     }
 }

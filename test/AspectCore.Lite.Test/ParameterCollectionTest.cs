@@ -26,7 +26,7 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
             {
                 ParameterCollection collection = new ParameterCollection(new object[] { null }, Array.Empty<ParameterInfo>());
             },
-            null, "the number of parameters must equal the number of parameterInfos.");
+            null , "The number of parameters must equal the number of parameterInfos.");
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
         public void IndexedProperty_Name_Get_ThrowsKeyNotFoundException(string name)
         {
             ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
-            ExceptionAssert.Throws<KeyNotFoundException>(() => { var value = collection[name]; }, $"does not exist the parameter nameof \"{name}\".");
+            ExceptionAssert.Throws<KeyNotFoundException>(() => { var value = collection[name]; }, $"Does not exist the parameter nameof \"{name}\".");
         }
 
         [Fact]
