@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.DependencyInjection
 {
-    public class ServiceProviderWrapper : IServiceProviderWrapper
+    internal class ServiceProviderWrapper : IServiceProviderWrapper
     {
         private readonly IServiceProvider serviceProvider;
 

@@ -7,7 +7,7 @@ namespace AspectCore.Lite.Generators
 {
     internal static class GeneratorConstants
     {
-        internal const string Assembly = "AspectCore.Lite.Proxys_";
+        internal const string Assembly = "AspectCore.Lite.Proxys";
 
         internal const string Module = "main";
 
@@ -21,11 +21,15 @@ namespace AspectCore.Lite.Generators
 
         internal const string Class = "proxy_class<>_";
 
+        internal const string AssemblyFile = "AspectCore.Lite.Proxys.dll";
+
         internal const string ServiceProvider = "serviceProvider";
 
         internal const string ServiceInstance = "serviceInstance";
 
-        internal const string ExpressionsAssembly = "System.Linq.Expressions";
+        internal const string ExpressionsNETSTANDARD1_6 = "System.Linq.Expressions";
+
+        internal const string ExpressionsNET451 = "System.Core";
 
         internal const string ILGenType = "System.Linq.Expressions.Compiler.ILGen";
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
@@ -10,7 +11,11 @@ namespace AspectCore.Lite.Extensions
 {
     internal static class ILGeneratorExtensions
     {
-        private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName(GeneratorConstants.ExpressionsAssembly));
+#if NETSTANDARD1_6
+        private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName(GeneratorConstants.ExpressionsNETSTANDARD1_6));
+#elif NET451
+        private static readonly Assembly ExpressionsAssembly = Assembly.GetAssembly(typeof(Expression));
+#endif
         private static readonly Type ILGenType = ExpressionsAssembly.GetType(GeneratorConstants.ILGenType);
         private static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetTypeInfo().GetMethod("GetTypeFromHandle");
 

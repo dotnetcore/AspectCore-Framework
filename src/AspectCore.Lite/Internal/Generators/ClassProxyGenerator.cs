@@ -43,12 +43,12 @@ namespace AspectCore.Lite.Generators
 
         protected override TypeBuilder GenerateTypeBuilder()
         {
-            return emitBuilderProvider.CurrentModuleBuilder.DefineType($"{serviceType.Namespace}.{GeneratorConstants.Class}{serviceType.Name}", TypeAttributes.Class | TypeAttributes.Public, serviceType, Type.EmptyTypes);
+            return moduleGenerator.CurrentModuleBuilder.DefineType($"{serviceType.Namespace}.{GeneratorConstants.Class}{serviceType.Name}", TypeAttributes.Class | TypeAttributes.Public, serviceType, Type.EmptyTypes);
         }
 
         public override Type GenerateProxyType()
         {
-            return emitBuilderProvider.DefinedType(serviceType, key =>
+            return moduleGenerator.DefinedType(serviceType, key =>
             {
                 return GenerateProxyTypeInfo(key).AsType();
             });

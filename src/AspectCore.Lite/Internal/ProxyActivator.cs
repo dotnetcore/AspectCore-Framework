@@ -2,12 +2,19 @@
 using AspectCore.Lite.Generators;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using AspectCore.Lite.DependencyInjection;
 
 namespace AspectCore.Lite.Abstractions
 {
     public class ProxyActivator : IProxyActivator
     {
         private readonly IServiceProvider serviceProvider;
+
+        public ProxyActivator()
+            : this(ServiceCollectionUtilities.CreateAspectLiteServices().BuildServiceProvider())
+        {
+        }
+
         public ProxyActivator(IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)

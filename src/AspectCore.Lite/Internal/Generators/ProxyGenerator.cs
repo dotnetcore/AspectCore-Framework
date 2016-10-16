@@ -11,7 +11,7 @@ namespace AspectCore.Lite.Generators
     public abstract class ProxyGenerator
     {
         private readonly Lazy<TypeBuilder> builder;
-        internal readonly EmitBuilderProvider emitBuilderProvider;   
+        internal readonly ModuleGenerator moduleGenerator;   
         protected readonly Type[] impInterfaceTypes;
         protected readonly Type serviceType;
 
@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Generators
 
             this.serviceType = serviceType;
             this.impInterfaceTypes = impInterfaceTypes;
-            this.emitBuilderProvider = serviceProvider.GetRequiredService<EmitBuilderProvider>();
+            this.moduleGenerator = serviceProvider.GetRequiredService<ModuleGenerator>();
             this.builder = new Lazy<TypeBuilder>(() => GenerateTypeBuilder(), true);
         }
 

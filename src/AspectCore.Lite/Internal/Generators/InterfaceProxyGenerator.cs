@@ -24,7 +24,7 @@ namespace AspectCore.Lite.Generators
 
         public override Type GenerateProxyType()
         {
-            return emitBuilderProvider.DefinedType(serviceType, key =>
+            return moduleGenerator.DefinedType(serviceType, key =>
             {
                 return GenerateProxyTypeInfo(key).AsType();
             });
@@ -32,7 +32,7 @@ namespace AspectCore.Lite.Generators
 
         protected override TypeBuilder GenerateTypeBuilder()
         {
-            return emitBuilderProvider.CurrentModuleBuilder.DefineType($"{serviceType.Namespace}.{GeneratorConstants.Interface}{serviceType.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), interfaceTypes);
+            return moduleGenerator.CurrentModuleBuilder.DefineType($"{serviceType.Namespace}.{GeneratorConstants.Interface}{serviceType.Name}", TypeAttributes.Class | TypeAttributes.Public, typeof(object), interfaceTypes);
         }
 
         private TypeInfo GenerateProxyTypeInfo(Type key)

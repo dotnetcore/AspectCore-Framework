@@ -34,8 +34,19 @@ namespace AspectCore.Lite.Abstractions
 
         public object Invoke()
         {
-            object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
-            return Method.Invoke(Instance, args);
+            try
+            {
+                object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
+                return Method.Invoke(Instance , args);
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

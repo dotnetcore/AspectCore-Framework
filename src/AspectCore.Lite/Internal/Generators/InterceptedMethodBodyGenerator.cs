@@ -28,39 +28,40 @@ namespace AspectCore.Lite.Generators
         {
             var il = methodGenerator.MethodBuilder.GetILGenerator();
             var parameters = methodGenerator.TargetMethod.GetParameters().Select(x => x.ParameterType).ToArray();
-            var method = methodGenerator.TargetMethod;    
+            var method = methodGenerator.TargetMethod;
 
             il.EmitThis();
-            il.Emit(OpCodes.Ldfld, serviceProviderGenerator.FieldBuilder);
-            il.Emit(OpCodes.Call, GetAspectExecutorMethod);
+            il.Emit(OpCodes.Ldfld , serviceProviderGenerator.FieldBuilder);
+            il.Emit(OpCodes.Call , GetAspectExecutorMethod);
             il.EmitThis();
-            il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
+            il.Emit(OpCodes.Ldfld , serviceInstanceGenerator.FieldBuilder);
             il.EmitThis();
             il.EmitTypeof(method.DeclaringType);
-            il.Emit(OpCodes.Ldstr, method.Name);
+            il.Emit(OpCodes.Ldstr , method.Name);
             il.EmitLoadInt(parameters.Length);
-            il.Emit(OpCodes.Newarr,typeof(object));
+            il.Emit(OpCodes.Newarr , typeof(object));
 
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0 ; i < parameters.Length ; i++)
             {
                 il.Emit(OpCodes.Dup);
                 il.EmitLoadInt(i);
-                il.EmitLoadArg(i + 1); 
-                il.EmitConvertToType(parameters[i], typeof(object), false);
+                il.EmitLoadArg(i + 1);
+                il.EmitConvertToType(parameters[i] , typeof(object) , false);
                 il.Emit(OpCodes.Stelem_Ref);
             }
 
             if (method.ReturnType == typeof(void))
             {
-                il.Emit(OpCodes.Callvirt, AspectExecuteSynchronouslyMethod.MakeGenericMethod(typeof(object)));
+                il.Emit(OpCodes.Callvirt , AspectExecuteSynchronouslyMethod.MakeGenericMethod(typeof(object)));
+                il.Emit(OpCodes.Pop);
             }
-            else if(method.IsReturnTask())
+            else if (method.IsReturnTask())
             {
-                il.Emit(OpCodes.Callvirt, AspectExecuteAsyncMethod.MakeGenericMethod(method.ReturnType));
+                il.Emit(OpCodes.Callvirt , AspectExecuteAsyncMethod.MakeGenericMethod(method.ReturnType));
             }
             else
             {
-                il.Emit(OpCodes.Callvirt, AspectExecuteSynchronouslyMethod.MakeGenericMethod(method.ReturnType));
+                il.Emit(OpCodes.Callvirt , AspectExecuteSynchronouslyMethod.MakeGenericMethod(method.ReturnType));
             }
 
             il.Emit(OpCodes.Ret);
