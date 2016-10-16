@@ -15,12 +15,14 @@ namespace AspectCore.Lite.Internal
         private readonly IJoinPoint joinPoint;
         private readonly IAspectContextFactory aspectContextFactory;
         private readonly IServiceProvider serviceProvider;
+        private readonly IInterceptorMatcher interceptorMatcher;
 
-        public AspectExecutor(IServiceProvider serviceProvider,IJoinPoint joinPoint, IAspectContextFactory aspectContextFactory)
+        public AspectExecutor(IServiceProvider serviceProvider , IJoinPoint joinPoint , IAspectContextFactory aspectContextFactory , IInterceptorMatcher interceptorMatcher)
         {
             this.serviceProvider = serviceProvider;
             this.joinPoint = joinPoint;
             this.aspectContextFactory = aspectContextFactory;
+            this.interceptorMatcher = interceptorMatcher;
         }
 
         public TResult ExecuteSynchronously<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
@@ -37,10 +39,12 @@ namespace AspectCore.Lite.Internal
             var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
             var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(serviceType.GetTypeInfo().IsInterface ? $"{serviceType.FullName}.{method}" : method, args);
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
+
             joinPoint.MethodInvoker = target;
-            var interceptors = serviceMethod.GetInterceptors();
+            var interceptors = interceptorMatcher.Match(serviceMethod);
             InterceptorInjectionFromService(interceptors, serviceProvider);
             interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx, next)));
+
             using (var context = aspectContextFactory.Create())
             {
                 var internalContext = context as AspectContext;

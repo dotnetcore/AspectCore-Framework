@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.Abstractions
 {
-    public interface IPropertySelector
+    public interface IPropertyMatcher
     {
         PropertyInfo[] Match(IInterceptor interceptor);
     }

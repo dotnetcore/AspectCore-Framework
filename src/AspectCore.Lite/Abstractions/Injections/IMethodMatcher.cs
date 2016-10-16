@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.Abstractions.Injections
 {
-    public interface IMethodSelector
+    public interface IMethodMatcher
     {
         MethodInfo[] Match(IInterceptor interceptor);
     }

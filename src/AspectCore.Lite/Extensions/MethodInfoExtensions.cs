@@ -21,25 +21,5 @@ namespace AspectCore.Lite.Extensions
 
             return typeof(Task).GetTypeInfo().IsAssignableFrom(returnType);
         }
-
-        internal static IInterceptor[] GetInterceptors(this MethodInfo methodInfo)
-        {
-            var interceptorAttributes = methodInfo.DeclaringType.GetTypeInfo().GetCustomAttributes().Concat(methodInfo.GetCustomAttributes());
-            return interceptorAttributes.OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
-        }
-
-        private static IEnumerable<IInterceptor> InterceptorsIterator(MethodInfo methodInfo , TypeInfo typeInfo)
-        {
-            foreach (var attribute in typeInfo.GetCustomAttributes())
-            {
-                var interceptor = attribute as IInterceptor;
-                if (interceptor != null) yield return interceptor;
-            }
-            foreach (var attribute in methodInfo.GetCustomAttributes()) 
-            {
-                var interceptor = attribute as IInterceptor;
-                if (interceptor != null) yield return interceptor;
-            }
-        }
     }
 }
