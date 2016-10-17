@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Lite.Abstractions.Injections
+namespace AspectCore.Lite.Abstractions
 {
-    public interface IMethodMatcher
+    public interface IInjectedMethodMatcher
     {
         MethodInfo[] Match(IInterceptor interceptor);
     }
