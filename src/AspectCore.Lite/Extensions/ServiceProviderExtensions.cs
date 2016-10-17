@@ -1,6 +1,7 @@
 ﻿using System;
 using AspectCore.Lite.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using AspectCore.Lite.Internal;
 
 namespace AspectCore.Lite.DependencyInjection
 {
@@ -8,10 +9,7 @@ namespace AspectCore.Lite.DependencyInjection
     {
         public static object GetOriginalService(this IServiceProvider provider, Type serviceType)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
+            ExceptionUtilities.ThrowArgumentNull(provider , nameof(provider));
 
             var wrapper = provider as IServiceProviderWrapper;
             if (wrapper != null)

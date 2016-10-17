@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Internal;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -11,8 +12,7 @@ namespace AspectCore.Lite.Abstractions
 
         public ParameterDescriptor(object value, ParameterInfo parameterInfo)
         {
-            if (parameterInfo == null)
-                throw new ArgumentNullException(nameof(parameterInfo));
+            ExceptionUtilities.ThrowArgumentNull(parameterInfo , nameof(parameterInfo));
             this.parameterInfo = parameterInfo;
             this.value = value;         
         }
@@ -36,19 +36,18 @@ namespace AspectCore.Lite.Abstractions
             {
                 if (value == null)
                 {
-                    if (ParameterType.GetTypeInfo().IsValueType && !(ParameterType.GetTypeInfo().IsGenericType && ParameterType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>)))
-                        throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
+                    ExceptionUtilities.Throw<InvalidOperationException>(() =>
+                       ParameterType.GetTypeInfo().IsValueType && !(ParameterType.GetTypeInfo().IsGenericType && ParameterType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>)) ,
+                       $"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                     this.value = value;
                     return;
                 }
 
                 Type valueType = value.GetType();
 
-                if (valueType != ParameterType)
-                {
-                    if (!ParameterType.GetTypeInfo().IsAssignableFrom(valueType.GetTypeInfo()))
-                        throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
-                }
+                ExceptionUtilities.Throw<InvalidOperationException>(() => 
+                    valueType != ParameterType && !ParameterType.GetTypeInfo().IsAssignableFrom(valueType.GetTypeInfo()) ,
+                    $"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
 
                 this.value = value;
             }

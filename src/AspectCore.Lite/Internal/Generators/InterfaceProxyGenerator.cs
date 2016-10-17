@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
+using AspectCore.Lite.Internal;
 
 namespace AspectCore.Lite.Generators
 {
@@ -13,12 +14,7 @@ namespace AspectCore.Lite.Generators
         public InterfaceProxyGenerator(IServiceProvider serviceProvider, Type serviceType, params Type[] impInterfaceTypes) :
             base(serviceProvider, serviceType, impInterfaceTypes)
         {
-
-            if (!serviceType.GetTypeInfo().IsInterface)
-            {
-                throw new ArgumentException($"Type {serviceType} should be interface.", nameof(serviceType));
-            }
-
+            ExceptionUtilities.ThrowArgument(() => !serviceType.GetTypeInfo().IsInterface , $"Type {serviceType} should be interface." , nameof(serviceType));
             interfaceTypes = new Type[] { serviceType }.Concat(impInterfaceTypes).ToArray();
         }
 

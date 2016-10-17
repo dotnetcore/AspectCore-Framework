@@ -19,21 +19,13 @@ namespace AspectCore.Lite.Internal
 
         public void AddInterceptor(Func<InterceptorDelegate, InterceptorDelegate> interceptorDelegate)
         {
-            if (interceptorDelegate == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorDelegate));
-            }
-
+            ExceptionUtilities.ThrowArgumentNull(interceptorDelegate , nameof(interceptorDelegate));
             delegates.Add(interceptorDelegate);
         }
 
         public InterceptorDelegate Build()
         {
-            if (MethodInvoker == null)
-            {
-                throw new InvalidOperationException("Calling proxy method failed.Because instance of ProxyMethodInvoker is null.");
-            }
-
+            ExceptionUtilities.Throw<InvalidOperationException>(() => MethodInvoker == null , "Calling proxy method failed.Because instance of ProxyMethodInvoker is null.");
             InterceptorDelegate next = context =>
             {
                 var result = MethodInvoker.Invoke();
@@ -44,6 +36,7 @@ namespace AspectCore.Lite.Internal
             foreach (var @delegate in delegates.Reverse())
             {
                 next = @delegate(next);
+                ExceptionUtilities.Throw<InvalidOperationException>(() => next == null , "Invalid interceptorDelegate.");
             }
 
             return next;

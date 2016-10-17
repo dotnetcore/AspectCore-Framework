@@ -11,7 +11,10 @@ namespace AspectCore.Lite.Internal
     {
         public MethodInfo Match(Type declaringType , string methodName , params object[] parameters)
         {
-            
+            ExceptionUtilities.ThrowArgumentNull(declaringType , nameof(declaringType));
+            ExceptionUtilities.ThrowArgumentNull(parameters , nameof(parameters));
+            ExceptionUtilities.ThrowArgumentNullOrEmpty(methodName , nameof(methodName));
+
             int bestLength = -1;
             var bestMatcher = default(MethodOfGivenParametersMatcher);
 
@@ -36,11 +39,8 @@ namespace AspectCore.Lite.Internal
                 }
             }
 
-            if (bestMatcher == null)
-            {
-                var message = $"A suitable method for type '{declaringType}' could not be located. Ensure the type is concrete and services are registered for all parameters of a public method.";
-                throw new InvalidOperationException(message);
-            }
+            ExceptionUtilities.Throw<InvalidOperationException>(() => bestMatcher == null , 
+                $"A suitable method for type '{declaringType}' could not be located. Ensure the type is concrete and services are registered for all parameters of a public method.");
 
             return (MethodInfo)bestMatcher.GetMethod();
         }

@@ -1,28 +1,17 @@
 ﻿using AspectCore.Lite.Internal;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Generators
 {
     public sealed class ClassProxyGenerator : ProxyGenerator
     {
-        public ClassProxyGenerator(IServiceProvider serviceProvider, Type parentType, params Type[] impInterfaceTypes)
-            : base(serviceProvider, parentType, impInterfaceTypes)
+        public ClassProxyGenerator(IServiceProvider serviceProvider , Type parentType , params Type[] impInterfaceTypes)
+            : base(serviceProvider , parentType , impInterfaceTypes)
         {
-            if (!parentType.GetTypeInfo().IsClass)
-            {
-                throw new ArgumentException($"Type {parentType} should be class.", nameof(parentType));
-            }
-
-            if (parentType.GetTypeInfo().IsSealed)
-            {
-                throw new ArgumentException($"Type {parentType} cannot be sealed.", nameof(parentType));
-            }
+            ExceptionUtilities.ThrowArgument(() => !parentType.GetTypeInfo().IsClass , $"Type {parentType} should be class." , nameof(parentType));
+            ExceptionUtilities.ThrowArgument(() => parentType.GetTypeInfo().IsSealed , $"Type {parentType} cannot be sealed." , nameof(parentType));
         }
 
         private TypeInfo GenerateProxyTypeInfo(Type key)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Internal;
+using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -30,14 +31,9 @@ namespace AspectCore.Lite.Generators
 
         internal Type DefinedType(Type targetType, Func<Type, Type> valueFactory)
         {
-            if (targetType == null)
-            {
-                throw new ArgumentNullException(nameof(targetType));
-            }
-            if (valueFactory == null)
-            {
-                throw new ArgumentNullException(nameof(valueFactory));
-            }
+            ExceptionUtilities.ThrowArgumentNull(targetType , nameof(valueFactory));
+            ExceptionUtilities.ThrowArgumentNull(valueFactory , nameof(valueFactory));
+
             return proxyTypes.GetOrAdd(targetType, valueFactory);
         }
 

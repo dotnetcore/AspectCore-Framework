@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AspectCore.Lite.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,27 +26,13 @@ namespace AspectCore.Lite.Generators
 
         public ProxyGenerator(IServiceProvider serviceProvider, Type serviceType, Type[] impInterfaceTypes)
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
-            if (serviceType == null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
-
-            if (impInterfaceTypes == null)
-            {
-                throw new ArgumentNullException(nameof(impInterfaceTypes));
-            }
+            ExceptionUtilities.ThrowArgumentNull(serviceProvider , nameof(serviceProvider));
+            ExceptionUtilities.ThrowArgumentNull(serviceType , nameof(serviceType));
+            ExceptionUtilities.ThrowArgumentNull(impInterfaceTypes , nameof(impInterfaceTypes));
 
             foreach (var impType in impInterfaceTypes)
             {
-                if (!impType.GetTypeInfo().IsInterface)
-                {
-                    throw new ArgumentException($"Type {impType} should be interface.", nameof(impType));
-                }
+                ExceptionUtilities.ThrowArgument(() => !impType.GetTypeInfo().IsInterface , $"Type {impType} should be interface." , nameof(impType));
             }
 
             this.serviceType = serviceType;

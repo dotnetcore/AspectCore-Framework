@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Internal;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -14,17 +15,10 @@ namespace AspectCore.Lite.Abstractions
 
         internal Target(MethodInfo method, Type serviceType, Type implementationType, object implementationInstance)
         {
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-
-            if (serviceType == null)
-                throw new ArgumentNullException(nameof(serviceType));
-
-            if (implementationType == null)
-                throw new ArgumentNullException(nameof(implementationType));
-
-            if (implementationInstance == null)
-                throw new ArgumentNullException(nameof(implementationInstance));
+            ExceptionUtilities.ThrowArgumentNull(method , nameof(method));
+            ExceptionUtilities.ThrowArgumentNull(serviceType , nameof(serviceType));
+            ExceptionUtilities.ThrowArgumentNull(implementationType , nameof(implementationType));
+            ExceptionUtilities.ThrowArgumentNull(implementationInstance , nameof(implementationInstance));
 
             Method = method;
             ServiceType = serviceType;

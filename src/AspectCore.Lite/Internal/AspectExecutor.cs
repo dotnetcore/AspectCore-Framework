@@ -39,7 +39,6 @@ namespace AspectCore.Lite.Internal
 
         public async Task<TResult> ExecuteAsync<TResult>(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
         {
-            //var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method, args);
             var serviceMethod = namedMethodMatcher.Match(serviceType , method , args);
             var parameters = new ParameterCollection(args, serviceMethod.GetParameters());
             var returnParameter = new ReturnParameterDescriptor(default(object), serviceMethod.ReturnParameter);

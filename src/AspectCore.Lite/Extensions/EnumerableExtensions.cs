@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,16 +10,18 @@ namespace AspectCore.Lite.Extensions
     {
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (action == null) throw new ArgumentNullException(nameof(action));
+            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
+            ExceptionUtilities.ThrowArgumentNull(action , nameof(action));
+
             foreach (T item in source) action(item);
             return source;
         }
 
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (action == null) throw new ArgumentNullException(nameof(action));
+            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
+            ExceptionUtilities.ThrowArgumentNull(action , nameof(action));
+
             int index = 0;
             foreach (T item in source) action(item, index++);
             return source;
@@ -26,8 +29,9 @@ namespace AspectCore.Lite.Extensions
 
         public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
+            ExceptionUtilities.ThrowArgumentNull(keySelector , nameof(keySelector));
+
             HashSet<TKey> set = new HashSet<TKey>();
             foreach (TSource item in source)
                 if (set.Add(keySelector(item)))
@@ -36,9 +40,10 @@ namespace AspectCore.Lite.Extensions
 
         public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, bool> predicate)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
+            ExceptionUtilities.ThrowArgumentNull(keySelector , nameof(keySelector));
+            ExceptionUtilities.ThrowArgumentNull(predicate , nameof(predicate));
+
             HashSet<TKey> set = new HashSet<TKey>();
             foreach (TSource item in source)
             {

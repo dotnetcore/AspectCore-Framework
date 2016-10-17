@@ -17,12 +17,8 @@ namespace AspectCore.Lite.Internal
         private bool dispose = false;
 
         internal AspectContext(IServiceProvider serviceProvider)
-             : base()
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
+            ExceptionUtilities.ThrowArgumentNull(serviceProvider , nameof(serviceProvider));
             ApplicationServices = serviceProvider;
             serviceScope = ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
             AspectServices = serviceScope.ServiceProvider;
