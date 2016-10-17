@@ -17,6 +17,7 @@ namespace AspectCore.Lite.DependencyInjection
             services.AddTransient<IAspectContextFactory, AspectContextFactory>();       
             services.AddTransient<IAspectExecutor, AspectExecutor>();
             services.AddTransient<IInterceptorMatcher , AttributeInterceptorMatcher>();
+            services.AddTransient<INamedMethodMatcher , NamedMethodMatcher>();
             services.AddScoped<IServiceProviderWrapper>(p =>
             {
                 var ap = p as ProxyServiceProvider;

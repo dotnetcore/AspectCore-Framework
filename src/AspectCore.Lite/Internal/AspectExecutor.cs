@@ -16,13 +16,20 @@ namespace AspectCore.Lite.Internal
         private readonly IAspectContextFactory aspectContextFactory;
         private readonly IServiceProvider serviceProvider;
         private readonly IInterceptorMatcher interceptorMatcher;
+        private readonly INamedMethodMatcher namedMethodMatcher;
 
-        public AspectExecutor(IServiceProvider serviceProvider , IJoinPoint joinPoint , IAspectContextFactory aspectContextFactory , IInterceptorMatcher interceptorMatcher)
+        public AspectExecutor(
+            IServiceProvider serviceProvider ,
+            IJoinPoint joinPoint ,
+            IAspectContextFactory aspectContextFactory ,
+            IInterceptorMatcher interceptorMatcher ,
+            INamedMethodMatcher namedMethodMatcher)
         {
             this.serviceProvider = serviceProvider;
             this.joinPoint = joinPoint;
             this.aspectContextFactory = aspectContextFactory;
             this.interceptorMatcher = interceptorMatcher;
+            this.namedMethodMatcher = namedMethodMatcher;
         }
 
         public TResult ExecuteSynchronously<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
@@ -32,12 +39,13 @@ namespace AspectCore.Lite.Internal
 
         public async Task<TResult> ExecuteAsync<TResult>(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
         {
-            var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method, args);
+            //var serviceMethod = serviceType.GetTypeInfo().GetRequiredMethod(method, args);
+            var serviceMethod = namedMethodMatcher.Match(serviceType , method , args);
             var parameters = new ParameterCollection(args, serviceMethod.GetParameters());
             var returnParameter = new ReturnParameterDescriptor(default(object), serviceMethod.ReturnParameter);
-            var targetMethod = targetInstance.GetType().GetTypeInfo().GetRequiredMethod(method, args);
+            var targetMethod = namedMethodMatcher.Match(targetInstance.GetType() , method , args);
             var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
-            var proxyMethod = proxyInstance.GetType().GetTypeInfo().GetRequiredMethod(serviceType.GetTypeInfo().IsInterface ? $"{serviceType.FullName}.{method}" : method, args);
+            var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , serviceType.GetTypeInfo().IsInterface ? $"{serviceType.FullName}.{method}" : method , args);
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
 
             joinPoint.MethodInvoker = target;

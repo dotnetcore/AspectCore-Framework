@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Internal
 {
-    internal class MethodMatcher
+    internal class MethodOfGivenParametersMatcher
     {
         private readonly MethodBase _method;
         private readonly ParameterInfo[] _parameters;
 
-        public MethodMatcher(MethodBase method)
+        public MethodOfGivenParametersMatcher(MethodBase method)
         {
             _method = method;
             _parameters = method.GetParameters();
@@ -21,12 +21,12 @@ namespace AspectCore.Lite.Internal
         {
             var applyIndexStart = 0;
             var applyExactLength = 0;
-            for (var givenIndex = 0; givenIndex != givenParameters.Length; givenIndex++)
+            for (var givenIndex = 0 ; givenIndex != givenParameters.Length ; givenIndex++)
             {
                 var givenType = givenParameters[givenIndex] == null ? null : givenParameters[givenIndex].GetType().GetTypeInfo();
                 var givenMatched = false;
 
-                for (var applyIndex = applyIndexStart; givenMatched == false && applyIndex != _parameters.Length; ++applyIndex)
+                for (var applyIndex = applyIndexStart ; givenMatched == false && applyIndex != _parameters.Length ; ++applyIndex)
                 {
                     if (_parameters[applyIndex].ParameterType.GetTypeInfo().IsAssignableFrom(givenType))
                     {
@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Internal
             return applyExactLength;
         }
 
-        public MethodBase AsMethodBase()
+        public MethodBase GetMethod()
         {
             return _method;
         }
