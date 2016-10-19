@@ -11,12 +11,12 @@ using AspectCore.Lite.Test.Fakes;
 
 namespace AspectCore.Lite.Test.Abstractions
 {
-    public class JoinPointTest
+    public class JoinPointTest:IDependencyInjection
     {
         private readonly IServiceProvider serviceProvider;
         public JoinPointTest()
         {
-            serviceProvider = DependencyResolver.GetServiceProvider();
+            serviceProvider = this.BuildServiceProvider();
         }
 
         [Fact]

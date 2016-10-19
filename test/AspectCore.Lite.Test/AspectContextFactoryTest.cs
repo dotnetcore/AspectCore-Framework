@@ -8,12 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Lite.Test.Abstractions
 {
-    public class AspectContextFactoryTest
+    public class AspectContextFactoryTest : IDependencyInjection
     {
         private readonly IServiceProvider serviceProvider;
         public AspectContextFactoryTest()
         {
-            serviceProvider = DependencyResolver.GetServiceProvider();
+            serviceProvider = this.BuildServiceProvider();
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace AspectCore.Lite.Test.Abstractions
             Assert.NotNull(aspectContextFactory);
             var aspectContext = aspectContextFactory.Create();
             Assert.NotNull(aspectContext);
-            Assert.Equal(serviceProvider, aspectContext.ApplicationServices);
+            Assert.Equal(serviceProvider , aspectContext.ApplicationServices);
             Assert.NotNull(aspectContext.AspectServices);
             Assert.Null(aspectContext.Parameters);
             Assert.Null(aspectContext.Proxy);
