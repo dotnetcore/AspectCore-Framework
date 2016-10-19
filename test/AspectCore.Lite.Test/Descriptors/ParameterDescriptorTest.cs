@@ -66,23 +66,6 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
             Assert.Equal(service, descriptor.Value);
         }
 
-        //[Theory]
-        //[InlineData("string", "L")]
-        //[InlineData("int", 21)]
-        //[InlineData("float", 1.00f)]
-        //[InlineData("short", (short)21)]
-        //[InlineData("double", 1.00d)]
-        //[InlineData("byte", (byte)0)]
-        //[InlineData("isBool", true)]
-        //[InlineData("char", 'a')]
-        //[InlineData("null", null)]
-        //public void Ctor_primitiveParameter(string name, object value)
-        //{
-        //    ParameterEntry parameterEntry = new ParameterEntry(name, value);
-        //    Assert.Equal(name, parameterEntry.Name);
-        //    Assert.Equal(value, parameterEntry.Value);
-        //}
-
         [Fact]
         public void Properties_Get()
         {
