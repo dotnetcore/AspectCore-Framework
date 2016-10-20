@@ -37,20 +37,20 @@ namespace AspectCore.Lite.Internal
             return AsyncContext.Run(() => ExecuteAsync<TResult>(targetInstance , proxyInstance , serviceType , method , args));
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(object targetInstance, object proxyInstance, Type serviceType, string method, params object[] args)
+        public async Task<TResult> ExecuteAsync<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
         {
             var serviceMethod = namedMethodMatcher.Match(serviceType , method , args);
-            var parameters = new ParameterCollection(args, serviceMethod.GetParameters());
-            var returnParameter = new ReturnParameterDescriptor(default(object), serviceMethod.ReturnParameter);
+            var parameters = new ParameterCollection(args , serviceMethod.GetParameters());
+            var returnParameter = new ReturnParameterDescriptor(default(object) , serviceMethod.ReturnParameter);
             var targetMethod = namedMethodMatcher.Match(targetInstance.GetType() , method , args);
-            var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
-            var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , serviceType.GetTypeInfo().IsInterface ? $"{serviceType.FullName}.{method}" : method , args);
+            var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
+            var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , GetMethodName(serviceType , method) , args);
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
 
             joinPoint.MethodInvoker = target;
             var interceptors = interceptorMatcher.Match(serviceMethod);
-            InterceptorInjectionFromService(interceptors, serviceProvider);
-            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx, next)));
+            InterceptorInjectionFromService(interceptors , serviceProvider);
+            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx , next)));
 
             using (var context = aspectContextFactory.Create())
             {
@@ -65,13 +65,31 @@ namespace AspectCore.Lite.Internal
                 try
                 {
                     await joinPoint.Build()(context);
-                    return (TResult)context.ReturnParameter.Value;
+                    return await CastResult<TResult>(context.ReturnParameter.Value);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw ex;
                 }
             }
+        }
+
+        private static async Task<TResult> CastResult<TResult>(object value)
+        {
+            var taskResult = value as Task<TResult>;
+            if (taskResult != null) return await taskResult;
+            var task = value as Task;
+            if (task != null) { await task; return default(TResult); }
+            return (TResult)value;
+        }
+
+        private static string GetMethodName(Type serviceType , string method)
+        {
+            if (!serviceType.GetTypeInfo().IsInterface)
+            {
+                return method;
+            }
+            return $"{serviceType.FullName}.{method}".Replace('+' , '.');
         }
 
         private void InterceptorInjectionFromService(IEnumerable<IInterceptor> interceptors, IServiceProvider serviceProvider)
