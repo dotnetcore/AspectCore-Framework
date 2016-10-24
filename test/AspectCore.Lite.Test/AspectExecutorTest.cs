@@ -19,78 +19,87 @@ namespace AspectCore.Lite.Test
             var targetInstance = new AspectExecutorTestServiceTarget();
             var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
             var result = aspectExecutor.ExecuteAsync<int>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteAsync));
-            Assert.Equal(await result , await Task.FromResult(0));
+            Assert.Equal(await result , await targetInstance.ExecuteAsync().ContinueWith<int>(t => ((Task<int>)t).Result));
         }
 
-
-    }
-
-    [EmptyInterceptor]
-    public interface IAspectExecutorTestService
-    {
-        void ExecuteSynchronously();
-
-        Task ExecuteAsync();
-
-        object ExecuteSynchronouslyWithResult();
-
-        Task<object> ExecuteAsyncWithResult();
-    }
-
-    public class AspectExecutorTestServiceTarget : IAspectExecutorTestService
-    {
-        public Task ExecuteAsync()
+        [Fact]
+        public async Task ExecuteAsyncWithResult_Test()
         {
-            return Task.FromResult(0);
+            var serviceProvider = this.BuildServiceProvider();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var targetInstance = new AspectExecutorTestServiceTarget();
+            var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
+            var result = aspectExecutor.ExecuteAsync<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteAsyncWithResult));
+            Assert.Equal(await result , await targetInstance.ExecuteAsyncWithResult());
         }
 
-        public Task<object> ExecuteAsyncWithResult()
+        [EmptyInterceptor]
+        public interface IAspectExecutorTestService
         {
-            return Task.FromResult<object>(0);
+            void ExecuteSynchronously();
+
+            Task ExecuteAsync();
+
+            object ExecuteSynchronouslyWithResult();
+
+            Task<object> ExecuteAsyncWithResult();
         }
 
-        public void ExecuteSynchronously()
+        public class AspectExecutorTestServiceTarget : IAspectExecutorTestService
         {
+            public Task ExecuteAsync()
+            {
+                return Task.FromResult(0);
+            }
+
+            public Task<object> ExecuteAsyncWithResult()
+            {
+                return Task.FromResult<object>(this);
+            }
+
+            public void ExecuteSynchronously()
+            {
+            }
+
+            public object ExecuteSynchronouslyWithResult()
+            {
+                return 0;
+            }
         }
 
-        public object ExecuteSynchronouslyWithResult()
+        public class AspectExecutorTestServiceProxy : IAspectExecutorTestService
         {
-            return 0;
-        }
-    }
+            private readonly IServiceProvider _serviceProvider;
+            private readonly IAspectExecutorTestService _serviceInstance;
 
-    public class AspectExecutorTestServiceProxy : IAspectExecutorTestService
-    {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IAspectExecutorTestService _serviceInstance;
+            public AspectExecutorTestServiceProxy(IServiceProvider serviceProvider , IAspectExecutorTestService serviceInstance)
+            {
+                _serviceInstance = serviceInstance;
+                _serviceProvider = serviceProvider;
+            }
+            Task IAspectExecutorTestService.ExecuteAsync()
+            {
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                return aspectExecutor.ExecuteAsync<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteAsync");
+            }
 
-        public AspectExecutorTestServiceProxy(IServiceProvider serviceProvider , IAspectExecutorTestService serviceInstance)
-        {
-            _serviceInstance = serviceInstance;
-            _serviceProvider = serviceProvider;
-        }
-        Task IAspectExecutorTestService.ExecuteAsync()
-        {
-            var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-            return aspectExecutor.ExecuteAsync<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteAsync");
-        }
+            Task<object> IAspectExecutorTestService.ExecuteAsyncWithResult()
+            {
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                return aspectExecutor.ExecuteAsync<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteAsyncWithResult");
+            }
 
-        Task<object> IAspectExecutorTestService.ExecuteAsyncWithResult()
-        {
-            var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-            return aspectExecutor.ExecuteAsync<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteAsyncWithResult");
-        }
+            void IAspectExecutorTestService.ExecuteSynchronously()
+            {
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                aspectExecutor.ExecuteSynchronously<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously");
+            }
 
-        void IAspectExecutorTestService.ExecuteSynchronously()
-        {
-            var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-            aspectExecutor.ExecuteSynchronously<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously");
-        }
-
-        object IAspectExecutorTestService.ExecuteSynchronouslyWithResult()
-        {
-            var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-            return aspectExecutor.ExecuteSynchronously<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronouslyWithResult");
+            object IAspectExecutorTestService.ExecuteSynchronouslyWithResult()
+            {
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                return aspectExecutor.ExecuteSynchronously<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronouslyWithResult");
+            }
         }
     }
 }
