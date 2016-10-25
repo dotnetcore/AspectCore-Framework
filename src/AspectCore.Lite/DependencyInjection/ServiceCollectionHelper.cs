@@ -16,11 +16,12 @@ namespace AspectCore.Lite.DependencyInjection
             services.AddTransient<IInterceptorMatcher , AttributeInterceptorMatcher>();
             services.AddTransient<INamedMethodMatcher , NamedMethodMatcher>();
             services.AddTransient<IPointcut, DefaultPointcut>();
-            services.AddScoped<IServiceProviderWrapper>(p =>
+            services.AddTransient<IProxyActivator , ProxyActivatorWrapper>();
+            services.AddTransient<IServiceProviderWrapper>(provider =>
             {
-                var ap = p as ProxyServiceProvider;
-                if (ap == null) return new ServiceProviderWrapper(p);
-                return new ServiceProviderWrapper(ap.originalServiceProvider);
+                var proxyServiceProvider = provider as ProxyServiceProvider;
+                if (proxyServiceProvider == null) return new ServiceProviderWrapper(provider);
+                return new ServiceProviderWrapper(proxyServiceProvider.originalServiceProvider);
             });
             services.AddSingleton<ModuleGenerator>();
             return services;
