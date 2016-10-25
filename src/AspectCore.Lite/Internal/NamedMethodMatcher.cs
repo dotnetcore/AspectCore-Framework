@@ -20,11 +20,6 @@ namespace AspectCore.Lite.Internal
 
             var matchers = declaringType.GetTypeInfo().DeclaredMethods.Where(m => m.Name == methodName && m.GetParameters().Length == parameters.Length).Select(m => new MethodOfGivenParametersMatcher(m)).ToArray();
 
-            if (matchers.Length == 1)
-            {
-                return (MethodInfo)matchers[0].GetMethod();
-            }
-
             foreach (var matcher in matchers)
             {
                 var length = matcher.Match(parameters);
