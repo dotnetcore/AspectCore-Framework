@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AspectCore.Lite.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Generators
 {
     public class OverrideMethodGenerator : InterfaceMethodGenerator
     {
-        public OverrideMethodGenerator(TypeBuilder typeBuilder, MethodInfo method, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator)
-            : base(typeBuilder, method, serviceInstanceGenerator, serviceProviderGenerator)
+        public OverrideMethodGenerator(TypeBuilder typeBuilder, MethodInfo method, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator, IPointcut pointcut)
+            : base(typeBuilder, method, serviceInstanceGenerator, serviceProviderGenerator, pointcut)
         {
         }
 

@@ -48,7 +48,7 @@ namespace AspectCore.Lite.Internal
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
 
             joinPoint.MethodInvoker = target;
-            var interceptors = interceptorMatcher.Match(serviceMethod);
+            var interceptors = interceptorMatcher.Match(serviceMethod, serviceMethod.DeclaringType.GetTypeInfo());
             InterceptorInjectionFromService(interceptors , serviceProvider);
             interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx , next)));
 

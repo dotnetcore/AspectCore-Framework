@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using static AspectCore.Lite.Internal.DefaultPointcut;
 
 namespace AspectCore.Lite.Internal
 {

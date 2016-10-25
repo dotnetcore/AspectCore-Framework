@@ -41,13 +41,15 @@ namespace AspectCore.Lite.Autofac
                 return;
             }
 
+            var serviceProvider = args.Context.Resolve<IServiceProvider>();
+
             var serviceTypes = args.Component.Services.OfType<IServiceWithType>().Select(s => s.ServiceType);
-            if (serviceTypes.All(t => !t.GetTypeInfo().CanProxy()))
+            if (serviceTypes.All(t => !t.GetTypeInfo().CanProxy(serviceProvider)))
             {
                 return;
             }
 
-            var serviceProvider = args.Context.Resolve<IServiceProvider>();  
+           
             var interfaceTypes = serviceTypes.Where(type => type.GetTypeInfo().IsInterface);
             var classCount = serviceTypes.Count(type => type.GetTypeInfo().IsClass);
             var instanceType = args.Instance.GetType();
@@ -71,7 +73,7 @@ namespace AspectCore.Lite.Autofac
                     break;
 
                 default:
-                    var canProxyTypes = serviceTypes.Where(type => type.GetTypeInfo().IsClass && type.GetTypeInfo().CanProxy()).ToArray();
+                    var canProxyTypes = serviceTypes.Where(type => type.GetTypeInfo().IsClass && type.GetTypeInfo().CanProxy(serviceProvider)).ToArray();
                     if (canProxyTypes.Length != 1)
                     {
                         throw new InvalidOperationException($"Can not determine the {instanceType} type of inheritance in registered services.");

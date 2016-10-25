@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,8 +10,8 @@ namespace AspectCore.Lite.Generators
 {
     public class OverridePropertyGenerator : PropertyGenerator
     {
-        public OverridePropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator) 
-            : base(typeBuilder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator)
+        public OverridePropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator, IPointcut pointcut)
+            : base(typeBuilder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator, pointcut)
         {
         }
 
@@ -20,14 +21,14 @@ namespace AspectCore.Lite.Generators
 
             if (propertyInfo.CanRead)
             {
-                var methodGenerator = new OverrideMethodGenerator(typeBuilder, propertyInfo.GetMethod, serviceInstanceGenerator, serviceProviderGenerator);
+                var methodGenerator = new OverrideMethodGenerator(typeBuilder, propertyInfo.GetMethod, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 methodGenerator.GenerateMethod();
                 property.SetGetMethod(methodGenerator.MethodBuilder);
             }
 
             if (propertyInfo.CanWrite)
             {
-                var methodGenerator = new OverrideMethodGenerator(typeBuilder, propertyInfo.SetMethod, serviceInstanceGenerator, serviceProviderGenerator);
+                var methodGenerator = new OverrideMethodGenerator(typeBuilder, propertyInfo.SetMethod, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 methodGenerator.GenerateMethod();
                 property.SetSetMethod(methodGenerator.MethodBuilder);
             }

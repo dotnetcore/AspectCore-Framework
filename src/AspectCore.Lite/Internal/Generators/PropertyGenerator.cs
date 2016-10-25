@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -10,13 +11,15 @@ namespace AspectCore.Lite.Generators
         protected readonly PropertyInfo propertyInfo;
         protected readonly FieldGenerator serviceInstanceGenerator;
         protected readonly FieldGenerator serviceProviderGenerator;
+        protected readonly IPointcut pointcut;
 
-        protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator)
+        protected internal PropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator, IPointcut pointcut)
         {
             this.typeBuilder = typeBuilder;
             this.propertyInfo = propertyInfo;
             this.serviceInstanceGenerator = serviceInstanceGenerator;
             this.serviceProviderGenerator = serviceProviderGenerator;
+            this.pointcut = pointcut;
         }
 
         public virtual void GenerateProperty()
@@ -25,14 +28,14 @@ namespace AspectCore.Lite.Generators
 
             if (propertyInfo.CanRead)
             {
-                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.GetMethod, serviceInstanceGenerator, serviceProviderGenerator);
+                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.GetMethod, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 methodGenerator.GenerateMethod();
                 property.SetGetMethod(methodGenerator.MethodBuilder);
             }
 
             if (propertyInfo.CanWrite)
             {
-                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.SetMethod, serviceInstanceGenerator, serviceProviderGenerator);
+                var methodGenerator = new InterfaceMethodGenerator(typeBuilder, propertyInfo.SetMethod, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 methodGenerator.GenerateMethod();
                 property.SetSetMethod(methodGenerator.MethodBuilder);
             }
