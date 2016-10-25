@@ -11,9 +11,9 @@ namespace AspectCore.Lite.DependencyInjection
     {
         public static IServiceCollection AddAspectLite(this IServiceCollection services)
         {
-            ExceptionUtilities.ThrowArgumentNull(services , nameof(services));
+            ExceptionHelper.ThrowArgumentNull(services , nameof(services));
 
-            var aspectService = ServiceCollectionUtilities.CreateAspectLiteServices();
+            var aspectService = ServiceCollectionHelper.CreateAspectLiteServices();
             aspectService.ForEach(d => services.TryAdd(d));
 
             return services;

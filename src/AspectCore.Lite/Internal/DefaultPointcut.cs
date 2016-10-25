@@ -17,7 +17,7 @@ namespace AspectCore.Lite.Internal
                 return false;
             }
 
-            var pointcut = PointcutUtilities.GetPointcut(method.DeclaringType.GetTypeInfo());
+            var pointcut = PointcutHelper.GetPointcut(method.DeclaringType.GetTypeInfo());
             return pointcut.IsMatch(method);
         }
 
@@ -25,7 +25,7 @@ namespace AspectCore.Lite.Internal
         {
             public bool IsMatch(MethodInfo method)
             {
-                return PointcutUtilities.IsMatchCache(method, IsMatchCache);
+                return PointcutHelper.IsMatchCache(method, IsMatchCache);
             }
 
             private bool IsMatchCache(MethodInfo method)
@@ -42,7 +42,7 @@ namespace AspectCore.Lite.Internal
                     return false;
                 }
 
-                return PointcutUtilities.IsMemberMatch(method, declaringTypeInfo);
+                return PointcutHelper.IsMemberMatch(method, declaringTypeInfo);
             }
         }
 
@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Internal
         {
             public bool IsMatch(MethodInfo method)
             {
-                return PointcutUtilities.IsMatchCache(method, IsMatchCache);
+                return PointcutHelper.IsMatchCache(method, IsMatchCache);
             }
 
             private bool IsMatchCache(MethodInfo method)
@@ -77,7 +77,7 @@ namespace AspectCore.Lite.Internal
                     return false;
                 }
 
-                return PointcutUtilities.IsMemberMatch(method, declaringTypeInfo);
+                return PointcutHelper.IsMemberMatch(method, declaringTypeInfo);
             }
         }
     }

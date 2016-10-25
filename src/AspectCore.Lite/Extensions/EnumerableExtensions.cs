@@ -10,8 +10,8 @@ namespace AspectCore.Lite.Extensions
     {
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
-            ExceptionUtilities.ThrowArgumentNull(action , nameof(action));
+            ExceptionHelper.ThrowArgumentNull(source , nameof(source));
+            ExceptionHelper.ThrowArgumentNull(action , nameof(action));
 
             foreach (T item in source) action(item);
             return source;
@@ -19,8 +19,8 @@ namespace AspectCore.Lite.Extensions
 
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
         {
-            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
-            ExceptionUtilities.ThrowArgumentNull(action , nameof(action));
+            ExceptionHelper.ThrowArgumentNull(source , nameof(source));
+            ExceptionHelper.ThrowArgumentNull(action , nameof(action));
 
             int index = 0;
             foreach (T item in source) action(item, index++);
@@ -29,8 +29,8 @@ namespace AspectCore.Lite.Extensions
 
         public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
-            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
-            ExceptionUtilities.ThrowArgumentNull(keySelector , nameof(keySelector));
+            ExceptionHelper.ThrowArgumentNull(source , nameof(source));
+            ExceptionHelper.ThrowArgumentNull(keySelector , nameof(keySelector));
 
             HashSet<TKey> set = new HashSet<TKey>();
             foreach (TSource item in source)
@@ -40,9 +40,9 @@ namespace AspectCore.Lite.Extensions
 
         public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, bool> predicate)
         {
-            ExceptionUtilities.ThrowArgumentNull(source , nameof(source));
-            ExceptionUtilities.ThrowArgumentNull(keySelector , nameof(keySelector));
-            ExceptionUtilities.ThrowArgumentNull(predicate , nameof(predicate));
+            ExceptionHelper.ThrowArgumentNull(source , nameof(source));
+            ExceptionHelper.ThrowArgumentNull(keySelector , nameof(keySelector));
+            ExceptionHelper.ThrowArgumentNull(predicate , nameof(predicate));
 
             HashSet<TKey> set = new HashSet<TKey>();
             foreach (TSource item in source)

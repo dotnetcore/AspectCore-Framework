@@ -12,7 +12,7 @@ namespace AspectCore.Lite.Abstractions
 
         public ParameterDescriptor(object value, ParameterInfo parameterInfo)
         {
-            ExceptionUtilities.ThrowArgumentNull(parameterInfo , nameof(parameterInfo));
+            ExceptionHelper.ThrowArgumentNull(parameterInfo , nameof(parameterInfo));
             this.parameterInfo = parameterInfo;
             this.value = value;         
         }
@@ -36,7 +36,7 @@ namespace AspectCore.Lite.Abstractions
             {
                 if (value == null)
                 {
-                    ExceptionUtilities.Throw<InvalidOperationException>(() =>
+                    ExceptionHelper.Throw<InvalidOperationException>(() =>
                        ParameterType.GetTypeInfo().IsValueType && !(ParameterType.GetTypeInfo().IsGenericType && ParameterType.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>)) ,
                        $"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                     this.value = value;
@@ -45,7 +45,7 @@ namespace AspectCore.Lite.Abstractions
 
                 Type valueType = value.GetType();
 
-                ExceptionUtilities.Throw<InvalidOperationException>(() => 
+                ExceptionHelper.Throw<InvalidOperationException>(() => 
                     valueType != ParameterType && !ParameterType.GetTypeInfo().IsAssignableFrom(valueType.GetTypeInfo()) ,
                     $"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
 

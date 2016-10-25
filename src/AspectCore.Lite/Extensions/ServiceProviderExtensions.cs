@@ -9,7 +9,7 @@ namespace AspectCore.Lite.DependencyInjection
     {
         public static object GetOriginalService(this IServiceProvider provider, Type serviceType)
         {
-            ExceptionUtilities.ThrowArgumentNull(provider , nameof(provider));
+            ExceptionHelper.ThrowArgumentNull(provider , nameof(provider));
 
             var wrapper = provider as IServiceProviderWrapper;
             if (wrapper != null)

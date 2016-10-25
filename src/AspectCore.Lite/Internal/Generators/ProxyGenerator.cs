@@ -26,13 +26,13 @@ namespace AspectCore.Lite.Generators
 
         public ProxyGenerator(IServiceProvider serviceProvider, Type serviceType, Type[] impInterfaceTypes)
         {
-            ExceptionUtilities.ThrowArgumentNull(serviceProvider, nameof(serviceProvider));
-            ExceptionUtilities.ThrowArgumentNull(serviceType, nameof(serviceType));
-            ExceptionUtilities.ThrowArgumentNull(impInterfaceTypes, nameof(impInterfaceTypes));
+            ExceptionHelper.ThrowArgumentNull(serviceProvider, nameof(serviceProvider));
+            ExceptionHelper.ThrowArgumentNull(serviceType, nameof(serviceType));
+            ExceptionHelper.ThrowArgumentNull(impInterfaceTypes, nameof(impInterfaceTypes));
 
             foreach (var impType in impInterfaceTypes)
             {
-                ExceptionUtilities.ThrowArgument(() => !impType.GetTypeInfo().IsInterface, $"Type {impType} should be interface.", nameof(impType));
+                ExceptionHelper.ThrowArgument(() => !impType.GetTypeInfo().IsInterface, $"Type {impType} should be interface.", nameof(impType));
             }
 
             this.serviceType = serviceType;
@@ -53,15 +53,15 @@ namespace AspectCore.Lite.Generators
             constructorGenerator.GenerateConstructor();
 
             foreach (var propertyInfo in parentType.GetTypeInfo().DeclaredProperties.Where(p =>
-                    (p.CanRead && GeneratorUtilities.IsOverridedMethod(p.GetMethod, pointcut) || (p.CanWrite && GeneratorUtilities.IsOverridedMethod(p.SetMethod, pointcut)))))
+                    (p.CanRead && GeneratorHelper.IsOverridedMethod(p.GetMethod, pointcut) || (p.CanWrite && GeneratorHelper.IsOverridedMethod(p.SetMethod, pointcut)))))
             {
                 var interfacePropertyGenerator = new OverridePropertyGenerator(TypeBuilder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 interfacePropertyGenerator.GenerateProperty();
             }
 
-            foreach (var method in parentType.GetTypeInfo().DeclaredMethods.Where(m => GeneratorUtilities.IsOverridedMethod(m, pointcut)))
+            foreach (var method in parentType.GetTypeInfo().DeclaredMethods.Where(m => GeneratorHelper.IsOverridedMethod(m, pointcut)))
             {
-                if (GeneratorUtilities.IsPropertyMethod(method, parentType)) continue;
+                if (GeneratorHelper.IsPropertyMethod(method, parentType)) continue;
                 var methodGenerator = new OverrideMethodGenerator(TypeBuilder, method, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 methodGenerator.GenerateMethod();
             }
@@ -77,7 +77,7 @@ namespace AspectCore.Lite.Generators
 
             foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods)
             {
-                if (GeneratorUtilities.IsPropertyMethod(method, interfaceType)) continue;
+                if (GeneratorHelper.IsPropertyMethod(method, interfaceType)) continue;
                 var interfaceMethodGenerator = new InterfaceMethodGenerator(TypeBuilder, method, serviceInstanceGenerator, serviceProviderGenerator, pointcut);
                 interfaceMethodGenerator.GenerateMethod();
             }

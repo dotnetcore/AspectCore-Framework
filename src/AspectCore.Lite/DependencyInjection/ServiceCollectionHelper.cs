@@ -2,13 +2,10 @@
 using AspectCore.Lite.Generators;
 using AspectCore.Lite.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using AspectCore.Lite.Extensions;
 
 namespace AspectCore.Lite.DependencyInjection
 {
-    public static class ServiceCollectionUtilities
+    public static class ServiceCollectionHelper
     {
         public static IServiceCollection CreateAspectLiteServices()
         {

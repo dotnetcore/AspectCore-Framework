@@ -10,8 +10,8 @@ namespace AspectCore.Lite.Generators
         public ClassProxyGenerator(IServiceProvider serviceProvider , Type parentType , params Type[] impInterfaceTypes)
             : base(serviceProvider , parentType , impInterfaceTypes)
         {
-            ExceptionUtilities.ThrowArgument(() => !parentType.GetTypeInfo().IsClass , $"Type {parentType} should be class." , nameof(parentType));
-            ExceptionUtilities.ThrowArgument(() => parentType.GetTypeInfo().IsSealed , $"Type {parentType} cannot be sealed." , nameof(parentType));
+            ExceptionHelper.ThrowArgument(() => !parentType.GetTypeInfo().IsClass , $"Type {parentType} should be class." , nameof(parentType));
+            ExceptionHelper.ThrowArgument(() => parentType.GetTypeInfo().IsSealed , $"Type {parentType} cannot be sealed." , nameof(parentType));
         }
 
         private TypeInfo GenerateProxyTypeInfo(Type key)

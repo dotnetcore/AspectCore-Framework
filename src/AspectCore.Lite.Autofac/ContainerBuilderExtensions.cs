@@ -23,7 +23,7 @@ namespace AspectCore.Lite.Autofac
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
 
-            containerBuilder.Populate(ServiceCollectionUtilities.CreateAspectLiteServices());
+            containerBuilder.Populate(ServiceCollectionHelper.CreateAspectLiteServices());
             containerBuilder.RegisterCallback(registry => registry.Registered += Registry_Registered);
 
             return containerBuilder;

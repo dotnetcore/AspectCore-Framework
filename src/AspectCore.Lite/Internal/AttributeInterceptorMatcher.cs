@@ -26,8 +26,8 @@ namespace AspectCore.Lite.Internal
 
         public IInterceptor[] Match(MethodInfo method, TypeInfo typeInfo)
         {
-            ExceptionUtilities.ThrowArgumentNull(method, nameof(method));
-            ExceptionUtilities.ThrowArgumentNull(typeInfo, nameof(typeInfo));
+            ExceptionHelper.ThrowArgumentNull(method, nameof(method));
+            ExceptionHelper.ThrowArgumentNull(typeInfo, nameof(typeInfo));
             var interceptorAttributes = InterceptorsIterator(method, typeInfo);
             return interceptorAttributes.Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
         }

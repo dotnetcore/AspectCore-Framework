@@ -13,9 +13,9 @@ namespace AspectCore.Lite.Abstractions
 
         public ParameterCollection(object[] parameters, ParameterInfo[] parameterInfos)
         {
-            ExceptionUtilities.ThrowArgumentNull(parameters , nameof(parameters));
-            ExceptionUtilities.ThrowArgumentNull(parameterInfos , nameof(parameterInfos));
-            ExceptionUtilities.ThrowArgument(() => parameters.Length != parameterInfos.Length , "The number of parameters must equal the number of parameterInfos.");
+            ExceptionHelper.ThrowArgumentNull(parameters , nameof(parameters));
+            ExceptionHelper.ThrowArgumentNull(parameterInfos , nameof(parameterInfos));
+            ExceptionHelper.ThrowArgument(() => parameters.Length != parameterInfos.Length , "The number of parameters must equal the number of parameterInfos.");
 
             parameterEntries = new Dictionary<string, ParameterDescriptor>(parameterInfos.Length);
 
@@ -29,7 +29,7 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                ExceptionUtilities.Throw<ArgumentOutOfRangeException>(() => index < 0 || index >= Count , nameof(index) , "index value out of range.");
+                ExceptionHelper.Throw<ArgumentOutOfRangeException>(() => index < 0 || index >= Count , nameof(index) , "index value out of range.");
                 ParameterDescriptor[] descriptors = parameterEntries.Select(pair => pair.Value).ToArray();
                 return descriptors[index];
             }
@@ -39,9 +39,9 @@ namespace AspectCore.Lite.Abstractions
         {
             get
             {
-                ExceptionUtilities.ThrowArgumentNullOrEmpty(name , nameof(name));
+                ExceptionHelper.ThrowArgumentNullOrEmpty(name , nameof(name));
                 ParameterDescriptor descriptor = null;
-                ExceptionUtilities.Throw<KeyNotFoundException>(() => !parameterEntries.TryGetValue(name , out descriptor) , $"Does not exist the parameter nameof \"{name}\".");
+                ExceptionHelper.Throw<KeyNotFoundException>(() => !parameterEntries.TryGetValue(name , out descriptor) , $"Does not exist the parameter nameof \"{name}\".");
                 return descriptor;
             }
         }

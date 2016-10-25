@@ -13,8 +13,8 @@ namespace AspectCore.Lite.Extensions
 
         public static bool CanProxy(this TypeInfo typeInfo, IServiceProvider provider)
         {
-            ExceptionUtilities.ThrowArgumentNull(typeInfo, nameof(typeInfo));
-            ExceptionUtilities.ThrowArgumentNull(provider, nameof(provider));
+            ExceptionHelper.ThrowArgumentNull(typeInfo, nameof(typeInfo));
+            ExceptionHelper.ThrowArgumentNull(provider, nameof(provider));
 
             if (typeInfo.IsValueType)
             {

@@ -18,7 +18,7 @@ namespace AspectCore.Lite.Internal
 
         internal AspectContext(IServiceProvider serviceProvider)
         {
-            ExceptionUtilities.ThrowArgumentNull(serviceProvider , nameof(serviceProvider));
+            ExceptionHelper.ThrowArgumentNull(serviceProvider , nameof(serviceProvider));
             ApplicationServices = serviceProvider;
             serviceScope = ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
             AspectServices = serviceScope.ServiceProvider;

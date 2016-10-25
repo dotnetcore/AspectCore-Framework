@@ -1,15 +1,13 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Generators
 {
-    internal static class GeneratorUtilities
+    internal static class GeneratorHelper
     {
         private static readonly HashSet<string> NonOverrideMethodList = new HashSet<string> { "Equals", "GetHashCode", "ToString" };
         internal static MethodInfo GetMethodInfo<T>(Expression<T> expr)

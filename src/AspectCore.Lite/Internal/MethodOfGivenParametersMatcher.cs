@@ -13,7 +13,7 @@ namespace AspectCore.Lite.Internal
 
         public MethodOfGivenParametersMatcher(MethodBase method)
         {
-            ExceptionUtilities.ThrowArgumentNull(method , nameof(method));
+            ExceptionHelper.ThrowArgumentNull(method , nameof(method));
             _method = method;
             _parameters = method.GetParameters();
         }

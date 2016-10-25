@@ -12,7 +12,7 @@ namespace AspectCore.Lite.Generators
 {
     public class InterceptedMethodBodyGenerator : MethodBodyGenerator
     {
-        private readonly MethodInfo GetAspectExecutorMethod = GeneratorUtilities.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
+        private readonly MethodInfo GetAspectExecutorMethod = GeneratorHelper.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
         private readonly MethodInfo AspectExecuteSynchronouslyMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteSynchronously");
         private readonly MethodInfo AspectExecuteAsyncMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteAsync");
 

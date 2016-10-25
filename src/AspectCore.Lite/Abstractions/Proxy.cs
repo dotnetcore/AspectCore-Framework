@@ -13,9 +13,9 @@ namespace AspectCore.Lite.Abstractions
 
         internal Proxy(object instance, MethodInfo method, Type proxyType)
         {
-            ExceptionUtilities.ThrowArgumentNull(instance , nameof(instance));
-            ExceptionUtilities.ThrowArgumentNull(method , nameof(method));
-            ExceptionUtilities.ThrowArgumentNull(proxyType , nameof(proxyType));
+            ExceptionHelper.ThrowArgumentNull(instance , nameof(instance));
+            ExceptionHelper.ThrowArgumentNull(method , nameof(method));
+            ExceptionHelper.ThrowArgumentNull(proxyType , nameof(proxyType));
 
             Instance = instance;
             Method = method;

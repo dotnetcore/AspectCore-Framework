@@ -31,8 +31,8 @@ namespace AspectCore.Lite.Generators
 
         internal Type DefinedType(Type targetType, Func<Type, Type> valueFactory)
         {
-            ExceptionUtilities.ThrowArgumentNull(targetType , nameof(valueFactory));
-            ExceptionUtilities.ThrowArgumentNull(valueFactory , nameof(valueFactory));
+            ExceptionHelper.ThrowArgumentNull(targetType , nameof(valueFactory));
+            ExceptionHelper.ThrowArgumentNull(valueFactory , nameof(valueFactory));
 
             return proxyTypes.GetOrAdd(targetType, valueFactory);
         }

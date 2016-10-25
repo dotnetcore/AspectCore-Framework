@@ -14,7 +14,7 @@ namespace AspectCore.Lite.Generators
         public InterfaceProxyGenerator(IServiceProvider serviceProvider, Type serviceType, params Type[] impInterfaceTypes) :
             base(serviceProvider, serviceType, impInterfaceTypes)
         {
-            ExceptionUtilities.ThrowArgument(() => !serviceType.GetTypeInfo().IsInterface , $"Type {serviceType} should be interface." , nameof(serviceType));
+            ExceptionHelper.ThrowArgument(() => !serviceType.GetTypeInfo().IsInterface , $"Type {serviceType} should be interface." , nameof(serviceType));
             interfaceTypes = new Type[] { serviceType }.Concat(impInterfaceTypes).ToArray();
         }
 

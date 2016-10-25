@@ -8,7 +8,7 @@ namespace AspectCore.Lite.Extensions
     {
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
-            ExceptionUtilities.ThrowArgumentNull(methodInfo , nameof(methodInfo));
+            ExceptionHelper.ThrowArgumentNull(methodInfo , nameof(methodInfo));
 
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType);
         }

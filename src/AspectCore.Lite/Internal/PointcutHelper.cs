@@ -7,7 +7,7 @@ using static AspectCore.Lite.Internal.DefaultPointcut;
 
 namespace AspectCore.Lite.Internal
 {
-    internal static class PointcutUtilities
+    internal static class PointcutHelper
     {
         private readonly static TypeInfo InterceptorTypeInfo = typeof(IInterceptor).GetTypeInfo();
         private readonly static ConcurrentDictionary<MethodInfo, bool> pointcutCache = new ConcurrentDictionary<MethodInfo, bool>();
