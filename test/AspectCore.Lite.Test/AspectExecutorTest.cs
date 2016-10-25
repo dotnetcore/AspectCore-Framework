@@ -33,10 +33,34 @@ namespace AspectCore.Lite.Test
             Assert.Equal(await result , await targetInstance.ExecuteAsyncWithResult());
         }
 
+        [Fact]
+        public void ExecuteSynchronouslyWithResult_Test()
+        {
+            var serviceProvider = this.BuildServiceProvider();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var targetInstance = new AspectExecutorTestServiceTarget();
+            var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
+            var result = aspectExecutor.ExecuteSynchronously<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteSynchronouslyWithResult));
+            Assert.Equal(result , targetInstance.ExecuteSynchronouslyWithResult());
+        }
+
+        [Fact]
+        public void ExecuteSynchronously_Test()
+        {
+            var serviceProvider = this.BuildServiceProvider();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var targetInstance = new AspectExecutorTestServiceTarget();
+            var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
+            var result = aspectExecutor.ExecuteSynchronously<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteSynchronously) , targetInstance);
+            Assert.Equal(result , targetInstance.ExecuteSynchronously(targetInstance));
+        }
+
         [EmptyInterceptor]
         public interface IAspectExecutorTestService
         {
             void ExecuteSynchronously();
+
+            object ExecuteSynchronously(object value);
 
             Task ExecuteAsync();
 
@@ -59,6 +83,11 @@ namespace AspectCore.Lite.Test
 
             public void ExecuteSynchronously()
             {
+            }
+
+            public object ExecuteSynchronously(object value)
+            {
+                return value;
             }
 
             public object ExecuteSynchronouslyWithResult()
@@ -99,6 +128,12 @@ namespace AspectCore.Lite.Test
             {
                 var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
                 return aspectExecutor.ExecuteSynchronously<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronouslyWithResult");
+            }
+
+            object IAspectExecutorTestService.ExecuteSynchronously(object value)
+            {
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                return aspectExecutor.ExecuteSynchronously<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously" , value);
             }
         }
     }
