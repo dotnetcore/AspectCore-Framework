@@ -8,6 +8,6 @@ namespace AspectCore.Lite.Abstractions
 {
     public interface IInterceptorMatcher 
     {
-        IInterceptor[] Match(MethodInfo method);
+        IInterceptor[] Match(MethodInfo method, TypeInfo typeInfo);
     }
 }

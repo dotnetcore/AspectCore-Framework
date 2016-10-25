@@ -10,14 +10,7 @@ namespace AspectCore.Lite.Internal
 {
     internal class AttributeInterceptorMatcher : IInterceptorMatcher
     {
-        public IInterceptor[] Match(MethodInfo method)
-        {
-            ExceptionUtilities.ThrowArgumentNull(method , nameof(method));
-            var interceptorAttributes = method.DeclaringType.GetTypeInfo().GetCustomAttributes().Concat(method.GetCustomAttributes());
-            return interceptorAttributes.OfType<IInterceptor>().Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
-        }
-
-        private static IEnumerable<IInterceptor> InterceptorsIterator(MethodInfo methodInfo , TypeInfo typeInfo)
+        private static IEnumerable<IInterceptor> InterceptorsIterator(MethodInfo methodInfo, TypeInfo typeInfo)
         {
             foreach (var attribute in typeInfo.GetCustomAttributes())
             {
@@ -29,6 +22,14 @@ namespace AspectCore.Lite.Internal
                 var interceptor = attribute as IInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
+        }
+
+        public IInterceptor[] Match(MethodInfo method, TypeInfo typeInfo)
+        {
+            ExceptionUtilities.ThrowArgumentNull(method, nameof(method));
+            ExceptionUtilities.ThrowArgumentNull(typeInfo, nameof(typeInfo));
+            var interceptorAttributes = InterceptorsIterator(method, typeInfo);
+            return interceptorAttributes.Distinct(i => i.GetType()).OrderBy(i => i.Order).ToArray();
         }
     }
 }
