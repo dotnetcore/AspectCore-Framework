@@ -18,7 +18,7 @@ namespace AspectCore.Lite.Test
             var provider = this.BuildServiceProvider();
             var namedMethodMatcher = provider.GetRequiredService<INamedMethodMatcher>();
             var method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService), "Func");
-            Assert.Equal(method, typeof(INamedMethodMatcherTestService).GetTypeInfo().GetMethod("Func", Type.EmptyTypes));
+            Assert.Equal(method, MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService>>((s) => s.Func()));
         }
 
         [Fact]
@@ -27,9 +27,9 @@ namespace AspectCore.Lite.Test
             var provider = this.BuildServiceProvider();
             var namedMethodMatcher = provider.GetRequiredService<INamedMethodMatcher>();
             var method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService), "Func", 0);
-            Assert.Equal(method, typeof(INamedMethodMatcherTestService).GetTypeInfo().GetMethod("Func", new Type[] { typeof(int) }));
+            Assert.Equal(method, MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService, int>>((s, id) => s.Func(id)));
             method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService), "Func", "test", new object());
-            Assert.Equal(method, typeof(INamedMethodMatcherTestService).GetTypeInfo().GetMethod("Func", new Type[] { typeof(string), typeof(object) }));
+            Assert.Equal(method, MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService, string, object>>((s, n, obj) => s.Func(n, obj)));
         }
 
         [Fact]

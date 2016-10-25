@@ -12,7 +12,7 @@ namespace AspectCore.Lite.Test.Fakes
         {
         }
 
-        public static MethodInfo MeaninglessFuncMethod = typeof(MeaninglessService).GetTypeInfo().GetMethod("MeaninglessFunc");
+        public static MethodInfo MeaninglessFuncMethod = MethodHelper.GetMethodInfo<Action<MeaninglessService, string, int, MeaninglessService, object>>((service, name, count, s, obj) => service.MeaninglessFunc(name, count, s, obj));
         public static ParameterInfo[] Parameters = MeaninglessFuncMethod.GetParameters();
     }
 }

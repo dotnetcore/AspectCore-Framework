@@ -15,7 +15,7 @@ namespace AspectCore.Lite.Test
         public void Proxy_Test()
         {
             var proxyService = typeof(ProxyService);
-            var method = proxyService.GetTypeInfo().GetMethod("Func");
+            var method = MethodHelper.GetMethodInfo<Action<ProxyService>>(x => x.Func());
             var isntance = new ProxyService();
             var activator = Expression.Lambda<Func<Proxy>>(Expression.New(
                  typeof(Proxy).GetTypeInfo().DeclaredConstructors.FirstOrDefault(),
