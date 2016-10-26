@@ -1,12 +1,12 @@
-﻿using AspectCore.Lite.Generators;
-using System;
+﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using AspectCore.Lite.DependencyInjection;
 using AspectCore.Lite.Internal;
 using System.Reflection;
 using AspectCore.Lite.Extensions;
+using AspectCore.Lite.Internal.Generators;
 
-namespace AspectCore.Lite.Abstractions
+namespace AspectCore.Lite.Abstractions.Imp
 {
     public class ProxyActivator : IProxyActivator
     {
