@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 using System.Linq;
-using AspectCore.Lite.Internal;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public sealed class InterfaceProxyGenerator: ProxyGenerator
+    internal sealed class InterfaceProxyGenerator: ProxyGenerator
     {
         private readonly Type[] interfaceTypes;
         public InterfaceProxyGenerator(IServiceProvider serviceProvider, Type serviceType, params Type[] impInterfaceTypes) :

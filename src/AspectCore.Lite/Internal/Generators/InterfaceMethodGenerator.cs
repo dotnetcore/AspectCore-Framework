@@ -3,9 +3,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class InterfaceMethodGenerator
+    internal class InterfaceMethodGenerator
     {
         protected readonly TypeBuilder typeBuilder;
         protected readonly FieldGenerator serviceInstanceGenerator;

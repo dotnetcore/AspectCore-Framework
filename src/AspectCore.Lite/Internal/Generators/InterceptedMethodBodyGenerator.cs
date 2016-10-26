@@ -1,16 +1,14 @@
 ﻿using AspectCore.Lite.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 using AspectCore.Lite.Extensions;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class InterceptedMethodBodyGenerator : MethodBodyGenerator
+    internal class InterceptedMethodBodyGenerator : MethodBodyGenerator
     {
         private readonly MethodInfo GetAspectExecutorMethod = GeneratorHelper.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
         private readonly MethodInfo AspectExecuteSynchronouslyMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteSynchronously");

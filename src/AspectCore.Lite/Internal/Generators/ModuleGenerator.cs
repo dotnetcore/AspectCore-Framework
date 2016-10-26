@@ -1,12 +1,11 @@
-﻿using AspectCore.Lite.Internal;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public sealed class ModuleGenerator
+    internal sealed class ModuleGenerator
     {
         private readonly AssemblyBuilder assemblyBuilder;
         private readonly ModuleBuilder moduleBuilder;

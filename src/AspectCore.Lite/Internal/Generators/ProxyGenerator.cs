@@ -1,14 +1,13 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public abstract class ProxyGenerator
+    internal abstract class ProxyGenerator
     {
         private readonly Lazy<TypeBuilder> builder;
         internal readonly ModuleGenerator moduleGenerator;

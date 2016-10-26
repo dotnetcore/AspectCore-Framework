@@ -1,4 +1,4 @@
-﻿using AspectCore.Lite.Generators;
+﻿using AspectCore.Lite.Internal.Generators;
 using System;
 using System.Linq;
 using System.Linq.Expressions;

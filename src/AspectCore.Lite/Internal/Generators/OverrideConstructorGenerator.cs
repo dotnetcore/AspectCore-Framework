@@ -1,14 +1,12 @@
 ﻿using AspectCore.Lite.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class OverrideConstructorGenerator
+    internal class OverrideConstructorGenerator
     {
         private readonly FieldGenerator serviceProviderGenerator;
         private readonly FieldGenerator serviceInstanceGenerator;

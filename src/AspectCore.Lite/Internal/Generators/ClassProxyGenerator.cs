@@ -1,11 +1,10 @@
-﻿using AspectCore.Lite.Internal;
-using System;
+﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public sealed class ClassProxyGenerator : ProxyGenerator
+    internal sealed class ClassProxyGenerator : ProxyGenerator
     {
         public ClassProxyGenerator(IServiceProvider serviceProvider , Type parentType , params Type[] impInterfaceTypes)
             : base(serviceProvider , parentType , impInterfaceTypes)

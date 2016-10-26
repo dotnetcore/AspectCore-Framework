@@ -3,9 +3,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class OverrideMethodGenerator : InterfaceMethodGenerator
+    internal class OverrideMethodGenerator : InterfaceMethodGenerator
     {
         public OverrideMethodGenerator(TypeBuilder typeBuilder, MethodInfo method, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator, IPointcut pointcut)
             : base(typeBuilder, method, serviceInstanceGenerator, serviceProviderGenerator, pointcut)

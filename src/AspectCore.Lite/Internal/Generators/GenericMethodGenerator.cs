@@ -1,13 +1,10 @@
 ﻿using AspectCore.Lite.Extensions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class GenericMethodGenerator
+    internal class GenericMethodGenerator
     {
         private readonly InterfaceMethodGenerator methodGenreator;
 

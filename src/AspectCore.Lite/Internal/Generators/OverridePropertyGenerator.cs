@@ -1,14 +1,11 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class OverridePropertyGenerator : PropertyGenerator
+    internal class OverridePropertyGenerator : PropertyGenerator
     {
         public OverridePropertyGenerator(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator, IPointcut pointcut)
             : base(typeBuilder, propertyInfo, serviceInstanceGenerator, serviceProviderGenerator, pointcut)

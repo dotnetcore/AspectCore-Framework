@@ -3,9 +3,9 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class PropertyGenerator
+    internal class PropertyGenerator
     {
         protected readonly TypeBuilder typeBuilder;
         protected readonly PropertyInfo propertyInfo;

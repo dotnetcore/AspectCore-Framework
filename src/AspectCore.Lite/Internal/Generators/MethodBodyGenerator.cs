@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Internal.Generators
 {
-    public class MethodBodyGenerator
+    internal class MethodBodyGenerator
     {
         protected readonly InterfaceMethodGenerator methodGenerator;
         protected readonly FieldGenerator serviceInstanceGenerator;
