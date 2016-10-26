@@ -1,11 +1,7 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Internal
+namespace AspectCore.Lite.DependencyInjection
 {
     internal class ProxyActivatorWrapper : IProxyActivator
     {
