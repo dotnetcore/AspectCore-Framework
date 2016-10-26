@@ -23,5 +23,14 @@ namespace AspectCore.Lite.Internal.Generators
         {
             return pointcut.IsMatch(method) && !NonOverrideMethodList.Contains(method.Name);
         }
+
+        internal static string GetMethodName(Type serviceType, string method)
+        {
+            if (!serviceType.GetTypeInfo().IsInterface)
+            {
+                return method;
+            }
+            return $"{serviceType.FullName}.{method}".Replace('+', '.');
+        }
     }
 }

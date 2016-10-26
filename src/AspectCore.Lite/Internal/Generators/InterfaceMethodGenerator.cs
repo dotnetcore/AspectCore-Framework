@@ -28,8 +28,8 @@ namespace AspectCore.Lite.Internal.Generators
         public virtual void GenerateMethod()
         {
             var parameters = method.GetParameters().Select(x => x.ParameterType).ToArray();
-            builder = typeBuilder.DefineMethod($"{method.DeclaringType.FullName}.{method.Name}",
-                MethodAttributes.Private |  MethodAttributes.Final | MethodAttributes.HideBySig|MethodAttributes.NewSlot|MethodAttributes.Virtual ,
+            builder = typeBuilder.DefineMethod(GeneratorHelper.GetMethodName(method.DeclaringType, method.Name),
+                MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual,
                 method.ReturnType, parameters);
 
             GenerateGenericParameter();

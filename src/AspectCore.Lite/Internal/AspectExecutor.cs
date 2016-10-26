@@ -4,6 +4,7 @@ using AspectCore.Lite.Abstractions;
 using System.Reflection;
 using AspectCore.Lite.Extensions;
 using Nito.AsyncEx;
+using AspectCore.Lite.Internal.Generators;
 
 namespace AspectCore.Lite.Internal
 {
@@ -41,7 +42,7 @@ namespace AspectCore.Lite.Internal
             var returnParameter = new ReturnParameterDescriptor(default(object), serviceMethod.ReturnParameter);
             var targetMethod = namedMethodMatcher.Match(targetInstance.GetType(), method, args);
             var target = new Target(targetMethod, serviceType, targetInstance.GetType(), targetInstance) { ParameterCollection = parameters };
-            var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType(), GetMethodName(serviceType, method), args);
+            var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType(), GeneratorHelper.GetMethodName(serviceType, method), args);
             var proxy = new Proxy(proxyInstance, proxyMethod, proxyInstance.GetType());
 
             joinPoint.MethodInvoker = target;
@@ -77,15 +78,6 @@ namespace AspectCore.Lite.Internal
             var task = value as Task;
             if (task != null) { await task; return default(TResult); }
             return (TResult)value;
-        }
-
-        private static string GetMethodName(Type serviceType, string method)
-        {
-            if (!serviceType.GetTypeInfo().IsInterface)
-            {
-                return method;
-            }
-            return $"{serviceType.FullName}.{method}".Replace('+', '.');
-        }
+        }  
     }
 }
