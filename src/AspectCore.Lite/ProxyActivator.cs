@@ -6,7 +6,7 @@ using System.Reflection;
 using AspectCore.Lite.Extensions;
 using AspectCore.Lite.Internal.Generators;
 
-namespace AspectCore.Lite.Abstractions.Imp
+namespace AspectCore.Lite.Abstractions.Activators
 {
     public class ProxyActivator : IProxyActivator
     {

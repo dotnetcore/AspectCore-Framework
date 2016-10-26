@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.Abstractions.Activators;
 using System;
 
 namespace AspectCore.Lite.DependencyInjection
