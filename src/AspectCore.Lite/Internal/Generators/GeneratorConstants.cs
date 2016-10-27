@@ -6,15 +6,15 @@
 
         internal const string Module = "main";
 
-        internal const string Field = "proxy_field<>_";
+        internal const string Field = "proxyfield#";
 
         internal const string Property = "proxy_property<>_";
 
         internal const string Method = "proxy_method<>_";
 
-        internal const string Interface = "proxy_interface<>_";
+        internal const string Interface = "ProxyInterface#";
 
-        internal const string Class = "proxy_class<>_";
+        internal const string Class = "ProxyClass#";
 
         internal const string AssemblyFile = "AspectCore.Lite.Proxys.dll";
 

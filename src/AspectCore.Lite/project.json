@@ -1,6 +1,5 @@
 {
-  "version": "1.0.0-beta1-1013",
-
+  "authors": [ "liuhaoyang" ],
   "dependencies": {
     "Microsoft.Extensions.DependencyInjection": "1.0.0"
   },
@@ -24,5 +23,19 @@
         "System.Runtime": "4.0.10"
       }
     }
-  }
+  },
+  "packOptions": {
+    "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
+    "licenseUrl": "https://mit-license.org/",
+    "owners": [ "liuhaoyang" ],
+    "releaseNotes": "The basic realization of the interceptor system.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/AspectCore/Lite"
+    },
+    "tags": [ "DynamicProxy", "Aop", "AspNetCore" ]
+  },
+  "projectUrl": "https://github.com/AspectCore/Lite",
+  "title": "AspectCore Lite",
+  "version": "1.0.0-beta1-1027"
 }
