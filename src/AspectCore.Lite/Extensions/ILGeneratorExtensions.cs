@@ -11,7 +11,7 @@ namespace AspectCore.Lite.Extensions
     {
 #if NETSTANDARD1_6
         private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName(GeneratorConstants.ExpressionsNETSTANDARD1_6));
-#elif NET451
+#elif NET45
         private static readonly Assembly ExpressionsAssembly = Assembly.GetAssembly(typeof(Expression));
 #endif
         private static readonly Type ILGenType = ExpressionsAssembly.GetType(GeneratorConstants.ILGenType);

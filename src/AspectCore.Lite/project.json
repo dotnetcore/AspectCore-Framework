@@ -7,20 +7,15 @@
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
-
-        "Nito.AsyncEx.Context": "1.1.0",
+        "NETStandard.Library": "1.6.0",
         "System.Reflection.Emit": "4.0.1",
-        "System.Runtime": "4.1.0",
-        "System.Runtime.InteropServices": "4.1.0",
-        "System.Reflection.Extensions": "4.0.1",
-        "System.Linq.Expressions": "4.1.0"
-      },
-      "imports": "dnxcore50"
+        "Nito.AsyncEx.Context": "1.1.0"
+      }
     },
-    "net451": {
+    "net45": {
       "dependencies": {
         "Nito.AsyncEx": "3.0.1",
-        "System.Runtime": "4.0.10"
+        "System.Runtime": "4.0.0"
       }
     }
   },

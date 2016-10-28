@@ -1,9 +1,7 @@
-﻿using AspectCore.Lite.DependencyInjection;
-using AspectCore.Lite.Extensions;
+﻿using AspectCore.Lite.Extensions;
 using AspectCore.Lite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System;
 
 namespace AspectCore.Lite.DependencyInjection
 {
@@ -15,6 +13,7 @@ namespace AspectCore.Lite.DependencyInjection
 
             var aspectService = ServiceCollectionHelper.CreateAspectLiteServices();
             aspectService.ForEach(d => services.TryAdd(d));
+            services.AddSingleton(services);
 
             return services;
         }
