@@ -1,17 +1,20 @@
 ﻿using AspectCore.Lite.Test.Fakes;
 using AspectCore.Lite.Abstractions;
-using Microsoft.AspNetCore.Testing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
 
+#if NETCOREAPP1_0
+using Microsoft.AspNetCore.Testing;
+#endif
+
 namespace AspectCore.Lite.Test.Abstractions.Descriptors
 {
     public class ParameterCollectionTest
     {
-
+#if NETCOREAPP1_0
         [Fact]
         public void Ctor_ThrowsArgumentNullException()
         {
@@ -19,7 +22,7 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
             ExceptionAssert.ThrowsArgumentNull(() => { ParameterCollection collection = new ParameterCollection(Array.Empty<object>(), null); }, "parameterInfos");
         }
 
-        [Fact]
+                [Fact]
         public void Ctor_ThrowsArgumentException()
         {
             ExceptionAssert.ThrowsArgument(() =>
@@ -27,15 +30,6 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
                 ParameterCollection collection = new ParameterCollection(new object[] { null }, Array.Empty<ParameterInfo>());
             },
             null , "The number of parameters must equal the number of parameterInfos.");
-        }
-
-        [Fact]
-        public void IndexedProperty_Index_Get()
-        {
-            ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
-            Assert.Equal(collection[0].Name, "name");
-            Assert.Equal(collection[0].Value, "L");
-            Assert.Equal(collection[0].ParameterType, typeof(string));
         }
 
         [Theory]
@@ -48,16 +42,7 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
             ExceptionAssert.ThrowsArgumentOutOfRange(() => { object entry = collection[index]; }, nameof(index), "index value out of range.");
         }
 
-        [Theory]
-        [InlineData("name")]
-        public void IndexedProperty_Name(string name)
-        {
-            ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
-            Assert.Equal(collection[name].Name, "name");
-            Assert.Equal(collection[name].Value, "L");
-            Assert.Equal(collection[name].ParameterType, typeof(string));
-        }
-
+        
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -76,29 +61,53 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
             ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
             ExceptionAssert.Throws<KeyNotFoundException>(() => { var value = collection[name]; }, $"Does not exist the parameter nameof \"{name}\".");
         }
+#endif
+
+
+        [Fact]
+        public void IndexedProperty_Index_Get()
+        {
+            ParameterCollection collection = new ParameterCollection(new object[] { "L" , 0 , null , null , } , MeaninglessService.Parameters);
+            Assert.Equal(collection[0].Name , "name");
+            Assert.Equal(collection[0].Value , "L");
+            Assert.Equal(collection[0].ParameterType , typeof(string));
+        }
+
+
+
+        [Theory]
+        [InlineData("name")]
+        public void IndexedProperty_Name(string name)
+        {
+            ParameterCollection collection = new ParameterCollection(new object[] { "L" , 0 , null , null , } , MeaninglessService.Parameters);
+            Assert.Equal(collection[name].Name , "name");
+            Assert.Equal(collection[name].Value , "L");
+            Assert.Equal(collection[name].ParameterType , typeof(string));
+        }
+
 
         [Fact]
         public void GetEnumerator()
         {
-            ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
+            ParameterCollection collection = new ParameterCollection(new object[] { "L" , 0 , null , null , } , MeaninglessService.Parameters);
 
             foreach (var entry in ((IEnumerable<ParameterDescriptor>)collection))
             {
-                Assert.IsType(typeof(ParameterDescriptor), entry);
+                Assert.IsType(typeof(ParameterDescriptor) , entry);
             }
 
             foreach (var entry in ((IEnumerable)collection))
             {
-                Assert.IsType(typeof(ParameterDescriptor), entry);
+                Assert.IsType(typeof(ParameterDescriptor) , entry);
             }
         }
 
         [Theory]
-        [InlineData("name", "L")]
-        public void Count(string name, object value)
+        [InlineData("name" , "L")]
+        public void Count(string name , object value)
         {
-            ParameterCollection collection = new ParameterCollection(new object[] { "L", 0, null, null, }, MeaninglessService.Parameters);
-            Assert.Equal(4, collection.Count);
+            ParameterCollection collection = new ParameterCollection(new object[] { "L" , 0 , null , null , } , MeaninglessService.Parameters);
+            Assert.Equal(4 , collection.Count);
         }
     }
 }

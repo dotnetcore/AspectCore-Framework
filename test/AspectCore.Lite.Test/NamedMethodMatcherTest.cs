@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using AspectCore.Lite.Abstractions;
-using System.Reflection;
+#if NETCOREAPP1_0
 using Microsoft.AspNetCore.Testing;
+#endif
 
 namespace AspectCore.Lite.Test
 {
@@ -17,8 +15,8 @@ namespace AspectCore.Lite.Test
         {
             var provider = this.BuildServiceProvider();
             var namedMethodMatcher = provider.GetRequiredService<INamedMethodMatcher>();
-            var method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService), "Func");
-            Assert.Equal(method, MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService>>((s) => s.Func()));
+            var method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService) , "Func");
+            Assert.Equal(method , MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService>>((s) => s.Func()));
         }
 
         [Fact]
@@ -26,12 +24,13 @@ namespace AspectCore.Lite.Test
         {
             var provider = this.BuildServiceProvider();
             var namedMethodMatcher = provider.GetRequiredService<INamedMethodMatcher>();
-            var method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService), "Func", 0);
-            Assert.Equal(method, MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService, int>>((s, id) => s.Func(id)));
-            method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService), "Func", "test", new object());
-            Assert.Equal(method, MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService, string, object>>((s, n, obj) => s.Func(n, obj)));
+            var method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService) , "Func" , 0);
+            Assert.Equal(method , MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService , int>>((s , id) => s.Func(id)));
+            method = namedMethodMatcher.Match(typeof(INamedMethodMatcherTestService) , "Func" , "test" , new object());
+            Assert.Equal(method , MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService , string , object>>((s , n , obj) => s.Func(n , obj)));
         }
 
+#if NETCOREAPP1_0
         [Fact]
         public void Match_ThrowsInvalidOperationExceptionException()
         {
@@ -42,14 +41,14 @@ namespace AspectCore.Lite.Test
             },
             $"A suitable method for type '{typeof(INamedMethodMatcherTestService)}' could not be located. Ensure the type is concrete and services are registered for all parameters of a public method.");
         }
-
+#endif
         public interface INamedMethodMatcherTestService
         {
             void Func();
 
             void Func(int id);
 
-            void Func(string n, object obj);
+            void Func(string n , object obj);
         }
     }
 }

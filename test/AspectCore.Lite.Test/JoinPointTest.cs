@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using Microsoft.AspNetCore.Testing;
 using System.Linq.Expressions;
 using AspectCore.Lite.Test.Fakes;
+#if NETCOREAPP1_0
+using Microsoft.AspNetCore.Testing;
+#endif
 
 namespace AspectCore.Lite.Test.Abstractions
 {
-    public class JoinPointTest:IDependencyInjection
+    public class JoinPointTest : IDependencyInjection
     {
         private readonly IServiceProvider serviceProvider;
         public JoinPointTest()
@@ -26,14 +28,7 @@ namespace AspectCore.Lite.Test.Abstractions
             var methodInvoker = Substitute.For<IMethodInvoker>();
             methodInvoker.Invoke().Returns(joinPoint);
             joinPoint.MethodInvoker = methodInvoker;
-            Assert.Equal(joinPoint.MethodInvoker, methodInvoker);
-        }
-
-        [Fact]
-        public void AddInterceptor_ThrowsArgumentNullException()
-        {
-            var joinPoint = serviceProvider.GetService<IJoinPoint>();
-            ExceptionAssert.ThrowsArgumentNull(() => joinPoint.AddInterceptor(null), "interceptorDelegate");
+            Assert.Equal(joinPoint.MethodInvoker , methodInvoker);
         }
 
         [Fact]
@@ -41,7 +36,7 @@ namespace AspectCore.Lite.Test.Abstractions
         {
             var joinPoint = serviceProvider.GetService<IJoinPoint>();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0 ; i < 5 ; i++)
             {
                 joinPoint.AddInterceptor(@delegate =>
                 {
@@ -49,21 +44,21 @@ namespace AspectCore.Lite.Test.Abstractions
                 });
             }
 
-            var delegates = Expression.Lambda<Func<IList<Func<InterceptorDelegate, InterceptorDelegate>>>>(Expression.Field(Expression.Constant(joinPoint), "delegates")).Compile()();
+            var delegates = Expression.Lambda<Func<IList<Func<InterceptorDelegate , InterceptorDelegate>>>>(Expression.Field(Expression.Constant(joinPoint) , "delegates")).Compile()();
 
-            Action<Func<InterceptorDelegate, InterceptorDelegate>>[] actions = new Action<Func<InterceptorDelegate, InterceptorDelegate>>[5];
+            Action<Func<InterceptorDelegate , InterceptorDelegate>>[] actions = new Action<Func<InterceptorDelegate , InterceptorDelegate>>[5];
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0 ; i < 5 ; i++)
             {
                 actions[i] = async d =>
-                 {
-                     var interceptorDelegate = d(null)(null);
-                     var result = await (Task<int>)interceptorDelegate;
-                     Assert.Equal(i, result);
-                 };
+                {
+                    var interceptorDelegate = d(null)(null);
+                    var result = await (Task<int>)interceptorDelegate;
+                    Assert.Equal(i , result);
+                };
             }
 
-            Assert.Collection(delegates, actions);
+            Assert.Collection(delegates , actions);
         }
 
         [Fact]
@@ -73,7 +68,7 @@ namespace AspectCore.Lite.Test.Abstractions
             var methodInvoker = Substitute.For<IMethodInvoker>();
             methodInvoker.Invoke().Returns(0);
             joinPoint.MethodInvoker = methodInvoker;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0 ; i < 5 ; i++)
             {
                 joinPoint.AddInterceptor(next =>
                 {
@@ -86,11 +81,11 @@ namespace AspectCore.Lite.Test.Abstractions
                 });
             }
             var context = Substitute.For<IAspectContext>();
-            context.ReturnParameter.Returns(new ReturnParameterDescriptor(0, MeaninglessService.Parameters[1]));
+            context.ReturnParameter.Returns(new ReturnParameterDescriptor(0 , MeaninglessService.Parameters[1]));
             var interceptorDelegate = joinPoint.Build();
             await interceptorDelegate(context);
             int returnValue = (int)context.ReturnParameter.Value;
-            Assert.Equal(returnValue, 5);
+            Assert.Equal(returnValue , 5);
         }
 
         [Fact]
@@ -99,21 +94,29 @@ namespace AspectCore.Lite.Test.Abstractions
             var joinPoint = serviceProvider.GetService<IJoinPoint>();
             var methodInvoker = Substitute.For<IMethodInvoker>();
             methodInvoker.Invoke().Returns(0);
-            joinPoint.MethodInvoker = methodInvoker;     
+            joinPoint.MethodInvoker = methodInvoker;
             var context = Substitute.For<IAspectContext>();
-            context.ReturnParameter.Returns(new ReturnParameterDescriptor(0, MeaninglessService.Parameters[1]));
+            context.ReturnParameter.Returns(new ReturnParameterDescriptor(0 , MeaninglessService.Parameters[1]));
             var @delegate = joinPoint.Build();
             await @delegate(context);
             int returnValue = (int)context.ReturnParameter.Value;
-            Assert.Equal(returnValue, 0);
+            Assert.Equal(returnValue , 0);
         }
 
+#if NETCOREAPP1_0
         [Fact]
         public void Build_ThrowInvalidOperationException()
         {
             var joinPoint = serviceProvider.GetService<IJoinPoint>();
-            ExceptionAssert.Throws<InvalidOperationException>(() => joinPoint.Build(), "Calling proxy method failed.Because instance of ProxyMethodInvoker is null.");
+            ExceptionAssert.Throws<InvalidOperationException>(() => joinPoint.Build() , "Calling proxy method failed.Because instance of ProxyMethodInvoker is null.");
         }
 
+        [Fact]
+        public void AddInterceptor_ThrowsArgumentNullException()
+        {
+            var joinPoint = serviceProvider.GetService<IJoinPoint>();
+            ExceptionAssert.ThrowsArgumentNull(() => joinPoint.AddInterceptor(null) , "interceptorDelegate");
+        }
+#endif
     }
 }

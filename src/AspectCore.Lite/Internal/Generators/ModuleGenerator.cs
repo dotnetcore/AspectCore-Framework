@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Internal.Generators
 #if NETSTANDARD1_6
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly) , AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module);
-#elif NET451
+#elif NET45
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly), AssemblyBuilderAccess.RunAndSave);
             moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module , GeneratorConstants.AssemblyFile);
 #endif
@@ -36,7 +36,7 @@ namespace AspectCore.Lite.Internal.Generators
             return proxyTypes.GetOrAdd(targetType, valueFactory);
         }
 
-#if NET451
+#if NET45
         public void SaveAssembly()
         {
             assemblyBuilder.Save(GeneratorConstants.AssemblyFile);
