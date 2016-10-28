@@ -3,7 +3,7 @@
   "dependencies": {
     "Microsoft.Extensions.DependencyInjection": "1.0.0"
   },
-
+  "description": "AspectCore Lite is an lightweight aop lib for Asp.Net Core framework.",
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
@@ -32,5 +32,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore Lite",
-  "version": "1.0.0-beta1-1027"
+  "version": "1.0.0-beta1-1028"
 }
