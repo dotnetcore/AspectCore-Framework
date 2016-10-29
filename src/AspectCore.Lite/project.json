@@ -28,7 +28,7 @@
       "type": "git",
       "url": "https://github.com/AspectCore/Lite"
     },
-    "tags": [ "DynamicProxy", "Aop", "AspNetCore" ]
+    "tags": [ "DynamicProxy", "Aop", "DependencyInjection" ]
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore Lite",

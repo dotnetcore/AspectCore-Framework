@@ -2,14 +2,14 @@
 using AspectCore.Lite.Abstractions.Activators;
 using System;
 
-namespace AspectCore.Lite.DependencyInjection
+namespace AspectCore.Lite.DependencyInjection.Internal
 {
-    internal class ProxyActivatorWrapper : IProxyActivator
+    internal class ServiceProxyActivator : IProxyActivator
     {
-        private readonly IServiceProviderWrapper serviceProvider;
+        private readonly ISupportOriginalService serviceProvider;
         private readonly IProxyActivator proxyActivator;
 
-        public ProxyActivatorWrapper(IServiceProviderWrapper serviceProvider)
+        public ServiceProxyActivator(ISupportOriginalService serviceProvider)
         {
             this.serviceProvider = serviceProvider;
             this.proxyActivator = new ProxyActivator(serviceProvider);

@@ -1,0 +1,25 @@
+﻿{
+  "authors": [ "liuhaoyang" ],
+  "dependencies": {
+    "AspectCore.Lite": "1.0.0-beta3-1028"
+  },
+  "description": "Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore.Lite.",
+  "frameworks": {
+    "netstandard1.6": {},
+    "net45": {}
+  },
+  "packOptions": {
+    "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
+    "licenseUrl": "https://mit-license.org/",
+    "owners": [ "liuhaoyang" ],
+    "releaseNotes": "Support for Microsoft.Extensions.DependencyInjection.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/AspectCore/Lite"
+    },
+    "tags": [ "DynamicProxy", "Aop", "DependencyInjection" ]
+  },
+  "projectUrl": "https://github.com/AspectCore/Lite",
+  "title": "AspectCore.Lite.DependencyInjection",
+  "version": "1.0.0-beta3-1028"
+}

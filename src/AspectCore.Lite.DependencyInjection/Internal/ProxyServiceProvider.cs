@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.DependencyInjection
+namespace AspectCore.Lite.DependencyInjection.Internal
 {
     internal class ProxyServiceProvider : IServiceProvider
     {
