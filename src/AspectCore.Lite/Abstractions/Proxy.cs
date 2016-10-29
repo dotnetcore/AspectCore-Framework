@@ -1,6 +1,5 @@
-﻿using AspectCore.Lite.Internal;
+﻿using AspectCore.Lite.Common;
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions

@@ -1,7 +1,8 @@
-﻿using System;
+﻿using AspectCore.Lite.Common;
+using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Linq;
 
 namespace AspectCore.Lite.Internal.Generators
 {

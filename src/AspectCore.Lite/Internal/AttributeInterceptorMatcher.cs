@@ -1,10 +1,9 @@
 ﻿using AspectCore.Lite.Abstractions;
-using System;
+using AspectCore.Lite.Common;
+using AspectCore.Lite.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Reflection;
-using AspectCore.Lite.Extensions;
 
 namespace AspectCore.Lite.Internal
 {

@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.Common;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;

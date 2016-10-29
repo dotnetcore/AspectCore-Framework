@@ -24,8 +24,6 @@
 
         internal const string ExpressionsNETSTANDARD1_6 = "System.Linq.Expressions";
 
-        internal const string ExpressionsNET451 = "System.Core";
-
         internal const string ILGenType = "System.Linq.Expressions.Compiler.ILGen";
 
         internal const string EmitConvertToType = "EmitConvertToType";
