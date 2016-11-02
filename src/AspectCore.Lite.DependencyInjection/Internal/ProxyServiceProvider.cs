@@ -8,13 +8,11 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 {
     internal class ProxyServiceProvider : IServiceProvider
     {
-        private readonly IServiceCollection services;
         internal readonly IServiceProvider originalServiceProvider;
 
-        internal ProxyServiceProvider(IServiceProvider services)
+        internal ProxyServiceProvider(IServiceProvider serviceProvider)
         {
-            this.services = services;
-            originalServiceProvider = services.BuildServiceProvider();
+            originalServiceProvider = serviceProvider;
         }
 
         public object GetService(Type serviceType)

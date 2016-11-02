@@ -14,7 +14,7 @@ namespace AspectCore.Lite.DependencyInjection
             ExceptionHelper.ThrowArgumentNull(services , nameof(services));
 
             var aspectService = ServiceCollectionHelper.CreateAspectLiteServices();
-            aspectService.ForEach(d => services.TryAdd(d));
+            aspectService.ForEach(services.TryAdd);
 
             services.AddTransient<ISupportOriginalService>(provider =>
             {
