@@ -25,8 +25,8 @@ namespace AspectCore.Lite.DependencyInjection
             services.Replace(ServiceDescriptor.Transient<IProxyActivator , ServiceProxyActivator>());
 
             services.AddTransient<ISupportProxyService , SupportProxyService>();
-            services.AddTransient<ISupportSingletonService , SupportSingletonService>();
-            services.AddScoped<ISupportScopedService , SupportScopedService>();
+            services.AddSingleton<IProxyMemorizer, ProxyMemorizer>();
+
             services.TryAddSingleton(services);
 
             return services;
