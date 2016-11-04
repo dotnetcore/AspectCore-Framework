@@ -11,22 +11,20 @@ namespace AspectCore.Lite.DependencyInjection
     {
         public static IServiceCollection AddAspectLite(this IServiceCollection services)
         {
-            ExceptionHelper.ThrowArgumentNull(services , nameof(services));
+            ExceptionHelper.ThrowArgumentNull(services, nameof(services));
 
             var aspectService = ServiceCollectionHelper.CreateAspectLiteServices();
             aspectService.ForEach(services.TryAdd);
-
             services.AddTransient<ISupportOriginalService>(provider =>
             {
                 var proxyServiceProvider = provider as ProxyServiceProvider;
                 return new SupportOriginalService(proxyServiceProvider?.originalServiceProvider ?? provider);
             });
-
-            services.Replace(ServiceDescriptor.Transient<IProxyActivator , ServiceProxyActivator>());
-
-            services.AddTransient<ISupportProxyService , SupportProxyService>();
+            services.Replace(ServiceDescriptor.Transient<IProxyActivator, ServiceProxyActivator>());
+            services.AddTransient<IServiceScope, ServiceScope>();
+            services.AddTransient<IServiceScopeFactory, ServiceScopeFactory>();
+            services.AddTransient<ISupportProxyService, SupportProxyService>();
             services.AddSingleton<IProxyMemorizer, ProxyMemorizer>();
-
             services.TryAddSingleton(services);
 
             return services;
