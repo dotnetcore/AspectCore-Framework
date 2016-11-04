@@ -11,11 +11,10 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
         private readonly object lockobj = new object();
 
-        public object GetOrSetProxy(object key, Func<object, Type, object> proxyFactory, Type serviceType)
+        public object GetOrSetProxy(object key, Func<object> proxyFactory)
         {
             ExceptionHelper.ThrowArgumentNull(key, nameof(key));
             ExceptionHelper.ThrowArgumentNull(proxyFactory, nameof(proxyFactory));
-            ExceptionHelper.ThrowArgumentNull(serviceType, nameof(serviceType));
 
             object serviceProxy;
             if (proxyMemorizer.TryGetValue(key, out serviceProxy))
@@ -24,7 +23,7 @@ namespace AspectCore.Lite.DependencyInjection.Internal
             }
             lock (lockobj)
             {
-                serviceProxy = proxyFactory(key, serviceType);
+                serviceProxy = proxyFactory();
                 proxyMemorizer.Add(key, serviceProxy);
             }
             return serviceProxy;

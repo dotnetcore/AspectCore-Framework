@@ -4,7 +4,7 @@ namespace AspectCore.Lite.DependencyInjection
 {
     public interface IProxyMemorizer
     {
-        object GetOrSetProxy(object key, Func<object, Type, object> proxyFactory, Type serviceType);
+        object GetOrSetProxy(object key, Func<object> proxyFactory);
 
         bool Remove(object key);
     }
