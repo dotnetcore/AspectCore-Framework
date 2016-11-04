@@ -3,7 +3,9 @@ using AspectCore.Lite.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using AspectCore.Lite.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Lite.DependencyInjection.Internal
@@ -12,16 +14,12 @@ namespace AspectCore.Lite.DependencyInjection.Internal
     {
         private readonly ISupportOriginalService supportOriginalServiceProvider;
         private readonly IProxyActivator proxyActivator;
-        private readonly IProxyMemorizer proxyMemorizer;
 
-        public SupportProxyService(
-            ISupportOriginalService supportOriginalServiceProvider,
-            IProxyMemorizer proxyMemorizer,
+        public SupportProxyService(ISupportOriginalService supportOriginalServiceProvider,
             IProxyActivator proxyActivator)
         {
             this.supportOriginalServiceProvider = supportOriginalServiceProvider;
             this.proxyActivator = proxyActivator;
-            this.proxyMemorizer = proxyMemorizer;
         }
 
         public object GetService(Type serviceType)
@@ -48,27 +46,26 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
         private object CreateServiceProxy(object instance, Type serviceType)
         {
-            return proxyMemorizer.GetOrSetProxy(instance, (_instance, _serviceType) =>
+            var serviceTypeInfo = serviceType.GetTypeInfo();
+
+            if (!serviceTypeInfo.CanProxy(supportOriginalServiceProvider))
             {
-                var serviceTypeInfo = _serviceType.GetTypeInfo();
-                if (serviceTypeInfo.IsClass)
-                {
-                    if (serviceTypeInfo.IsSealed)
-                    {
-                        return _instance;
-                    }
-                    return proxyActivator.CreateClassProxy(_serviceType, _instance,
-                        serviceTypeInfo.GetInterfaces());
-                }
+                return instance;
+            }
 
-                if (serviceTypeInfo.IsInterface)
-                {
-                    return proxyActivator.CreateInterfaceProxy(_serviceType, _instance,
-                        serviceTypeInfo.GetInterfaces());
-                }
+            if (serviceTypeInfo.IsClass)
+            {
+                return proxyActivator.CreateClassProxy(serviceType, instance,
+                    serviceTypeInfo.GetInterfaces());
+            }
 
-                return _instance;
-            }, serviceType);
+            if (serviceTypeInfo.IsInterface)
+            {
+                return proxyActivator.CreateInterfaceProxy(serviceType, instance,
+                    serviceTypeInfo.GetInterfaces().Where(x => x != serviceType).ToArray());
+            }
+
+            return instance;
         }
     }
 }
