@@ -16,5 +16,10 @@ namespace AspectCore.Lite.DependencyInjection.Internal
         {
             return serviceProvider.GetService(serviceType);
         }
+
+        public IServiceProvider OriginalServiceProvider
+        {
+            get { return serviceProvider; }
+        }
     }
 }
