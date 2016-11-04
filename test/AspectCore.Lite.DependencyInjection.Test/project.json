@@ -1,25 +1,27 @@
 {
   "version": "1.0.0-*",
-  "buildOptions": {
-    "debugType": "portable"
-  },
-  "dependencies": {
-    "System.Runtime.Serialization.Primitives": "4.1.1",
-    "xunit": "2.1.0",
-    "dotnet-test-xunit": "1.0.0-rc2-192208-24"
-  },
   "testRunner": "xunit",
+
+  "dependencies": {
+    "AspectCore.Lite":"1.0.0-beta3-*",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "Microsoft.AspNetCore.Testing": "1.1.0-*",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "NSubstitute": "2.0.0-rc",
+    "xunit": "2.2.0-*"
+  },
+
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.1"
-        }
+          "version": "1.0.0"
+        },
+        "Microsoft.CodeCoverage": "1.0.1"
       },
       "imports": [
-        "dotnet5.4",
-        "portable-net451+win8"
+        "dnxcore50"
       ]
     }
   }
