@@ -19,5 +19,12 @@ namespace AspectCore.Lite.DependencyInjection.Test
 
             return services.BuildServiceProvider();
         }
+
+        public static IServiceProvider BuildProxyServicePrivoder(this IDependencyInjection di,
+            Action<IServiceCollection> action = null)
+        {
+            var provider = di.BuildServiceProvider(action);
+            return AspectServiceProviderFactory.Create(provider);
+        }
     }
 }
