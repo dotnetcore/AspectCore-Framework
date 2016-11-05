@@ -7,20 +7,14 @@ using AspectCore.Lite.Common;
 
 namespace AspectCore.Lite.DependencyInjection.Internal
 {
-    internal class ProxyServiceProvider : IServiceProvider, IDisposable
+    internal class ProxyServiceProvider : IProxyServiceProvider
     {
         internal readonly IServiceProvider originalServiceProvider;
-        private readonly IProxyMemorizer proxyMemorizer;
-        private readonly ISupportProxyService supportProxyService;
-        private readonly ISupportOriginalService supportOriginalService;
 
-        internal ProxyServiceProvider(IServiceProvider serviceProvider)
+        public ProxyServiceProvider(IServiceProvider serviceProvider)
         {
             ExceptionHelper.ThrowArgumentNull(serviceProvider, nameof(serviceProvider));
             originalServiceProvider = serviceProvider;
-            proxyMemorizer = serviceProvider.GetRequiredService<IProxyMemorizer>();
-            supportProxyService = serviceProvider.GetRequiredService<ISupportProxyService>();
-            supportOriginalService = serviceProvider.GetRequiredService<ISupportOriginalService>();
         }
 
         public object GetService(Type serviceType)
@@ -35,13 +29,19 @@ namespace AspectCore.Lite.DependencyInjection.Internal
                 return this;
             }
 
+            var supportOriginalService = originalServiceProvider.GetRequiredService<ISupportOriginalService>();
             var resolvedService = supportOriginalService.GetService(serviceType);
             if (resolvedService == null)
             {
                 return null;
             }
 
-            return proxyMemorizer.GetOrSetProxy(resolvedService, () => supportProxyService.GetService(serviceType));
+            var proxyMemorizer = originalServiceProvider.GetRequiredService<IProxyMemorizer>();
+            return proxyMemorizer.GetOrSetProxy(resolvedService, () =>
+            {
+                var supportProxyService = originalServiceProvider.GetRequiredService<ISupportProxyService>();
+                return supportProxyService.GetService(serviceType);
+            });
         }
 
         public void Dispose()
