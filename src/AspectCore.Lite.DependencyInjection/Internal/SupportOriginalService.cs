@@ -14,7 +14,14 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
         public object GetService(Type serviceType)
         {
-            return serviceProvider.GetService(serviceType);
+            try
+            {
+                return serviceProvider.GetService(serviceType);
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException($"Unable to resolve original service for type '{serviceType}'.", exception);
+            }
         }
 
         public IServiceProvider OriginalServiceProvider
