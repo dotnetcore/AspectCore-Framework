@@ -31,6 +31,7 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
             var supportOriginalService = originalServiceProvider.GetRequiredService<ISupportOriginalService>();
             var resolvedService = supportOriginalService.GetService(serviceType);
+
             if (resolvedService == null)
             {
                 return null;
@@ -40,6 +41,7 @@ namespace AspectCore.Lite.DependencyInjection.Internal
             return proxyMemorizer.GetOrSetProxy(resolvedService, () =>
             {
                 var supportProxyService = originalServiceProvider.GetRequiredService<ISupportProxyService>();
+                supportProxyService.OriginalServiceInstance = resolvedService;
                 return supportProxyService.GetService(serviceType);
             });
         }

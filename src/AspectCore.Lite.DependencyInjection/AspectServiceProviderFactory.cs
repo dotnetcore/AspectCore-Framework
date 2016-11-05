@@ -1,5 +1,6 @@
 ﻿using System;
-using AspectCore.Lite.DependencyInjection.Internal;
+using AspectCore.Lite.Common;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Lite.DependencyInjection
 {
@@ -10,7 +11,7 @@ namespace AspectCore.Lite.DependencyInjection
         /// Before call Create method , must call the IServiceCollection.AddAspectLite extension method to add the AspectLiteServices to the serviceCollection.
         /// </summary>
         /// <param name="serviceProvider">original serviceProvider</param>
-        /// <exception cref="InvalidOperationException">There is no service of AspectLite.</exception>
+        /// <exception cref="InvalidOperationException">There is no services of AspectLite dependent on.</exception>
         /// <returns>Aspect Proxy ServiceProvider</returns>
         /// <example>
         /// IServiceCollection services = new ServiceCollection();
@@ -19,7 +20,8 @@ namespace AspectCore.Lite.DependencyInjection
         /// </example>
         public static IServiceProvider Create(IServiceProvider serviceProvider)
         {
-            return new ProxyServiceProvider(serviceProvider);
+            ExceptionHelper.ThrowArgumentNull(serviceProvider, nameof(serviceProvider));
+            return serviceProvider.GetRequiredService<IProxyServiceProvider>();
         }
     }
 }
