@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.DependencyInjection.Internal
 {
-    internal class ServiceScopeFactory:IServiceScopeFactory
+    internal class ServiceScopeFactory : IServiceScopeFactory
     {
         private readonly ISupportOriginalService supportOriginalService;
 
@@ -13,7 +13,7 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
         public IServiceScope CreateScope()
         {
-            return  new ServiceScope(supportOriginalService);
+            return new ServiceScope(supportOriginalService);
         }
     }
 }
