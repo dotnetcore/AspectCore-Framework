@@ -12,18 +12,28 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 {
     internal sealed class SupportProxyService : ISupportProxyService
     {
-        private readonly ISupportOriginalService supportOriginalServiceProvider;
+        private readonly IProxyServiceProvider proxyServiceProvider;
+        private readonly ISupportOriginalService supportOriginalService;
         private readonly IProxyActivator proxyActivator;
 
-        public SupportProxyService(ISupportOriginalService supportOriginalServiceProvider,
-            IProxyActivator proxyActivator)
+        public object OriginalServiceInstance { get; set; }
+
+        public SupportProxyService(IProxyServiceProvider proxyServiceProvider,
+            IProxyActivator proxyActivator,
+            ISupportOriginalService supportOriginalService)
         {
-            this.supportOriginalServiceProvider = supportOriginalServiceProvider;
+            this.proxyServiceProvider = proxyServiceProvider;
             this.proxyActivator = proxyActivator;
+            this.supportOriginalService = supportOriginalService;
         }
 
         public object GetService(Type serviceType)
         {
+            if (OriginalServiceInstance == null)
+            {
+                return null;
+            }
+
             ExceptionHelper.ThrowArgumentNull(serviceType, nameof(serviceType));
             var serviceTypeInfo = serviceType.GetTypeInfo();
 
@@ -32,40 +42,46 @@ namespace AspectCore.Lite.DependencyInjection.Internal
                 return GetOpenIEnumerableService(serviceType);
             }
 
-            return CreateServiceProxy(supportOriginalServiceProvider.GetOriginalService(serviceType), serviceType);
+            return CreateServiceProxy(OriginalServiceInstance, serviceType);
         }
 
         private IEnumerable GetOpenIEnumerableService(Type serviceType)
         {
-            var services = supportOriginalServiceProvider.GetServices(serviceType);
-            foreach (var service in services)
-            {
-                yield return CreateServiceProxy(service, serviceType);
-            }
+            return from object service in (IEnumerable) OriginalServiceInstance
+                select CreateServiceProxy(service, serviceType);
         }
 
         private object CreateServiceProxy(object instance, Type serviceType)
         {
-            var serviceTypeInfo = serviceType.GetTypeInfo();
-
-            if (!serviceTypeInfo.CanProxy(supportOriginalServiceProvider))
+            try
             {
+                var serviceTypeInfo = serviceType.GetTypeInfo();
+
+                if (!serviceTypeInfo.CanProxy(supportOriginalService))
+                {
+                    return instance;
+                }
+
+                instance = ActivatorUtilities.CreateInstance(proxyServiceProvider, instance.GetType());
+
+                if (serviceTypeInfo.IsClass)
+                {
+                    return proxyActivator.CreateClassProxy(serviceType, instance,
+                        serviceTypeInfo.GetInterfaces());
+                }
+
+                if (serviceTypeInfo.IsInterface)
+                {
+                    return proxyActivator.CreateInterfaceProxy(serviceType, instance,
+                        serviceTypeInfo.GetInterfaces().Where(x => x != serviceType).ToArray());
+                }
+
                 return instance;
             }
-
-            if (serviceTypeInfo.IsClass)
+            catch (Exception exception)
             {
-                return proxyActivator.CreateClassProxy(serviceType, instance,
-                    serviceTypeInfo.GetInterfaces());
+                throw new InvalidOperationException($"Unable to create proxy instance for type '{serviceType}'.", exception);
             }
-
-            if (serviceTypeInfo.IsInterface)
-            {
-                return proxyActivator.CreateInterfaceProxy(serviceType, instance,
-                    serviceTypeInfo.GetInterfaces().Where(x => x != serviceType).ToArray());
-            }
-
-            return instance;
         }
     }
 }
