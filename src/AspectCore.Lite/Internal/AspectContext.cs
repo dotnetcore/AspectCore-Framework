@@ -17,11 +17,11 @@ namespace AspectCore.Lite.Internal
 
         private bool dispose = false;
 
-        internal AspectContext(IServiceProvider serviceProvider)
+        public AspectContext(IServiceProvider serviceProvider)
         {
             ExceptionHelper.ThrowArgumentNull(serviceProvider , nameof(serviceProvider));
             ApplicationServices = serviceProvider;
-            serviceScope = ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            serviceScope = ApplicationServices.GetRequiredService<IServiceScope>();
             AspectServices = serviceScope.ServiceProvider;
         }
 

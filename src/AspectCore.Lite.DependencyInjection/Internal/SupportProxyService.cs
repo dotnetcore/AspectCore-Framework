@@ -1,7 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Common;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,11 +11,13 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 {
     internal sealed class SupportProxyService : ISupportProxyService
     {
+        private static readonly MethodInfo GetOpenIEnumerableServiceMethod =
+            typeof(SupportProxyService).GetTypeInfo()
+                .GetMethod("GetOpenIEnumerableService", BindingFlags.Instance | BindingFlags.NonPublic);
+
         private readonly IProxyServiceProvider proxyServiceProvider;
         private readonly ISupportOriginalService supportOriginalService;
         private readonly IProxyActivator proxyActivator;
-
-        public object OriginalServiceInstance { get; set; }
 
         public SupportProxyService(IProxyServiceProvider proxyServiceProvider,
             IProxyActivator proxyActivator,
@@ -27,9 +28,9 @@ namespace AspectCore.Lite.DependencyInjection.Internal
             this.supportOriginalService = supportOriginalService;
         }
 
-        public object GetService(Type serviceType)
+        public object GetService(Type serviceType, object originalServiceInstance)
         {
-            if (OriginalServiceInstance == null)
+            if (originalServiceInstance == null)
             {
                 return null;
             }
@@ -39,16 +40,18 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
             if (serviceTypeInfo.IsGenericType && serviceTypeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
-                return GetOpenIEnumerableService(serviceType);
+                var genericParameter = serviceTypeInfo.GenericTypeArguments[0];
+                return GetOpenIEnumerableServiceMethod.MakeGenericMethod(genericParameter)
+                    .Invoke(this, new[] {genericParameter, originalServiceInstance});
             }
 
-            return CreateServiceProxy(OriginalServiceInstance, serviceType);
+            return CreateServiceProxy(originalServiceInstance, serviceType);
         }
 
-        private IEnumerable GetOpenIEnumerableService(Type serviceType)
+        private IEnumerable<T> GetOpenIEnumerableService<T>(Type serviceType, IEnumerable<T> enumerable)
         {
-            return from object service in (IEnumerable) OriginalServiceInstance
-                select CreateServiceProxy(service, serviceType);
+            return (from service in enumerable
+                select (T) CreateServiceProxy(service, serviceType)).ToArray();
         }
 
         private object CreateServiceProxy(object instance, Type serviceType)
@@ -59,24 +62,24 @@ namespace AspectCore.Lite.DependencyInjection.Internal
 
                 if (!serviceTypeInfo.CanProxy(supportOriginalService))
                 {
-                    return instance;
+                    return ActivatorUtilities.CreateInstance(proxyServiceProvider, instance.GetType());;
                 }
 
-                instance = ActivatorUtilities.CreateInstance(proxyServiceProvider, instance.GetType());
+                var resolvedInstance = ActivatorUtilities.CreateInstance(proxyServiceProvider, instance.GetType());
 
                 if (serviceTypeInfo.IsClass)
                 {
-                    return proxyActivator.CreateClassProxy(serviceType, instance,
+                    return proxyActivator.CreateClassProxy(serviceType, resolvedInstance,
                         serviceTypeInfo.GetInterfaces());
                 }
 
                 if (serviceTypeInfo.IsInterface)
                 {
-                    return proxyActivator.CreateInterfaceProxy(serviceType, instance,
+                    return proxyActivator.CreateInterfaceProxy(serviceType, resolvedInstance,
                         serviceTypeInfo.GetInterfaces().Where(x => x != serviceType).ToArray());
                 }
 
-                return instance;
+                return resolvedInstance;
             }
             catch (Exception exception)
             {

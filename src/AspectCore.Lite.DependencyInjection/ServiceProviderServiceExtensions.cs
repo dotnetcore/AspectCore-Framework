@@ -29,7 +29,19 @@ namespace AspectCore.Lite.DependencyInjection
 
         public static T GetOriginalService<T>(this IServiceProvider provider)
         {
-            return (T)provider.GetOriginalService(typeof(T));
+            return (T) GetOriginalService(provider, typeof(T));
+        }
+
+        public static object GetProxyService(this IServiceProvider provider, Type serviceType)
+        {
+            ExceptionHelper.ThrowArgumentNull(provider , nameof(provider));
+            var supportProxyService = provider.GetRequiredService<ISupportProxyService>();
+            return supportProxyService.GetService(serviceType, provider.GetOriginalService(serviceType));
+        }
+
+        public static T GetProxyService<T>(this IServiceProvider provider)
+        {
+            return (T) GetProxyService(provider, typeof(T));
         }
     }
 }

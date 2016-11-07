@@ -21,6 +21,7 @@ namespace AspectCore.Lite.DependencyInjection
                 return new SupportOriginalService(proxyServiceProvider?.originalServiceProvider ?? provider);
             });
             services.Replace(ServiceDescriptor.Transient<IProxyActivator, ServiceProxyActivator>());
+            services.AddTransient<IAspectContextFactory, AspectContextFactory>();
             services.AddTransient<IServiceScope, ServiceScope>();
             services.AddTransient<IServiceScopeFactory, ServiceScopeFactory>();
             services.AddTransient<ISupportProxyService, SupportProxyService>();

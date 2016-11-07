@@ -2,8 +2,8 @@
 
 namespace AspectCore.Lite.DependencyInjection
 {
-    public interface ISupportProxyService : IServiceProvider
+    public interface ISupportProxyService
     {
-        object OriginalServiceInstance { get; set; }
+        object GetService(Type serviceType, object originalServiceInstance);
     }
 }
