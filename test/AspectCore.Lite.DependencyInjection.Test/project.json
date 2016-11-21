@@ -3,16 +3,16 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "AspectCore.Lite.DependencyInjection":"1.0.0-beta3-*",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "Microsoft.AspNetCore.Testing": "1.1.0-*",
+    "Microsoft.AspNetCore.Testing": "1.2.0-preview1-22791",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "NSubstitute": "2.0.0-rc",
-    "xunit": "2.2.0-*"
+    "xunit": "2.2.0-*",
+    "AspectCore.Lite.DependencyInjection": "1.0.0-beta3-*"
   },
 
   "frameworks": {
-    "netcoreapp1.0": {
+    "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
