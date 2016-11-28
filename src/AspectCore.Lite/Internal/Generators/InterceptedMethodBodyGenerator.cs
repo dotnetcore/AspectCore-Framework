@@ -10,14 +10,21 @@ namespace AspectCore.Lite.Internal.Generators
 {
     internal class InterceptedMethodBodyGenerator : MethodBodyGenerator
     {
-        private readonly MethodInfo GetAspectExecutorMethod = GeneratorHelper.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
-        private readonly MethodInfo AspectExecuteSynchronouslyMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteSynchronously");
-        private readonly MethodInfo AspectExecuteAsyncMethod = typeof(IAspectExecutor).GetTypeInfo().GetMethod("ExecuteAsync");
+        private static readonly MethodInfo GetAspectExecutorMethod =
+            GeneratorHelper.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(
+                serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
+
+        private static readonly MethodInfo AspectExecuteMethod =
+            typeof(IAspectExecutor).GetTypeInfo().GetMethod(nameof(IAspectExecutor.Execute));
+
+        private static readonly MethodInfo AspectExecuteAsyncMethod =
+            typeof(IAspectExecutor).GetTypeInfo().GetMethod(nameof(IAspectExecutor.ExecuteAsync));
 
         protected FieldGenerator serviceProviderGenerator;
 
-        internal InterceptedMethodBodyGenerator(InterfaceMethodGenerator methodGenerator , FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator) 
-            : base(methodGenerator , serviceInstanceGenerator)
+        internal InterceptedMethodBodyGenerator(InterfaceMethodGenerator methodGenerator,
+            FieldGenerator serviceInstanceGenerator, FieldGenerator serviceProviderGenerator)
+            : base(methodGenerator, serviceInstanceGenerator)
         {
             this.serviceProviderGenerator = serviceProviderGenerator;
         }
@@ -29,37 +36,37 @@ namespace AspectCore.Lite.Internal.Generators
             var method = methodGenerator.TargetMethod;
 
             il.EmitThis();
-            il.Emit(OpCodes.Ldfld , serviceProviderGenerator.FieldBuilder);
-            il.Emit(OpCodes.Call , GetAspectExecutorMethod);
+            il.Emit(OpCodes.Ldfld, serviceProviderGenerator.FieldBuilder);
+            il.Emit(OpCodes.Call, GetAspectExecutorMethod);
             il.EmitThis();
-            il.Emit(OpCodes.Ldfld , serviceInstanceGenerator.FieldBuilder);
+            il.Emit(OpCodes.Ldfld, serviceInstanceGenerator.FieldBuilder);
             il.EmitThis();
             il.EmitTypeof(method.DeclaringType);
-            il.Emit(OpCodes.Ldstr , method.Name);
+            il.Emit(OpCodes.Ldstr, method.Name);
             il.EmitLoadInt(parameters.Length);
-            il.Emit(OpCodes.Newarr , typeof(object));
+            il.Emit(OpCodes.Newarr, typeof(object));
 
-            for (int i = 0 ; i < parameters.Length ; i++)
+            for (var i = 0; i < parameters.Length; i++)
             {
                 il.Emit(OpCodes.Dup);
                 il.EmitLoadInt(i);
                 il.EmitLoadArg(i + 1);
-                il.EmitConvertToType(parameters[i] , typeof(object) , false);
+                il.EmitConvertToType(parameters[i], typeof(object), false);
                 il.Emit(OpCodes.Stelem_Ref);
             }
 
             if (method.ReturnType == typeof(void))
             {
-                il.Emit(OpCodes.Callvirt , AspectExecuteSynchronouslyMethod.MakeGenericMethod(typeof(object)));
+                il.Emit(OpCodes.Callvirt, AspectExecuteMethod.MakeGenericMethod(typeof(object)));
                 il.Emit(OpCodes.Pop);
             }
             else if (method.IsReturnTask())
             {
-                il.Emit(OpCodes.Callvirt , AspectExecuteAsyncMethod.MakeGenericMethod(method.ReturnType));
+                il.Emit(OpCodes.Callvirt, AspectExecuteAsyncMethod.MakeGenericMethod(method.ReturnType));
             }
             else
             {
-                il.Emit(OpCodes.Callvirt , AspectExecuteSynchronouslyMethod.MakeGenericMethod(method.ReturnType));
+                il.Emit(OpCodes.Callvirt, AspectExecuteMethod.MakeGenericMethod(method.ReturnType));
             }
 
             il.Emit(OpCodes.Ret);
