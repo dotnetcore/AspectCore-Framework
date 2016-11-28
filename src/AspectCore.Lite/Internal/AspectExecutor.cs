@@ -30,7 +30,7 @@ namespace AspectCore.Lite.Internal
             this.namedMethodMatcher = namedMethodMatcher;
         }
 
-        public TResult ExecuteSynchronously<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
+        public TResult Execute<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
         {
             return AsyncContext.Run(() => ExecuteAsync<TResult>(targetInstance , proxyInstance , serviceType , method , args));
         }
