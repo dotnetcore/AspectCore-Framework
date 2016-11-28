@@ -11,14 +11,23 @@ namespace AspectCore.Lite.DependencyInjection
         {
             IServiceCollection services = new ServiceCollection();
             services.AddTransient<IJoinPoint, JoinPoint>();
-            services.AddTransient<IAspectContextFactory, AspectContextFactory>();       
+            services.AddScoped<IAspectContextFactory, AspectContextFactory>();
             services.AddTransient<IAspectExecutor, AspectExecutor>();
             services.AddTransient<IInterceptorMatcher , AttributeInterceptorMatcher>();
             services.AddTransient<INamedMethodMatcher , NamedMethodMatcher>();
             services.AddTransient<IPointcut, Pointcut>();
+
+            var serviceProvider = services.BuildServiceProvider();
+            services.AddScoped<IOriginalServiceProvider>(
+                _ =>
+                    new OriginalServiceProvider(
+                        serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider));
+
             services.AddTransient<IProxyActivator , ServiceProxyActivator>();
+
             services.AddTransient<IServiceScope>(
                 provider => provider.GetRequiredService<IServiceScopeFactory>().CreateScope());
+
             services.AddSingleton<ModuleGenerator>();
             return services;
         }

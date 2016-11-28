@@ -15,10 +15,10 @@ namespace AspectCore.Lite.Abstractions
 
         internal Target(MethodInfo method, Type serviceType, Type implementationType, object implementationInstance)
         {
-            ExceptionHelper.ThrowArgumentNull(method , nameof(method));
-            ExceptionHelper.ThrowArgumentNull(serviceType , nameof(serviceType));
-            ExceptionHelper.ThrowArgumentNull(implementationType , nameof(implementationType));
-            ExceptionHelper.ThrowArgumentNull(implementationInstance , nameof(implementationInstance));
+            ExceptionHelper.ThrowArgumentNull(method, nameof(method));
+            ExceptionHelper.ThrowArgumentNull(serviceType, nameof(serviceType));
+            ExceptionHelper.ThrowArgumentNull(implementationType, nameof(implementationType));
+            ExceptionHelper.ThrowArgumentNull(implementationInstance, nameof(implementationInstance));
 
             Method = method;
             ServiceType = serviceType;
@@ -30,14 +30,14 @@ namespace AspectCore.Lite.Abstractions
         {
             try
             {
-                object[] args = ParameterCollection?.Select(p => p.Value)?.ToArray();
-                return Method.Invoke(Instance , args);
+                var args = ParameterCollection?.Select(p => p.Value)?.ToArray();
+                return Method.Invoke(Instance, args);
             }
             catch (TargetInvocationException ex)
             {
                 throw ex.InnerException;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
