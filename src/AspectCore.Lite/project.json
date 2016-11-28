@@ -18,6 +18,13 @@
         "Nito.AsyncEx": "3.0.1",
         "System.Runtime": "4.0.0"
       }
+    },
+    "netcoreapp1.1": {
+      "dependencies": {
+        "System.Reflection.Emit": "4.3.0",
+        "System.Linq.Expressions": "4.3.0",
+        "Nito.AsyncEx.Context": "1.1.0"
+      }
     }
   },
   "packOptions": {

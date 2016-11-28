@@ -5,8 +5,9 @@
   },
   "description": "Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore.Lite.",
   "frameworks": {
-    "netstandard1.6": {},
-    "net45": {}
+    "netstandard1.6.1": {},
+    "net45": {},
+    "netcoreapp1.1": {}
   },
   "packOptions": {
     "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",

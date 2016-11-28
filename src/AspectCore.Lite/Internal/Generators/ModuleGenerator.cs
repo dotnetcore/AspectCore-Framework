@@ -14,12 +14,12 @@ namespace AspectCore.Lite.Internal.Generators
 
         public ModuleGenerator()
         {
-#if NETSTANDARD1_6_1
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly) , AssemblyBuilderAccess.Run);
-            moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module);
-#elif NET45
+#if NET45
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly), AssemblyBuilderAccess.RunAndSave);
             moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module , GeneratorConstants.AssemblyFile);
+#else
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly), AssemblyBuilderAccess.Run);
+            moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module);
 #endif
 
             proxyTypes = new ConcurrentDictionary<Type, Type>();
