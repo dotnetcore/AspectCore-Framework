@@ -14,7 +14,7 @@ namespace AspectCore.Lite.Internal.Generators
 
         public ModuleGenerator()
         {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6_1
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(GeneratorConstants.Assembly) , AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule(GeneratorConstants.Module);
 #elif NET45

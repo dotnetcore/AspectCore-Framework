@@ -9,7 +9,7 @@ namespace AspectCore.Lite.Extensions
 {
     internal static class IlGeneratorExtensions
     {
-#if NETSTANDARD1_6
+#if NETSTANDARD1_6_1
         private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName(GeneratorConstants.ExpressionsNETSTANDARD1_6));
 #elif NET45
         private static readonly Assembly ExpressionsAssembly = Assembly.GetAssembly(typeof(Expression));
