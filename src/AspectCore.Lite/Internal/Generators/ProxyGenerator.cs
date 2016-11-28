@@ -24,7 +24,7 @@ namespace AspectCore.Lite.Internal.Generators
             }
         }
 
-        public ProxyGenerator(IServiceProvider serviceProvider, Type serviceType, Type[] impInterfaceTypes)
+        protected ProxyGenerator(IServiceProvider serviceProvider, Type serviceType, Type[] impInterfaceTypes)
         {
             ExceptionHelper.ThrowArgumentNull(serviceProvider, nameof(serviceProvider));
             ExceptionHelper.ThrowArgumentNull(serviceType, nameof(serviceType));
@@ -39,7 +39,7 @@ namespace AspectCore.Lite.Internal.Generators
             this.impInterfaceTypes = impInterfaceTypes;
             this.moduleGenerator = serviceProvider.GetRequiredService<ModuleGenerator>();
             this.pointcut = serviceProvider.GetRequiredService<IPointcut>();
-            this.builder = new Lazy<TypeBuilder>(() => GenerateTypeBuilder(), true);
+            this.builder = new Lazy<TypeBuilder>(GenerateTypeBuilder, true);
         }
 
         protected abstract TypeBuilder GenerateTypeBuilder();

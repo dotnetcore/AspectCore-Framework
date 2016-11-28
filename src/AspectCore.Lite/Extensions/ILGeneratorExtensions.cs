@@ -7,18 +7,18 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Extensions
 {
-    internal static class ILGeneratorExtensions
+    internal static class IlGeneratorExtensions
     {
 #if NETSTANDARD1_6
         private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName(GeneratorConstants.ExpressionsNETSTANDARD1_6));
 #elif NET45
         private static readonly Assembly ExpressionsAssembly = Assembly.GetAssembly(typeof(Expression));
 #endif
-        private static readonly Type ILGenType = ExpressionsAssembly.GetType(GeneratorConstants.ILGenType);
+        private static readonly Type IlGenType = ExpressionsAssembly.GetType(GeneratorConstants.ILGenType);
         private static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetTypeInfo().GetMethod("GetTypeFromHandle");
 
         private static readonly Action<ILGenerator , Type , Type , bool> ConvertToType =
-            (Action<ILGenerator , Type , Type , bool>)ILGenType.GetTypeInfo().DeclaredMethods.SingleOrDefault(m =>
+            (Action<ILGenerator , Type , Type , bool>)IlGenType.GetTypeInfo().DeclaredMethods.SingleOrDefault(m =>
             m.Name == GeneratorConstants.EmitConvertToType).CreateDelegate(typeof(Action<ILGenerator , Type , Type , bool>));
 
         internal static void EmitLoadArg(this ILGenerator il , int index)
