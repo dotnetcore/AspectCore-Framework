@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Internal
 {
-    internal class AttributeInterceptorMatcher : IInterceptorMatcher
+    internal sealed class AttributeInterceptorMatcher : IInterceptorMatcher
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> AttributeInterceptorCache =
             new ConcurrentDictionary<MethodInfo, IInterceptor[]>();

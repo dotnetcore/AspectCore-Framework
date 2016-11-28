@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Internal
 {
-    internal class Pointcut : IPointcut
+    internal sealed class Pointcut : IPointcut
     {
 
         public bool IsMatch(MethodInfo method)

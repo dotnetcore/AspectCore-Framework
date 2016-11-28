@@ -3,7 +3,7 @@ using System;
 
 namespace AspectCore.Lite.Internal
 {
-    internal class AspectContextFactory : IAspectContextFactory
+    internal sealed class AspectContextFactory : IAspectContextFactory
     {
         private readonly IServiceProvider serviceProvider;
         public AspectContextFactory(IServiceProvider serviceProvider)

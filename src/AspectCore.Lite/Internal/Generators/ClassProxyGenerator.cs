@@ -7,18 +7,20 @@ namespace AspectCore.Lite.Internal.Generators
 {
     internal sealed class ClassProxyGenerator : ProxyGenerator
     {
-        public ClassProxyGenerator(IServiceProvider serviceProvider , Type parentType , params Type[] impInterfaceTypes)
+        private readonly Type serviceInstanceType;
+        public ClassProxyGenerator(IServiceProvider serviceProvider ,Type serviceType, Type parentType , params Type[] impInterfaceTypes)
             : base(serviceProvider , parentType , impInterfaceTypes)
         {
             ExceptionHelper.ThrowArgument(() => !parentType.GetTypeInfo().IsClass , $"Type {parentType} should be class." , nameof(parentType));
             ExceptionHelper.ThrowArgument(() => parentType.GetTypeInfo().IsSealed , $"Type {parentType} cannot be sealed." , nameof(parentType));
+            serviceInstanceType = serviceType;
         }
 
         private TypeInfo GenerateProxyTypeInfo(Type key)
         {
 
             var serviceProviderGenerator = new FieldGenerator(TypeBuilder, typeof(IServiceProvider), GeneratorConstants.ServiceProvider);
-            var serviceInstanceGenerator = new FieldGenerator(TypeBuilder, key, GeneratorConstants.ServiceInstance);
+            var serviceInstanceGenerator = new FieldGenerator(TypeBuilder, serviceInstanceType, GeneratorConstants.ServiceInstance);
 
             GenerateClassProxy(serviceType, serviceProviderGenerator, serviceInstanceGenerator);
 

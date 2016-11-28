@@ -23,5 +23,12 @@ namespace AspectCore.Lite.Extensions
             var pointcut = provider.GetRequiredService<IPointcut>();
             return typeInfo.DeclaredMethods.Any(method => pointcut.IsMatch(method));
         }
+
+        public static bool CanInherited(this TypeInfo typeInfo)
+        {
+            ExceptionHelper.ThrowArgumentNull(typeInfo, nameof(typeInfo));
+            return typeInfo.IsClass && (typeInfo.IsPublic || (typeInfo.IsNested && typeInfo.IsNestedPublic)) &&
+                   !typeInfo.IsSealed && !typeInfo.IsGenericTypeDefinition;
+        }
     }
 }

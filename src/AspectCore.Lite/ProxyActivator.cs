@@ -27,10 +27,10 @@ namespace AspectCore.Lite.Abstractions.Activators
         {
             ExceptionHelper.ThrowArgumentNull(serviceType , nameof(serviceType));
             ExceptionHelper.ThrowArgumentNull(instance , nameof(instance));
-            ExceptionHelper.ThrowArgument(() => !serviceType.GetTypeInfo().IsAssignableFrom(instance.GetType()) , $"Can not assign an instance of the {instance.GetType()} to the {serviceType}.");
-            interfaceTypes?.ForEach(interfaceType => ExceptionHelper.ThrowArgument(() => !interfaceType.GetTypeInfo().IsAssignableFrom(instance.GetType()) , $"Can not assign an instance of the {instance.GetType()} to the {interfaceType}."));
+            ExceptionHelper.ThrowArgument(() => !serviceType.GetTypeInfo().IsInstanceOfType(instance) , $"Can not assign an instance of the {instance.GetType()} to the {serviceType}.");
+            interfaceTypes?.ForEach(interfaceType => ExceptionHelper.ThrowArgument(() => !interfaceType.GetTypeInfo().IsInstanceOfType(instance) , $"Can not assign an instance of the {instance.GetType()} to the {interfaceType}."));
 
-            var proxyGenerator = new ClassProxyGenerator(serviceProvider , serviceType , interfaceTypes);
+            var proxyGenerator = new ClassProxyGenerator(serviceProvider, null, serviceType, interfaceTypes);
             var proxyType = proxyGenerator.GenerateProxyType();
             return ActivatorUtilities.CreateInstance(serviceProvider , proxyType , new object[] { serviceProvider , instance });
         }
@@ -39,8 +39,8 @@ namespace AspectCore.Lite.Abstractions.Activators
         {
             ExceptionHelper.ThrowArgumentNull(serviceType , nameof(serviceType));
             ExceptionHelper.ThrowArgumentNull(instance , nameof(instance));
-            ExceptionHelper.ThrowArgument(() => !serviceType.GetTypeInfo().IsAssignableFrom(instance.GetType()) , $"Can not assign an instance of the {instance.GetType()} to the {serviceType}.");
-            interfaceTypes?.ForEach(interfaceType => ExceptionHelper.ThrowArgument(() => !interfaceType.GetTypeInfo().IsAssignableFrom(instance.GetType()) , $"Can not assign an instance of the {instance.GetType()} to the {interfaceType}."));
+            ExceptionHelper.ThrowArgument(() => !serviceType.GetTypeInfo().IsInstanceOfType(instance) , $"Can not assign an instance of the {instance.GetType()} to the {serviceType}.");
+            interfaceTypes?.ForEach(interfaceType => ExceptionHelper.ThrowArgument(() => !interfaceType.GetTypeInfo().IsInstanceOfType(instance) , $"Can not assign an instance of the {instance.GetType()} to the {interfaceType}."));
 
             var proxyGenerator = new InterfaceProxyGenerator(serviceProvider , serviceType , interfaceTypes);
             var proxyType = proxyGenerator.GenerateProxyType();

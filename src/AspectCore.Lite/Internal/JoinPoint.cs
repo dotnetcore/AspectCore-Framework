@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Internal
 {
-    internal class JoinPoint : IJoinPoint
+    internal sealed class JoinPoint : IJoinPoint
     {
         private readonly IList<Func<InterceptorDelegate, InterceptorDelegate>> delegates;
 
