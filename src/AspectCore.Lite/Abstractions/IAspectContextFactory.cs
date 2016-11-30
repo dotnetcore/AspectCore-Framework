@@ -3,6 +3,5 @@
     public interface IAspectContextFactory
     {
         IAspectContext Create();
-
     }
 }
