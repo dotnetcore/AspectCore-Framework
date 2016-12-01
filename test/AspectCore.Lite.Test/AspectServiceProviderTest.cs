@@ -31,8 +31,10 @@ namespace AspectCore.Lite.Test
             var taskService1 = provider.GetService<ITaskService>();
             var taskService2 = provider.GetService<ITaskService>();
             Assert.Equal(taskService1, taskService2);
+
             var originalProvider = provider.GetService<IOriginalServiceProvider>();
             Assert.Equal(originalProvider.GetService(typeof(ITaskService)),originalProvider.GetService(typeof(ITaskService)));
+
             var field_serviceInstance =
                 Expression.Lambda<Func<object>>(Expression.Field(Expression.Constant(taskService1),
                     "proxyfield#serviceInstance")).Compile()();
