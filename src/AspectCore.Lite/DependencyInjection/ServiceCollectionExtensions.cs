@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using System.Linq;
 using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Extensions;
 using AspectCore.Lite.Internal;
 using AspectCore.Lite.Internal.Generators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using AspectCore.Lite.Common;
 
 namespace AspectCore.Lite.DependencyInjection
 {
@@ -13,57 +15,83 @@ namespace AspectCore.Lite.DependencyInjection
     {
         public static IServiceProvider BuildAspectServiceProvider(this IServiceCollection services)
         {
-            var serviceProvider = services.AddAspectCoreLite().BuildServiceProvider();
+            ExceptionHelper.ThrowArgumentNull(services, nameof(services));
+            var serviceProvider = services.TryAddAspectCoreLite().BuildServiceProvider();
             var aspectServices = new ServiceCollection();
-
-            foreach (var serviceDescriptor in services)
+            services.ForEach(descriptor =>
             {
-                var implementationType = serviceDescriptor.ImplementationType;
-                if (implementationType != null)
-                {
-                    if (serviceDescriptor.ServiceType.GetTypeInfo().CanProxy(serviceProvider))
-                    {
-                        if (serviceDescriptor.ImplementationType.GetTypeInfo().CanInherited())
-                        {
-                            var proxyGenerator = new ClassProxyGenerator(serviceProvider,
-                                serviceDescriptor.ServiceType,
-                                implementationType,
-                                implementationType.GetTypeInfo().GetInterfaces());
-
-                            var proxyType = proxyGenerator.GenerateProxyType();
-
-                            aspectServices.Add(ServiceDescriptor.Describe(serviceDescriptor.ServiceType, proxyType,
-                                serviceDescriptor.Lifetime));
-
-                            continue;
-                        }
-                    }
-                }
-                aspectServices.Add(serviceDescriptor);
-            }
-
-            aspectServices.AddScoped<IOriginalServiceProvider>(
-                _ =>
-                    new OriginalServiceProvider(
-                        serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider));
-
+                if (CanProxy(descriptor, serviceProvider))
+                    aspectServices.Add(CreateProxy(descriptor, serviceProvider));
+                else
+                    aspectServices.Add(descriptor);
+            });
+            aspectServices.AddScoped<IOriginalServiceProvider>(_ =>
+                new OriginalServiceProvider(serviceProvider.GetRequiredService<IServiceScope>().ServiceProvider));
             return aspectServices.BuildServiceProvider();
         }
 
-        private static IServiceCollection AddAspectCoreLite(this IServiceCollection services)
+        public static IServiceCollection TryAddAspectCoreLite(this IServiceCollection services)
         {
-            services.AddTransient<IJoinPoint, JoinPoint>();
-            services.AddScoped<IAspectContextFactory, AspectContextFactory>();
-            services.AddTransient<IAspectExecutor, AspectExecutor>();
-            services.AddSingleton<IInterceptorMatcher , AttributeInterceptorMatcher>();
-            services.AddSingleton<INamedMethodMatcher , NamedMethodMatcher>();
-            services.AddSingleton<IPointcut, Pointcut>();
-            services.AddSingleton<ModuleGenerator>();
-            services.AddTransient<IServiceScope>(
+            ExceptionHelper.ThrowArgumentNull(services, nameof(services));
+            services.TryAddTransient<IJoinPoint, JoinPoint>();
+            services.TryAddTransient<IAspectExecutor, AspectExecutor>();
+            services.TryAddTransient<IServiceScope>(
                 serviceProvider => serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope());
+            services.TryAddScoped<IAspectContextFactory, AspectContextFactory>();
+            services.TryAddSingleton<IInterceptorMatcher, AttributeInterceptorMatcher>();
+            services.TryAddSingleton<INamedMethodMatcher, NamedMethodMatcher>();
+            services.TryAddSingleton<IPointcut, Pointcut>();
+            services.TryAddSingleton<ModuleGenerator>();
+            services.TryAddSingleton<IInterceptorCollection>(new InterceptorCollection());
             return services;
         }
 
+        public static IServiceCollection AddGlobalInterceptors(IServiceCollection services, Action<IInterceptorCollection> addOperator)
+        {
+            ExceptionHelper.ThrowArgumentNull(services, nameof(services));
+            var interceptorCollection = GetInterceptorCollection(services);
+            addOperator?.Invoke(interceptorCollection);
+            return services;
+        }
 
+        private static bool CanProxy(ServiceDescriptor serviceDescriptor, IServiceProvider serviceProvider)
+        {
+            var implementationType = serviceDescriptor.ImplementationType;
+            if (implementationType == null)
+            {
+                return false;
+            }
+            if (!serviceDescriptor.ServiceType.GetTypeInfo().CanProxy(serviceProvider))
+            {
+                return false;
+            }
+
+            if (!serviceDescriptor.ImplementationType.GetTypeInfo().CanInherited())
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private static ServiceDescriptor CreateProxy(ServiceDescriptor serviceDescriptor, IServiceProvider serviceProvider)
+        {
+            var proxyGenerator = new ClassProxyGenerator(serviceProvider, serviceDescriptor.ServiceType,
+                               serviceDescriptor.ImplementationType,
+                               serviceDescriptor.ImplementationType.GetTypeInfo().GetInterfaces());
+
+            return ServiceDescriptor.Describe(serviceDescriptor.ServiceType,
+                                proxyGenerator.GenerateProxyType(), serviceDescriptor.Lifetime);
+        }
+
+        private static IInterceptorCollection GetInterceptorCollection(IServiceCollection services)
+        {
+            var serviceDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IInterceptorCollection) && d.ImplementationInstance != null);
+            if (serviceDescriptor == null)
+            {
+                serviceDescriptor = ServiceDescriptor.Singleton<IInterceptorCollection>(new InterceptorCollection());
+                services.TryAdd(serviceDescriptor);
+            }
+            return (IInterceptorCollection)serviceDescriptor.ImplementationInstance;
+        }
     }
 }

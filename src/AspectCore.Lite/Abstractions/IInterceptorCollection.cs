@@ -6,6 +6,6 @@ namespace AspectCore.Lite.Abstractions
 {
     public interface IInterceptorCollection : IEnumerable<IInterceptor>
     {
-        void Add(Expression<Func<IInterceptor>> factory);
+        void Add(Func<IInterceptor> factory);
     }
 }

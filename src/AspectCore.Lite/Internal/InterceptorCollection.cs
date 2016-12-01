@@ -13,10 +13,10 @@ namespace AspectCore.Lite.Internal
         private readonly ConcurrentBag<Func<IInterceptor>> interceptorConcurrentBag =
             new ConcurrentBag<Func<IInterceptor>>();
 
-        public void Add(Expression<Func<IInterceptor>> factory)
+        public void Add(Func<IInterceptor> factory)
         {
             ExceptionHelper.ThrowArgumentNull(factory, nameof(factory));
-            interceptorConcurrentBag.Add(factory.Compile());
+            interceptorConcurrentBag.Add(factory);
         }
 
         public IEnumerator<IInterceptor> GetEnumerator()
