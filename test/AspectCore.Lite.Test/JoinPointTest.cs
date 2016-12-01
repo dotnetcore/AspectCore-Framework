@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using System.Linq.Expressions;
 using AspectCore.Lite.Test.Fakes;
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using Microsoft.AspNetCore.Testing;
 #endif
 
@@ -103,7 +103,7 @@ namespace AspectCore.Lite.Test.Abstractions
             Assert.Equal(returnValue , 0);
         }
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
         [Fact]
         public void Build_ThrowInvalidOperationException()
         {

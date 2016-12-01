@@ -2,7 +2,7 @@
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using AspectCore.Lite.Abstractions;
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using Microsoft.AspNetCore.Testing;
 #endif
 
@@ -30,7 +30,7 @@ namespace AspectCore.Lite.Test
             Assert.Equal(method , MethodHelper.GetMethodInfo<Action<INamedMethodMatcherTestService , string , object>>((s , n , obj) => s.Func(n , obj)));
         }
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
         [Fact]
         public void Match_ThrowsInvalidOperationExceptionException()
         {

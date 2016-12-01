@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
 using Microsoft.AspNetCore.Testing;
 #endif
 
@@ -13,7 +13,7 @@ namespace AspectCore.Lite.Test.Abstractions.Descriptors
 {
     public class ParameterDescriptorTest
     {
-#if NETCOREAPP1_0
+#if NETCOREAPP1_1
         [Fact]
         public void Ctor_ThrowsArgumentNullException()
         {

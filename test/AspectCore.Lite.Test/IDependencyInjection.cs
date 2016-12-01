@@ -15,7 +15,7 @@ namespace AspectCore.Lite.Test
     {
         public static IServiceProvider BuildServiceProvider(this IDependencyInjection di , Action<IServiceCollection> action = null)
         {
-            IServiceCollection services = ServiceCollectionHelper.CreateAspectLiteServices();
+            IServiceCollection services = new ServiceCollection().TryAddAspectCoreLite();
 
             //services.AddAspectLite();
             action?.Invoke(services);

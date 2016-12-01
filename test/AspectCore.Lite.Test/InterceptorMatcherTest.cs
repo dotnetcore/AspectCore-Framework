@@ -32,14 +32,14 @@ namespace AspectCore.Lite.Test
             }
         }
 
-        [EmptyInterceptor]
+        [EmptyInterceptor(Order = -1)]
         public interface IInterceptorMatcherTestService
         {
             [InterceptorMatcherTest]
             void Foo();
         }
 
-        public class InterceptorMatcherTestAttribute: InterceptorAttribute
+        public class InterceptorMatcherTestAttribute : InterceptorAttribute
         {
 
         }
