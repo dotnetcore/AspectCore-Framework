@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Common;
+using System.Reflection;
 
 namespace AspectCore.Lite.Internal
 {
@@ -13,10 +14,11 @@ namespace AspectCore.Lite.Internal
         private readonly ConcurrentBag<Func<IInterceptor>> interceptorConcurrentBag =
             new ConcurrentBag<Func<IInterceptor>>();
 
-        public void Add(Func<IInterceptor> factory)
+        public void Add(Type interceptorType, object[] args)
         {
-            ExceptionHelper.ThrowArgumentNull(factory, nameof(factory));
-            interceptorConcurrentBag.Add(factory);
+            ExceptionHelper.ThrowArgumentNull(interceptorType, nameof(interceptorType));
+            ExceptionHelper.ThrowArgument(() => interceptorType.GetTypeInfo().IsInstanceOfType(typeof(IInterceptor)), "Not an interceptor type.", nameof(interceptorType));
+            interceptorConcurrentBag.Add(() => (IInterceptor)Activator.CreateInstance(interceptorType, args));
         }
 
         public IEnumerator<IInterceptor> GetEnumerator()
