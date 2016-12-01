@@ -47,7 +47,9 @@ namespace AspectCore.Lite.Internal
             var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , GeneratorHelper.GetMethodName(serviceType , method) , args);
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
             var interceptors = interceptorMatcher.Match(serviceMethod , serviceType.GetTypeInfo());
+
             joinPoint.MethodInvoker = target;
+
             interceptors.ForEach(interceptor =>
             {
                 propertyInjector.Injection(interceptor);
@@ -72,6 +74,10 @@ namespace AspectCore.Lite.Internal
                 catch (Exception ex)
                 {
                     throw ex;
+                }
+                finally
+                {
+                    interceptors.ForEach(interceptor => (interceptor as IDisposable)?.Dispose());
                 }
             }
         }
