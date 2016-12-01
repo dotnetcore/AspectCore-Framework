@@ -16,6 +16,7 @@ namespace AspectCore.Lite.Internal
         private readonly IInterceptorMatcher interceptorMatcher;
         private readonly INamedMethodMatcher namedMethodMatcher;
         private readonly IPropertyInjector propertyInjector;
+
         public AspectExecutor(
             IServiceProvider serviceProvider ,
             IJoinPoint joinPoint ,
@@ -41,7 +42,7 @@ namespace AspectCore.Lite.Internal
         {
             var serviceMethod = namedMethodMatcher.Match(serviceType , method , args);
             var parameters = new ParameterCollection(args , serviceMethod.GetParameters());
-            var returnParameter = new ReturnParameterDescriptor(default(object) , serviceMethod.ReturnParameter);
+            var returnParameter = new ReturnParameterDescriptor(default(TResult) , serviceMethod.ReturnParameter);
             var targetMethod = namedMethodMatcher.Match(targetInstance.GetType() , method , args);
             var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
             var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , GeneratorHelper.GetMethodName(serviceType , method) , args);
