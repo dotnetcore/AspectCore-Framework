@@ -15,5 +15,7 @@ namespace AspectCore.Lite.Abstractions
         ParameterCollection Parameters { get; }
 
         ParameterDescriptor ReturnParameter { get; }
+
+        object State { get; set; }
     }
 }

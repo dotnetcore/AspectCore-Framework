@@ -14,6 +14,7 @@ namespace AspectCore.Lite.Internal
         public Proxy Proxy { get; set; }
         public ParameterDescriptor ReturnParameter { get; set; }
         public Target Target { get; set; }
+        public object State { get; set; }
 
         private bool dispose = false;
 
@@ -29,6 +30,7 @@ namespace AspectCore.Lite.Internal
         {
             if (!dispose)
             {
+                (State as IDisposable)?.Dispose();
                 serviceScope.Dispose();
                 dispose = true;
             }
