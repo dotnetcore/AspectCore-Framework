@@ -17,7 +17,7 @@ namespace AspectCore.Lite.Internal
         public void Add(Type interceptorType, object[] args)
         {
             ExceptionHelper.ThrowArgumentNull(interceptorType, nameof(interceptorType));
-            ExceptionHelper.ThrowArgument(() => interceptorType.GetTypeInfo().IsInstanceOfType(typeof(IInterceptor)), "Not an interceptor type.", nameof(interceptorType));
+            ExceptionHelper.ThrowArgument(() => interceptorType.GetTypeInfo().IsInstanceOfType(typeof(IInterceptor)), $"{interceptorType} not an interceptor type.", nameof(interceptorType));
             interceptorConcurrentBag.Add(() => (IInterceptor)Activator.CreateInstance(interceptorType, args));
         }
 
