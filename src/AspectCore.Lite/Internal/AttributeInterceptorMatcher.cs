@@ -24,11 +24,8 @@ namespace AspectCore.Lite.Internal
         {
             ExceptionHelper.ThrowArgumentNull(method, nameof(method));
             ExceptionHelper.ThrowArgumentNull(typeInfo, nameof(typeInfo));
-            return AttributeInterceptorCache.GetOrAdd(method, key =>
-            {
-                var interceptorAttributes = InterceptorsIterator(method, typeInfo, interceptorCollection);
-                return InterceptorsFilter(interceptorAttributes).OrderBy(i => i.Order).ToArray();
-            });
+            var interceptorAttributes = InterceptorsIterator(method, typeInfo, interceptorCollection);
+            return InterceptorsFilter(interceptorAttributes).OrderBy(i => i.Order).ToArray();
         }
 
         private static IEnumerable<IInterceptor> InterceptorsIterator(
@@ -39,11 +36,13 @@ namespace AspectCore.Lite.Internal
                 var interceptor = attribute as IInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
+
             foreach (var attribute in typeInfo.GetCustomAttributes())
             {
                 var interceptor = attribute as IInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
+
             foreach (var interceptor in interceptorCollection)
             {
                 yield return interceptor;

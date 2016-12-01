@@ -2,6 +2,7 @@
 
 namespace AspectCore.Lite.Abstractions
 {
+    [NonAspect]
     public interface IInterceptor
     {
         int Order { get; set; }

@@ -1,4 +1,5 @@
-﻿using AspectCore.Lite.Common;
+﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -6,6 +7,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Internal.Generators
 {
+    [NonAspect]
     internal sealed class ModuleGenerator
     {
         private readonly AssemblyBuilder assemblyBuilder;
