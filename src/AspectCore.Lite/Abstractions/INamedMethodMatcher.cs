@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions
 {
+    [NonAspect]
     public interface INamedMethodMatcher
     {
         MethodInfo Match(Type type , string methodName , params object[] parameters);

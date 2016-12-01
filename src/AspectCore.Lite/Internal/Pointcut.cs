@@ -1,14 +1,16 @@
 ﻿using AspectCore.Lite.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace AspectCore.Lite.Internal
 {
     internal sealed class Pointcut : IPointcut
     {
+        private readonly IInterceptorCollection interceptorCollection;
+
+        public Pointcut(IInterceptorCollection interceptorCollection)
+        {
+            this.interceptorCollection = interceptorCollection;
+        }
 
         public bool IsMatch(MethodInfo method)
         {
@@ -17,12 +19,19 @@ namespace AspectCore.Lite.Internal
                 return false;
             }
 
-            var pointcut = PointcutHelper.GetPointcut(method.DeclaringType.GetTypeInfo());
+            var pointcut = PointcutHelper.GetPointcut(method.DeclaringType.GetTypeInfo(), interceptorCollection);
             return pointcut.IsMatch(method);
         }
 
         internal class InterfacePointcut : IPointcut
         {
+            private readonly IInterceptorCollection interceptorCollection;
+
+            public InterfacePointcut(IInterceptorCollection interceptorCollection)
+            {
+                this.interceptorCollection = interceptorCollection;
+            }
+
             public bool IsMatch(MethodInfo method)
             {
                 return PointcutHelper.IsMatchCache(method, IsMatchCache);
@@ -42,12 +51,29 @@ namespace AspectCore.Lite.Internal
                     return false;
                 }
 
-                return PointcutHelper.IsMemberMatch(method, declaringTypeInfo);
+                if (PointcutHelper.IsNonAspect(method, declaringTypeInfo))
+                {
+                    return false;
+                }
+
+                if (PointcutHelper.IsMemberMatch(method, declaringTypeInfo))
+                {
+                    return true;
+                }
+
+                return PointcutHelper.IsGlobalMatch(interceptorCollection);
             }
         }
 
         internal class VirtualMethodPointcut : IPointcut
         {
+            private readonly IInterceptorCollection interceptorCollection;
+
+            public VirtualMethodPointcut(IInterceptorCollection interceptorCollection)
+            {
+                this.interceptorCollection = interceptorCollection;
+            }
+
             public bool IsMatch(MethodInfo method)
             {
                 return PointcutHelper.IsMatchCache(method, IsMatchCache);
@@ -77,7 +103,17 @@ namespace AspectCore.Lite.Internal
                     return false;
                 }
 
-                return PointcutHelper.IsMemberMatch(method, declaringTypeInfo);
+                if (PointcutHelper.IsNonAspect(method, declaringTypeInfo))
+                {
+                    return false;
+                }
+
+                if (PointcutHelper.IsMemberMatch(method, declaringTypeInfo))
+                {
+                    return true;
+                }
+
+                return PointcutHelper.IsGlobalMatch(interceptorCollection);
             }
         }
     }

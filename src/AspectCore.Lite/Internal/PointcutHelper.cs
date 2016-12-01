@@ -11,34 +11,46 @@ namespace AspectCore.Lite.Internal
     {
         private readonly static TypeInfo InterceptorTypeInfo = typeof(IInterceptor).GetTypeInfo();
         private readonly static ConcurrentDictionary<MethodInfo, bool> pointcutCache = new ConcurrentDictionary<MethodInfo, bool>();
-        private readonly static IPointcut virtualMethodPointcut = new VirtualMethodPointcut();
-        private readonly static IPointcut interfacePointcut = new InterfacePointcut();
-
+       
         internal static bool IsMemberMatch(MethodInfo method, TypeInfo declaringTypeInfo)
         {
-            if (declaringTypeInfo.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType)))
+            if (method.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType)))
             {
                 return true;
             }
-            return method.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType));
+            return declaringTypeInfo.CustomAttributes.Any(data => IsAssignableFrom(data.AttributeType));
+        }
+
+        internal static bool IsGlobalMatch(IInterceptorCollection interceptorCollection)
+        {
+            return interceptorCollection.Any();
+        }
+
+        internal static bool IsNonAspect(MethodInfo method, TypeInfo declaringTypeInfo)
+        {
+            if (method.IsDefined(typeof(NonAspectAttribute), true))
+            {
+                return true;
+            }
+            return declaringTypeInfo.IsDefined(typeof(NonAspectAttribute), true);
         }
 
         private static bool IsAssignableFrom(Type attributeType) => InterceptorTypeInfo.IsAssignableFrom(attributeType);
 
         internal static bool IsMatchCache(MethodInfo method, Func<MethodInfo, bool> vauleFactory) => pointcutCache.GetOrAdd(method, vauleFactory);
 
-        internal static IPointcut GetPointcut(TypeInfo typeInfo)
+        internal static IPointcut GetPointcut(TypeInfo typeInfo, IInterceptorCollection interceptorCollection)
         {
             if (typeInfo.IsClass)
             {
-                return virtualMethodPointcut;
+                return new VirtualMethodPointcut(interceptorCollection);
             }
             else if (typeInfo.IsInterface)
             {
-                return interfacePointcut;
+                return new InterfacePointcut(interceptorCollection);
             }
 
-            throw new ArgumentException("type must be interface or class", nameof(typeInfo));
+            throw new ArgumentException("Type must be interface or class", nameof(typeInfo));
         }
     }
 }

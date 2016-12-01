@@ -1,13 +1,13 @@
-﻿using System;
-using System.Reflection;
-using System.Linq;
-using AspectCore.Lite.Abstractions;
+﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.Common;
 using AspectCore.Lite.Extensions;
 using AspectCore.Lite.Internal;
 using AspectCore.Lite.Internal.Generators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using AspectCore.Lite.Common;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace AspectCore.Lite.DependencyInjection
 {
@@ -46,7 +46,7 @@ namespace AspectCore.Lite.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddGlobalInterceptors(IServiceCollection services, Action<IInterceptorCollection> addOperator)
+        public static IServiceCollection AddGlobalInterceptors(this IServiceCollection services, Action<IInterceptorCollection> addOperator)
         {
             ExceptionHelper.ThrowArgumentNull(services, nameof(services));
             var interceptorCollection = GetInterceptorCollection(services);
@@ -54,7 +54,7 @@ namespace AspectCore.Lite.DependencyInjection
             return services;
         }
 
-        private static bool CanProxy(ServiceDescriptor serviceDescriptor, IServiceProvider serviceProvider)
+        private static Boolean CanProxy(ServiceDescriptor serviceDescriptor, IServiceProvider serviceProvider)
         {
             var implementationType = serviceDescriptor.ImplementationType;
             if (implementationType == null)

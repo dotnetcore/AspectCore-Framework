@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions
 {
+    [NonAspect]
     public interface IInterceptorMatcher 
     {
         IInterceptor[] Match(MethodInfo method, TypeInfo typeInfo);

@@ -9,7 +9,6 @@ namespace AspectCore.Lite.Extensions
 {
     public static class TypeInfoExtensions
     {
-
         public static bool CanProxy(this TypeInfo typeInfo, IServiceProvider provider)
         {
             ExceptionHelper.ThrowArgumentNull(typeInfo, nameof(typeInfo));

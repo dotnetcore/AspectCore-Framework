@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions
 {
+    [NonAspect]
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface , AllowMultiple = false , Inherited = false)]
     public abstract class InterceptorAttribute : Attribute, IInterceptor
     {
