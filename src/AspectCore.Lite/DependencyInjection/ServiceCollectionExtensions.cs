@@ -38,6 +38,8 @@ namespace AspectCore.Lite.DependencyInjection
             services.TryAddTransient<IServiceScope>(
                 serviceProvider => serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope());
             services.TryAddScoped<IAspectContextFactory, AspectContextFactory>();
+            services.TryAddScoped<IPropertyInjector, PropertyInjector>();
+            services.TryAddSingleton<IInjectedPropertyMatcher, InjectedPropertyMatcher>();
             services.TryAddSingleton<IInterceptorMatcher, AttributeInterceptorMatcher>();
             services.TryAddSingleton<INamedMethodMatcher, NamedMethodMatcher>();
             services.TryAddSingleton<IPointcut, Pointcut>();
@@ -46,11 +48,10 @@ namespace AspectCore.Lite.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddGlobalInterceptors(this IServiceCollection services, Action<IInterceptorCollection> addOperator)
+        public static IServiceCollection AddInterceptors(this IServiceCollection services, Action<IInterceptorCollection> action)
         {
             ExceptionHelper.ThrowArgumentNull(services, nameof(services));
-            var interceptorCollection = GetInterceptorCollection(services);
-            addOperator?.Invoke(interceptorCollection);
+            action?.Invoke(GetInterceptorCollection(services));
             return services;
         }
 

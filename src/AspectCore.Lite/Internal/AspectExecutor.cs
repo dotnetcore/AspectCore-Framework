@@ -15,19 +15,21 @@ namespace AspectCore.Lite.Internal
         private readonly IServiceProvider serviceProvider;
         private readonly IInterceptorMatcher interceptorMatcher;
         private readonly INamedMethodMatcher namedMethodMatcher;
-
+        private readonly IPropertyInjector propertyInjector;
         public AspectExecutor(
             IServiceProvider serviceProvider ,
             IJoinPoint joinPoint ,
             IAspectContextFactory aspectContextFactory ,
             IInterceptorMatcher interceptorMatcher ,
-            INamedMethodMatcher namedMethodMatcher)
+            INamedMethodMatcher namedMethodMatcher,
+            IPropertyInjector propertyInjector)
         {
             this.serviceProvider = serviceProvider;
             this.joinPoint = joinPoint;
             this.aspectContextFactory = aspectContextFactory;
             this.interceptorMatcher = interceptorMatcher;
             this.namedMethodMatcher = namedMethodMatcher;
+            this.propertyInjector = propertyInjector;
         }
 
         public TResult Execute<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
@@ -44,10 +46,13 @@ namespace AspectCore.Lite.Internal
             var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
             var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , GeneratorHelper.GetMethodName(serviceType , method) , args);
             var proxy = new Proxy(proxyInstance , proxyMethod , proxyInstance.GetType());
-
+            var interceptors = interceptorMatcher.Match(serviceMethod , serviceType.GetTypeInfo());
             joinPoint.MethodInvoker = target;
-            var interceptors = interceptorMatcher.Match(serviceMethod , serviceMethod.DeclaringType.GetTypeInfo());
-            interceptors.ForEach(item => joinPoint.AddInterceptor(next => ctx => item.ExecuteAsync(ctx , next)));
+            interceptors.ForEach(interceptor =>
+            {
+                propertyInjector.Injection(interceptor);
+                joinPoint.AddInterceptor(next => ctx => interceptor.ExecuteAsync(ctx, next));
+            });
 
             using (var context = aspectContextFactory.Create())
             {

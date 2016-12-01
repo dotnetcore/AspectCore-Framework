@@ -1,9 +1,8 @@
 ﻿namespace AspectCore.Lite.Abstractions
 {
+    [NonAspect]
     public interface IPropertyInjector
     {
-        IInjectedPropertyMatcher InjectedPropertyMatcher { get; }
-
         void Injection(IInterceptor interceptor);
     }
 }
