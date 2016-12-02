@@ -7,7 +7,7 @@ namespace AspectCore.Lite.Abstractions
     {
         int Order { get; set; }
 
-        bool AllowMultiple { get; set; }
+        bool AllowMultiple { get; }
 
         Task ExecuteAsync(IAspectContext aspectContext, InterceptorDelegate next);
     }
