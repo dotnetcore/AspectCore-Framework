@@ -1,13 +1,14 @@
-﻿{
+{
   "version": "1.0.0-*",
 
-  "dependencies": { 
+  "dependencies": {
   },
 
   "frameworks": {
     "netstandard1.6.1": {
       "dependencies": {
-        "NETStandard.Library": "1.6.1"
+        "NETStandard.Library": "1.6.1",
+        "System.ComponentModel": "4.3.0"
       }
     },
     "netcoreapp1.1": {
