@@ -11,14 +11,14 @@ namespace AspectCore.Lite.Internal.Generators
     internal class InterceptedMethodBodyGenerator : MethodBodyGenerator
     {
         private static readonly MethodInfo GetAspectExecutorMethod =
-            GeneratorHelper.GetMethodInfo<Func<IServiceProvider, IAspectExecutor>>(
-                serviceProvider => serviceProvider.GetRequiredService<IAspectExecutor>());
+            GeneratorHelper.GetMethodInfo<Func<IServiceProvider, IAspectActivator>>(
+                serviceProvider => serviceProvider.GetRequiredService<IAspectActivator>());
 
         private static readonly MethodInfo AspectExecuteMethod =
-            typeof(IAspectExecutor).GetTypeInfo().GetMethod(nameof(IAspectExecutor.Execute));
+            typeof(IAspectActivator).GetTypeInfo().GetMethod(nameof(IAspectActivator.Invoke));
 
         private static readonly MethodInfo AspectExecuteAsyncMethod =
-            typeof(IAspectExecutor).GetTypeInfo().GetMethod(nameof(IAspectExecutor.ExecuteAsync));
+            typeof(IAspectActivator).GetTypeInfo().GetMethod(nameof(IAspectActivator.ExecuteAsync));
 
         protected FieldGenerator serviceProviderGenerator;
 

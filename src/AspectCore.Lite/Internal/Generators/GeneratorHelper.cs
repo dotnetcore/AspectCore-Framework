@@ -32,5 +32,20 @@ namespace AspectCore.Lite.Internal.Generators
             }
             return $"{serviceType.FullName}.{method}".Replace('+', '.');
         }
+
+        internal static MethodInfo GetMethodBySign(TypeInfo typeInfo, string methodSign)
+        {
+            return typeInfo.DeclaredMethods.Single(method => GetMethodSign(method) == methodSign);
+        }
+
+        internal static string GetMethodSign(MethodInfo method)
+        {
+            return string.Concat(method.Name, method.GetParameters().Select(p => p.ParameterType.Name).Aggregate((first, second) => first + second));
+        }
+
+        internal static string GetMethodSign(params string[] names)
+        {
+            return names.Aggregate((first, second) => first + second);
+        }
     }
 }

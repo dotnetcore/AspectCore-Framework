@@ -34,7 +34,7 @@ namespace AspectCore.Lite.DependencyInjection
         {
             ExceptionHelper.ThrowArgumentNull(services, nameof(services));
             services.TryAddTransient<IJoinPoint, JoinPoint>();
-            services.TryAddTransient<IAspectExecutor, AspectExecutor>();
+            services.TryAddTransient<IAspectActivator, AspectExecutor>();
             services.TryAddTransient<IServiceScope>(
                 serviceProvider => serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope());
             services.TryAddScoped<IAspectContextFactory, AspectContextFactory>();

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AspectCore.Lite.Extensions
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {

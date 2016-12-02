@@ -15,7 +15,7 @@ namespace AspectCore.Lite.Test
         public async Task ExecuteAsync_Test()
         {
             var serviceProvider = this.BuildServiceProvider();
-            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectActivator>();
             var targetInstance = new AspectExecutorTestServiceTarget();
             var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
             var result = aspectExecutor.ExecuteAsync<int>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteAsync));
@@ -26,7 +26,7 @@ namespace AspectCore.Lite.Test
         public async Task ExecuteAsyncWithResult_Test()
         {
             var serviceProvider = this.BuildServiceProvider();
-            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectActivator>();
             var targetInstance = new AspectExecutorTestServiceTarget();
             var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
             var result = aspectExecutor.ExecuteAsync<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteAsyncWithResult));
@@ -37,10 +37,10 @@ namespace AspectCore.Lite.Test
         public void ExecuteSynchronouslyWithResult_Test()
         {
             var serviceProvider = this.BuildServiceProvider();
-            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectActivator>();
             var targetInstance = new AspectExecutorTestServiceTarget();
             var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
-            var result = aspectExecutor.Execute<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteSynchronouslyWithResult));
+            var result = aspectExecutor.Invoke<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteSynchronouslyWithResult));
             Assert.Equal(result , targetInstance.ExecuteSynchronouslyWithResult());
         }
 
@@ -48,10 +48,10 @@ namespace AspectCore.Lite.Test
         public void ExecuteSynchronously_Test()
         {
             var serviceProvider = this.BuildServiceProvider();
-            var aspectExecutor = serviceProvider.GetRequiredService<IAspectExecutor>();
+            var aspectExecutor = serviceProvider.GetRequiredService<IAspectActivator>();
             var targetInstance = new AspectExecutorTestServiceTarget();
             var proxyInstance = new AspectExecutorTestServiceProxy(serviceProvider , targetInstance);
-            var result = aspectExecutor.Execute<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteSynchronously) , targetInstance);
+            var result = aspectExecutor.Invoke<object>(targetInstance , proxyInstance , typeof(IAspectExecutorTestService) , nameof(targetInstance.ExecuteSynchronously) , targetInstance);
             Assert.Equal(result , targetInstance.ExecuteSynchronously(targetInstance));
         }
 
@@ -108,32 +108,32 @@ namespace AspectCore.Lite.Test
             }
             Task IAspectExecutorTestService.ExecuteAsync()
             {
-                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectActivator>();
                 return aspectExecutor.ExecuteAsync<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteAsync");
             }
 
             Task<object> IAspectExecutorTestService.ExecuteAsyncWithResult()
             {
-                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectActivator>();
                 return aspectExecutor.ExecuteAsync<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteAsyncWithResult");
             }
 
             void IAspectExecutorTestService.ExecuteSynchronously()
             {
-                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-                aspectExecutor.Execute<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously");
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectActivator>();
+                aspectExecutor.Invoke<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously");
             }
 
             object IAspectExecutorTestService.ExecuteSynchronouslyWithResult()
             {
-                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-                return aspectExecutor.Execute<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronouslyWithResult");
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectActivator>();
+                return aspectExecutor.Invoke<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronouslyWithResult");
             }
 
             object IAspectExecutorTestService.ExecuteSynchronously(object value)
             {
-                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectExecutor>();
-                return aspectExecutor.Execute<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously" , value);
+                var aspectExecutor = _serviceProvider.GetRequiredService<IAspectActivator>();
+                return aspectExecutor.Invoke<object>(_serviceInstance , this , typeof(IAspectExecutorTestService) , "ExecuteSynchronously" , value);
             }
         }
     }

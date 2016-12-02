@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Extensions
+namespace AspectCore.Lite.Abstractions
 {
     public static class TypeInfoExtensions
     {
