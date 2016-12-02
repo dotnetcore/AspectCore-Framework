@@ -3,7 +3,7 @@
   "testRunner": "xunit",
 
   "dependencies": {
-    "AspectCore.Lite": "1.0.0-beta3-1107",
+    "AspectCore.Lite": "1.0.0-beta4-12010",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "Microsoft.AspNetCore.Testing": "1.2.0-preview1-22791",
     "Microsoft.Extensions.DependencyInjection": "1.1.0",
