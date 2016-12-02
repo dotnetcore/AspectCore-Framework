@@ -8,7 +8,7 @@ using AspectCore.Lite.Internal.Generators;
 
 namespace AspectCore.Lite.Internal
 {
-    internal sealed class AspectExecutor : IAspectExecutor
+    internal sealed class AspectExecutor : IAspectActivator
     {
         private readonly IJoinPoint joinPoint;
         private readonly IAspectContextFactory aspectContextFactory;
@@ -33,16 +33,16 @@ namespace AspectCore.Lite.Internal
             this.propertyInjector = propertyInjector;
         }
 
-        public TResult Execute<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
+        public T Invoke<T>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
         {
-            return AsyncContext.Run(() => ExecuteAsync<TResult>(targetInstance , proxyInstance , serviceType , method , args));
+            return AsyncContext.Run(() => ExecuteAsync<T>(targetInstance , proxyInstance , serviceType , method , args));
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
+        public async Task<T> ExecuteAsync<T>(object targetInstance , object proxyInstance , Type serviceType , string method , params object[] args)
         {
             var serviceMethod = namedMethodMatcher.Match(serviceType , method , args);
             var parameters = new ParameterCollection(args , serviceMethod.GetParameters());
-            var returnParameter = new ReturnParameterDescriptor(default(TResult) , serviceMethod.ReturnParameter);
+            var returnParameter = new ReturnParameterDescriptor(default(T) , serviceMethod.ReturnParameter);
             var targetMethod = namedMethodMatcher.Match(targetInstance.GetType() , method , args);
             var target = new Target(targetMethod , serviceType , targetInstance.GetType() , targetInstance) { ParameterCollection = parameters };
             var proxyMethod = namedMethodMatcher.Match(proxyInstance.GetType() , GeneratorHelper.GetMethodName(serviceType , method) , args);
@@ -70,7 +70,7 @@ namespace AspectCore.Lite.Internal
                 try
                 {
                     await joinPoint.Build()(context);
-                    return await CastAsyncResult<TResult>(context.ReturnParameter.Value);
+                    return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
                 }
                 catch (Exception ex)
                 {
@@ -83,24 +83,21 @@ namespace AspectCore.Lite.Internal
             }
         }
 
-        private static async Task<TResult> CastAsyncResult<TResult>(object value)
+        private static async Task<T> ConvertReturnVaule<T>(object value)
         {
-            var taskResult = value as Task<TResult>;
-
-            if (taskResult != null)
+            if (value is Task<T>)
             {
-                return await taskResult;
+                return await (Task<T>)value;
             }
-
-            var task = value as Task;
-
-            if (task != null)
+            else if (value is Task)
             {
-                await task;
-                return default(TResult);
+                await (Task)value;
+                return default(T);
             }
-
-            return (TResult)value;
+            else
+            {
+                return (T)value;
+            }
         }
     }
 }
