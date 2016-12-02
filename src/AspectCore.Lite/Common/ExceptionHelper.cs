@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.Common
 {
-    public static class ExceptionHelper
+    internal static class ExceptionHelper
     {
         public static void ThrowArgumentNull<T>(T instance , string paramName)
         {
