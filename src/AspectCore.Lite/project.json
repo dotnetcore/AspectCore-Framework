@@ -1,6 +1,7 @@
 {
   "authors": [ "liuhaoyang" ],
   "dependencies": {
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12030",
     "Microsoft.Extensions.DependencyInjection": "1.1.0"
   },
   "description": "AspectCore Lite is an lightweight aop lib for Asp.Net Core framework.",
@@ -40,5 +41,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore Lite",
-  "version": "1.0.0-beta4-12010"
+  "version": "1.0.0-beta5-12030"
 }
