@@ -1,8 +1,8 @@
 ﻿using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Common;
 using AspectCore.Lite.Extensions;
-using AspectCore.Lite.Internal;
-using AspectCore.Lite.Internal.Generators;
+using AspectCore.Lite.Internals;
+using AspectCore.Lite.Internals.Generators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
