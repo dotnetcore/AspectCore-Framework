@@ -2,6 +2,7 @@
 
 namespace AspectCore.Lite.Abstractions
 {
+    [NonAspect]
     public abstract class AspectContext
     {
         public virtual IServiceProvider ServiceProvider { get; }
