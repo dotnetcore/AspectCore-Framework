@@ -20,7 +20,7 @@
     "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
     "licenseUrl": "https://mit-license.org/",
     "owners": [ "liuhaoyang" ],
-    "releaseNotes": "The basic realization of the interceptor system.",
+    "releaseNotes": "The abstract design of the dynamicproxy framework.",
     "repository": {
       "type": "git",
       "url": "https://github.com/AspectCore/Lite"
