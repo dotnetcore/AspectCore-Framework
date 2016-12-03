@@ -2,6 +2,7 @@
   "authors": [ "liuhaoyang" ],
   "dependencies": {
   },
+  "description": "The abstract design of the dynamicproxy framework.",
   "frameworks": {
     "netstandard1.6.1": {
       "dependencies": {
@@ -29,5 +30,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.Abstractions",
-  "version": "1.0.0-beta5-12030"
+  "version": "1.0.0-beta5-12040"
 }
