@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions
 {
-    public sealed class TargetDescriptor
+    public class TargetDescriptor
     {
         public object ImplementationInstance { get; }
         public MethodInfo ServiceMethod { get; }
@@ -44,7 +44,7 @@ namespace AspectCore.Lite.Abstractions
             ImplementationType = implementationType;
         }
 
-        public object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)
+        public virtual object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)
         {
             try
             {
