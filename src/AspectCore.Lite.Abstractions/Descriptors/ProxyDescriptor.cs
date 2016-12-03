@@ -7,7 +7,7 @@ namespace AspectCore.Lite.Abstractions
     {
         public object ProxyInstance { get; }
         public MethodInfo ProxyMethod { get; }
-        public Type ProxyType { get; set; }
+        public Type ProxyType { get; }
 
         public ProxyDescriptor(object proxyInstance, MethodInfo proxyMethod, Type proxyType)
         {
