@@ -1,10 +1,12 @@
-﻿namespace AspectCore.Lite.Abstractions
+﻿using System;
+
+namespace AspectCore.Lite.Abstractions
 {
     [NonAspect]
     public interface IAspectBuilder
     {
         void AddAspectDelegate(AspectDelegate aspectDelegate);
 
-        AspectDelegate Build(AspectDelegate targetInvokeDelegate);
+        AspectDelegate Build(Func<object> targetMedthodInvoke);
     }
 }
