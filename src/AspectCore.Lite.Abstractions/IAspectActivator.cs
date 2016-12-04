@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions
 {
@@ -10,6 +11,6 @@ namespace AspectCore.Lite.Abstractions
 
         T Invoke<T>(object targetInstance, object proxyInstance, params object[] paramters);
 
-        T InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] paramters);
+        Task<T> InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] paramters);
     }
 }
