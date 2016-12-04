@@ -35,12 +35,7 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (!ValidateDeclaringType(declaringType))
-            {
-                return false;
-            }
-
-            if (!ValidateDeclaringMethod(method))
+            if (!ValidateDeclaringType(declaringType) || !ValidateDeclaringMethod(method))
             {
                 return false;
             }

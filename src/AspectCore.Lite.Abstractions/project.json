@@ -1,5 +1,5 @@
 {
-  "authors": [ "liuhaoyang" ],
+  "authors": [ "Haoyang Liu" ],
   "dependencies": {
   },
   "description": "The abstract design of the dynamicproxy framework.",

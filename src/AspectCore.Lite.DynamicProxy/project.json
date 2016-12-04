@@ -1,7 +1,7 @@
 ﻿{
-  "authors": [ "liuhaoyang" ],
+  "authors": [ "Haoyang Liu" ],
   "dependencies": {
-    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12040"
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12041"
   },
   "description": "The default implementation of the dynamicproxy framework.",
   "frameworks": {
