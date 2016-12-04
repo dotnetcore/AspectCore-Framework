@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace AspectCore.Lite.Internal
+namespace AspectCore.Lite.DynamicProxy.Implementation
 {
-    internal sealed class DefaultInterceptorTable : IInterceptorTable
+    internal sealed class InterceptorTable : IInterceptorTable
     {
         private readonly ConcurrentBag<Func<IInterceptor>> interceptorBag = new ConcurrentBag<Func<IInterceptor>>();
 

@@ -1,24 +1,23 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using AspectCore.Lite.Abstractions;
 
-namespace AspectCore.Lite.Internal
+namespace AspectCore.Lite.DynamicProxy.Implementation
 {
-    internal sealed class DefaultInterceptorMatcher : IInterceptorMatcher
+    internal sealed class InterceptorMatcher : IInterceptorMatcher
     {
         private readonly IInterceptorTable interceptorTable;
 
-        public DefaultInterceptorMatcher(IInterceptorTable interceptorTable)
+        public InterceptorMatcher(IInterceptorTable interceptorTable)
         {
             this.interceptorTable = interceptorTable;
         }
 
-        public IEnumerable<IInterceptor> Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
+        public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
-            return MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorTable)).OrderBy(interceptor => interceptor.Order);
+            return MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorTable)).OrderBy(interceptor => interceptor.Order).ToArray();
         }
 
         private static IEnumerable<IInterceptor> AllInterceptorIterator(
