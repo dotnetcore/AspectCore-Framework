@@ -3,8 +3,8 @@
 namespace AspectCore.Lite.Abstractions
 {
     [NonAspect]
-    public interface IAspectDetector
+    public interface IAspectValidator
     {
-        bool HasAspect(MethodInfo serviceMethod);
+        bool Validate(MethodInfo method);
     }
 }
