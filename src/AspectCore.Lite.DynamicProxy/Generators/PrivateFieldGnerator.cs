@@ -1,10 +1,7 @@
 ﻿using AspectCore.Lite.Abstractions.Generator;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Reflection.Emit;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace AspectCore.Lite.DynamicProxy.Generators
 {
@@ -12,7 +9,8 @@ namespace AspectCore.Lite.DynamicProxy.Generators
     {
         public PrivateFieldGenerator(string name, Type fieldType, TypeBuilder declaringMember) : base(declaringMember)
         {
-
+            FieldName = name;
+            FieldType = fieldType;
         }
 
         public override FieldAttributes FieldAttributes
