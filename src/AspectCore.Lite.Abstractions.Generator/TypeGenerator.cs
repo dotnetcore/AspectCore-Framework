@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Abstractions.Generator
 {
     public abstract class TypeGenerator : MetaDataGenerator<ModuleBuilder, TypeBuilder>
     {

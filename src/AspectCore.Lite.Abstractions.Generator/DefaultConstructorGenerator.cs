@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Generators
+namespace AspectCore.Lite.Abstractions.Generator
 {
     public abstract class DefaultConstructorGenerator: ConstructorGenerator
     {

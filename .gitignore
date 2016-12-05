@@ -256,3 +256,4 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+/src/AspectCore.Lite.Generators

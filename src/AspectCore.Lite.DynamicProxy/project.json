@@ -1,7 +1,8 @@
-﻿{
-  "authors": [ "Haoyang Liu" ],
+{
+  "authors": [ "liuhaoyang" ],
   "dependencies": {
-    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12041"
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12043",
+    "AspectCore.Lite.Abstractions.Generator": "1.0.0-beta5-12043"
   },
   "description": "The default implementation of the dynamicproxy framework.",
   "frameworks": {
@@ -39,5 +40,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.DynamicProxy",
-  "version": "1.0.0-beta5-12041"
+  "version": "1.0.0-beta5-12043"
 }

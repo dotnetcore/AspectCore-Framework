@@ -7,8 +7,8 @@
 
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>49bf536c-27a5-4ef3-a8a8-0bf5d36843c0</ProjectGuid>
-    <RootNamespace>AspectCore.Lite.Generators</RootNamespace>
+    <ProjectGuid>e3f11701-01f4-47d2-8daa-525956a0f203</ProjectGuid>
+    <RootNamespace>AspectCore.Lite.Abstractions.Generator</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>

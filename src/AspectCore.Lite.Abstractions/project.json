@@ -1,5 +1,5 @@
 {
-  "authors": [ "Haoyang Liu" ],
+  "authors": [ "liuhaoyang" ],
   "dependencies": {
   },
   "description": "The abstract design of the dynamicproxy framework.",
@@ -30,5 +30,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.Abstractions",
-  "version": "1.0.0-beta5-12041"
+  "version": "1.0.0-beta5-12043"
 }

@@ -1,7 +1,6 @@
 ﻿{
   "authors": [ "liuhaoyang" ],
   "dependencies": {
-    
   },
   "description": "The class generator system of the dynamicproxy framework.",
   "frameworks": {
@@ -32,6 +31,6 @@
     "tags": [ "DynamicProxy", "Aop", "Aspect" ]
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
-  "title": "AspectCore.Lite.Generators",
+  "title": "AspectCore.Lite.Abstractions.Generator",
   "version": "1.0.0-beta5-12043"
 }
