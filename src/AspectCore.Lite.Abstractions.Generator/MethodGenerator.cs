@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class MethodGenerator : MetaDataGenerator<TypeBuilder, MethodBuilder>
+    public abstract class MethodGenerator : Generator<TypeBuilder, MethodBuilder>
     {
         public abstract string MethodName { get; }
 

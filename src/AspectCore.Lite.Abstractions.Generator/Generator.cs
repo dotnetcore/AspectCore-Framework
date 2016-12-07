@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class MetaDataGenerator
+    public abstract class Generator
     {
-        private readonly ICollection<MetaDataGenerator> members = new List<MetaDataGenerator>();
+        private readonly ICollection<Generator> members = new List<Generator>();
 
-        protected virtual ICollection<MetaDataGenerator> Members
+        protected virtual ICollection<Generator> Members
         {
             get
             {
@@ -18,11 +18,11 @@ namespace AspectCore.Lite.Abstractions.Generator
         }
     }
 
-    public abstract class MetaDataGenerator<TDeclaringMember, TBuilder> : MetaDataGenerator
+    public abstract class Generator<TDeclaringMember, TBuilder> : Generator
     {
         public virtual TDeclaringMember DeclaringMember { get; }
 
-        public MetaDataGenerator(TDeclaringMember declaringMember)
+        public Generator(TDeclaringMember declaringMember)
         {
             DeclaringMember = declaringMember;
         }

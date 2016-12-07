@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class MethodBodyGenerator : MetaDataGenerator<MethodBuilder, ILGenerator>
+    public abstract class MethodBodyGenerator : Generator<MethodBuilder, ILGenerator>
     {
         public MethodBodyGenerator(MethodBuilder declaringMember) : base(declaringMember)
         {

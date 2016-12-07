@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class TypeGenerator : MetaDataGenerator<ModuleBuilder, TypeBuilder>
+    public abstract class TypeGenerator : Generator<ModuleBuilder, TypeBuilder>
     {
         public abstract TypeBuilder Type { get; protected set; }
 
@@ -28,7 +28,7 @@ namespace AspectCore.Lite.Abstractions.Generator
             return DeclaringMember.DefineType(TypeName, TypeAttributes, ParentType, Interfaces);
         }
 
-        public virtual void AddMember(MetaDataGenerator generator)
+        public virtual void AddMember(Generator generator)
         {
             if (generator == null)
             {

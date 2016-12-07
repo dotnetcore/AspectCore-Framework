@@ -4,7 +4,7 @@ namespace AspectCore.Lite.Abstractions.Generator
 {
     public abstract class GeneratorVisitor
     {
-        public virtual object VisitGenerator(MetaDataGenerator generator)
+        public virtual object VisitGenerator(Generator generator)
         {
             var fieldGenerator = generator as FieldGenerator;
             if (fieldGenerator != null)

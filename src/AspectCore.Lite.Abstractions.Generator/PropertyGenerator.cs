@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class PropertyGenerator : MetaDataGenerator<TypeBuilder, PropertyBuilder>
+    public abstract class PropertyGenerator : Generator<TypeBuilder, PropertyBuilder>
     {
         public abstract string PropertyName { get; }
 
