@@ -14,7 +14,7 @@ namespace AspectCore.Lite.DynamicProxy.Common
         private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName("System.Linq.Expressions"));
 #endif
         private static readonly Type IlGenType = ExpressionsAssembly.GetType("System.Linq.Expressions.Compiler.ILGen");
-        private static readonly MethodInfo GetTypeFromHandle = typeof(Type).GetTypeInfo().GetMethod("GetTypeFromHandle");
+       
 
         private static readonly Action<ILGenerator , Type , Type , bool> ConvertToType =
             (Action<ILGenerator , Type , Type , bool>)IlGenType.GetTypeInfo().DeclaredMethods.SingleOrDefault(m =>
@@ -56,7 +56,20 @@ namespace AspectCore.Lite.DynamicProxy.Common
         internal static void EmitTypeof(this ILGenerator ilGenerator , Type type)
         {
             ilGenerator.Emit(OpCodes.Ldtoken , type);
-            ilGenerator.Emit(OpCodes.Call , GetTypeFromHandle);
+            ilGenerator.Emit(OpCodes.Call , MethodConstant.GetTypeFromHandle);
+        }
+
+        internal static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method)
+        {
+            EmitMethodof(ilGenerator, method, method.DeclaringType);
+        }
+
+        internal static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method, Type declaringType)
+        {
+            ilGenerator.Emit(OpCodes.Ldtoken, method);
+            ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);
+            ilGenerator.Emit(OpCodes.Call, MethodConstant.GetMothodFromHandle);
+            ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo), false);
         }
 
         internal static void EmitLoadInt(this ILGenerator ilGenerator , int value)
