@@ -6,7 +6,7 @@ namespace AspectCore.Lite.DynamicProxy.Common
 {
     internal static class MethodConstant
     {
-        internal static readonly MethodInfo GetAspectActivator = MethodHelper.GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetService<IAspectActivator>());
+        internal static readonly MethodInfo GetAspectActivator = MethodHelper.GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetAspectActivator());
 
         internal static readonly MethodInfo AspectActivator_Invoke = MethodHelper.GetMethod<IAspectActivator>(nameof(IAspectActivator.Invoke));
 
