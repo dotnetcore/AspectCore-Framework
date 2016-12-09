@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.DynamicProxy.Generators
 {
-    public class AspectTypeGenerator : TypeGenerator
+    internal sealed class AspectTypeGenerator : TypeGenerator
     {
         private readonly Lazy<TypeBuilder> builder;
         private readonly Type serviceType;
@@ -17,6 +17,19 @@ namespace AspectCore.Lite.DynamicProxy.Generators
 
         public AspectTypeGenerator(Type serviceType, Type parentType, IServiceProvider serviceProvider) : base(ModuleGenerator.Default.ModuleBuilder)
         {
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+            if (parentType == null)
+            {
+                throw new ArgumentNullException(nameof(parentType));
+            }
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
             this.serviceType = serviceType;
             this.ParentType = parentType;
             this.builder = new Lazy<TypeBuilder>(InitializeTypeBuilder);
