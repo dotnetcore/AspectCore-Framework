@@ -30,7 +30,7 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected override PropertyBuilder Accept(GeneratorVisitor visitor)
+        protected internal override PropertyBuilder Accept(GeneratorVisitor visitor)
         {
             var propertyBuilder = DeclaringMember.DefineProperty(PropertyName, PropertyAttributes, CallingConventions, ReturnType, ParameterTypes);
 

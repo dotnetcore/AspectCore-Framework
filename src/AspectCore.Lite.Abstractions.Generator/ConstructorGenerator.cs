@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected override ConstructorBuilder Accept(GeneratorVisitor visitor)
+        protected internal override ConstructorBuilder Accept(GeneratorVisitor visitor)
         {
             var constructorBuilder = DeclaringMember.DefineConstructor(MethodAttributes, CallingConventions, ParameterTypes);
 

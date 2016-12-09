@@ -42,7 +42,7 @@ namespace AspectCore.Lite.Abstractions.Generator
             return Type.CreateTypeInfo();
         }
 
-        protected override TypeBuilder Accept(GeneratorVisitor visitor)
+        protected internal override TypeBuilder Accept(GeneratorVisitor visitor)
         {
             foreach(var member in Members)
             {

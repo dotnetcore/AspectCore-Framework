@@ -27,6 +27,6 @@ namespace AspectCore.Lite.Abstractions.Generator
             DeclaringMember = declaringMember;
         }
 
-        protected abstract TBuilder Accept(GeneratorVisitor visitor);
+        protected internal abstract TBuilder Accept(GeneratorVisitor visitor);
     }
 }

@@ -51,18 +51,39 @@ namespace AspectCore.Lite.Abstractions.Generator
             return default(object);
         }
 
-        protected abstract FieldBuilder VisitFieldGenerator(FieldGenerator generator);
+        protected virtual FieldBuilder VisitFieldGenerator(FieldGenerator generator)
+        {
+            return generator.Accept(this);
+        }
 
-        protected abstract PropertyBuilder VisitPropertyGenerator(PropertyGenerator generator);
+        protected virtual PropertyBuilder VisitPropertyGenerator(PropertyGenerator generator)
+        {
+            return generator.Accept(this);
+        }
 
-        protected abstract MethodBuilder VisitMethodGenerator(MethodGenerator generator);
+        protected virtual MethodBuilder VisitMethodGenerator(MethodGenerator generator)
+        {
+            return generator.Accept(this);
+        }
 
-        protected abstract ILGenerator VisitMethodBodyGenerator(MethodBodyGenerator generator);
+        protected virtual ILGenerator VisitMethodBodyGenerator(MethodBodyGenerator generator)
+        {
+            return generator.Accept(this);
+        }
 
-        protected abstract ConstructorBuilder VisitConstructorGenerator(ConstructorGenerator generator);
+        protected virtual ConstructorBuilder VisitConstructorGenerator(ConstructorGenerator generator)
+        {
+            return generator.Accept(this);
+        }
 
-        protected abstract ConstructorBuilder VisitDefaultConstructorGenerator(DefaultConstructorGenerator generator);
+        protected virtual ConstructorBuilder VisitDefaultConstructorGenerator(DefaultConstructorGenerator generator)
+        {
+            return generator.Accept(this);
+        }
 
-        protected abstract TypeBuilder VisitTypeGenerator(TypeGenerator generator);
+        protected virtual TypeBuilder VisitTypeGenerator(TypeGenerator generator)
+        {
+            return generator.Accept(this);
+        }
     }
 }

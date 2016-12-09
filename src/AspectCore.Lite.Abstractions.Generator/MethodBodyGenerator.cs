@@ -8,7 +8,7 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected override ILGenerator Accept(GeneratorVisitor visitor)
+        protected internal override ILGenerator Accept(GeneratorVisitor visitor)
         {
             var ilGenerator = DeclaringMember.GetILGenerator();
             GeneratingMethodBody(ilGenerator);

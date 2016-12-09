@@ -10,7 +10,7 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected override MethodBuilder Accept(GeneratorVisitor visitor)
+        protected internal override MethodBuilder Accept(GeneratorVisitor visitor)
         {
             var methodBuilder = base.Accept(visitor);
             if (IsGenericMethod)
@@ -20,6 +20,6 @@ namespace AspectCore.Lite.Abstractions.Generator
             return methodBuilder;
         }
 
-        protected abstract void GeneratingGenericParameter(MethodBuilder declaringMethod);
+        protected internal abstract void GeneratingGenericParameter(MethodBuilder declaringMethod);
     }
 }

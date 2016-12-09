@@ -20,7 +20,7 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected override MethodBuilder Accept(GeneratorVisitor visitor)
+        protected internal override MethodBuilder Accept(GeneratorVisitor visitor)
         {
             var methodBuilder = DeclaringMember.DefineMethod(MethodName, MethodAttributes, CallingConventions, ReturnType, ParameterTypes);
 

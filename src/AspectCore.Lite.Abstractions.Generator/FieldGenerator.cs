@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Abstractions.Generator
 
         public abstract FieldAttributes FieldAttributes { get; }
 
-        protected override FieldBuilder Accept(GeneratorVisitor visitor)
+        protected internal override FieldBuilder Accept(GeneratorVisitor visitor)
         {
             return DeclaringMember.DefineField(FieldName, FieldType, FieldAttributes);
         }
