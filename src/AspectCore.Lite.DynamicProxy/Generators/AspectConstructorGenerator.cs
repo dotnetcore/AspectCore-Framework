@@ -8,14 +8,14 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.DynamicProxy.Generators
 {
-    internal sealed class ProxyConstructorGenerator : ConstructorGenerator
+    internal sealed class AspectConstructorGenerator : ConstructorGenerator
     {
         private readonly ConstructorInfo constructor;
         private readonly FieldBuilder serviceInstanceFieldBuilder;
         private readonly FieldBuilder serviceProviderFieldBuilder;
         private readonly Type serviceType;
 
-        public ProxyConstructorGenerator(TypeBuilder declaringMember,
+        public AspectConstructorGenerator(TypeBuilder declaringMember,
             Type serviceType, ConstructorInfo constructor, 
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
             : base(declaringMember)

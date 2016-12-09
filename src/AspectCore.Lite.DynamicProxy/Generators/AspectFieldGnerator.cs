@@ -5,9 +5,9 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.DynamicProxy.Generators
 {
-    internal class PrivateFieldGenerator : FieldGenerator
+    internal class AspectFieldGenerator : FieldGenerator
     {
-        public PrivateFieldGenerator(string name, Type fieldType, TypeBuilder declaringMember) : base(declaringMember)
+        public AspectFieldGenerator(string name, Type fieldType, TypeBuilder declaringMember) : base(declaringMember)
         {
             FieldName = name;
             FieldType = fieldType;
