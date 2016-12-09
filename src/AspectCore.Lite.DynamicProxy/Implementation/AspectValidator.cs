@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.DynamicProxy.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -40,6 +41,11 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
                 return false;
             }
 
+            if (ValidateIgnoredList(method))
+            {
+                return false;
+            }
+
             if (ValidateNonAspect(method) || ValidateNonAspect(declaringType))
             {
                 return false;
@@ -61,6 +67,11 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
         private bool ValidateNonAspect(MemberInfo member)
         {
             return member.IsDefined(typeof(NonAspectAttribute), true);
+        }
+
+        private bool ValidateIgnoredList(MethodInfo method)
+        {
+            return method.IsIgnored();
         }
 
         private bool ValidateInterceptor(MemberInfo member)
