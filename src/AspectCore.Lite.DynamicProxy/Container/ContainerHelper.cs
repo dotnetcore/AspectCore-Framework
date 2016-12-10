@@ -17,12 +17,12 @@ namespace AspectCore.Lite.DynamicProxy.Container
             yield return ServiceDescription.Description<IInterceptorInjector, InterceptorInjector>(Lifetime.Scoped);
             yield return ServiceDescription.Description<IAspectValidator, AspectValidator>(Lifetime.Singleton);
             yield return ServiceDescription.Description<IInterceptorMatcher, InterceptorMatcher>(Lifetime.Singleton);
-            yield return ServiceDescription.Description<IInterceptorTable, InterceptorTable>(Lifetime.Singleton);
+            yield return ServiceDescription.Description<IInterceptorCollection, InterceptorCollection>(Lifetime.Singleton);
         }
 
-        public static IInterceptorTable GetInterceptorTable()
+        public static IInterceptorCollection GetInterceptorTable()
         {
-            return new InterceptorTable();
+            return new InterceptorCollection();
         }
 
         public static Type CreateAspectType(Type serviceType, Type implementationType, IServiceProvider serviceProvider)

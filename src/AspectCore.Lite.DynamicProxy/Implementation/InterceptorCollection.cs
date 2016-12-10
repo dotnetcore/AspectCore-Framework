@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.DynamicProxy.Implementation
 {
-    internal sealed class InterceptorTable : IInterceptorTable
+    internal sealed class InterceptorCollection : IInterceptorCollection
     {
         private readonly ConcurrentBag<Func<IInterceptor>> interceptorBag = new ConcurrentBag<Func<IInterceptor>>();
 

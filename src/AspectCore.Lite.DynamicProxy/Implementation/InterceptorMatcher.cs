@@ -11,9 +11,9 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IInterceptorTable interceptorTable;
+        private readonly IInterceptorCollection interceptorTable;
 
-        public InterceptorMatcher(IInterceptorTable interceptorTable)
+        public InterceptorMatcher(IInterceptorCollection interceptorTable)
         {
             this.interceptorTable = interceptorTable;
         }

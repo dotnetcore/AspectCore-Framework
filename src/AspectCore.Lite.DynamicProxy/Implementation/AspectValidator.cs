@@ -11,14 +11,14 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
 
-        private readonly IInterceptorTable interceptorTable;
+        private readonly IInterceptorCollection interceptorTable;
 
         static AspectValidator()
         {
             DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
         }
 
-        public AspectValidator(IInterceptorTable interceptorTable)
+        public AspectValidator(IInterceptorCollection interceptorTable)
         {
             this.interceptorTable = interceptorTable;
         }
@@ -79,7 +79,7 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType));
         }
 
-        private bool ValidateInterceptor(IInterceptorTable interceptorTable)
+        private bool ValidateInterceptor(IInterceptorCollection interceptorTable)
         {
             return interceptorTable.Any();
         }
