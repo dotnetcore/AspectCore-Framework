@@ -42,9 +42,9 @@ namespace AspectCore.Lite.DynamicProxy.Common
             return mc.Method;
         }
 
-        internal static MethodInfo GetMethod<T>(string name,params Type[] types)
+        internal static MethodInfo GetMethod<T>(string name)
         {
-            return typeof(T).GetTypeInfo().GetMethod(name, types);
+            return typeof(T).GetTypeInfo().GetMethod(name);
         }
     }
 }

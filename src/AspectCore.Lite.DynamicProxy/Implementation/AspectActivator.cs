@@ -1,6 +1,7 @@
 ﻿using AspectCore.Lite.Abstractions;
 using Nito.AsyncEx;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +11,7 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
 {
     internal sealed class AspectActivator : IAspectActivator
     {
+
         #region Aspect metaData
 
         private Type serviceType;

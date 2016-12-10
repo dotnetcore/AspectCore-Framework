@@ -70,13 +70,15 @@ namespace AspectCore.Lite.DynamicProxy.Generators
         {
             return CreateTypeInfo().AsType();
         }
+        private FieldBuilder serviceInstanceFieldBuilder;
+        private FieldBuilder serviceProviderFieldBuilder;
 
         protected override TypeBuilder Accept(GeneratorVisitor visitor)
         {
             var serviceInstanceFieldGenerator = new AspectFieldGenerator("proxyfield_serviceInstance", serviceType, Type);
             var serviceProviderFieldGenerator = new AspectFieldGenerator("proxyfield_serviceProvider", typeof(IServiceProvider), Type);
-            var serviceInstanceFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceInstanceFieldGenerator);
-            var serviceProviderFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceProviderFieldGenerator);
+            serviceInstanceFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceInstanceFieldGenerator);
+            serviceProviderFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceProviderFieldGenerator);
 
             GeneratingConstructor(serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
 

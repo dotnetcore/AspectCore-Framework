@@ -25,7 +25,7 @@ namespace AspectCore.Lite.DynamicProxy.Generators
             this.parentType = parentType;
             this.serviceMethod = serviceMethod;
             this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
-            this.serviceInstanceFieldBuilder = serviceProviderFieldBuilder;
+            this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
         }
 
         public override CallingConventions CallingConventions

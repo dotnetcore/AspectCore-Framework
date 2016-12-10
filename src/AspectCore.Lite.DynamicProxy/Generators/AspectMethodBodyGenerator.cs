@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 
 namespace AspectCore.Lite.DynamicProxy.Generators
 {
@@ -27,7 +28,7 @@ namespace AspectCore.Lite.DynamicProxy.Generators
             this.serviceMethod = serviceMethod;
             this.parentMethod = parentMethod;
             this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
-            this.serviceInstanceFieldBuilder = serviceProviderFieldBuilder;
+            this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
         }
 
         protected override void GeneratingMethodBody(ILGenerator ilGenerator)
@@ -66,7 +67,7 @@ namespace AspectCore.Lite.DynamicProxy.Generators
                 ilGenerator.Emit(OpCodes.Callvirt, MethodConstant.AspectActivator_Invoke.MakeGenericMethod(typeof(object)));
                 ilGenerator.Emit(OpCodes.Pop);
             }
-            else if (serviceMethod.ReturnType == typeof(Type))
+            else if (serviceMethod.ReturnType == typeof(Task))
             {
                 ilGenerator.Emit(OpCodes.Callvirt, MethodConstant.AspectActivator_InvokeAsync.MakeGenericMethod(typeof(object)));
             }

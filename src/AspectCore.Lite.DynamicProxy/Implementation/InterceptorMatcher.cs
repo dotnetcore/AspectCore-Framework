@@ -1,5 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,8 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
 {
     internal sealed class InterceptorMatcher : IInterceptorMatcher
     {
+        private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
+
         private readonly IInterceptorTable interceptorTable;
 
         public InterceptorMatcher(IInterceptorTable interceptorTable)
@@ -17,7 +20,8 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
 
         public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
-            return MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorTable)).OrderBy(interceptor => interceptor.Order).ToArray();
+            return InterceptorPool.GetOrAdd(serviceMethod, _ =>
+                MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorTable)).OrderBy(interceptor => interceptor.Order).ToArray());
         }
 
         private static IEnumerable<IInterceptor> AllInterceptorIterator(
