@@ -11,17 +11,17 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IInterceptorCollection interceptorTable;
+        private readonly IInterceptorCollection interceptorCollection;
 
         public InterceptorMatcher(IInterceptorCollection interceptorTable)
         {
-            this.interceptorTable = interceptorTable;
+            this.interceptorCollection = interceptorTable;
         }
 
         public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
             return InterceptorPool.GetOrAdd(serviceMethod, _ =>
-                MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorTable)).OrderBy(interceptor => interceptor.Order).ToArray());
+                MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorCollection)).OrderBy(interceptor => interceptor.Order).ToArray());
         }
 
         private static IEnumerable<IInterceptor> AllInterceptorIterator(

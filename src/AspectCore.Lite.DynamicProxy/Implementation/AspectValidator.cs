@@ -11,16 +11,16 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
 
-        private readonly IInterceptorCollection interceptorTable;
+        private readonly IInterceptorCollection interceptorCollection;
 
         static AspectValidator()
         {
             DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
         }
 
-        public AspectValidator(IInterceptorCollection interceptorTable)
+        public AspectValidator(IInterceptorCollection interceptorCollection)
         {
-            this.interceptorTable = interceptorTable;
+            this.interceptorCollection = interceptorCollection;
         }
 
         public bool Validate(MethodInfo method)
@@ -51,7 +51,7 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
                 return false;
             }
 
-            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(interceptorTable);
+            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(interceptorCollection);
         }
 
         private bool ValidateDeclaringType(TypeInfo declaringType)
@@ -79,9 +79,9 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType));
         }
 
-        private bool ValidateInterceptor(IInterceptorCollection interceptorTable)
+        private bool ValidateInterceptor(IInterceptorCollection interceptorCollection)
         {
-            return interceptorTable.Any();
+            return interceptorCollection.Any();
         }
     }
 }

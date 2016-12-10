@@ -20,7 +20,7 @@ namespace AspectCore.Lite.DynamicProxy.Container
             yield return ServiceDescription.Description<IInterceptorCollection, InterceptorCollection>(Lifetime.Singleton);
         }
 
-        public static IInterceptorCollection GetInterceptorTable()
+        public static IInterceptorCollection CreateInterceptorCollection()
         {
             return new InterceptorCollection();
         }
