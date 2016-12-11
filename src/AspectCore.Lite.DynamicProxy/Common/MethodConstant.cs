@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
+using AspectCore.Lite.DynamicProxy.Resolution;
 using System;
 using System.Reflection;
 
@@ -18,6 +19,6 @@ namespace AspectCore.Lite.DynamicProxy.Common
 
         internal static readonly MethodInfo GetMothodFromHandle = MethodHelper.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
 
-        internal static readonly MethodInfo TargetServiceProvider_GetTarget = MethodHelper.GetMethod<Func<ITargetServiceProvider, Type, object>>((p, type) => p.GetTarget(type));
+        internal static readonly MethodInfo SupportOriginalService_GetService = MethodHelper.GetMethod<Func<ISupportOriginalService, Type, object>>((p, type) => p.GetService(type));
     }
 }
