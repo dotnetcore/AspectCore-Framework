@@ -1,15 +1,14 @@
 ﻿using AspectCore.Lite.Abstractions;
 using Nito.AsyncEx;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
-    internal sealed class AspectActivator : IAspectActivator
+    public sealed class AspectActivator : IAspectActivator
     {
 
         #region Aspect metaData
@@ -76,12 +75,15 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
             var targetDescriptor = new TargetDescriptor(targetInstance, serviceMethod, serviceType, targetMethod, targetInstance.GetType());
             var proxyDescriptor = new ProxyDescriptor(proxyInstance, proxyMethod, proxyInstance.GetType());
             var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameters, returnParameter);
+
             var interceptors = interceptorMatcher.Match(serviceMethod, serviceType.GetTypeInfo());
+
             foreach (var interceptor in interceptors)
             {
                 interceptorInjector.Inject(interceptor);
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
             }
+
             return TryInvoke<T>(aspectBuilder, context, interceptors);
         }
 

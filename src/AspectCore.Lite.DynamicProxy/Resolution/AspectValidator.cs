@@ -5,20 +5,20 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
-    internal sealed class AspectValidator : IAspectValidator
+    public sealed class AspectValidator : IAspectValidator
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
 
-        private readonly IInterceptorCollection interceptorCollection;
+        private readonly IInterceptorConfiguration interceptorCollection;
 
         static AspectValidator()
         {
             DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
         }
 
-        public AspectValidator(IInterceptorCollection interceptorCollection)
+        public AspectValidator(IInterceptorConfiguration interceptorCollection)
         {
             this.interceptorCollection = interceptorCollection;
         }
@@ -79,7 +79,7 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType));
         }
 
-        private bool ValidateInterceptor(IInterceptorCollection interceptorCollection)
+        private bool ValidateInterceptor(IInterceptorConfiguration interceptorCollection)
         {
             return interceptorCollection.Any();
         }

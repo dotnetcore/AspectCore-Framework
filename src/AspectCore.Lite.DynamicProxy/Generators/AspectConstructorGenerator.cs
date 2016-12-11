@@ -1,5 +1,4 @@
-﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Abstractions.Generator;
+﻿using AspectCore.Lite.Abstractions.Generator;
 using AspectCore.Lite.DynamicProxy.Common;
 using System;
 using System.Linq;
@@ -46,7 +45,7 @@ namespace AspectCore.Lite.DynamicProxy.Generators
         {
             get
             {
-                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(ITargetServiceProvider) };
+                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(ISupportOriginalService) };
                 return constructor.GetParameters().Select(p => p.ParameterType).Concat(serviceTypeParameters).ToArray();
             }
         }
@@ -69,7 +68,7 @@ namespace AspectCore.Lite.DynamicProxy.Generators
             ilGenerator.EmitThis();
             ilGenerator.EmitLoadArg(parameters.Length);
             ilGenerator.EmitTypeof(serviceType);
-            ilGenerator.Emit(OpCodes.Call, MethodConstant.TargetServiceProvider_GetTarget);
+            ilGenerator.Emit(OpCodes.Call, MethodConstant.SupportOriginalService_GetService);
             ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
 

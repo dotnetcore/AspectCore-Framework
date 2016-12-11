@@ -5,9 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
-    internal sealed class InterceptorInjector : IInterceptorInjector
+    public sealed class InterceptorInjector : IInterceptorInjector
     {
         private static readonly ConcurrentDictionary<PropertyInfo, Action<IInterceptor, object>> PropertySetterCache =
             new ConcurrentDictionary<PropertyInfo, Action<IInterceptor, object>>();

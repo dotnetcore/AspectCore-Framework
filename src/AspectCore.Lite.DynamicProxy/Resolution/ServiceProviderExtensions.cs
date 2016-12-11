@@ -1,10 +1,7 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace AspectCore.Lite.DynamicProxy
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
     public static class ServiceProviderExtensions
     {

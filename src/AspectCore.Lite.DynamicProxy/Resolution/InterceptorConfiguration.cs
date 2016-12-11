@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
-    internal sealed class InterceptorCollection : IInterceptorCollection
+    public sealed class InterceptorConfiguration : IInterceptorConfiguration
     {
         private readonly ConcurrentBag<Func<IInterceptor>> interceptorBag = new ConcurrentBag<Func<IInterceptor>>();
 
@@ -17,10 +17,12 @@ namespace AspectCore.Lite.DynamicProxy.Implementation
             {
                 throw new ArgumentNullException(nameof(interceptorType));
             }
+
             if (!typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(interceptorType))
             {
                 throw new ArgumentException($"{interceptorType} not an interceptor type.", nameof(interceptorType));
             }
+
             interceptorBag.Add(() => (IInterceptor)Activator.CreateInstance(interceptorType, args));
         }
 

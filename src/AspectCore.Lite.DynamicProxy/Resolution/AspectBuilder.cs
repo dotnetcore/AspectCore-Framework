@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
-    internal sealed class AspectBuilder : IAspectBuilder
+    public sealed class AspectBuilder : IAspectBuilder
     {
         private readonly IList<Func<AspectDelegate, AspectDelegate>> delegates;
 

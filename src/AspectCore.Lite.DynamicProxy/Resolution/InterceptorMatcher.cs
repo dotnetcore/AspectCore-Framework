@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
-    internal sealed class InterceptorMatcher : IInterceptorMatcher
+    public sealed class InterceptorMatcher : IInterceptorMatcher
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IInterceptorCollection interceptorCollection;
+        private readonly IInterceptorConfiguration interceptorCollection;
 
-        public InterceptorMatcher(IInterceptorCollection interceptorTable)
+        public InterceptorMatcher(IInterceptorConfiguration interceptorTable)
         {
             this.interceptorCollection = interceptorTable;
         }

@@ -1,7 +1,7 @@
 ﻿using AspectCore.Lite.Abstractions;
 using System;
 
-namespace AspectCore.Lite.DynamicProxy.Implementation
+namespace AspectCore.Lite.DynamicProxy.Resolution
 {
     internal sealed class AspectContext : Abstractions.AspectContext
     {
