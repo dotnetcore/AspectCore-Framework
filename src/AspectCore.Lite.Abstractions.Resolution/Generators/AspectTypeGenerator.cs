@@ -81,6 +81,8 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
             GeneratingMethod(serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
 
+            Type.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), null));
+
             return base.Accept(visitor);
         }
 
