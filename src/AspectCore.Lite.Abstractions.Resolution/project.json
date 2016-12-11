@@ -1,0 +1,44 @@
+﻿{
+  "authors": [ "liuhaoyang" ],
+  "dependencies": {
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12110",
+    "AspectCore.Lite.Abstractions.Generator": "1.0.0-beta5-12110"
+  },
+  "description": "The default implementation of the dynamicproxy framework.",
+  "frameworks": {
+    "netstandard1.6.1": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.1",
+        "System.ComponentModel": "4.3.0",
+        "Nito.AsyncEx.Context": "1.1.0"
+      }
+    },
+    "netcoreapp1.1": {
+      "dependencies": {
+        "Microsoft.NETCore.App": "1.1.0",
+        "Nito.AsyncEx.Context": "1.1.0"
+      }
+    },
+    "net45": {
+      "dependencies": {
+        "Nito.AsyncEx": "3.0.1",
+        "System.Runtime": "4.0.0",
+        "System.Threading.Tasks": "4.0.0"
+      }
+    }
+  },
+  "packOptions": {
+    "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
+    "licenseUrl": "https://mit-license.org/",
+    "owners": [ "liuhaoyang" ],
+    "releaseNotes": "The default implementation of the dynamicproxy framework.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/AspectCore/Lite"
+    },
+    "tags": [ "DynamicProxy", "Aop", "Aspect" ]
+  },
+  "projectUrl": "https://github.com/AspectCore/Lite",
+  "title": "AspectCore.Lite.Abstractions.Resolution",
+  "version": "1.0.0-beta5-12110"
+}
