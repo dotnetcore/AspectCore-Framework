@@ -3,7 +3,7 @@ using AspectCore.Lite.DynamicProxy.Resolution;
 using System;
 using System.Reflection;
 
-namespace AspectCore.Lite.DynamicProxy.Common
+namespace AspectCore.Lite.DynamicProxy.Resolution.Common
 {
     internal static class MethodConstant
     {

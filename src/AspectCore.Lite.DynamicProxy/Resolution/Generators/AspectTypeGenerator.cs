@@ -1,21 +1,20 @@
 ﻿using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Abstractions.Generator;
-using AspectCore.Lite.DynamicProxy.Common;
+using AspectCore.Lite.DynamicProxy.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.DynamicProxy.Generators
+namespace AspectCore.Lite.DynamicProxy.Resolution.Generators
 {
     internal sealed class AspectTypeGenerator : TypeGenerator
     {
         private readonly Lazy<TypeBuilder> builder;
         private readonly Type serviceType;
-        private readonly IServiceProvider serviceProvider;
         private readonly IAspectValidator aspectValidator;
 
-        public AspectTypeGenerator(Type serviceType, Type parentType, IServiceProvider serviceProvider) : base(ModuleGenerator.Default.ModuleBuilder)
+        public AspectTypeGenerator(Type serviceType, Type parentType, IAspectValidator aspectValidator) : base(ModuleGenerator.Default.ModuleBuilder)
         {
             if (serviceType == null)
             {
@@ -25,16 +24,15 @@ namespace AspectCore.Lite.DynamicProxy.Generators
             {
                 throw new ArgumentNullException(nameof(parentType));
             }
-            if (serviceProvider == null)
+            if (aspectValidator == null)
             {
-                throw new ArgumentNullException(nameof(serviceProvider));
+                throw new ArgumentNullException(nameof(aspectValidator));
             }
 
             this.serviceType = serviceType;
             this.ParentType = parentType;
             this.builder = new Lazy<TypeBuilder>(InitializeTypeBuilder);
-            this.serviceProvider = serviceProvider;
-            this.aspectValidator = (IAspectValidator)serviceProvider.GetService(typeof(IAspectValidator));
+            this.aspectValidator = aspectValidator;
             if (this.aspectValidator == null)
             {
                 throw new InvalidOperationException("No service for type 'AspectCore.Lite.Abstractions.IAspectValidator' has been registered.");

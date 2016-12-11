@@ -1,6 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions.Generator;
 
-namespace AspectCore.Lite.DynamicProxy.Generators
+namespace AspectCore.Lite.DynamicProxy.Resolution.Generators
 {
     internal class AspectGeneratorVisitor : GeneratorVisitor
     {

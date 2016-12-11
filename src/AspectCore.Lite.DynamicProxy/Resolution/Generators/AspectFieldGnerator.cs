@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.DynamicProxy.Generators
+namespace AspectCore.Lite.DynamicProxy.Resolution.Generators
 {
     internal class AspectFieldGenerator : FieldGenerator
     {

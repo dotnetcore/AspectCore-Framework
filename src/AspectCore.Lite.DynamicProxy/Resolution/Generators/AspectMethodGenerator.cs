@@ -1,11 +1,11 @@
 ﻿using AspectCore.Lite.Abstractions.Generator;
-using AspectCore.Lite.DynamicProxy.Common;
+using AspectCore.Lite.DynamicProxy.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.DynamicProxy.Generators
+namespace AspectCore.Lite.DynamicProxy.Resolution.Generators
 {
     internal sealed class AspectMethodGenerator : GenericMethodGenerator
     {

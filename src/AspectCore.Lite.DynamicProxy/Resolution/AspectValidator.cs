@@ -1,5 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.DynamicProxy.Common;
+using AspectCore.Lite.DynamicProxy.Resolution.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;

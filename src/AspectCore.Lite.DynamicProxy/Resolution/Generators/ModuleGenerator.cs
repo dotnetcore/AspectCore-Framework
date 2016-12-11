@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.DynamicProxy.Generators
+namespace AspectCore.Lite.DynamicProxy.Resolution.Generators
 {
     internal sealed class ModuleGenerator
     {

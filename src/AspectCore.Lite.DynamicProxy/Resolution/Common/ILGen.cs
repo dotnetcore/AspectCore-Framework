@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.DynamicProxy.Common
+namespace AspectCore.Lite.DynamicProxy.Resolution.Common
 {
     internal static class IlGen
     {
