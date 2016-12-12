@@ -3,7 +3,7 @@
   "dependencies": {
     "AspectCore.Lite.Abstractions.Resolution": "1.0.0-beta5-12120"
   },
-  "description": "The default implementation of the dynamicproxy framework.",
+  "description": "Interceptor and dynamicProxy support for NanoContainer via AspectCore Lite.",
   "frameworks": {
     "netstandard1.6.1": {
       "dependencies": {
@@ -30,7 +30,7 @@
     "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
     "licenseUrl": "https://mit-license.org/",
     "owners": [ "liuhaoyang" ],
-    "releaseNotes": "The default implementation of the dynamicproxy framework.",
+    "releaseNotes": "Interceptor and dynamicProxy support for NanoContainer via AspectCore Lite.",
     "repository": {
       "type": "git",
       "url": "https://github.com/AspectCore/Lite"
