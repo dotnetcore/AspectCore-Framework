@@ -1,5 +1,4 @@
-﻿using AspectCore.Lite.Abstractions;
-using Nito.AsyncEx;
+﻿using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
-    public sealed class AspectActivator : IAspectActivator
+    public class AspectActivator : IAspectActivator
     {
 
         #region Aspect metaData
@@ -74,7 +73,8 @@ namespace AspectCore.Lite.Abstractions.Resolution
             var returnParameter = new ReturnParameterDescriptor(default(T), serviceMethod.ReturnParameter);
             var targetDescriptor = new TargetDescriptor(targetInstance, serviceMethod, serviceType, targetMethod, targetInstance.GetType());
             var proxyDescriptor = new ProxyDescriptor(proxyInstance, proxyMethod, proxyInstance.GetType());
-            var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameters, returnParameter);
+
+            var context = CreateAspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameters, returnParameter);
 
             var interceptors = interceptorMatcher.Match(serviceMethod, serviceType.GetTypeInfo());
 
@@ -85,6 +85,11 @@ namespace AspectCore.Lite.Abstractions.Resolution
             }
 
             return TryInvoke<T>(aspectBuilder, context, interceptors);
+        }
+
+        protected virtual AspectContext CreateAspectContext(IServiceProvider serviceProvider, TargetDescriptor target, ProxyDescriptor proxy, ParameterCollection parameters, ReturnParameterDescriptor returnParameter)
+        {
+            return new DefaultAspectContext(serviceProvider, target, proxy, parameters, returnParameter);
         }
 
         private async Task<T> TryInvoke<T>(IAspectBuilder aspectBuilder, AspectContext context, IEnumerable<IInterceptor> interceptors)
@@ -119,5 +124,6 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 return (T)value;
             }
         }
+
     }
 }
