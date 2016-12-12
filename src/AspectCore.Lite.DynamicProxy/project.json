@@ -6,24 +6,10 @@
   "description": "Interceptor and dynamicProxy support for NanoContainer via AspectCore Lite.",
   "frameworks": {
     "netstandard1.6.1": {
-      "dependencies": {
-        "NETStandard.Library": "1.6.1",
-        "System.ComponentModel": "4.3.0",
-        "Nito.AsyncEx.Context": "1.1.0"
-      }
     },
     "netcoreapp1.1": {
-      "dependencies": {
-        "Microsoft.NETCore.App": "1.1.0",
-        "Nito.AsyncEx.Context": "1.1.0"
-      }
     },
     "net45": {
-      "dependencies": {
-        "Nito.AsyncEx": "3.0.1",
-        "System.Runtime": "4.0.0",
-        "System.Threading.Tasks": "4.0.0"
-      }
     }
   },
   "packOptions": {
