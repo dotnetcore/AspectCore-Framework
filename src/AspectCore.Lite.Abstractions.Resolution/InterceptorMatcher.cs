@@ -10,21 +10,25 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IInterceptorConfiguration interceptorCollection;
+        private readonly IInterceptorConfiguration interceptorConfiguration;
 
-        public InterceptorMatcher(IInterceptorConfiguration interceptorTable)
+        public InterceptorMatcher(IInterceptorConfiguration interceptorConfiguration)
         {
-            this.interceptorCollection = interceptorTable;
+            this.interceptorConfiguration = interceptorConfiguration;
         }
 
         public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
             return InterceptorPool.GetOrAdd(serviceMethod, _ =>
-                MultipleInterceptorIterator(AllInterceptorIterator(serviceMethod, serviceTypeInfo, interceptorCollection)).OrderBy(interceptor => interceptor.Order).ToArray());
+            {
+                var configuredInterceptors = interceptorConfiguration.Select(factory => factory.Invoke(serviceMethod)).OfType<IInterceptor>();
+                var matchInterceptors = AllInterceptorIterator(serviceMethod, serviceTypeInfo, configuredInterceptors);
+                return MultipleInterceptorIterator(matchInterceptors).OrderBy(interceptor => interceptor.Order).ToArray();
+            });
         }
 
         private static IEnumerable<IInterceptor> AllInterceptorIterator(
-           MethodInfo methodInfo, TypeInfo typeInfo, IEnumerable<IInterceptor> interceptorCollection)
+           MethodInfo methodInfo, TypeInfo typeInfo, IEnumerable<IInterceptor> configuredInterceptors)
         {
             foreach (var attribute in methodInfo.GetCustomAttributes())
             {
@@ -38,7 +42,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 if (interceptor != null) yield return interceptor;
             }
 
-            foreach (var interceptor in interceptorCollection)
+            foreach (var interceptor in configuredInterceptors)
             {
                 yield return interceptor;
             }

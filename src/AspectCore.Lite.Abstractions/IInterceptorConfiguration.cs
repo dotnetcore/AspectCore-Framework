@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions
 {
     [NonAspect]
-    public interface IInterceptorConfiguration : IEnumerable<IInterceptor>
+    public interface IInterceptorConfiguration : IEnumerable<Func<MethodInfo, IInterceptor>>
     {
-        void Add(Type interceptorType, params object[] args);
+        void Configure(Func<MethodInfo, IInterceptor> configure);
     }
 }
