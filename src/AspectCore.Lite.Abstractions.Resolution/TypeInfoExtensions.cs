@@ -24,7 +24,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         public static bool CanInherited(this TypeInfo typeInfo)
         {
             return typeInfo.IsClass && (typeInfo.IsPublic || (typeInfo.IsNested && typeInfo.IsNestedPublic)) &&
-                   !typeInfo.IsSealed && !typeInfo.IsGenericTypeDefinition;
+                   !typeInfo.IsSealed && !typeInfo.IsGenericTypeDefinition && !typeInfo.IsDefined(typeof(NonAspectAttribute));
         }
 
         public static TypeInfo CreateProxyTypeInfo(this Type serviceType, Type implementationType, IAspectValidator aspectValidator)
