@@ -15,15 +15,15 @@ namespace AspectCore.Lite.DynamicProxy
         {
         }
 
-        public NanoContainer(Action<IInterceptorConfiguration> configure)
+        public NanoContainer(Action<IAspectConfigurator> configure)
         {
             container = new Dictionary<Type, Func<object>>();
-            var configuration = new InterceptorConfiguration();
+            var configuration = new AspectConfigurator();
             configure?.Invoke(configuration);
             container.Add(typeof(IServiceProvider), () => this);
             container.Add(typeof(IAspectValidator), () => new AspectValidator(configuration));
             container.Add(typeof(IAspectActivator), () => new AspectActivator(this, new AspectBuilder(), new InterceptorMatcher(configuration), new NanoInterceptorInjector()));
-            container.Add(typeof(IInterceptorConfiguration), () => configuration);
+            container.Add(typeof(IAspectConfigurator), () => configuration);
         }
 
         private Type CreateProxyType(Type serviceType, Type implementationType)

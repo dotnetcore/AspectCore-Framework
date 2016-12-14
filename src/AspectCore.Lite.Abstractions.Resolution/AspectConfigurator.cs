@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
-    public sealed class InterceptorConfiguration : IInterceptorConfiguration
+    public sealed class AspectConfigurator : IAspectConfigurator
     {
         private readonly ConcurrentBag<Func<MethodInfo, IInterceptor>> configurations = new ConcurrentBag<Func<MethodInfo, IInterceptor>>();
 

@@ -10,19 +10,21 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IInterceptorConfiguration interceptorConfiguration;
+        private readonly IAspectConfigurator aspectConfigurator;
 
-        public InterceptorMatcher(IInterceptorConfiguration interceptorConfiguration)
+        public InterceptorMatcher(IAspectConfigurator aspectConfigurator)
         {
-            this.interceptorConfiguration = interceptorConfiguration;
+            this.aspectConfigurator = aspectConfigurator;
         }
 
         public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
             return InterceptorPool.GetOrAdd(serviceMethod, _ =>
             {
-                var configuredInterceptors = interceptorConfiguration.Select(factory => factory.Invoke(serviceMethod)).OfType<IInterceptor>();
+                var configuredInterceptors = aspectConfigurator.Select(factory => factory.Invoke(serviceMethod)).OfType<IInterceptor>();
+
                 var matchInterceptors = AllInterceptorIterator(serviceMethod, serviceTypeInfo, configuredInterceptors);
+
                 return MultipleInterceptorIterator(matchInterceptors).OrderBy(interceptor => interceptor.Order).ToArray();
             });
         }

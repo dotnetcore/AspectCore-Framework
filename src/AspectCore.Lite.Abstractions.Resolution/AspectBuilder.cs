@@ -1,5 +1,4 @@
-﻿using AspectCore.Lite.Abstractions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             delegates = new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
-        public void AddAspectDelegate(Func<Abstractions.AspectContext, AspectDelegate, Task> interceptorInvoke)
+        public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
         {
             if (interceptorInvoke == null)
             {

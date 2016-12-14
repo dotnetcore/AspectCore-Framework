@@ -10,16 +10,16 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
 
-        private readonly IInterceptorConfiguration interceptorCollection;
+        private readonly IAspectConfigurator aspectConfigurator;
 
         static AspectValidator()
         {
             DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
         }
 
-        public AspectValidator(IInterceptorConfiguration interceptorCollection)
+        public AspectValidator(IAspectConfigurator aspectConfigurator)
         {
-            this.interceptorCollection = interceptorCollection;
+            this.aspectConfigurator = aspectConfigurator;
         }
 
         public bool Validate(MethodInfo method)
@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 return false;
             }
 
-            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(interceptorCollection);
+            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfigurator, method);
         }
 
         private bool ValidateDeclaringType(TypeInfo declaringType)
@@ -78,9 +78,9 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType));
         }
 
-        private bool ValidateInterceptor(IInterceptorConfiguration interceptorCollection)
+        private bool ValidateInterceptor(IAspectConfigurator aspectConfigurator, MethodInfo method)
         {
-            return interceptorCollection.Any();
+            return aspectConfigurator.Any(config => config(method) != null);
         }
     }
 }
