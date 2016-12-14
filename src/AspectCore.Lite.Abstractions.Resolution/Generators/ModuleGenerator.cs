@@ -7,7 +7,8 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 {
     internal sealed class ModuleGenerator
     {
-        
+
+
         private static readonly ModuleGenerator instance = new ModuleGenerator();
         internal static ModuleGenerator Default
         {
@@ -15,6 +16,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         }
 
         private readonly ModuleBuilder moduleBuilder;
+        private readonly AssemblyBuilder assemblyBuilder;
         private readonly ConcurrentDictionary<string, TypeInfo> createdTypeInfoPool;
 
         internal ModuleBuilder ModuleBuilder
@@ -26,7 +28,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             createdTypeInfoPool = new ConcurrentDictionary<string, TypeInfo>();
             var assemblyName = new AssemblyName("AspectCore.Lite.Proxys");
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
         }
 

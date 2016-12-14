@@ -38,7 +38,12 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             }
         }
 
-        public override Type[] Interfaces { get; } = System.Type.EmptyTypes;
+        public override Type[] Interfaces {
+            get
+            {
+                return ParentType.GetTypeInfo().GetInterfaces();
+            }
+        }
 
         public override Type ParentType { get; }
 

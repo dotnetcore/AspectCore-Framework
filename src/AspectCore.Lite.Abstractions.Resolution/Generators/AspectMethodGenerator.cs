@@ -98,6 +98,18 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             }
         }
 
+        protected override MethodBuilder Accept(GeneratorVisitor visitor)
+        {
+            var methodBuilder = base.Accept(visitor);
+
+            if (serviceType.GetTypeInfo().IsInterface)
+            {
+                DeclaringMember.DefineMethodOverride(methodBuilder, serviceMethod);
+            }
+
+            return methodBuilder;
+        }
+
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
             var parentMethod = parentType.GetTypeInfo().GetMethod(serviceMethod.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
