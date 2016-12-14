@@ -1,7 +1,7 @@
 {
   "authors": [ "liuhaoyang" ],
   "dependencies": {
-    "AspectCore.Lite.Abstractions.Resolution": "1.0.0-beta5-12130"
+    "AspectCore.Lite.Abstractions.Resolution": "1.0.0-beta5-12150"
   },
   "description": "Interceptor and dynamicProxy support for NanoContainer via AspectCore Lite.",
   "frameworks": {
@@ -25,5 +25,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.DynamicProxy",
-  "version": "1.0.0-beta5-12130"
+  "version": "1.0.0-beta5-12150"
 }
