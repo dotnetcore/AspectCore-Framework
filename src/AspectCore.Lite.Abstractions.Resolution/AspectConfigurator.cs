@@ -10,7 +10,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private readonly ConcurrentBag<Func<MethodInfo, IInterceptor>> configurations = new ConcurrentBag<Func<MethodInfo, IInterceptor>>();
 
-        public void Configure(Func<MethodInfo, IInterceptor> configure)
+        public void Add(Func<MethodInfo, IInterceptor> configure)
         {
             if (configure == null)
             {

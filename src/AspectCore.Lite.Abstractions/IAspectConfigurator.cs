@@ -7,6 +7,6 @@ namespace AspectCore.Lite.Abstractions
     [NonAspect]
     public interface IAspectConfigurator : IEnumerable<Func<MethodInfo, IInterceptor>>
     {
-        void Configure(Func<MethodInfo, IInterceptor> configure);
+        void Add(Func<MethodInfo, IInterceptor> configure);
     }
 }
