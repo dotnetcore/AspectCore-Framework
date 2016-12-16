@@ -1,7 +1,7 @@
 {
   "authors": [ "liuhaoyang" ],
   "dependencies": {
-    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12152",
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12160",
     "AspectCore.Lite.Abstractions.Generator": "1.0.0-beta5-12152"
   },
   "description": "The default implementation of the dynamicproxy framework.",
@@ -40,5 +40,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.Abstractions.Resolution",
-  "version": "1.0.0-beta5-12152"
+  "version": "1.0.0-beta5-12160"
 }
