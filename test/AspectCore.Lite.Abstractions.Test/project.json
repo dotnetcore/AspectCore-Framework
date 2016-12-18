@@ -7,9 +7,9 @@
     "System.Runtime.Serialization.Primitives": "4.3.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12152",
     "System.Reflection": "4.3.0",
-    "System.Linq": "4.3.0"
+    "System.Linq": "4.3.0",
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12160"
   },
   "testRunner": "xunit",
   "frameworks": {
