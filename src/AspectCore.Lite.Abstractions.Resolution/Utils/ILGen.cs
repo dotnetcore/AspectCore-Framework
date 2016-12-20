@@ -8,7 +8,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Utils
 {
     internal static class IlGen
     {
-#if NET45
+#if NET451
         private static readonly Assembly ExpressionsAssembly = Assembly.GetAssembly(typeof(Expression));
 #else
         private static readonly Assembly ExpressionsAssembly = Assembly.Load(new AssemblyName("System.Linq.Expressions"));
