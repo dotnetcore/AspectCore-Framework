@@ -1,28 +1,23 @@
 {
   "authors": [ "liuhaoyang" ],
   "dependencies": {
-    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12160",
-    "AspectCore.Lite.Abstractions.Generator": "1.0.0-beta5-12152"
+    "AspectCore.Lite.Abstractions": "1.0.0-beta5-12200",
+    "AspectCore.Lite.Abstractions.Generator": "1.0.0-beta5-12200"
   },
   "description": "The default implementation of the dynamicproxy framework.",
   "frameworks": {
-    "netstandard1.6.1": {
+    "netstandard1.3": {
       "dependencies": {
         "NETStandard.Library": "1.6.1",
         "System.ComponentModel": "4.3.0",
-        "Nito.AsyncEx.Context": "1.1.0"
+        "Nito.AsyncEx.Context": "1.1.0",
+        "System.Reflection.TypeExtensions": "4.3.0"
       }
     },
-    "netcoreapp1.1": {
-      "dependencies": {
-        "Microsoft.NETCore.App": "1.1.0",
-        "Nito.AsyncEx.Context": "1.1.0"
-      }
-    },
-    "net45": {
+    "net451": {
       "dependencies": {
         "Nito.AsyncEx": "3.0.1",
-        "System.Runtime": "4.0.0",
+        "System.Runtime": "4.0.10",
         "System.Threading.Tasks": "4.0.0"
       }
     }
@@ -40,5 +35,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.Abstractions.Resolution",
-  "version": "1.0.0-beta5-12160"
+  "version": "1.0.0-beta5-12200"
 }

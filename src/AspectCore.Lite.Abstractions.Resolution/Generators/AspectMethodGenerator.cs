@@ -112,7 +112,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
-            var parentMethod = parentType.GetTypeInfo().GetMethod(serviceMethod.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var parentMethod = parentType.GetMethod(serviceMethod.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             return new AspectMethodBodyGenerator(declaringMethod, serviceType, parentType, serviceMethod, parentMethod ?? serviceMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
         }
 

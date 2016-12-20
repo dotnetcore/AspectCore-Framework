@@ -75,7 +75,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
 
         private bool ValidateInterceptor(MemberInfo member)
         {
-            return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType));
+            return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType.GetTypeInfo()));
         }
 
         private bool ValidateInterceptor(IAspectConfigurator aspectConfigurator, MethodInfo method)

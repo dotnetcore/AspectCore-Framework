@@ -73,7 +73,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             }
             else if (serviceMethod.IsReturnTask())
             {
-                var returnType = serviceMethod.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                var returnType = serviceMethod.ReturnType.GetGenericArguments().Single();
                 ilGenerator.Emit(OpCodes.Callvirt, MethodConstant.AspectActivator_InvokeAsync.MakeGenericMethod(returnType));
             }
             else

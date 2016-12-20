@@ -33,7 +33,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Utils
 
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
-            return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType);
+            return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
 
         internal static MethodInfo GetMethod<T>(Expression<T> expr)
@@ -44,7 +44,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Utils
 
         internal static MethodInfo GetMethod<T>(string name)
         {
-            return typeof(T).GetTypeInfo().GetMethod(name);
+            return typeof(T).GetMethod(name);
         }
     }
 }

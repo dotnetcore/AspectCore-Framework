@@ -4,20 +4,14 @@
   },
   "description": "The class generator system of the dynamicproxy framework.",
   "frameworks": {
-    "netstandard1.6.1": {
+    "netstandard1.3": {
       "dependencies": {
         "NETStandard.Library": "1.6.1",
         "System.ComponentModel": "4.3.0",
         "System.Reflection.Emit": "4.3.0"
       }
     },
-    "netcoreapp1.1": {
-      "dependencies": {
-        "Microsoft.NETCore.App": "1.1.0",
-        "System.Reflection.Emit": "4.3.0"
-      }
-    },
-    "net45": {}
+    "net451": {}
   },
   "packOptions": {
     "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
@@ -32,5 +26,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.Abstractions.Generator",
-  "version": "1.0.0-beta5-12152"
+  "version": "1.0.0-beta5-12200"
 }
