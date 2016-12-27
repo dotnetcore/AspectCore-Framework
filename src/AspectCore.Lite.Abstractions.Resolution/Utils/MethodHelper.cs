@@ -44,7 +44,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Utils
 
         internal static MethodInfo GetMethod<T>(string name)
         {
-            return typeof(T).GetMethod(name);
+            return typeof(T).GetTypeInfo().GetMethod(name);
         }
     }
 }

@@ -4,7 +4,7 @@
   },
   "description": "The abstract design of the dynamicproxy framework.",
   "frameworks": {
-    "netstandard1.3": {
+    "netstandard1.6": {
       "dependencies": {
         "NETStandard.Library": "1.6.1",
         "System.ComponentModel": "4.3.0"
@@ -25,5 +25,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Lite",
   "title": "AspectCore.Lite.Abstractions",
-  "version": "1.0.0-beta5-12260"
+  "version": "1.0.0-beta5-12262"
 }

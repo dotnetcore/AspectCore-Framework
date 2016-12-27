@@ -41,7 +41,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         public override Type[] Interfaces {
             get
             {
-                return ParentType.GetInterfaces();
+                return ParentType.GetTypeInfo().GetInterfaces();
             }
         }
 
