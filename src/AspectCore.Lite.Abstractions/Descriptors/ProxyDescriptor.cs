@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions
@@ -27,6 +28,12 @@ namespace AspectCore.Lite.Abstractions
             ProxyType = proxyType;
             ProxyMethod = proxyMethod;
             ProxyInstance = proxyInstance;
+
+            ProxyMethod = proxyMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition ?
+               proxyType.GetTypeInfo().
+               GetMethod(proxyMethod.Name,
+               proxyMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
+               proxyMethod;
         }
     }
 }

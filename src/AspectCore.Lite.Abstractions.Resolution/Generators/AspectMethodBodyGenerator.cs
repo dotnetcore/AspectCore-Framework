@@ -16,8 +16,9 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         private readonly MethodInfo parentMethod;
         private readonly FieldBuilder serviceInstanceFieldBuilder;
         private readonly FieldBuilder serviceProviderFieldBuilder;
+        private readonly TypeBuilder declaringBuilder;
 
-        public AspectMethodBodyGenerator(MethodBuilder declaringMember,
+        public AspectMethodBodyGenerator(MethodBuilder declaringMember, TypeBuilder declaringBuilder,
             Type serviceType, Type parentType,
             MethodInfo serviceMethod, MethodInfo parentMethod,
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
@@ -29,6 +30,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             this.parentMethod = parentMethod;
             this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
             this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
+            this.declaringBuilder = declaringBuilder;
         }
 
         protected override void GeneratingMethodBody(ILGenerator ilGenerator)
@@ -41,12 +43,30 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
             ilGenerator.Emit(OpCodes.Dup);
 
-            ilGenerator.EmitTypeof(serviceType);
-            ilGenerator.EmitMethodof(serviceMethod);
-            ilGenerator.EmitMethodof(parentMethod);
-            ilGenerator.EmitMethodof(DeclaringMember);
-            ilGenerator.Emit(OpCodes.Callvirt, MethodConstant.AspectActivator_InitializeMetaData);
+            if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                var serviceTypeOfGeneric = serviceType.GetTypeInfo().MakeGenericType(declaringBuilder.GetGenericArguments());
+                ilGenerator.EmitTypeof(serviceTypeOfGeneric);
+            }
+            else
+            {
+                ilGenerator.EmitTypeof(serviceType);
+            }
 
+            if (serviceMethod.IsGenericMethodDefinition)
+            {
+                ilGenerator.EmitMethodof(serviceMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethodof(parentMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethodof(DeclaringMember.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+            }
+            else
+            {
+                ilGenerator.EmitMethodof(serviceMethod);
+                ilGenerator.EmitMethodof(parentMethod);
+                ilGenerator.EmitMethodof(DeclaringMember);
+            }
+
+            ilGenerator.Emit(OpCodes.Callvirt, MethodConstant.AspectActivator_InitializeMetaData);
             ilGenerator.EmitThis();
             ilGenerator.Emit(OpCodes.Ldfld, serviceInstanceFieldBuilder);
             ilGenerator.EmitThis();

@@ -1,6 +1,7 @@
 ﻿using AspectCore.Lite.Abstractions.Resolution.Utils;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -35,12 +36,12 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (!ValidateDeclaringType(declaringType) || !ValidateDeclaringMethod(method))
+            if (ValidateIgnoredList(aspectConfigurator, method))
             {
                 return false;
             }
 
-            if (ValidateIgnoredList(method))
+            if (!ValidateDeclaringType(declaringType) || !ValidateDeclaringMethod(method))
             {
                 return false;
             }
@@ -68,9 +69,9 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return member.IsDefined(typeof(NonAspectAttribute), true);
         }
 
-        private bool ValidateIgnoredList(MethodInfo method)
+        private bool ValidateIgnoredList(IEnumerable<Func<MethodInfo, bool>> ignores, MethodInfo method)
         {
-            return method.IsIgnored();
+            return ignores.Any(configure => configure(method));
         }
 
         private bool ValidateInterceptor(MemberInfo member)
@@ -78,7 +79,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType.GetTypeInfo()));
         }
 
-        private bool ValidateInterceptor(IAspectConfigurator aspectConfigurator, MethodInfo method)
+        private bool ValidateInterceptor(IEnumerable<Func<MethodInfo, IInterceptor>> aspectConfigurator, MethodInfo method)
         {
             return aspectConfigurator.Any(config => config(method) != null);
         }

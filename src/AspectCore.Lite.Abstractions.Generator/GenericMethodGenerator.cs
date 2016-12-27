@@ -12,10 +12,15 @@ namespace AspectCore.Lite.Abstractions.Generator
 
         protected internal override MethodBuilder Accept(GeneratorVisitor visitor)
         {
-            var methodBuilder = base.Accept(visitor);
+            var methodBuilder = DeclaringMember.DefineMethod(MethodName, MethodAttributes, CallingConventions, ReturnType, ParameterTypes);
             if (IsGenericMethod)
             {
                 GeneratingGenericParameter(methodBuilder);
+            }
+            var methodBodyGenerator = GetMethodBodyGenerator(methodBuilder);
+            if (methodBodyGenerator != null)
+            {
+                visitor.VisitGenerator(methodBodyGenerator);
             }
             return methodBuilder;
         }

@@ -72,16 +72,22 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             return CreateTypeInfo().AsType();
         }
+
         private FieldBuilder serviceInstanceFieldBuilder;
         private FieldBuilder serviceProviderFieldBuilder;
 
         protected override TypeBuilder Accept(GeneratorVisitor visitor)
         {
+            if (ParentType.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                GeneratingGenericParameter(Type);
+            }
+
             var serviceInstanceFieldGenerator = new AspectFieldGenerator("proxyfield_serviceInstance", serviceType, Type);
             var serviceProviderFieldGenerator = new AspectFieldGenerator("proxyfield_serviceProvider", typeof(IServiceProvider), Type);
             serviceInstanceFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceInstanceFieldGenerator);
             serviceProviderFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceProviderFieldGenerator);
-
+          
             GeneratingConstructor(serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
 
             GeneratingMethod(serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
@@ -119,6 +125,21 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
                     continue;
                 }
                 AddMember(new AspectMethodGenerator(Type, serviceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder));
+            }
+        }
+
+        private void GeneratingGenericParameter(TypeBuilder declaringMember)
+        {
+            var genericArguments = ParentType.GetTypeInfo().GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
+            var genericArgumentsBuilders = declaringMember.DefineGenericParameters(genericArguments.Select(a => a.Name).ToArray());
+            for (var index = 0; index < genericArguments.Length; index++)
+            {
+                genericArgumentsBuilders[index].SetGenericParameterAttributes(genericArguments[index].GenericParameterAttributes);
+                foreach (var constraint in genericArguments[index].GetGenericParameterConstraints().Select(t => t.GetTypeInfo()))
+                {
+                    if (constraint.IsClass) genericArgumentsBuilders[index].SetBaseTypeConstraint(constraint.AsType());
+                    if (constraint.IsInterface) genericArgumentsBuilders[index].SetInterfaceConstraints(constraint.AsType());
+                }
             }
         }
     }

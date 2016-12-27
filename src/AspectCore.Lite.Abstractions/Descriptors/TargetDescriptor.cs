@@ -37,11 +37,21 @@ namespace AspectCore.Lite.Abstractions
                 throw new ArgumentNullException(nameof(implementationType));
             }
 
-            ServiceMethod = serviceMethod;
             ServiceType = serviceType;
-            ImplementationInstance = implementationInstance;
-            ImplementationMethod = implementationMethod;
             ImplementationType = implementationType;
+            ImplementationInstance = implementationInstance;
+
+            ServiceMethod = serviceMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition ?
+                serviceType.GetTypeInfo().
+                GetMethod(serviceMethod.Name,
+                serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
+                serviceMethod;
+
+            ImplementationMethod = implementationMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition ?
+                implementationType.GetTypeInfo().
+                GetMethod(implementationMethod.Name,
+                implementationMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
+                implementationMethod;
         }
 
         public virtual object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)

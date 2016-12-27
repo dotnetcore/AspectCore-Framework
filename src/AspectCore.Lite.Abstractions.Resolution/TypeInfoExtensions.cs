@@ -28,7 +28,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 throw new ArgumentNullException(nameof(typeInfo));
             }
 
-            if (!typeInfo.IsClass || typeInfo.IsSealed || typeInfo.IsGenericTypeDefinition)
+            if (!typeInfo.IsClass || typeInfo.IsSealed)
             {
                 return false;
             }

@@ -21,7 +21,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             return InterceptorPool.GetOrAdd(serviceMethod, _ =>
             {
-                var configuredInterceptors = aspectConfigurator.Select(factory => factory.Invoke(serviceMethod)).OfType<IInterceptor>();
+                var configuredInterceptors = ((IEnumerable<Func<MethodInfo, IInterceptor>>)aspectConfigurator).Select(factory => factory.Invoke(serviceMethod)).OfType<IInterceptor>();
 
                 var matchInterceptors = AllInterceptorIterator(serviceMethod, serviceTypeInfo, configuredInterceptors);
 
