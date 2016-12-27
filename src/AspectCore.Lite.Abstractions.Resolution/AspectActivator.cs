@@ -1,32 +1,34 @@
-﻿using Nito.AsyncEx;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+#if NET451
+using Nito.AsyncEx;
+#endif
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
     public class AspectActivator : IAspectActivator
     {
 
-        #region Aspect metaData
+#region Aspect metaData
 
         private Type serviceType;
         private MethodInfo serviceMethod;
         private MethodInfo targetMethod;
         private MethodInfo proxyMethod;
 
-        #endregion
+#endregion
 
-        #region Dependency injection
+#region Dependency injection
 
         private readonly IServiceProvider serviceProvider;
         private readonly IAspectBuilder aspectBuilder;
         private readonly IInterceptorMatcher interceptorMatcher;
         private readonly IInterceptorInjector interceptorInjector;
 
-        #endregion
+#endregion
 
         public AspectActivator(IServiceProvider serviceProvider,
             IAspectBuilder aspectBuilder, IInterceptorMatcher interceptorMatcher, IInterceptorInjector interceptorInjector)
@@ -64,7 +66,11 @@ namespace AspectCore.Lite.Abstractions.Resolution
 
         public T Invoke<T>(object targetInstance, object proxyInstance, params object[] paramters)
         {
+#if NET451
             return AsyncContext.Run(() => InvokeAsync<T>(targetInstance, proxyInstance, paramters));
+#else
+            return InvokeAsync<T>(targetInstance, proxyInstance, paramters).GetAwaiter().GetResult();
+#endif
         }
 
         public Task<T> InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] paramters)
