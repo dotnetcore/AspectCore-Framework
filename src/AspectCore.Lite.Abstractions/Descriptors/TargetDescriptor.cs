@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,8 @@ namespace AspectCore.Lite.Abstractions
 {
     public class TargetDescriptor
     {
+        private readonly MethodInvoker methodInvoker;
+
         public object ImplementationInstance { get; }
         public MethodInfo ServiceMethod { get; }
         public MethodInfo ImplementationMethod { get; }
@@ -52,6 +55,8 @@ namespace AspectCore.Lite.Abstractions
                 GetMethod(implementationMethod.Name,
                 implementationMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
                 implementationMethod;
+
+            methodInvoker = new MethodAccessor(ImplementationMethod).CreateMethodInvoker();
         }
 
         public virtual object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)
@@ -59,7 +64,7 @@ namespace AspectCore.Lite.Abstractions
             try
             {
                 var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value).ToArray();
-                return ImplementationMethod.Invoke(ImplementationInstance, parameters);
+                return methodInvoker.Invoke(ImplementationInstance, parameters);
             }
             catch (TargetInvocationException exception)
             {

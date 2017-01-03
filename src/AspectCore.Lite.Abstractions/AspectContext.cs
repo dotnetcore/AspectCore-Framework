@@ -15,7 +15,7 @@ namespace AspectCore.Lite.Abstractions
 
         public virtual ParameterDescriptor ReturnParameter { get; }
 
-        public virtual Object AspectData { get; set; }
+        public virtual object AspectData { get; set; }
 
         public AspectContext(IServiceProvider serviceProvider, TargetDescriptor target, ProxyDescriptor proxy, ParameterCollection parameters, ReturnParameterDescriptor returnParameter)
         {
