@@ -21,5 +21,14 @@ namespace AspectCore.Lite.Abstractions.Common
         {
             return (TResult)DynamicInvoke(method, instance, parameters);
         }
+
+        public static Type[] GetParameterTypes(this MethodInfo method)
+        {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+            return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
+        }
     }
 }

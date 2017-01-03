@@ -51,7 +51,7 @@ namespace AspectCore.Lite.Abstractions
             ImplementationMethod = implementationMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition ?
                 implementationType.GetTypeInfo().
                 GetMethod(implementationMethod.Name,
-                implementationMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
+                implementationMethod.GetParameterTypes()) :
                 implementationMethod;
         }
 
