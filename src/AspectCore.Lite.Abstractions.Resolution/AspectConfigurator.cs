@@ -16,8 +16,9 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             Ignore(method => method.DeclaringType.FullName.Match("Microsoft.AspNetCore.*"));
             Ignore(method => method.DeclaringType.FullName.Match("Microsoft.Extensions.*"));
-            Ignore(method => method.DeclaringType.FullName.Match("System.*"));
             Ignore(method => method.DeclaringType.FullName.Match("Microsoft.ApplicationInsights.*"));
+            Ignore(method => method.DeclaringType.FullName.Match("Microsoft.Net.*"));
+            Ignore(method => method.DeclaringType.FullName.Match("System.*"));
             Ignore(method => method.Name.Match("Equals"));
             Ignore(method => method.Name.Match("GetHashCode"));
             Ignore(method => method.Name.Match("ToString"));
