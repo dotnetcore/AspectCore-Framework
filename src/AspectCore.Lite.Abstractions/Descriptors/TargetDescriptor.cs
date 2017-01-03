@@ -8,8 +8,6 @@ namespace AspectCore.Lite.Abstractions
 {
     public class TargetDescriptor
     {
-        private readonly MethodInvoker methodInvoker;
-
         public object ImplementationInstance { get; }
         public MethodInfo ServiceMethod { get; }
         public MethodInfo ImplementationMethod { get; }
@@ -55,16 +53,14 @@ namespace AspectCore.Lite.Abstractions
                 GetMethod(implementationMethod.Name,
                 implementationMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
                 implementationMethod;
-
-            methodInvoker = new MethodAccessor(ImplementationMethod).CreateMethodInvoker();
         }
 
         public virtual object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)
         {
             try
             {
-                var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value).ToArray();
-                return methodInvoker.Invoke(ImplementationInstance, parameters);
+                var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value)?.ToArray();
+                return ImplementationMethod.DynamicInvoke(ImplementationInstance, parameters ?? EmptyArray<object>.Vaule);
             }
             catch (TargetInvocationException exception)
             {

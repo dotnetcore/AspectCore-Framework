@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Common
 {
-    public class MethodAccessor
+    public sealed class MethodAccessor
     {
-        private static readonly ConcurrentDictionary<MethodInfo, MethodInvoker> _table = new ConcurrentDictionary<MethodInfo, MethodInvoker>();
+        private static readonly ConcurrentDictionary<MethodInfo, MethodInvoker> invokerTable = new ConcurrentDictionary<MethodInfo, MethodInvoker>();
 
-        protected MethodInfo _methodInfo;
+        private readonly MethodInfo methodInfo;
 
-        protected MethodAccessor()
-        {
-        }
-
-        internal MethodAccessor(MethodInfo methodInfo)
+        public MethodAccessor(MethodInfo methodInfo)
         {
             if (methodInfo == null)
             {
@@ -30,22 +24,22 @@ namespace AspectCore.Lite.Abstractions.Common
             }
             if (methodInfo.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
                 throw new ArgumentException($"genericTypeDefinition \"{methodInfo.DeclaringType}\" generic types are not valid.");
-            _methodInfo = methodInfo;
+            this.methodInfo = methodInfo;
         }
 
         public MethodInvoker CreateMethodInvoker()
         {
-            return _table.GetOrAdd(_methodInfo, key => InternalCreateMethodInvoker());
+            return invokerTable.GetOrAdd(methodInfo, key => InternalCreateMethodInvoker());
         }
 
-        protected virtual MethodInvoker InternalCreateMethodInvoker()
+        private MethodInvoker InternalCreateMethodInvoker()
         {
-            DynamicMethod dynamicMethod = new DynamicMethod($"{_methodInfo.Name}_handler",
-                typeof(object), new Type[] { typeof(object), typeof(object[]) }, _methodInfo.Module, true);
+            DynamicMethod dynamicMethod = new DynamicMethod($"{methodInfo.Name}_handler",
+                typeof(object), new Type[] { typeof(object), typeof(object[]) }, methodInfo.Module, true);
 
             ILGenerator ilGen = dynamicMethod.GetILGenerator();
 
-            var parameterTypes = _methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+            var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
 
             if (parameterTypes.Length != 0)
             {
@@ -58,7 +52,7 @@ namespace AspectCore.Lite.Abstractions.Common
                 ilGen.MarkLabel(lable);
             }
 
-            if (!_methodInfo.IsStatic)
+            if (!methodInfo.IsStatic)
             {
                 var lable = ilGen.DefineLabel();
                 ilGen.EmitLoadArg(0);
@@ -68,7 +62,7 @@ namespace AspectCore.Lite.Abstractions.Common
                 ilGen.Emit(OpCodes.Throw);
                 ilGen.MarkLabel(lable);
                 ilGen.EmitLoadArg(0);
-                ilGen.EmitConvertToType(typeof(object), _methodInfo.DeclaringType, true);
+                ilGen.EmitConvertToType(typeof(object), methodInfo.DeclaringType, true);
             }
 
             LocalBuilder[] locals = new LocalBuilder[parameterTypes.Length];
@@ -92,9 +86,9 @@ namespace AspectCore.Lite.Abstractions.Common
                 }
             }
 
-            ilGen.EmitCall(_methodInfo.IsStatic || _methodInfo.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, _methodInfo, null);
+            ilGen.EmitCall(methodInfo.IsStatic || methodInfo.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, methodInfo, null);
 
-            if (_methodInfo.ReturnType != typeof(void)) ilGen.EmitConvertToType(_methodInfo.ReturnType, typeof(object), true);
+            if (methodInfo.ReturnType != typeof(void)) ilGen.EmitConvertToType(methodInfo.ReturnType, typeof(object), true);
 
             for (var i = 0; i < parameterTypes.Length; i++)
             {
@@ -108,7 +102,7 @@ namespace AspectCore.Lite.Abstractions.Common
                 }
             }
 
-            if (_methodInfo.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
+            if (methodInfo.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
 
             ilGen.Emit(OpCodes.Ret);
 
