@@ -10,9 +10,9 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IAspectConfigurator aspectConfigurator;
+        private readonly IAspectConfiguration aspectConfigurator;
 
-        public InterceptorMatcher(IAspectConfigurator aspectConfigurator)
+        public InterceptorMatcher(IAspectConfiguration aspectConfigurator)
         {
             this.aspectConfigurator = aspectConfigurator;
         }

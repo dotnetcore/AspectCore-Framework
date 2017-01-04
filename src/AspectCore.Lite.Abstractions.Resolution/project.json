@@ -1,7 +1,5 @@
 {
   "authors": [ "liuhaoyang" ],
-  "buildOptions": { "allowUnsafe": true },
-  "compilationOptions": { "allowUnsafe": true },
   "dependencies": {
     "AspectCore.Lite.Abstractions": "1.0.0-beta5-12266",
     "AspectCore.Lite.Abstractions.Generator": "1.0.0-beta5-12266"

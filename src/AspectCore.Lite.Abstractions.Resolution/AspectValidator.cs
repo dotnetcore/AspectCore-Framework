@@ -1,5 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Resolution.Utils;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +10,14 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
 
-        private readonly IAspectConfigurator aspectConfigurator;
+        private readonly IAspectConfiguration aspectConfigurator;
 
         static AspectValidator()
         {
             DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
         }
 
-        public AspectValidator(IAspectConfigurator aspectConfigurator)
+        public AspectValidator(IAspectConfiguration aspectConfigurator)
         {
             this.aspectConfigurator = aspectConfigurator;
         }
@@ -36,7 +35,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (ValidateIgnoredList(aspectConfigurator, method))
+            if (ValidateIgnoredList(aspectConfigurator.GetConfiguration<bool>(), method))
             {
                 return false;
             }
@@ -51,7 +50,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 return false;
             }
 
-            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfigurator, method);
+            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfigurator.GetConfiguration<IInterceptor>(), method);
         }
 
         private bool ValidateDeclaringType(TypeInfo declaringType)

@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Abstractions.Resolution
+namespace AspectCore.Lite.Abstractions.Resolution.Common
 {
     public static class TypeInfoExtensions
     {
@@ -50,12 +50,36 @@ namespace AspectCore.Lite.Abstractions.Resolution
 
         public static TypeInfo CreateProxyTypeInfo(this Type serviceType, Type implementationType, IAspectValidator aspectValidator)
         {
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+            if (implementationType == null)
+            {
+                throw new ArgumentNullException(nameof(implementationType));
+            }
+            if (aspectValidator == null)
+            {
+                throw new ArgumentNullException(nameof(aspectValidator));
+            }
             var typeGenerator = new AspectTypeGenerator(serviceType, implementationType, aspectValidator);
             return typeGenerator.CreateTypeInfo();
         }
 
         public static Type CreateProxyType(this Type serviceType, Type implementationType, IAspectValidator aspectValidator)
         {
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+            if (implementationType == null)
+            {
+                throw new ArgumentNullException(nameof(implementationType));
+            }
+            if (aspectValidator == null)
+            {
+                throw new ArgumentNullException(nameof(aspectValidator));
+            }
             var typeGenerator = new AspectTypeGenerator(serviceType, implementationType, aspectValidator);
             return typeGenerator.CreateType();
         }

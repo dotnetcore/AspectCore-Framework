@@ -1,5 +1,4 @@
-﻿using AspectCore.Lite.Abstractions;
-using System;
+﻿using System;
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {

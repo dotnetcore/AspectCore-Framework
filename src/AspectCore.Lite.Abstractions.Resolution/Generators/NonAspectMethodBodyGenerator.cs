@@ -1,5 +1,5 @@
-﻿using AspectCore.Lite.Abstractions.Generator;
-using AspectCore.Lite.Abstractions.Resolution.Utils;
+﻿using AspectCore.Lite.Abstractions.Common;
+using AspectCore.Lite.Abstractions.Generator;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
