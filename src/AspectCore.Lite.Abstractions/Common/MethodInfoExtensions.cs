@@ -30,5 +30,15 @@ namespace AspectCore.Lite.Abstractions.Common
             }
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
         }
+
+        internal static MethodInfo ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(this MethodInfo methodInfo,Type closedGenericType)
+        {
+            if (!methodInfo.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                return methodInfo;
+            }
+
+            return closedGenericType.GetTypeInfo().GetMethod(methodInfo.Name, methodInfo.GetParameterTypes());
+        }
     }
 }

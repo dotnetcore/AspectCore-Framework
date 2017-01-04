@@ -41,18 +41,8 @@ namespace AspectCore.Lite.Abstractions
             ServiceType = serviceType;
             ImplementationType = implementationType;
             ImplementationInstance = implementationInstance;
-
-            ServiceMethod = serviceMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition ?
-                serviceType.GetTypeInfo().
-                GetMethod(serviceMethod.Name,
-                serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray()) :
-                serviceMethod;
-
-            ImplementationMethod = implementationMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition ?
-                implementationType.GetTypeInfo().
-                GetMethod(implementationMethod.Name,
-                implementationMethod.GetParameterTypes()) :
-                implementationMethod;
+            ServiceMethod = serviceMethod.ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(serviceType);
+            ImplementationMethod = implementationMethod.ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(implementationType);
         }
 
         public virtual object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)
