@@ -5,10 +5,12 @@ using System.Reflection;
 namespace AspectCore.Lite.Abstractions
 {
     [NonAspect]
-    public interface IAspectConfigurator : IEnumerable<Func<MethodInfo, IInterceptor>>, IEnumerable<Func<MethodInfo, bool>>
+    public interface IAspectConfiguration
     {
         void Add(Func<MethodInfo, IInterceptor> configure);
 
         void Ignore(Func<MethodInfo, bool> configure);
+
+        IConfigurationOption<TOption> GetConfiguration<TOption>();
     }
 }

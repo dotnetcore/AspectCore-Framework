@@ -57,7 +57,7 @@ namespace AspectCore.Lite.Abstractions.Common
         public static void EmitTypeof(this ILGenerator ilGenerator, Type type)
         {
             ilGenerator.Emit(OpCodes.Ldtoken, type);
-            ilGenerator.Emit(OpCodes.Call, MethodConstant.GetTypeFromHandle);
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetTypeFromHandle);
         }
 
         public static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method)
@@ -69,7 +69,7 @@ namespace AspectCore.Lite.Abstractions.Common
         {
             ilGenerator.Emit(OpCodes.Ldtoken, method);
             ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);
-            ilGenerator.Emit(OpCodes.Call, MethodConstant.GetMothodFromHandle);
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetMothodFromHandle);
             ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo), false);
         }
 
