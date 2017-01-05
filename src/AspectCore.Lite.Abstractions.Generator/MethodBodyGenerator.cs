@@ -1,14 +1,15 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class MethodBodyGenerator : Generator<MethodBuilder, ILGenerator>
+    public abstract class MethodBodyGenerator : AbstractGenerator<MethodBuilder, ILGenerator>
     {
         public MethodBodyGenerator(MethodBuilder declaringMember) : base(declaringMember)
         {
         }
 
-        protected internal override ILGenerator Accept(GeneratorVisitor visitor)
+        protected override ILGenerator ExecuteBuild()
         {
             var ilGenerator = DeclaringMember.GetILGenerator();
             GeneratingMethodBody(ilGenerator);

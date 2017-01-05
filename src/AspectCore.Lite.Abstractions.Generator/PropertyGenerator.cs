@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class PropertyGenerator : Generator<TypeBuilder, PropertyBuilder>
+    public abstract class PropertyGenerator : AbstractGenerator<TypeBuilder, PropertyBuilder>
     {
         public abstract string PropertyName { get; }
 
@@ -30,22 +30,20 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected internal override PropertyBuilder Accept(GeneratorVisitor visitor)
+        protected override PropertyBuilder ExecuteBuild()
         {
             var propertyBuilder = DeclaringMember.DefineProperty(PropertyName, PropertyAttributes, CallingConventions, ReturnType, ParameterTypes);
 
             if (CanRead)
             {
                 var readMethodGenerator = GetReadMethodGenerator(DeclaringMember);
-                var methodBuilder = (MethodBuilder)visitor.VisitGenerator(readMethodGenerator);
-                propertyBuilder.SetGetMethod(methodBuilder);
+                propertyBuilder.SetGetMethod(readMethodGenerator.Build());
             }
 
             if (CanWrite)
             {
                 var writeMethodGenerator = GetWriteMethodGenerator(DeclaringMember);
-                var methodBuilder = (MethodBuilder)visitor.VisitGenerator(writeMethodGenerator);
-                propertyBuilder.SetSetMethod(methodBuilder);
+                propertyBuilder.SetSetMethod(writeMethodGenerator.Build());
             }
 
             return propertyBuilder;

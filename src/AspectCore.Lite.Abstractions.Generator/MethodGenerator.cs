@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class MethodGenerator : Generator<TypeBuilder, MethodBuilder>
+    public abstract class MethodGenerator : AbstractGenerator<TypeBuilder, MethodBuilder>
     {
         public abstract string MethodName { get; }
 
@@ -20,16 +20,11 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected internal override MethodBuilder Accept(GeneratorVisitor visitor)
+        protected override MethodBuilder ExecuteBuild()
         {
             var methodBuilder = DeclaringMember.DefineMethod(MethodName, MethodAttributes, CallingConventions, ReturnType, ParameterTypes);
-
             var methodBodyGenerator = GetMethodBodyGenerator(methodBuilder);
-            if (methodBodyGenerator != null)
-            {
-                visitor.VisitGenerator(methodBodyGenerator);
-            }
-
+            GetMethodBodyGenerator(methodBuilder)?.Build();
             return methodBuilder;
         }
 

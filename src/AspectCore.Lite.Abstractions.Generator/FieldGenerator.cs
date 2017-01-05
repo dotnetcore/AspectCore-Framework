@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class FieldGenerator : Generator<TypeBuilder, FieldBuilder>
+    public abstract class FieldGenerator : AbstractGenerator<TypeBuilder, FieldBuilder>
     {
         public FieldGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
@@ -16,7 +16,7 @@ namespace AspectCore.Lite.Abstractions.Generator
 
         public abstract FieldAttributes FieldAttributes { get; }
 
-        protected internal override FieldBuilder Accept(GeneratorVisitor visitor)
+        protected override FieldBuilder ExecuteBuild()
         {
             return DeclaringMember.DefineField(FieldName, FieldType, FieldAttributes);
         }

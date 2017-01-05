@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.Abstractions.Generator
 {
-    public abstract class TypeGenerator : Generator<ModuleBuilder, TypeBuilder>
+    public abstract class TypeGenerator : AbstractGenerator<ModuleBuilder, TypeBuilder>
     {
-        public abstract TypeBuilder Type { get; protected set; }
-
         public abstract string TypeName { get; }
 
         public abstract TypeAttributes TypeAttributes { get; }
@@ -23,32 +18,14 @@ namespace AspectCore.Lite.Abstractions.Generator
         {
         }
 
-        protected virtual TypeBuilder InitializeTypeBuilder()
-        {
-            return DeclaringMember.DefineType(TypeName, TypeAttributes, ParentType, Interfaces);
-        }
-
-        public virtual void AddMember(Generator generator)
-        {
-            if (generator == null)
-            {
-                throw new ArgumentNullException(nameof(generator));
-            }
-            Members.Add(generator);
-        }
-
         public virtual TypeInfo CreateTypeInfo()
         {
-            return Type.CreateTypeInfo();
+            return Build().CreateTypeInfo();
         }
 
-        protected internal override TypeBuilder Accept(GeneratorVisitor visitor)
+        protected override TypeBuilder ExecuteBuild()
         {
-            foreach(var member in Members)
-            {
-                visitor.VisitGenerator(member);
-            }
-            return Type;
+            return DeclaringMember.DefineType(TypeName, TypeAttributes, ParentType, Interfaces);
         }
     }
 }
