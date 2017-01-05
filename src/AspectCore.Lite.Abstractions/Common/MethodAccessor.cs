@@ -47,7 +47,7 @@ namespace AspectCore.Lite.Abstractions.Common
                 ilGen.EmitLoadArg(1);
                 ilGen.Emit(OpCodes.Brtrue_S, lable);
                 ilGen.Emit(OpCodes.Ldstr, "parameters");
-                ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.ArgumentNullExceptionCtor);
+                ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.ARGUMENTNULLEXCEPTIONCCTOR);
                 ilGen.Emit(OpCodes.Throw);
                 ilGen.MarkLabel(lable);
             }
@@ -58,7 +58,7 @@ namespace AspectCore.Lite.Abstractions.Common
                 ilGen.EmitLoadArg(0);
                 ilGen.Emit(OpCodes.Brtrue_S, lable);
                 ilGen.Emit(OpCodes.Ldstr, "instance");
-                ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.ArgumentNullExceptionCtor);
+                ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.ARGUMENTNULLEXCEPTIONCCTOR);
                 ilGen.Emit(OpCodes.Throw);
                 ilGen.MarkLabel(lable);
                 ilGen.EmitLoadArg(0);

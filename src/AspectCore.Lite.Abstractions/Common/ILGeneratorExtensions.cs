@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -9,11 +8,7 @@ namespace AspectCore.Lite.Abstractions.Common
 {
     public static class ILGeneratorExtensions
     {
-        private static readonly Type IlGenType = typeof(Expression).GetTypeInfo().Assembly.GetType("System.Linq.Expressions.Compiler.ILGen");
-
-        private static readonly Action<ILGenerator, Type, Type, bool> ConvertToType =
-            (Action<ILGenerator, Type, Type, bool>)IlGenType.GetTypeInfo().DeclaredMethods.SingleOrDefault(m =>
-         m.Name == "EmitConvertToType").CreateDelegate(typeof(Action<ILGenerator, Type, Type, bool>));
+        private static readonly Delegate ConvertToType = MethodInfoConstant.EMITCONVERTTOTYPE.CreateDelegate(typeof(Action<ILGenerator, Type, Type, bool>));
 
         public static void EmitLoadArg(this ILGenerator il, int index)
         {
@@ -46,7 +41,7 @@ namespace AspectCore.Lite.Abstractions.Common
 
         public static void EmitConvertToType(this ILGenerator il, Type typeFrom, Type typeTo, bool isChecked)
         {
-            ConvertToType(il, typeFrom, typeTo, isChecked);
+            ((Action<ILGenerator, Type, Type, bool>)ConvertToType)(il, typeFrom, typeTo, isChecked);
         }
 
         public static void EmitThis(this ILGenerator ilGenerator)
@@ -57,7 +52,7 @@ namespace AspectCore.Lite.Abstractions.Common
         public static void EmitTypeof(this ILGenerator ilGenerator, Type type)
         {
             ilGenerator.Emit(OpCodes.Ldtoken, type);
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetTypeFromHandle);
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GETTYPEFROMHANDLE);
         }
 
         public static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method)
@@ -69,7 +64,7 @@ namespace AspectCore.Lite.Abstractions.Common
         {
             ilGenerator.Emit(OpCodes.Ldtoken, method);
             ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetMothodFromHandle);
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GETMETHODFROMHANDLE);
             ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo), false);
         }
 
