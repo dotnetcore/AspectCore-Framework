@@ -18,6 +18,10 @@ namespace AspectCore.Lite.Abstractions.Generator
 
         public abstract bool CanWrite { get; }
 
+        public abstract MethodInfo GetMethod { get; }
+
+        public abstract MethodInfo SetMethod { get; }
+
         public virtual Type[] ParameterTypes
         {
             get
