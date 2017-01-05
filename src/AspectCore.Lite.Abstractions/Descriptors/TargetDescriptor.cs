@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Abstractions
             try
             {
                 var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value)?.ToArray();
-                return ImplementationMethod.DynamicInvoke(ImplementationInstance, parameters ?? EmptyArray<object>.Vaule);
+                return ImplementationMethod.DynamicInvoke(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
             }
             catch (TargetInvocationException exception)
             {

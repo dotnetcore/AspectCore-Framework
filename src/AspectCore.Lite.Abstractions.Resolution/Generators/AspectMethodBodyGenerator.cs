@@ -39,7 +39,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             var parameters = serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             ilGenerator.EmitThis();
             ilGenerator.Emit(OpCodes.Ldfld, serviceProviderFieldBuilder);
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetAspectActivator);  //var aspectActivator = this.serviceProvider.GetService<IAspectActivator>();
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GETASPECTACTIVATOR);  //var aspectActivator = this.serviceProvider.GetService<IAspectActivator>();
             ilGenerator.Emit(OpCodes.Dup);
             GeneratingInitializeMetaData(ilGenerator);           
             ilGenerator.EmitThis();
@@ -84,7 +84,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
                 ilGenerator.EmitMethodof(DeclaringMember);
             }
 
-            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_InitializeMetaData);
+            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ASPECTACTIVATOR_INITIALIZEMETADATA);
         }
 
         private void GeneratingReturnVaule(ILGenerator ilGenerator)
@@ -92,21 +92,21 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
             if (serviceMethod.ReturnType == typeof(void))
             {
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_Invoke.MakeGenericMethod(typeof(object)));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ASPECTACTIVATOR_INVOKE.MakeGenericMethod(typeof(object)));
                 ilGenerator.Emit(OpCodes.Pop);
             }
             else if (serviceMethod.ReturnType == typeof(Task))
             {
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_InvokeAsync.MakeGenericMethod(typeof(object)));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ASPECTACTIVATOR_INVOKEASYNC.MakeGenericMethod(typeof(object)));
             }
             else if (serviceMethod.IsReturnTask())
             {
                 var returnType = serviceMethod.ReturnType.GetTypeInfo().GetGenericArguments().Single();
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_InvokeAsync.MakeGenericMethod(returnType));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ASPECTACTIVATOR_INVOKEASYNC.MakeGenericMethod(returnType));
             }
             else
             {
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_Invoke.MakeGenericMethod(serviceMethod.ReturnType));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ASPECTACTIVATOR_INVOKE.MakeGenericMethod(serviceMethod.ReturnType));
             }
         }
     }

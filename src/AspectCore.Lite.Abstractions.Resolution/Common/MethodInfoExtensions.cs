@@ -13,20 +13,19 @@ namespace AspectCore.Lite.Abstractions.Resolution.Common
                 property => (property.CanRead && property.GetMethod == method) || (property.CanWrite && property.SetMethod == method));
         }
 
-        internal static string ConvertMethodNameIfExplicit(Type serviceType, string method)
+        internal static string ExplicitName(this MethodInfo method)
         {
-            if (serviceType.GetTypeInfo().IsInterface)
+            var declaringType = method.DeclaringType.GetTypeInfo();
+            if (declaringType.IsInterface)
             {
-                return $"{serviceType.FullName}.{method}".Replace('+', '.');
+                return $"{declaringType.FullName}.{method.Name}".Replace('+', '.');
             }
-            return method;
+            return method.Name;
         }
 
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
-
-       
     }
 }

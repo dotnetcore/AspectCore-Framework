@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions.Generator;
+using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -69,7 +70,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             get
             {
-                return MethodHelper.ConvertMethodNameIfExplicit(serviceType, serviceMethod.Name);
+                return serviceMethod.ExplicitName();
             }
         }
 
@@ -97,16 +98,16 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             }
         }
 
-        protected override MethodBuilder Accept(GeneratorVisitor visitor)
+        protected override MethodBuilder ExecuteBuild()
         {
-            var methodBuilder = base.Accept(visitor);
+            var builder = base.Build();
 
             if (serviceType.GetTypeInfo().IsInterface)
             {
-                DeclaringMember.DefineMethodOverride(methodBuilder, serviceMethod);
+                DeclaringMember.DefineMethodOverride(builder, serviceMethod);
             }
 
-            return methodBuilder;
+            return builder;
         }
 
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)

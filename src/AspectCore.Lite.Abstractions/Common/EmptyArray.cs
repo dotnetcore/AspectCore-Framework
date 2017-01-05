@@ -2,6 +2,6 @@
 {
     public static class EmptyArray<T>
     {
-        public static readonly T[] Vaule = new T[0];
+        public static readonly T[] Value = new T[0];
     }
 }

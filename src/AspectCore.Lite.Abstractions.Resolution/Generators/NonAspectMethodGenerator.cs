@@ -1,4 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions.Generator;
+using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +29,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             get
             {
-                return MethodHelper.ConvertMethodNameIfExplicit(serviceMethod.DeclaringType, serviceMethod.Name);
+                return serviceMethod.ExplicitName();
             }
         }
 

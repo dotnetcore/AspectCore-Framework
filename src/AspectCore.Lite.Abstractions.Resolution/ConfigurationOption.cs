@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
-    public sealed class ConfigurationOption<TOption> : IConfigurationOption<TOption>
+    internal sealed class ConfigurationOption<TOption> : IConfigurationOption<TOption>
     {
         private readonly ICollection<Func<MethodInfo, TOption>> collection = new List<Func<MethodInfo, TOption>>();
 

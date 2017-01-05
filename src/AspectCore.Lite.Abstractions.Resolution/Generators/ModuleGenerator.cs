@@ -7,8 +7,6 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 {
     internal sealed class ModuleGenerator
     {
-
-
         private static readonly ModuleGenerator instance = new ModuleGenerator();
         internal static ModuleGenerator Default
         {

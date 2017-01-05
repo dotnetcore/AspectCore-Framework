@@ -1,40 +1,42 @@
 ﻿using AspectCore.Lite.Abstractions.Resolution.Common;
-using System;
-using System.Reflection;
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
     public sealed class AspectConfiguration : IAspectConfiguration
     {
-        private readonly IConfigurationOption<IInterceptor> interceptorOption = new ConfigurationOption<IInterceptor>();
-        private readonly IConfigurationOption<bool> ignoreOption = new ConfigurationOption<bool>();
+        private readonly IConfigurationOption<IInterceptor> useOption;
+        private readonly IConfigurationOption<bool> ignoreOption;
 
         public AspectConfiguration()
         {
-            this.IgnoreAspNetCore()
+            useOption = new ConfigurationOption<IInterceptor>();
+
+            ignoreOption = new ConfigurationOption<bool>()
+                .IgnoreAspNetCore()
+                .IgnoreEntityFramework()
                 .IgnoreOwin()
                 .IgnorePageGenerator()
                 .IgnoreSystem()
                 .IgnoreObjectVMethod();
         }
 
-        public void Add(Func<MethodInfo, IInterceptor> configure)
-        {
-            if (configure == null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
-            interceptorOption.Add(configure);
-        }
+        //public void Use(Func<MethodInfo, IInterceptor> configure)
+        //{
+        //    if (configure == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(configure));
+        //    }
+        //    interceptorOption.Add(configure);
+        //}
 
-        public void Ignore(Func<MethodInfo, bool> configure)
-        {
-            if (configure == null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
-            ignoreOption.Add(configure);
-        }
+        //public void Ignore(Func<MethodInfo, bool> configure)
+        //{
+        //    if (configure == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(configure));
+        //    }
+        //    ignoreOption.Add(configure);
+        //}
 
         public IConfigurationOption<TOption> GetConfiguration<TOption>()
         {
@@ -44,7 +46,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             }
             if (typeof(TOption) == typeof(IInterceptor))
             {
-                return interceptorOption as IConfigurationOption<TOption>;
+                return useOption as IConfigurationOption<TOption>;
             }
             return null;
         }

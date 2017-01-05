@@ -1,5 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions.Generator;
-using AspectCore.Lite.Abstractions.Resolution.Utils;
+using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -9,7 +9,6 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 {
     internal sealed class AspectTypeGenerator : TypeGenerator
     {
-        private readonly Lazy<TypeBuilder> builder;
         private readonly Type serviceType;
         private readonly IAspectValidator aspectValidator;
 
@@ -30,7 +29,6 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
             this.serviceType = serviceType;
             this.ParentType = parentType;
-            this.builder = new Lazy<TypeBuilder>(InitializeTypeBuilder);
             this.aspectValidator = aspectValidator;
             if (this.aspectValidator == null)
             {
@@ -38,7 +36,8 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             }
         }
 
-        public override Type[] Interfaces {
+        public override Type[] Interfaces
+        {
             get
             {
                 return ParentType.GetTypeInfo().GetInterfaces();
@@ -46,12 +45,6 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         }
 
         public override Type ParentType { get; }
-
-        public override TypeBuilder Type
-        {
-            get { return builder.Value; }
-            protected set { }
-        }
 
         public override TypeAttributes TypeAttributes { get; } = TypeAttributes.Class | TypeAttributes.Public;
 
@@ -65,7 +58,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
         public override TypeInfo CreateTypeInfo()
         {
-            return ModuleGenerator.Default.DefineTypeInfo(TypeName, key => Accept(new AspectGeneratorVisitor()).CreateTypeInfo());
+            return ModuleGenerator.Default.DefineTypeInfo(TypeName, key => Build().CreateTypeInfo());
         }
 
         public Type CreateType()
@@ -76,28 +69,24 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         private FieldBuilder serviceInstanceFieldBuilder;
         private FieldBuilder serviceProviderFieldBuilder;
 
-        protected override TypeBuilder Accept(GeneratorVisitor visitor)
+        protected override TypeBuilder ExecuteBuild()
         {
+            var builder = base.ExecuteBuild();
             if (ParentType.GetTypeInfo().IsGenericTypeDefinition)
             {
-                GeneratingGenericParameter(Type);
+                GeneratingGenericParameter(builder);
             }
-
-            var serviceInstanceFieldGenerator = new AspectFieldGenerator("proxyfield_serviceInstance", serviceType, Type);
-            var serviceProviderFieldGenerator = new AspectFieldGenerator("proxyfield_serviceProvider", typeof(IServiceProvider), Type);
-            serviceInstanceFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceInstanceFieldGenerator);
-            serviceProviderFieldBuilder = (FieldBuilder)visitor.VisitGenerator(serviceProviderFieldGenerator);
-          
-            GeneratingConstructor(serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
-
-            GeneratingMethod(serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
-
-            Type.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), new object[] { }));
-
-            return base.Accept(visitor);
+            var serviceInstanceFieldGenerator = new AspectFieldGenerator("PROXYFIELD_SERVICEINSTANCE", serviceType, builder);
+            var serviceProviderFieldGenerator = new AspectFieldGenerator("PROXYFIELD_SERVICEPROVIDER", typeof(IServiceProvider), builder);
+            serviceInstanceFieldBuilder = serviceInstanceFieldGenerator.Build();
+            serviceProviderFieldBuilder = serviceProviderFieldGenerator.Build();
+            GeneratingConstructor(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            GeneratingMethod(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), new object[] { }));
+            return builder;
         }
 
-        private void GeneratingConstructor(FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
+        private void GeneratingConstructor(TypeBuilder builder, FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
         {
             var constructors = ParentType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && c.IsPublic).ToArray();
             if (constructors.Length == 0)
@@ -105,26 +94,29 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
                 throw new InvalidOperationException(
                     $"A suitable constructor for type {ParentType.FullName} could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor.");
             }
-            foreach(var constructor in constructors)
+            foreach (var constructor in constructors)
             {
-                AddMember(new AspectConstructorGenerator(Type, serviceType, constructor, serviceInstanceFieldBuilder, serviceProviderFieldBuilder));
+                new AspectConstructorGenerator(builder, serviceType, constructor, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
             }
         }
 
-        private void GeneratingMethod(FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
+        private void GeneratingMethod(TypeBuilder builder, FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
         {
             foreach (var method in serviceType.GetTypeInfo().DeclaredMethods)
             {
-                if (method.IsPropertyMethod()) continue;
+                if (method.IsPropertyMethod())
+                {
+                    continue;
+                }
                 if (!aspectValidator.Validate(method))
                 {
                     if (serviceType.GetTypeInfo().IsInterface)
                     {
-                        AddMember(new NonAspectMethodGenerator(Type, method, serviceInstanceFieldBuilder));
+                        new NonAspectMethodGenerator(builder, method, serviceInstanceFieldBuilder).Build();
                     }
                     continue;
                 }
-                AddMember(new AspectMethodGenerator(Type, serviceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder));
+                new AspectMethodGenerator(builder, serviceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
             }
         }
 

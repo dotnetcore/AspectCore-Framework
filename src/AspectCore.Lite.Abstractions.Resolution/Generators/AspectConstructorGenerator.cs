@@ -1,5 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions.Common;
 using AspectCore.Lite.Abstractions.Generator;
+using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -75,7 +76,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             {
                 ilGenerator.EmitTypeof(serviceType);
             }
-            ilGenerator.Emit(OpCodes.Call, MethodConstant.SupportOriginalService_GetService);
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.SUPPORTORIGINALSERVICE_GETSERVICE);
             ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
 
