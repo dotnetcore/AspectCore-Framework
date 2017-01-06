@@ -3,7 +3,6 @@
   "buildOptions": { "allowUnsafe": true },
   "compilationOptions": { "allowUnsafe": true },
   "dependencies": {
-    "System.Reflection.Emit": "4.3.0"
   },
   "description": "The abstract design of the dynamicproxy framework.",
   "frameworks": {
@@ -11,6 +10,7 @@
       "dependencies": {
         "NETStandard.Library": "1.6.1",
         "System.ComponentModel": "4.3.0",
+        "System.Reflection.Emit": "4.3.0",
         "System.Reflection.Emit.Lightweight": "4.3.0"
       }
     },
