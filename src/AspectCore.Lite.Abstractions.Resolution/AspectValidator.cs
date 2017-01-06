@@ -35,7 +35,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (ValidateIgnoredList(aspectConfigurator.GetConfiguration<bool>(), method))
+            if (ValidateIgnoredList(aspectConfigurator.GetConfigurationOption<bool>(), method))
             {
                 return false;
             }
@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 return false;
             }
 
-            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfigurator.GetConfiguration<IInterceptor>(), method);
+            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfigurator.GetConfigurationOption<IInterceptor>(), method);
         }
 
         private bool ValidateDeclaringType(TypeInfo declaringType)

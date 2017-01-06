@@ -7,20 +7,20 @@ using System.Linq;
 
 namespace AspectCore.Lite.DynamicProxy
 {
-    public class NanoContainer : IProxyFactory, IServiceProvider
+    public class ProxyFactory : IProxyFactory, IServiceProvider
     {
         private readonly IDictionary<Type, Func<object>> container;
 
-        public NanoContainer()
+        public ProxyFactory()
             : this(null)
         {
         }
 
-        public NanoContainer(Action<IConfigurationOption<IInterceptor>, IConfigurationOption<bool>> configure)
+        public ProxyFactory(Action<IAspectConfiguration> configure)
         {
             container = new Dictionary<Type, Func<object>>();
             var configuration = new AspectConfiguration();
-            configure?.Invoke(configuration.GetConfiguration<IInterceptor>(), configuration.GetConfiguration<bool>());
+            configure?.Invoke(configuration);
             container.Add(typeof(IServiceProvider), () => this);
             container.Add(typeof(IAspectValidator), () => new AspectValidator(configuration));
             container.Add(typeof(IAspectActivator), () => new AspectActivator(this, new AspectBuilder(), new InterceptorMatcher(configuration), new NanoInterceptorInjector()));
@@ -51,7 +51,8 @@ namespace AspectCore.Lite.DynamicProxy
         {
             try
             {
-                var proxyType = CreateProxyType(serviceType, implementationType);
+                var aspectValidator = (IAspectValidator)GetService(typeof(IAspectValidator));
+                var proxyType = new TypeGeneratorWrapper().CreateType(serviceType, implementationType, aspectValidator);
                 var supportOriginalService = new NanoSupportOriginalService(implementationInstance);
                 return Activator.CreateInstance(proxyType, args.Concat(new object[] { this, supportOriginalService }).ToArray());
             }
@@ -61,14 +62,7 @@ namespace AspectCore.Lite.DynamicProxy
             }
         }
 
-        private Type CreateProxyType(Type serviceType, Type implementationType)
-        {
-            var provider = (IServiceProvider)this;
-            var aspectValidator = (IAspectValidator)provider.GetService(typeof(IAspectValidator));
-            return new TypeGeneratorWrapper().CreateType(serviceType, implementationType, aspectValidator);
-        }
-
-        object IServiceProvider.GetService(Type serviceType)
+        public object GetService(Type serviceType)
         {
             if (serviceType == null)
             {

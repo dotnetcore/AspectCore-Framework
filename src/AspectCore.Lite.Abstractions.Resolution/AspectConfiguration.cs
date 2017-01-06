@@ -38,7 +38,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         //    ignoreOption.Add(configure);
         //}
 
-        public IConfigurationOption<TOption> GetConfiguration<TOption>()
+        public IConfigurationOption<TOption> GetConfigurationOption<TOption>()
         {
             if (typeof(TOption) == typeof(bool))
             {

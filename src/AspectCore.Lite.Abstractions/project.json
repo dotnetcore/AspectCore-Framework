@@ -3,6 +3,7 @@
   "buildOptions": { "allowUnsafe": true },
   "compilationOptions": { "allowUnsafe": true },
   "dependencies": {
+    "System.Reflection.Emit": "4.3.0"
   },
   "description": "The abstract design of the dynamicproxy framework.",
   "frameworks": {
