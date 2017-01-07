@@ -1,4 +1,4 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions.Resolution.Common;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,29 +8,26 @@ namespace AspectCore.Lite.Abstractions.Resolution
 {
     public sealed class InterceptorMatcher : IInterceptorMatcher
     {
-        private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorPool = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
+        private static readonly ConcurrentDictionary<MethodInfo, IInterceptor[]> InterceptorCache = new ConcurrentDictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IAspectConfiguration aspectConfigurator;
+        private readonly IAspectConfiguration aspectConfiguration;
 
-        public InterceptorMatcher(IAspectConfiguration aspectConfigurator)
+        public InterceptorMatcher(IAspectConfiguration aspectConfiguration)
         {
-            this.aspectConfigurator = aspectConfigurator;
+            this.aspectConfiguration = aspectConfiguration;
         }
 
         public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
-            return InterceptorPool.GetOrAdd(serviceMethod, _ =>
+            return InterceptorCache.GetOrAdd(serviceMethod, _ =>
             {
-                var configuredInterceptors = ((IEnumerable<Func<MethodInfo, IInterceptor>>)aspectConfigurator).Select(factory => factory.Invoke(serviceMethod)).OfType<IInterceptor>();
-
-                var matchInterceptors = AllInterceptorIterator(serviceMethod, serviceTypeInfo, configuredInterceptors);
-
-                return MultipleInterceptorIterator(matchInterceptors).OrderBy(interceptor => interceptor.Order).ToArray();
+                var aggregate = Aggregate(serviceMethod, serviceTypeInfo, aspectConfiguration.GetConfigurationOption<IInterceptor>());
+                return aggregate.DuplicateRemoval().OrderBy(interceptor => interceptor.Order).ToArray();
             });
         }
 
-        private static IEnumerable<IInterceptor> AllInterceptorIterator(
-           MethodInfo methodInfo, TypeInfo typeInfo, IEnumerable<IInterceptor> configuredInterceptors)
+        private IEnumerable<IInterceptor> Aggregate(
+           MethodInfo methodInfo, TypeInfo typeInfo, IConfigurationOption<IInterceptor> configurationOption)
         {
             foreach (var attribute in methodInfo.GetCustomAttributes())
             {
@@ -44,27 +41,10 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 if (interceptor != null) yield return interceptor;
             }
 
-            foreach (var interceptor in configuredInterceptors)
+            foreach (var option in configurationOption)
             {
-                yield return interceptor;
-            }
-        }
-
-        private static IEnumerable<IInterceptor> MultipleInterceptorIterator(IEnumerable<IInterceptor> interceptors)
-        {
-            var existed = new HashSet<Type>();
-
-            foreach (var interceptor in interceptors)
-            {
-                if (interceptor.AllowMultiple)
-                {
-                    yield return interceptor;
-                    continue;
-                }
-                if (existed.Add(interceptor.GetType()))
-                {
-                    yield return interceptor;
-                }
+                var interceptor = option(methodInfo);
+                if (interceptor != null) yield return interceptor;
             }
         }
     }

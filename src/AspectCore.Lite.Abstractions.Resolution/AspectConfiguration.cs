@@ -20,24 +20,6 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 .IgnoreObjectVMethod();
         }
 
-        //public void Use(Func<MethodInfo, IInterceptor> configure)
-        //{
-        //    if (configure == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(configure));
-        //    }
-        //    interceptorOption.Add(configure);
-        //}
-
-        //public void Ignore(Func<MethodInfo, bool> configure)
-        //{
-        //    if (configure == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(configure));
-        //    }
-        //    ignoreOption.Add(configure);
-        //}
-
         public IConfigurationOption<TOption> GetConfigurationOption<TOption>()
         {
             if (typeof(TOption) == typeof(bool))

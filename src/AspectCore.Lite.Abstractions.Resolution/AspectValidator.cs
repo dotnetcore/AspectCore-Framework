@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions.Attributes;
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -10,16 +10,16 @@ namespace AspectCore.Lite.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
 
-        private readonly IAspectConfiguration aspectConfigurator;
+        private readonly IAspectConfiguration aspectConfiguration;
 
         static AspectValidator()
         {
             DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
         }
 
-        public AspectValidator(IAspectConfiguration aspectConfigurator)
+        public AspectValidator(IAspectConfiguration aspectConfiguration)
         {
-            this.aspectConfigurator = aspectConfigurator;
+            this.aspectConfiguration = aspectConfiguration;
         }
 
         public bool Validate(MethodInfo method)
@@ -35,7 +35,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (ValidateIgnoredList(aspectConfigurator.GetConfigurationOption<bool>(), method))
+            if (ValidateIgnoredList(aspectConfiguration.GetConfigurationOption<bool>(), method))
             {
                 return false;
             }
@@ -50,7 +50,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 return false;
             }
 
-            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfigurator.GetConfigurationOption<IInterceptor>(), method);
+            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfiguration.GetConfigurationOption<IInterceptor>(), method);
         }
 
         private bool ValidateDeclaringType(TypeInfo declaringType)
@@ -68,7 +68,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return member.IsDefined(typeof(NonAspectAttribute), true);
         }
 
-        private bool ValidateIgnoredList(IEnumerable<Func<MethodInfo, bool>> ignores, MethodInfo method)
+        private bool ValidateIgnoredList(IConfigurationOption<bool> ignores, MethodInfo method)
         {
             return ignores.Any(configure => configure(method));
         }
@@ -78,9 +78,9 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType.GetTypeInfo()));
         }
 
-        private bool ValidateInterceptor(IEnumerable<Func<MethodInfo, IInterceptor>> aspectConfigurator, MethodInfo method)
+        private bool ValidateInterceptor(IConfigurationOption<IInterceptor> aspectConfiguration, MethodInfo method)
         {
-            return aspectConfigurator.Any(config => config(method) != null);
+            return aspectConfiguration.Any(config => config(method) != null);
         }
     }
 }

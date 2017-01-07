@@ -14,7 +14,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             delegates = new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
-        public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
+        public void AddAspectDelegate(Func<IAspectContext, AspectDelegate, Task> interceptorInvoke)
         {
             if (interceptorInvoke == null)
             {

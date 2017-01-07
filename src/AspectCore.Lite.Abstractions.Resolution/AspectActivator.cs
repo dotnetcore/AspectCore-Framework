@@ -12,23 +12,23 @@ namespace AspectCore.Lite.Abstractions.Resolution
     public class AspectActivator : IAspectActivator
     {
 
-#region Aspect metaData
+        #region Aspect metaData
 
         private Type serviceType;
         private MethodInfo serviceMethod;
         private MethodInfo targetMethod;
         private MethodInfo proxyMethod;
 
-#endregion
+        #endregion
 
-#region Dependency injection
+        #region Dependency injection
 
         private readonly IServiceProvider serviceProvider;
         private readonly IAspectBuilder aspectBuilder;
         private readonly IInterceptorMatcher interceptorMatcher;
         private readonly IInterceptorInjector interceptorInjector;
 
-#endregion
+        #endregion
 
         public AspectActivator(IServiceProvider serviceProvider,
             IAspectBuilder aspectBuilder, IInterceptorMatcher interceptorMatcher, IInterceptorInjector interceptorInjector)
@@ -80,7 +80,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             var targetDescriptor = new TargetDescriptor(targetInstance, serviceMethod, serviceType, targetMethod, targetInstance.GetType());
             var proxyDescriptor = new ProxyDescriptor(proxyInstance, proxyMethod, proxyInstance.GetType());
 
-            var context = CreateAspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameters, returnParameter);
+            var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameters, returnParameter);
 
             var interceptors = interceptorMatcher.Match(serviceMethod, serviceType.GetTypeInfo());
 
@@ -93,12 +93,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return TryInvoke<T>(aspectBuilder, context, interceptors);
         }
 
-        protected virtual AspectContext CreateAspectContext(IServiceProvider serviceProvider, TargetDescriptor target, ProxyDescriptor proxy, ParameterCollection parameters, ReturnParameterDescriptor returnParameter)
-        {
-            return new DefaultAspectContext(serviceProvider, target, proxy, parameters, returnParameter);
-        }
-
-        private async Task<T> TryInvoke<T>(IAspectBuilder aspectBuilder, AspectContext context, IEnumerable<IInterceptor> interceptors)
+        private async Task<T> TryInvoke<T>(IAspectBuilder aspectBuilder, IAspectContext context, IEnumerable<IInterceptor> interceptors)
         {
             try
             {
