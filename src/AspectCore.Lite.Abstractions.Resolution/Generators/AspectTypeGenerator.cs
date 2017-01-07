@@ -1,4 +1,6 @@
-﻿using AspectCore.Lite.Abstractions.Generator;
+﻿using AspectCore.Lite.Abstractions.Attributes;
+using AspectCore.Lite.Abstractions.Common;
+using AspectCore.Lite.Abstractions.Generator;
 using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
 using System.Linq;
@@ -82,7 +84,8 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             serviceProviderFieldBuilder = serviceProviderFieldGenerator.Build();
             GeneratingConstructor(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
             GeneratingMethod(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
-            builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), new object[] { }));
+            builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
+            builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
             return builder;
         }
 
