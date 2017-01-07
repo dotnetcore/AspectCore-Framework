@@ -100,7 +100,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
         protected override MethodBuilder ExecuteBuild()
         {
-            var builder = base.Build();
+            var builder = base.ExecuteBuild();
 
             if (serviceType.GetTypeInfo().IsInterface)
             {
