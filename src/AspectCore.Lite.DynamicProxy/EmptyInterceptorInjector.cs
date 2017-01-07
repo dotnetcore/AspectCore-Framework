@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.DynamicProxy
 {
-    internal class NanoInterceptorInjector : IInterceptorInjector
+    internal class EmptyInterceptorInjector : IInterceptorInjector
     {
         public void Inject(IInterceptor interceptor)
         {

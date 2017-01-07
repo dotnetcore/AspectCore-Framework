@@ -1,5 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using AspectCore.Lite.Abstractions;
+using System;
 
 namespace AspectCore.Lite.DynamicProxy
 {

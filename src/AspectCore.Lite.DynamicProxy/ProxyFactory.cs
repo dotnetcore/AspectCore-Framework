@@ -2,29 +2,17 @@
 using AspectCore.Lite.Abstractions.Common;
 using AspectCore.Lite.Abstractions.Resolution;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace AspectCore.Lite.DynamicProxy
 {
-    public class ProxyFactory : IProxyFactory, IServiceProvider
+    internal class ProxyFactory : IProxyFactory
     {
-        private readonly IDictionary<Type, Func<object>> container;
+        private readonly IServiceProvider serviceProvider;
 
-        public ProxyFactory()
-            : this(null)
+        public ProxyFactory(IServiceProvider provider, IAspectConfiguration configuration)
         {
-        }
-
-        public ProxyFactory(Action<IAspectConfiguration> configure)
-        {
-            container = new Dictionary<Type, Func<object>>();
-            var configuration = new AspectConfiguration();
-            configure?.Invoke(configuration);
-            container.Add(typeof(IServiceProvider), () => this);
-            container.Add(typeof(IAspectValidator), () => new AspectValidator(configuration));
-            container.Add(typeof(IAspectActivator), () => new AspectActivator(this, new AspectBuilder(), new InterceptorMatcher(configuration), new NanoInterceptorInjector()));
-            container.Add(typeof(IAspectConfiguration), () => configuration);
+            serviceProvider = provider ?? new ServiceProvider(configuration);
         }
 
         public object CreateProxy(Type serviceType, Type implementationType, object implementationInstance, params object[] args)
@@ -51,33 +39,14 @@ namespace AspectCore.Lite.DynamicProxy
         {
             try
             {
-                var aspectValidator = (IAspectValidator)GetService(typeof(IAspectValidator));
-                var proxyType = new TypeGeneratorWrapper().CreateType(serviceType, implementationType, aspectValidator);
-                var supportOriginalService = new NanoSupportOriginalService(implementationInstance);
-                return Activator.CreateInstance(proxyType, args.Concat(new object[] { this, supportOriginalService }).ToArray());
+                var proxyType = new TypeGeneratorWrapper().CreateType(serviceType, implementationType, serviceProvider.GetService<IAspectValidator>());
+                var supportOriginalService = new SupportOriginalService(implementationInstance);
+                return Activator.CreateInstance(proxyType, args.Concat(new object[] { serviceProvider, supportOriginalService }).ToArray());
             }
             catch (Exception exception)
             {
                 throw new InvalidOperationException($"Failed to create proxy type for {implementationType}.", exception);
             }
         }
-
-        public object GetService(Type serviceType)
-        {
-            if (serviceType == null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
-
-            Func<object> factory = default(Func<object>);
-
-            if (!container.TryGetValue(serviceType, out factory))
-            {
-                throw new InvalidOperationException($"The type '{serviceType.FullName}' is not registered in the container.");
-            }
-
-            return factory();
-        }
-
     }
 }
