@@ -12,6 +12,6 @@ namespace AspectCore.Lite.Abstractions
 
         public virtual int Order { get; set; } = 0;
 
-        public abstract Task Invoke(AspectContext context, AspectDelegate next);
+        public abstract Task Invoke(IAspectContext context, AspectDelegate next);
     }
 }
