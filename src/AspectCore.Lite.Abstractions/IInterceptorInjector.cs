@@ -1,4 +1,6 @@
-﻿namespace AspectCore.Lite.Abstractions
+﻿using AspectCore.Lite.Abstractions.Attributes;
+
+namespace AspectCore.Lite.Abstractions
 {
     [NonAspect]
     public interface IInterceptorInjector
