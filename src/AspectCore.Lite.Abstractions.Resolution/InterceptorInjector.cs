@@ -1,6 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Attributes;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 
@@ -8,9 +6,6 @@ namespace AspectCore.Lite.Abstractions.Resolution
 {
     public sealed class InterceptorInjector : IInterceptorInjector
     {
-        private static readonly ConcurrentDictionary<PropertyInfo, Action<IInterceptor, object>> PropertySetterCache =
-            new ConcurrentDictionary<PropertyInfo, Action<IInterceptor, object>>();
-
         private readonly IServiceProvider serviceProvider;
 
         public InterceptorInjector(IServiceProvider serviceProvider)

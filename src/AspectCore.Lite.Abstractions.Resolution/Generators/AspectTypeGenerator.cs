@@ -1,5 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Attributes;
-using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Common;
 using AspectCore.Lite.Abstractions.Generator;
 using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
