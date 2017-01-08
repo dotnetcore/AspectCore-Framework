@@ -20,7 +20,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 throw new ArgumentNullException(nameof(interceptor));
             }
 
-            var properties = interceptor.GetType().GetTypeInfo().DeclaredProperties.Where(x => x.CanWrite && x.IsDefined(typeof(InjectedAttribute)));
+            var properties = interceptor.GetType().GetTypeInfo().DeclaredProperties.Where(x => x.CanWrite && x.IsDefined(typeof(FromServicesAttribute)));
 
             if (!properties.Any())
             {
