@@ -2,7 +2,7 @@
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
-    internal sealed class AspectContext : IAspectContext
+    public sealed class AspectContext : IAspectContext
     {
         private readonly IServiceProvider serviceProvider;
 
