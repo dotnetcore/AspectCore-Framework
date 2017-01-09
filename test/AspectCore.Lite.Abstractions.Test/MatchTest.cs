@@ -14,7 +14,7 @@ namespace AspectCore.Lite.Abstractions.Test
         public void Match_True_Test(string vaule)
         {
             const string fake = "AspectCore.Lite.Abstractions.Test";
-            Assert.True(fake.Match(vaule));
+            Assert.True(fake.Matches(vaule));
         }
 
         [Theory]
@@ -25,7 +25,7 @@ namespace AspectCore.Lite.Abstractions.Test
         public void Match_False_Test(string vaule)
         {
             const string fake = "AspectCore.Lite.Abstractions.Test";
-            Assert.False(fake.Match(vaule));
+            Assert.False(fake.Matches(vaule));
         }
     }
 }
