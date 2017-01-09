@@ -4,7 +4,7 @@ namespace AspectCore.Lite.Abstractions.Common
 {
     public static class StringExtensions
     {
-        public static unsafe bool Match(this string input, string pattern)
+        public static unsafe bool Matches(this string input, string pattern)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentNullException(nameof(input));

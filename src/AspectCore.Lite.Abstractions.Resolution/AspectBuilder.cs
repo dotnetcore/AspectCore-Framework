@@ -32,7 +32,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
             AspectDelegate invoke = context =>
             {
                 context.ReturnParameter.Value = targetInvoke();
-                return Task.FromResult(0);
+                return Task.FromResult(false);
             };
             foreach (var next in delegates.Reverse())
             {

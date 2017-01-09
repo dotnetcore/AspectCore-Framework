@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 #if NET451
@@ -23,8 +21,8 @@ namespace AspectCore.Lite.Abstractions.Resolution
 
         #region Dependency injection
 
-        private readonly IServiceProvider serviceProvider;
         private readonly IAspectBuilder aspectBuilder;
+        private readonly IServiceProvider serviceProvider;
         private readonly IInterceptorMatcher interceptorMatcher;
         private readonly IInterceptorInjector interceptorInjector;
 
@@ -70,15 +68,17 @@ namespace AspectCore.Lite.Abstractions.Resolution
             return AsyncContext.Run(() => InvokeAsync<T>(targetInstance, proxyInstance, paramters));
 #else
             var invokeAsync = InvokeAsync<T>(targetInstance, proxyInstance, paramters);
+
             if (invokeAsync.IsCompleted)
             {
                 return invokeAsync.Result;
             }
+
             return Task.Run(async () => await invokeAsync).GetAwaiter().GetResult();
 #endif
         }
 
-        public Task<T> InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] paramters)
+        public async Task<T> InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] paramters)
         {
             var parameters = new ParameterCollection(paramters, serviceMethod.GetParameters());
             var returnParameter = new ReturnParameterDescriptor(default(T), serviceMethod.ReturnParameter);
@@ -95,23 +95,8 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
             }
 
-            return TryInvoke<T>(aspectBuilder, context, interceptors);
-        }
-
-        private async Task<T> TryInvoke<T>(IAspectBuilder aspectBuilder, IAspectContext context, IEnumerable<IInterceptor> interceptors)
-        {
-            try
-            {
-                await aspectBuilder.Build(() => context.Target.Invoke(context.Parameters))(context);
-                return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
-            }
-            finally
-            {
-                foreach (var disposable in interceptors.OfType<IDisposable>())
-                {
-                    disposable.Dispose();
-                }
-            }
+            await aspectBuilder.Build(() => context.Target.Invoke(context.Parameters))(context);
+            return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
         }
 
         private async Task<T> ConvertReturnVaule<T>(object value)

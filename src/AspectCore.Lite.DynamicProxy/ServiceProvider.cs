@@ -13,7 +13,7 @@ namespace AspectCore.Lite.DynamicProxy
         {
             container = new Dictionary<Type, Func<object>>();
             container.Add(typeof(IServiceProvider), () => this);
-            container.Add(typeof(IAspectValidator), () => new AspectValidator(configuration));
+            container.Add(typeof(IProxyGenerator), () => new ProxyGenerator(new AspectValidator(configuration)));
             container.Add(typeof(IAspectActivator), () => new AspectActivator(null, new AspectBuilder(), new InterceptorMatcher(configuration), new EmptyInterceptorInjector()));
             container.Add(typeof(IAspectConfiguration), () => configuration);
         }

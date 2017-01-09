@@ -1,6 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Abstractions.Common;
-using AspectCore.Lite.Abstractions.Resolution;
 using System;
 using System.Linq;
 
@@ -39,7 +38,7 @@ namespace AspectCore.Lite.DynamicProxy
         {
             try
             {
-                var proxyType = new TypeGeneratorWrapper().CreateType(serviceType, implementationType, serviceProvider.GetService<IAspectValidator>());
+                var proxyType = serviceProvider.GetService<IProxyGenerator>().CreateType(serviceType, implementationType);
                 var supportOriginalService = new SupportOriginalService(implementationInstance);
                 return Activator.CreateInstance(proxyType, args.Concat(new object[] { serviceProvider, supportOriginalService }).ToArray());
             }
