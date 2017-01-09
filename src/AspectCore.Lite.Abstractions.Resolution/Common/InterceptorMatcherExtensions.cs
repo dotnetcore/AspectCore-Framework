@@ -5,7 +5,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Common
 {
     internal static class InterceptorMatcherExtensions
     {
-        public static IEnumerable<IInterceptor> DuplicateRemoval(this IEnumerable<IInterceptor> source)
+        internal static IEnumerable<IInterceptor> DuplicateRemoval(this IEnumerable<IInterceptor> source)
         {
             var set = new HashSet<Type>();
 

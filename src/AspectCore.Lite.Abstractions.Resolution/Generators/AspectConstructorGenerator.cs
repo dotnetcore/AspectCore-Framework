@@ -76,7 +76,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             {
                 ilGenerator.EmitTypeof(serviceType);
             }
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.SUPPORTORIGINALSERVICE_GETSERVICE);
+            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.SupportOriginalService_GetService);
             ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
 

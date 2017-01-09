@@ -69,7 +69,12 @@ namespace AspectCore.Lite.Abstractions.Resolution
 #if NET451
             return AsyncContext.Run(() => InvokeAsync<T>(targetInstance, proxyInstance, paramters));
 #else
-            return InvokeAsync<T>(targetInstance, proxyInstance, paramters).GetAwaiter().GetResult();
+            var invokeAsync = InvokeAsync<T>(targetInstance, proxyInstance, paramters);
+            if (invokeAsync.IsCompleted)
+            {
+                return invokeAsync.Result;
+            }
+            return Task.Run(async () => await invokeAsync).GetAwaiter().GetResult();
 #endif
         }
 
