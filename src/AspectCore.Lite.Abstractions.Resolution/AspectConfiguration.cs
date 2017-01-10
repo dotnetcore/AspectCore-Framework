@@ -1,36 +1,30 @@
 ﻿using AspectCore.Lite.Abstractions.Resolution.Common;
+using System;
+using System.Collections.Concurrent;
 
 namespace AspectCore.Lite.Abstractions.Resolution
 {
     public sealed class AspectConfiguration : IAspectConfiguration
     {
-        private readonly IConfigurationOption<IInterceptor> useOption;
-        private readonly IConfigurationOption<bool> ignoreOption;
+        private readonly ConcurrentDictionary<Type, object> optionCache;
 
         public AspectConfiguration()
         {
-            useOption = new ConfigurationOption<IInterceptor>();
+            optionCache = new ConcurrentDictionary<Type, object>();
 
-            ignoreOption = new ConfigurationOption<bool>()
-                .IgnoreAspNetCore()
-                .IgnoreEntityFramework()
-                .IgnoreOwin()
-                .IgnorePageGenerator()
-                .IgnoreSystem()
-                .IgnoreObjectVMethod();
+            var ignoreOption = GetConfigurationOption<bool>();
+
+            ignoreOption.IgnoreAspNetCore()
+                        .IgnoreEntityFramework()
+                        .IgnoreOwin()
+                        .IgnorePageGenerator()
+                        .IgnoreSystem()
+                        .IgnoreObjectVMethod();
         }
 
         public IConfigurationOption<TOption> GetConfigurationOption<TOption>()
         {
-            if (typeof(TOption) == typeof(bool))
-            {
-                return ignoreOption as IConfigurationOption<TOption>;
-            }
-            if (typeof(TOption) == typeof(IInterceptor))
-            {
-                return useOption as IConfigurationOption<TOption>;
-            }
-            return null;
+            return (ConfigurationOption<TOption>)optionCache.GetOrAdd(typeof(TOption), key => new ConfigurationOption<TOption>());
         }
     }
 }
