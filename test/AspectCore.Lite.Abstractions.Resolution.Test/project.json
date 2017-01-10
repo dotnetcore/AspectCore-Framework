@@ -7,6 +7,7 @@
     "System.Runtime.Serialization.Primitives": "4.3.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "NSubstitute": "2.0.1-rc",
     "AspectCore.Lite.Abstractions.Resolution": "1.0.0-*"
   },
   "testRunner": "xunit",
