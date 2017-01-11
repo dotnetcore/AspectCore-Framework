@@ -10,6 +10,10 @@
         public void WithOutInterceptor()
         {
         }
+
+        public void ConfigurationInterceptor()
+        {
+        }
     }
 
     [MatcherTest]

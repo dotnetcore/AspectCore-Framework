@@ -34,11 +34,12 @@ namespace AspectCore.Lite.Abstractions.Resolution.Test
             configuration.GetConfigurationOption<IInterceptor>().Add(m => configurationInterceptor);
 
             var matcher = new InterceptorMatcher(configuration);
-            var method = MethodInfoHelpers.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithOutInterceptor());
+            var method = MethodInfoHelpers.GetMethod<Action<InterceptorMatcherModel>>(m => m.ConfigurationInterceptor());
 
             var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
 
             Assert.NotEmpty(interceptors);
+
             Assert.Single(interceptors, configurationInterceptor);
         }
 
