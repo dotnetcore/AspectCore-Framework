@@ -1,16 +1,17 @@
 ﻿using AspectCore.Lite.Abstractions;
 using AspectCore.Lite.Abstractions.Resolution;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AspectCore.Lite.DynamicProxy
 {
     public class ProxyFactoryBuilder
     {
-        private IAspectConfiguration aspectConfiguration;
         private IServiceProvider serviceProvider;
+
+        public ProxyFactoryBuilder()
+        {
+            serviceProvider = new ServiceProvider(new AspectConfiguration());
+        }
 
         public ProxyFactoryBuilder UseConfigure(Action<IAspectConfiguration> configure)
         {
@@ -18,7 +19,7 @@ namespace AspectCore.Lite.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(configure));
             }
-            aspectConfiguration = new AspectConfiguration();
+            var aspectConfiguration = serviceProvider.GetService<IAspectConfiguration>();
             configure(aspectConfiguration);
             return this;
         }
@@ -35,7 +36,7 @@ namespace AspectCore.Lite.DynamicProxy
 
         public IProxyFactory Build()
         {
-            return new ProxyFactory(serviceProvider, aspectConfiguration ?? new AspectConfiguration());
+            return new ProxyFactory(serviceProvider);
         }
     }
 }

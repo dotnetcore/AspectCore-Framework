@@ -7,11 +7,16 @@ namespace AspectCore.Lite.DynamicProxy
 {
     internal class ProxyFactory : IProxyFactory
     {
-        private readonly IServiceProvider serviceProvider;
+        public IServiceProvider ServiceProvider { get; }
 
-        public ProxyFactory(IServiceProvider provider, IAspectConfiguration configuration)
+        internal ProxyFactory(IServiceProvider serviceProvider)
         {
-            serviceProvider = provider ?? new ServiceProvider(configuration);
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
+            ServiceProvider = serviceProvider;
         }
 
         public object CreateProxy(Type serviceType, Type implementationType, object implementationInstance, params object[] args)
@@ -38,9 +43,9 @@ namespace AspectCore.Lite.DynamicProxy
         {
             try
             {
-                var proxyType = serviceProvider.GetService<IProxyGenerator>().CreateType(serviceType, implementationType);
+                var proxyType = ServiceProvider.GetService<IProxyGenerator>().CreateType(serviceType, implementationType);
                 var supportOriginalService = new SupportOriginalService(implementationInstance);
-                return Activator.CreateInstance(proxyType, args.Concat(new object[] { serviceProvider, supportOriginalService }).ToArray());
+                return Activator.CreateInstance(proxyType, args.Concat(new object[] { ServiceProvider, supportOriginalService }).ToArray());
             }
             catch (Exception exception)
             {
