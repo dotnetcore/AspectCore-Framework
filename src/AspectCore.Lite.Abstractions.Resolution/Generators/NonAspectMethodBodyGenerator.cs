@@ -20,7 +20,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
         protected override void GeneratingMethodBody(ILGenerator ilGenerator)
         {
-            var parameters = serviceMethod.GetParameters().Select(x => x.ParameterType).ToArray();
+            var parameters = serviceMethod.GetParameterTypes();
             ilGenerator.EmitThis();
             ilGenerator.Emit(OpCodes.Ldfld, serviceInstanceFieldBuilder);
             for (int i = 1; i <= parameters.Length; i++)

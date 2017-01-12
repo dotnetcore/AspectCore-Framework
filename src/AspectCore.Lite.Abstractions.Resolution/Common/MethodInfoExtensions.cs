@@ -19,7 +19,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Common
             var declaringType = method.DeclaringType.GetTypeInfo();
             if (declaringType.IsInterface)
             {
-                return $"{declaringType.FullName}.{method.Name}".Replace('+', '.');
+                return $"{declaringType.Name}.{method.Name}".Replace('+', '.');
             }
             return method.Name;
         }

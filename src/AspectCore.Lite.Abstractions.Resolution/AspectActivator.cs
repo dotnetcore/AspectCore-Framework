@@ -62,12 +62,12 @@ namespace AspectCore.Lite.Abstractions.Resolution
             this.proxyMethod = proxyMethod;
         }
 
-        public T Invoke<T>(object targetInstance, object proxyInstance, params object[] paramters)
+        public T Invoke<T>(object targetInstance, object proxyInstance, params object[] parameters)
         {
 #if NET451
-            return AsyncContext.Run(() => InvokeAsync<T>(targetInstance, proxyInstance, paramters));
+            return AsyncContext.Run(() => InvokeAsync<T>(targetInstance, proxyInstance, parameters));
 #else
-            var invokeAsync = InvokeAsync<T>(targetInstance, proxyInstance, paramters);
+            var invokeAsync = InvokeAsync<T>(targetInstance, proxyInstance, parameters);
 
             if (invokeAsync.IsCompleted)
             {
@@ -78,14 +78,14 @@ namespace AspectCore.Lite.Abstractions.Resolution
 #endif
         }
 
-        public async Task<T> InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] paramters)
+        public async Task<T> InvokeAsync<T>(object targetInstance, object proxyInstance, params object[] parameters)
         {
-            var parameters = new ParameterCollection(paramters, serviceMethod.GetParameters());
+            var parameterCollection = new ParameterCollection(parameters, serviceMethod.GetParameters());
             var returnParameter = new ReturnParameterDescriptor(default(T), serviceMethod.ReturnParameter);
             var targetDescriptor = new TargetDescriptor(targetInstance, serviceMethod, serviceType, targetMethod, targetInstance.GetType());
             var proxyDescriptor = new ProxyDescriptor(proxyInstance, proxyMethod, proxyInstance.GetType());
 
-            var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameters, returnParameter);
+            var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameterCollection, returnParameter);
 
             var interceptors = interceptorMatcher.Match(serviceMethod, serviceType.GetTypeInfo());
 

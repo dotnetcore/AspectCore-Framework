@@ -43,6 +43,18 @@ namespace AspectCore.Lite.Abstractions.Common
             ((Action<ILGenerator, Type, Type, bool>)ConvertToType)(il, typeFrom, typeTo, isChecked);
         }
 
+        public static void EmitConvertToObject(this ILGenerator il, Type typeFrom)
+        {
+            if (typeFrom.GetTypeInfo().IsGenericParameter)
+            {
+                il.Emit(OpCodes.Box, typeFrom);
+            }
+            else
+            {
+                il.EmitConvertToType(typeFrom, typeof(object), false);
+            }
+        }
+
         public static void EmitThis(this ILGenerator ilGenerator)
         {
             ilGenerator.EmitLoadArg(0);
