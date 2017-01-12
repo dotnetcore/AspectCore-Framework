@@ -9,7 +9,6 @@ for /R "packages" %%s in (*) do (
 )
 
 dotnet pack src/AspectCore.Lite.Abstractions --configuration Release --output packages
-dotnet pack src/AspectCore.Lite.Abstractions.Generator --configuration Release --output packages
 dotnet pack src/AspectCore.Lite.Abstractions.Resolution --configuration Release --output packages
 dotnet pack src/AspectCore.Lite.DynamicProxy --configuration Release --output packages
 
