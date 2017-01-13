@@ -26,7 +26,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             createdTypeInfoPool = new ConcurrentDictionary<string, TypeInfo>();
             var assemblyName = new AssemblyName("AspectCore.Lite.Proxys");
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
         }
 
