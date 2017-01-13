@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AspectCore.Lite.Abstractions.Common;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +35,12 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (ValidateIgnoredList(aspectConfiguration.GetConfigurationOption<bool>(), method))
+            if (ValidateDynamically(declaringType))
+            {
+                return false;
+            }
+
+            if (ValidateNonAspect(method) || ValidateNonAspect(declaringType))
             {
                 return false;
             }
@@ -44,7 +50,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
                 return false;
             }
 
-            if (ValidateNonAspect(method) || ValidateNonAspect(declaringType))
+            if (ValidateIgnoredList(aspectConfiguration.GetConfigurationOption<bool>(), method))
             {
                 return false;
             }
@@ -60,6 +66,11 @@ namespace AspectCore.Lite.Abstractions.Resolution
         private bool ValidateDeclaringMethod(MethodInfo method)
         {
             return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
+        }
+
+        private bool ValidateDynamically(TypeInfo typeInfo)
+        {
+            return typeInfo.AsType().IsDynamically();
         }
 
         private bool ValidateNonAspect(MemberInfo member)
