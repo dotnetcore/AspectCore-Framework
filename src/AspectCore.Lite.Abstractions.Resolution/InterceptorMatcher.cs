@@ -1,4 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Resolution.Common;
+﻿using AspectCore.Lite.Abstractions.Resolution.Extensions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;

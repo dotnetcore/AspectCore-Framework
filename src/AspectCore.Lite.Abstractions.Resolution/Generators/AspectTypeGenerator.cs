@@ -1,6 +1,5 @@
-﻿using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Extensions;
 using AspectCore.Lite.Abstractions.Generator;
-using AspectCore.Lite.Abstractions.Resolution.Common;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +25,14 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             if (aspectValidator == null)
             {
                 throw new ArgumentNullException(nameof(aspectValidator));
+            }
+            if (!aspectValidator.Validate(serviceType))
+            {
+                throw new InvalidOperationException($"Validate serviceType failed. Type {serviceType} does not satisfy the conditions of the generate proxy class.");
+            }
+            if (!parentType.GetTypeInfo().CanInherited())
+            {
+                throw new InvalidOperationException($"Validate implementationType failed. Type {parentType} cannot be inherited.");
             }
 
             this.serviceType = serviceType;
@@ -106,16 +113,8 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             foreach (var method in serviceType.GetTypeInfo().DeclaredMethods)
             {
-                if (method.IsPropertyMethod())
-                {
-                    continue;
-                }
                 if (!aspectValidator.Validate(method))
                 {
-                    if (serviceType.GetTypeInfo().IsInterface)
-                    {
-                        new NonAspectMethodGenerator(builder, method, serviceInstanceFieldBuilder).Build();
-                    }
                     continue;
                 }
                 new AspectMethodGenerator(builder, serviceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();

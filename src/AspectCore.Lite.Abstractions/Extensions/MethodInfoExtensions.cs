@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Common
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     public static class MethodInfoExtensions
     {

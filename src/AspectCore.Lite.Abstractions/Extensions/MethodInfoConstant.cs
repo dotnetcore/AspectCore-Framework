@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AspectCore.Lite.Abstractions.Common
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     internal static class MethodInfoConstant
     {

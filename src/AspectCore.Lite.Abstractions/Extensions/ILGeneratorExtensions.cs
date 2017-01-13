@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 
 
-namespace AspectCore.Lite.Abstractions.Common
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     public static class ILGeneratorExtensions
     {

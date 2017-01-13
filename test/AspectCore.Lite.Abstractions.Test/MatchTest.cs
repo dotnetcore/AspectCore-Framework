@@ -1,4 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Extensions;
 using Xunit;
 
 namespace AspectCore.Lite.Abstractions.Test

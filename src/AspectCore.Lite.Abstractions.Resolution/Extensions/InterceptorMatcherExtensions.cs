@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Common
+namespace AspectCore.Lite.Abstractions.Resolution.Extensions
 {
     internal static class InterceptorMatcherExtensions
     {

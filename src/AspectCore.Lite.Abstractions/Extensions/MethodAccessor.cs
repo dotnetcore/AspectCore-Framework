@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Lite.Abstractions.Common
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     public sealed class MethodAccessor
     {
@@ -73,7 +73,7 @@ namespace AspectCore.Lite.Abstractions.Common
                 ilGen.EmitLoadInt(i);
                 if (parameterTypes[i].IsByRef)
                 {
-                    var defType = parameterTypes[i].MakeDefType();
+                    var defType = parameterTypes[i].GetTypeInfo().MakeDefType();
                     ilGen.Emit(OpCodes.Ldelem_Ref);
                     ilGen.EmitConvertToType(typeof(object), defType, true);
                     ilGen.Emit(OpCodes.Stloc_S, (locals[i] = ilGen.DeclareLocal(defType, true)));
@@ -97,7 +97,7 @@ namespace AspectCore.Lite.Abstractions.Common
                     ilGen.EmitLoadArg(1);
                     ilGen.EmitLoadInt(i);
                     ilGen.Emit(OpCodes.Ldloc, locals[i]);
-                    ilGen.EmitConvertToType(parameterTypes[i].MakeDefType(), typeof(object), true);
+                    ilGen.EmitConvertToType(parameterTypes[i].GetTypeInfo().MakeDefType(), typeof(object), true);
                     ilGen.Emit(OpCodes.Stelem_Ref);
                 }
             }

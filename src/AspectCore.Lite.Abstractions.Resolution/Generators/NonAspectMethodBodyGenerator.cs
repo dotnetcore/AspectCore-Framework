@@ -1,4 +1,4 @@
-﻿using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Extensions;
 using AspectCore.Lite.Abstractions.Generator;
 using System.Linq;
 using System.Reflection;

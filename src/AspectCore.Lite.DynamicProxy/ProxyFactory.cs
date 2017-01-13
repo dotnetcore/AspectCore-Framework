@@ -1,5 +1,5 @@
 ﻿using AspectCore.Lite.Abstractions;
-using AspectCore.Lite.Abstractions.Common;
+using AspectCore.Lite.Abstractions.Extensions;
 using System;
 using System.Linq;
 

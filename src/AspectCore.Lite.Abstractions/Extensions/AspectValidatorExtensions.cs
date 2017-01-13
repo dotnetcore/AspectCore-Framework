@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Common
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     public static class AspectValidatorExtensions
     {

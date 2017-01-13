@@ -1,4 +1,5 @@
-﻿using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Extensions;
+using AspectCore.Lite.Abstractions.Resolution.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace AspectCore.Lite.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (ValidateDynamically(declaringType))
+            if (ValidateDynamically(declaringType) || ValidatePropertyMethod(method))
             {
                 return false;
             }
@@ -70,12 +71,17 @@ namespace AspectCore.Lite.Abstractions.Resolution
 
         private bool ValidateDynamically(TypeInfo typeInfo)
         {
-            return typeInfo.AsType().IsDynamically();
+            return typeInfo.IsDynamically();
         }
 
         private bool ValidateNonAspect(MemberInfo member)
         {
             return member.IsDefined(typeof(NonAspectAttribute), true);
+        }
+
+        private bool ValidatePropertyMethod(MethodInfo method)
+        {
+            return method.IsPropertyMethod();
         }
 
         private bool ValidateIgnoredList(IConfigurationOption<bool> ignores, MethodInfo method)

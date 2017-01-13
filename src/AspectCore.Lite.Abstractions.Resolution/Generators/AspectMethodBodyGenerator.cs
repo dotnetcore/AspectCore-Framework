@@ -1,6 +1,6 @@
-﻿using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Extensions;
 using AspectCore.Lite.Abstractions.Generator;
-using AspectCore.Lite.Abstractions.Resolution.Common;
+using AspectCore.Lite.Abstractions.Resolution.Extensions;
 using System;
 using System.Linq;
 using System.Reflection;

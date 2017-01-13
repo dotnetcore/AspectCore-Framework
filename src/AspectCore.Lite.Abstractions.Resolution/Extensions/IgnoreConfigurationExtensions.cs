@@ -1,6 +1,6 @@
-﻿using AspectCore.Lite.Abstractions.Common;
+﻿using AspectCore.Lite.Abstractions.Extensions;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Common
+namespace AspectCore.Lite.Abstractions.Resolution.Extensions
 {
     internal static class IgnoreConfigurationExtensions
     {

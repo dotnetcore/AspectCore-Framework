@@ -1,4 +1,4 @@
-﻿namespace AspectCore.Lite.Abstractions.Common
+﻿namespace AspectCore.Lite.Abstractions.Extensions
 {
     public static class EmptyArray<T>
     {

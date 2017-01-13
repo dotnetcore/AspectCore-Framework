@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Common
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     public static class ServiceProviderExtensions
     {
