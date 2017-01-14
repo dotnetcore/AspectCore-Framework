@@ -28,11 +28,11 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
             }
             if (!aspectValidator.Validate(serviceType))
             {
-                throw new InvalidOperationException($"Validate serviceType failed. Type {serviceType} does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type  does not satisfy the conditions of the generate proxy class.");
             }
             if (!parentType.GetTypeInfo().CanInherited())
             {
-                throw new InvalidOperationException($"Validate implementationType failed. Type {parentType} cannot be inherited.");
+                throw new InvalidOperationException($"Validate '{parentType}' failed because the type does not satisfy the condition to be inherited.");
             }
 
             this.serviceType = serviceType;
