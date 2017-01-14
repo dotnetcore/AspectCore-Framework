@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -15,7 +15,8 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
         private readonly ModuleBuilder moduleBuilder;
         private readonly AssemblyBuilder assemblyBuilder;
-        private readonly ConcurrentDictionary<string, TypeInfo> createdTypeInfoPool;
+        private readonly IDictionary<string, TypeInfo> createdTypeInfoCache;
+        private readonly object cacheLock = new object();
 
         internal ModuleBuilder ModuleBuilder
         {
@@ -24,15 +25,42 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
 
         private ModuleGenerator()
         {
-            createdTypeInfoPool = new ConcurrentDictionary<string, TypeInfo>();
+            createdTypeInfoCache = new Dictionary<string, TypeInfo>();
             var assemblyName = new AssemblyName("AspectCore.Lite.Proxys");
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
         }
 
-        internal TypeInfo DefineTypeInfo(string name, Func<string, TypeInfo> valueFactory)
+        internal TypeInfo DefineTypeInfo(string typeName, Func<string, TypeInfo> valueFactory)
         {
-            return createdTypeInfoPool.GetOrAdd(name, valueFactory);
+            if (typeName == null)
+            {
+                throw new ArgumentNullException(nameof(typeName));
+            }
+
+            if (valueFactory == null)
+            {
+                throw new ArgumentNullException(nameof(valueFactory));
+            }
+
+            var typeInfo = default(TypeInfo);
+
+            if (createdTypeInfoCache.TryGetValue(typeName, out typeInfo))
+            {
+                return typeInfo;
+            }
+
+            lock (cacheLock)
+            {
+                if (createdTypeInfoCache.TryGetValue(typeName, out typeInfo))
+                {
+                    return typeInfo;
+                }
+
+                typeInfo = valueFactory(typeName);
+                createdTypeInfoCache.Add(typeName, typeInfo);
+                return typeInfo;
+            }
         }
     }
 }

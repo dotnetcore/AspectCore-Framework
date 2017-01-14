@@ -36,5 +36,13 @@ namespace AspectCore.Lite.Abstractions.Resolution.Test
             Assert.IsAssignableFrom<ITargetService<object>>(proxyInstance);
             Assert.IsAssignableFrom<TargetService<object>>(proxyInstance);
         }
+
+        [Fact]
+        public void CreateProxyType_Cache_Test()
+        {
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var proxyType = generator.CreateType(typeof(ITargetService), typeof(TargetService));
+            var proxyTypeCache = generator.CreateType(typeof(ITargetService), typeof(TargetService));
+        }
     }
 }
