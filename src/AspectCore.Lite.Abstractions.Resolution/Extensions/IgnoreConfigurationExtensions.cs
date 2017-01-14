@@ -1,6 +1,6 @@
 ﻿using AspectCore.Lite.Abstractions.Extensions;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Extensions
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     internal static class IgnoreConfigurationExtensions
     {

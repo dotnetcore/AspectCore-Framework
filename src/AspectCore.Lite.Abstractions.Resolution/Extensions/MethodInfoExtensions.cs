@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Extensions
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     internal static class MethodInfoExtensions
     {

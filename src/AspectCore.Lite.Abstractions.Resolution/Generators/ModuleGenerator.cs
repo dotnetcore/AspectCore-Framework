@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using AspectCore.Lite.Abstractions.Extensions;
 using System.Reflection.Emit;
 
 namespace AspectCore.Lite.Abstractions.Resolution.Generators
@@ -43,24 +44,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
                 throw new ArgumentNullException(nameof(valueFactory));
             }
 
-            var typeInfo = default(TypeInfo);
-
-            if (createdTypeInfoCache.TryGetValue(typeName, out typeInfo))
-            {
-                return typeInfo;
-            }
-
-            lock (cacheLock)
-            {
-                if (createdTypeInfoCache.TryGetValue(typeName, out typeInfo))
-                {
-                    return typeInfo;
-                }
-
-                typeInfo = valueFactory(typeName);
-                createdTypeInfoCache.Add(typeName, typeInfo);
-                return typeInfo;
-            }
+            return createdTypeInfoCache.GetOrAdd(typeName, valueFactory, cacheLock);
         }
     }
 }

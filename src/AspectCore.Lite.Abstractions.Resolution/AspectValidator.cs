@@ -1,5 +1,4 @@
 ﻿using AspectCore.Lite.Abstractions.Extensions;
-using AspectCore.Lite.Abstractions.Resolution.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -9,14 +8,9 @@ namespace AspectCore.Lite.Abstractions.Resolution
 {
     public sealed class AspectValidator : IAspectValidator
     {
-        private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache;
+        private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache= new ConcurrentDictionary<MethodInfo, bool>();
 
         private readonly IAspectConfiguration aspectConfiguration;
-
-        static AspectValidator()
-        {
-            DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
-        }
 
         public AspectValidator(IAspectConfiguration aspectConfiguration)
         {

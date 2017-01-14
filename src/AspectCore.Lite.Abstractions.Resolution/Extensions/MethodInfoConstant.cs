@@ -1,8 +1,9 @@
 ﻿using AspectCore.Lite.Abstractions.Extensions;
+using AspectCore.Lite.Abstractions.Resolution;
 using System;
 using System.Reflection;
 
-namespace AspectCore.Lite.Abstractions.Resolution.Extensions
+namespace AspectCore.Lite.Abstractions.Extensions
 {
     internal static class MethodInfoConstant
     {
