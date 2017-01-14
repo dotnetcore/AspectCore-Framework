@@ -9,7 +9,6 @@ namespace AspectCore.Lite.Abstractions.Resolution.Test
 {
     public class AspectValidatorTest
     {
-
         [Fact]
         public void ValidateDeclaringType_Test()
         {
@@ -19,7 +18,6 @@ namespace AspectCore.Lite.Abstractions.Resolution.Test
             Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<SealedValidatorModel>>(m => m.Validate())));
           
         }
-
 
         [Fact]
         public void ValidateDeclaringType_Type_Test()
