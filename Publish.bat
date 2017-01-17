@@ -8,11 +8,11 @@ for /R "packages" %%s in (*) do (
     del %%s
 )
 
-dotnet test test/AspectCore.Lite.Abstractions.Test --configuration release
-dotnet test test/AspectCore.Lite.Abstractions.Resolution.Test --configuration release
+dotnet test test/AspectCore.Abstractions.Test --configuration release
+dotnet test test/AspectCore.Abstractions.Resolution.Test --configuration release
 
-dotnet pack src/AspectCore.Lite.Abstractions --configuration Release --output packages
-dotnet pack src/AspectCore.Lite.Abstractions.Resolution --configuration Release --output packages
+dotnet pack src/AspectCore.Abstractions --configuration Release --output packages
+dotnet pack src/AspectCore.Abstractions.Resolution --configuration Release --output packages
 
 set /p key=input key:
 set source=http://servicepackages.chinacloudsites.cn/nuget

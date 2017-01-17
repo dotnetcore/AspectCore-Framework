@@ -1,0 +1,32 @@
+{
+  "authors": [ "liuhaoyang" ],
+  "dependencies": {
+    "AspectCore.Abstractions": "1.1.0-rc1-13170"
+  },
+  "description": "The default implementation of the AspectCore framework.",
+  "frameworks": {
+    "netstandard1.6": {
+    },
+    "net451": {
+      "dependencies": {
+        "Nito.AsyncEx": "3.0.1",
+        "System.Runtime": "4.0.10",
+        "System.Threading.Tasks": "4.0.0"
+      }
+    }
+  },
+  "packOptions": {
+    "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
+    "licenseUrl": "https://mit-license.org/",
+    "owners": [ "liuhaoyang" ],
+    "releaseNotes": "The default implementation of the AspectCore framework.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/AspectCore/Abstractions"
+    },
+    "tags": [ "DynamicProxy", "Aop", "Aspect", "AspectCore", "Intercepter" ]
+  },
+  "projectUrl": "https://github.com/AspectCore/Abstractions",
+  "title": "AspectCore.Abstractions.Resolution",
+  "version": "1.1.0-rc1-13170"
+}
