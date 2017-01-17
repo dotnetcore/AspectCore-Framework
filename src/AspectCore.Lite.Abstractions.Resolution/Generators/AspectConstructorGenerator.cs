@@ -45,7 +45,7 @@ namespace AspectCore.Lite.Abstractions.Resolution.Generators
         {
             get
             {
-                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(ISupportOriginalService) };
+                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(IOriginalServiceProvider) };
                 return constructor.GetParameters().Select(p => p.ParameterType).Concat(serviceTypeParameters).ToArray();
             }
         }
