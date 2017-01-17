@@ -22,11 +22,11 @@
     "releaseNotes": "The default implementation of the dynamicproxy framework.",
     "repository": {
       "type": "git",
-      "url": "https://github.com/AspectCore/Lite"
+      "url": "https://github.com/AspectCore/Lite.Abstractions"
     },
     "tags": [ "DynamicProxy", "Aop", "Aspect" ]
   },
-  "projectUrl": "https://github.com/AspectCore/Lite",
+  "projectUrl": "https://github.com/AspectCore/Lite.Abstractions",
   "title": "AspectCore.Lite.Abstractions.Resolution",
   "version": "1.1.0-rc1"
 }
