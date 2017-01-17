@@ -20,7 +20,7 @@ namespace AspectCore.Abstractions.Resolution.Test
                 new ParameterCollection(EmptyArray<object>.Value, EmptyArray<ParameterInfo>.Value), new ReturnParameterDescriptor(null, parameter));
             Assert.NotNull(context);
             var exception = Assert.Throws<NotImplementedException>(() => context.ServiceProvider);
-            Assert.Equal(exception.Message, "The current context does not support ServiceProvider call.");
+            Assert.Equal(exception.Message, "The current context does not support IServiceProvider.");
 
         }
     }
