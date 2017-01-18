@@ -15,7 +15,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         private readonly Type serviceType;
 
         public AspectConstructorGenerator(TypeBuilder declaringMember,
-            Type serviceType, ConstructorInfo constructor, 
+            Type serviceType, ConstructorInfo constructor,
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
             : base(declaringMember)
         {
@@ -45,8 +45,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(IOriginalServiceProvider) };
-                return constructor.GetParameters().Select(p => p.ParameterType).Concat(serviceTypeParameters).ToArray();
+                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(TargetInstanceProvider) };
+                return serviceTypeParameters.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
             }
         }
 
@@ -55,18 +55,18 @@ namespace AspectCore.Abstractions.Resolution.Generators
             var parameters = ParameterTypes;
 
             ilGenerator.EmitThis();
-            for (var i = 1; i <= parameters.Length - 2; i++)
+            for (var i = 3; i <= parameters.Length; i++)
             {
                 ilGenerator.EmitLoadArg(i);
             }
             ilGenerator.Emit(OpCodes.Call, constructor);
 
             ilGenerator.EmitThis();
-            ilGenerator.EmitLoadArg(parameters.Length - 1);
+            ilGenerator.EmitLoadArg(1);
             ilGenerator.Emit(OpCodes.Stfld, serviceProviderFieldBuilder);
 
             ilGenerator.EmitThis();
-            ilGenerator.EmitLoadArg(parameters.Length);
+            ilGenerator.EmitLoadArg(2);
             if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 ilGenerator.EmitTypeof(serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
@@ -75,7 +75,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
             {
                 ilGenerator.EmitTypeof(serviceType);
             }
-            ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.SupportOriginalService_GetService);
+            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.TargetInstanceProvider_GetInstance);
             ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
 

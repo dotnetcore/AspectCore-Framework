@@ -15,6 +15,6 @@ namespace AspectCore.Abstractions.Extensions
 
         internal static readonly MethodInfo AspectActivator_InitializeMetaData = MethodInfoHelpers.GetMethod<IAspectActivator>(nameof(IAspectActivator.InitializeMetaData));
 
-        internal static readonly MethodInfo SupportOriginalService_GetService = MethodInfoHelpers.GetMethod<Func<IOriginalServiceProvider, Type, object>>((p, type) => p.GetService(type));
+        internal static readonly MethodInfo TargetInstanceProvider_GetInstance = MethodInfoHelpers.GetMethod<Func<TargetInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
     }
 }

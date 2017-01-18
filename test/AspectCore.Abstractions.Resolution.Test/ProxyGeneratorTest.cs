@@ -15,7 +15,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         {
             var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
             var proxyType = generator.CreateType(typeof(ITargetService), typeof(TargetService));
-            var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceSupportOriginalService(null));
+            var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceServiceProvider(null));
 
             Assert.IsAssignableFrom<ITargetService>(proxyInstance);
             Assert.IsAssignableFrom<TargetService>(proxyInstance);
@@ -31,7 +31,7 @@ namespace AspectCore.Abstractions.Resolution.Test
             Assert.True(proxyType.GetTypeInfo().IsGenericTypeDefinition);
             Assert.Single(proxyType.GetTypeInfo().GenericTypeParameters);
 
-            var proxyInstance = Activator.CreateInstance(proxyType.MakeGenericType(typeof(object)), new InstanceServiceProvider(null), new InstanceSupportOriginalService(null));
+            var proxyInstance = Activator.CreateInstance(proxyType.MakeGenericType(typeof(object)), new InstanceServiceProvider(null), new InstanceServiceProvider(null));
 
             Assert.IsAssignableFrom<ITargetService<object>>(proxyInstance);
             Assert.IsAssignableFrom<TargetService<object>>(proxyInstance);

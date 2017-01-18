@@ -84,8 +84,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
             {
                 GeneratingGenericParameter(builder);
             }
-            var serviceInstanceFieldGenerator = new AspectFieldGenerator("PROXYFIELD_SERVICEINSTANCE", serviceType, builder);
-            var serviceProviderFieldGenerator = new AspectFieldGenerator("PROXYFIELD_SERVICEPROVIDER", typeof(IServiceProvider), builder);
+            var serviceInstanceFieldGenerator = new AspectFieldGenerator("__serviceInstance", serviceType, builder);
+            var serviceProviderFieldGenerator = new AspectFieldGenerator("__serviceProvider", typeof(IServiceProvider), builder);
             serviceInstanceFieldBuilder = serviceInstanceFieldGenerator.Build();
             serviceProviderFieldBuilder = serviceProviderFieldGenerator.Build();
             GeneratingConstructor(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
