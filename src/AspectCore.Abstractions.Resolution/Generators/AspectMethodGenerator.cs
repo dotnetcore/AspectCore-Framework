@@ -70,7 +70,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                return serviceMethod.ExplicitName();
+                return serviceMethod.GetFullName();
             }
         }
 

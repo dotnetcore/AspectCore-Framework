@@ -12,7 +12,7 @@ namespace AspectCore.Abstractions.Generator
 
         public abstract CallingConventions CallingConventions { get; }
 
-        public abstract Type ReturnType { get; }
+        public abstract Type PropertyType { get; }
 
         public abstract bool CanRead { get; }
 
@@ -36,7 +36,7 @@ namespace AspectCore.Abstractions.Generator
 
         protected override PropertyBuilder ExecuteBuild()
         {
-            var propertyBuilder = DeclaringMember.DefineProperty(PropertyName, PropertyAttributes, CallingConventions, ReturnType, ParameterTypes);
+            var propertyBuilder = DeclaringMember.DefineProperty(PropertyName, PropertyAttributes, CallingConventions, PropertyType, ParameterTypes);
 
             if (CanRead)
             {

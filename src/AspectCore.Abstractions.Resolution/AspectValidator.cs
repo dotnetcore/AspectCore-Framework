@@ -80,7 +80,7 @@ namespace AspectCore.Abstractions.Resolution
 
         private bool ValidatePropertyMethod(MethodInfo method)
         {
-            return method.IsPropertyMethod();
+            return method.IsPropertyBinding();
         }
 
         private bool ValidateIgnoredList(IConfigurationOption<bool> ignores, MethodInfo method)

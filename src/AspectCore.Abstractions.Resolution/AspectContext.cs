@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AspectCore.Abstractions.Resolution
 {
     public sealed class AspectContext : IAspectContext
     {
-        private readonly IServiceProvider serviceProvider;
+        private IServiceProvider serviceProvider;
+        private IDictionary<string, object> items;
 
         public IServiceProvider ServiceProvider
         {
@@ -19,15 +22,21 @@ namespace AspectCore.Abstractions.Resolution
             }
         }
 
+
         public TargetDescriptor Target { get; }
+
 
         public ProxyDescriptor Proxy { get; }
 
+
         public ParameterCollection Parameters { get; }
+
 
         public ParameterDescriptor ReturnParameter { get; }
 
-        public object AspectData { get; set; }
+
+        public IDictionary<string, object> Items { get { return items ?? (items = new Dictionary<string, object>()); } }
+
 
         public AspectContext(IServiceProvider provider, TargetDescriptor target, ProxyDescriptor proxy, ParameterCollection parameters, ReturnParameterDescriptor returnParameter)
         {
@@ -53,6 +62,28 @@ namespace AspectCore.Abstractions.Resolution
             Proxy = proxy;
             Parameters = parameters;
             ReturnParameter = returnParameter;
+        }
+
+
+        public void Dispose()
+        {
+            if (items == null)
+            {
+                return;
+            }
+
+            foreach (var key in items.Keys.ToArray())
+            {
+                object value = null;
+
+                items.TryGetValue(key, out value);
+
+                var disposable = value as IDisposable;
+
+                disposable?.Dispose();
+
+                items.Remove(key);
+            }
         }
     }
 }

@@ -34,7 +34,7 @@ namespace AspectCore.Abstractions.Test
             ParameterDescriptor descriptor = new ParameterDescriptor("LLL", info);
 
             Assert.NotNull(descriptor);
-            Assert.Equal(descriptor.MetaDataInfo, info);
+            Assert.Equal(descriptor.ParameterInfo, info);
             Assert.Equal(descriptor.Name, info.Name);
             Assert.Equal(descriptor.Value, "LLL");
             Assert.Equal(descriptor.ParameterType, info.ParameterType);

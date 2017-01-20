@@ -61,7 +61,7 @@ namespace AspectCore.Abstractions
             }
         }
 
-        public virtual ParameterInfo MetaDataInfo
+        public virtual ParameterInfo ParameterInfo
         {
             get
             {

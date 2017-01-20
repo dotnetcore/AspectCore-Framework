@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public interface IAspectContext
+    public interface IAspectContext : IDisposable
     {
         IServiceProvider ServiceProvider { get; }
 
@@ -15,6 +16,6 @@ namespace AspectCore.Abstractions
 
         ParameterDescriptor ReturnParameter { get; }
 
-        object AspectData { get; set; }
+        IDictionary<string, object> Items { get; }
     }
 }

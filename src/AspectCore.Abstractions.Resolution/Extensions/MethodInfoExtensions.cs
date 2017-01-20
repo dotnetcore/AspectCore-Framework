@@ -1,29 +1,44 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions.Extensions
 {
-    internal static class MethodInfoExtensions
+    public static class MethodInfoExtensions
     {
-        internal static bool IsPropertyMethod(this MethodInfo method)
+        public static bool IsPropertyBinding(this MethodInfo method)
         {
-            return method.DeclaringType.GetTypeInfo().DeclaredProperties.Any(
-                property => (property.CanRead && property.GetMethod == method) || (property.CanWrite && property.SetMethod == method));
-        }
-
-        internal static string ExplicitName(this MethodInfo method)
-        {
-            var declaringType = method.DeclaringType.GetTypeInfo();
-            if (declaringType.IsInterface)
+            if (method == null)
             {
-                return $"{declaringType.Name}.{method.Name}".Replace('+', '.');
+                throw new ArgumentNullException(nameof(method));
             }
-            return method.Name;
+
+            return method.GetBindingProperty() != null;
         }
 
+        public static PropertyInfo GetBindingProperty(this MethodInfo method)
+        {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            foreach(var property in method.DeclaringType.GetTypeInfo().DeclaredProperties)
+            {
+                if(property.CanRead && property.GetMethod == method)
+                {
+                    return property;
+                }
+
+                if (property.CanWrite && property.SetMethod == method)
+                {
+                    return property;
+                }
+            }
+
+            return null;
+        }
+     
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());

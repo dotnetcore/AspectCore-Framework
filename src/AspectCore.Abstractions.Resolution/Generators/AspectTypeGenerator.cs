@@ -86,13 +86,34 @@ namespace AspectCore.Abstractions.Resolution.Generators
             }
             var serviceInstanceFieldGenerator = new AspectFieldGenerator("__serviceInstance", serviceType, builder);
             var serviceProviderFieldGenerator = new AspectFieldGenerator("__serviceProvider", typeof(IServiceProvider), builder);
+
             serviceInstanceFieldBuilder = serviceInstanceFieldGenerator.Build();
             serviceProviderFieldBuilder = serviceProviderFieldGenerator.Build();
+
             GeneratingConstructor(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
             GeneratingMethod(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            GeneratingProperty(builder, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+
             builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
             builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
+
             return builder;
+        }
+
+        private void GeneratingProperty(TypeBuilder builder, FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
+        {
+            foreach (var property in serviceType.GetTypeInfo().DeclaredProperties)
+            {
+                if (property.CanRead && aspectValidator.Validate(property.GetMethod))
+                {
+                    new AspectPropertyGenerator(builder, property, serviceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
+                    continue;
+                }
+                if (property.CanWrite && aspectValidator.Validate(property.SetMethod))
+                {
+                    new AspectPropertyGenerator(builder, property, serviceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
+                }
+            }
         }
 
         private void GeneratingConstructor(TypeBuilder builder, FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
