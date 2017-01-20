@@ -98,18 +98,19 @@ namespace AspectCore.Abstractions.Resolution
             var targetDescriptor = new TargetDescriptor(targetInstance, serviceMethod, serviceType, targetMethod, targetInstance.GetType());
             var proxyDescriptor = new ProxyDescriptor(proxyInstance, proxyMethod, proxyInstance.GetType());
 
-            var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameterCollection, returnParameter);
-
-            var interceptors = interceptorMatcher.Match(serviceMethod, serviceType.GetTypeInfo());
-
-            foreach (var interceptor in interceptors)
+            using (var context = new AspectContext(serviceProvider, targetDescriptor, proxyDescriptor, parameterCollection, returnParameter))
             {
-                interceptorInjector.Inject(interceptor);
-                aspectBuilder.AddAspectDelegate(interceptor.Invoke);
-            }
+                var interceptors = interceptorMatcher.Match(serviceMethod, serviceType.GetTypeInfo());
 
-            await aspectBuilder.Build(() => context.Target.Invoke(context.Parameters))(context);
-            return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
+                foreach (var interceptor in interceptors)
+                {
+                    interceptorInjector.Inject(interceptor);
+                    aspectBuilder.AddAspectDelegate(interceptor.Invoke);
+                }
+
+                await aspectBuilder.Build(() => context.Target.Invoke(context.Parameters))(context);
+                return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
+            }
         }
 
         private async Task<T> ConvertReturnVaule<T>(object value)
