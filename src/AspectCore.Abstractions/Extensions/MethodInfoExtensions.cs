@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions.Extensions
 {
@@ -29,6 +27,39 @@ namespace AspectCore.Abstractions.Extensions
                 throw new ArgumentNullException(nameof(method));
             }
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
+        }
+
+        public static bool IsPropertyBinding(this MethodInfo method)
+        {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            return method.GetBindingProperty() != null;
+        }
+
+        public static PropertyInfo GetBindingProperty(this MethodInfo method)
+        {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
+            foreach (var property in method.DeclaringType.GetTypeInfo().DeclaredProperties)
+            {
+                if (property.CanRead && property.GetMethod == method)
+                {
+                    return property;
+                }
+
+                if (property.CanWrite && property.SetMethod == method)
+                {
+                    return property;
+                }
+            }
+
+            return null;
         }
 
         internal static MethodInfo ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(this MethodInfo methodInfo,Type closedGenericType)
