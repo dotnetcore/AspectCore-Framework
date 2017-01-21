@@ -3,7 +3,7 @@
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
     public sealed class FromServicesAttribute : Attribute
     {
     }
