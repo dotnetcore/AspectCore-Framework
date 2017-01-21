@@ -1,17 +1,15 @@
 {
   "authors": [ "liuhaoyang" ],
   "dependencies": {
-    "AspectCore.Abstractions": "1.1.0-rc1-13178"
+    "AspectCore.Abstractions": "1.1.0-rc1-13180"
   },
   "description": "The default implementation of the AspectCore framework.",
   "frameworks": {
     "netstandard1.6": {
     },
-    "net451": {
+    "net45": {
       "dependencies": {
-        "Nito.AsyncEx": "3.0.1",
-        "System.Runtime": "4.0.10",
-        "System.Threading.Tasks": "4.0.0"
+        "Nito.AsyncEx": "3.0.1"
       }
     }
   },
@@ -28,5 +26,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Abstractions",
   "title": "AspectCore.Abstractions.Resolution",
-  "version": "1.1.0-rc1-13178"
+  "version": "1.1.0-rc1-13180"
 }

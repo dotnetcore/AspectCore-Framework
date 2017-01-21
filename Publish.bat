@@ -15,7 +15,7 @@ dotnet pack src/AspectCore.Abstractions --configuration Release --output package
 dotnet pack src/AspectCore.Abstractions.Resolution --configuration Release --output packages
 
 set /p key=input key:
-set source=http://servicepackages.chinacloudsites.cn/nuget
+set source=https://www.myget.org/F/aspectcore/api/v2/package
 
 for /R "packages" %%s in (*symbols.nupkg) do ( 
     call nuget push %%s -s %source%  %key%
