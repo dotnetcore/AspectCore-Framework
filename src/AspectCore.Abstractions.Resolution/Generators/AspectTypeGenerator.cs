@@ -134,7 +134,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             foreach (var method in serviceType.GetTypeInfo().DeclaredMethods)
             {
-                if (!aspectValidator.Validate(method))
+                if (method.IsPropertyBinding() || !aspectValidator.Validate(method))
                 {
                     continue;
                 }
