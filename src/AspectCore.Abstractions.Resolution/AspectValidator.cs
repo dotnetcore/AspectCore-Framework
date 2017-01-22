@@ -8,7 +8,7 @@ namespace AspectCore.Abstractions.Resolution
 {
     public sealed class AspectValidator : IAspectValidator
     {
-        private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache= new ConcurrentDictionary<MethodInfo, bool>();
+        private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
 
         private readonly IAspectConfiguration aspectConfiguration;
 
@@ -35,67 +35,58 @@ namespace AspectCore.Abstractions.Resolution
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
 
-            if (ValidateDynamically(declaringType) || ValidatePropertyMethod(method))
+            if (declaringType.IsDynamically() || method.IsPropertyBinding())
             {
                 return false;
             }
 
-            if (ValidateNonAspect(method) || ValidateNonAspect(declaringType))
+            if (IsNonAspect(method) || IsNonAspect(declaringType))
             {
                 return false;
             }
 
-            if (!ValidateDeclaringType(declaringType) || !ValidateDeclaringMethod(method))
+            if (!IsAccessibility(declaringType) || !IsAccessibility(method))
             {
                 return false;
             }
 
-            if (ValidateIgnoredList(aspectConfiguration.GetConfigurationOption<bool>(), method))
+            if (IsIgnored(aspectConfiguration.GetConfigurationOption<bool>(), method))
             {
                 return false;
             }
 
-            return ValidateInterceptor(method) || ValidateInterceptor(declaringType) || ValidateInterceptor(aspectConfiguration.GetConfigurationOption<IInterceptor>(), method);
+            return HasInterceptor(method) || HasInterceptor(declaringType) || HasInterceptor<IInterceptor>(aspectConfiguration.GetConfigurationOption<IInterceptor>(), method);
         }
 
-        private bool ValidateDeclaringType(TypeInfo declaringType)
+        public static bool IsAccessibility(TypeInfo declaringType)
         {
             return !(declaringType.IsNotPublic || declaringType.IsValueType || declaringType.IsSealed);
         }
 
-        private bool ValidateDeclaringMethod(MethodInfo method)
+        public static bool IsAccessibility(MethodInfo method)
         {
             return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
-        private bool ValidateDynamically(TypeInfo typeInfo)
-        {
-            return typeInfo.IsDynamically();
-        }
-
-        private bool ValidateNonAspect(MemberInfo member)
+        public static bool IsNonAspect(MemberInfo member)
         {
             return member.IsDefined(typeof(NonAspectAttribute), true);
         }
 
-        private bool ValidatePropertyMethod(MethodInfo method)
-        {
-            return method.IsPropertyBinding();
-        }
-
-        private bool ValidateIgnoredList(IConfigurationOption<bool> ignores, MethodInfo method)
+        public static bool IsIgnored(IConfigurationOption<bool> ignores, MethodInfo method)
         {
             return ignores.Any(configure => configure(method));
         }
 
-        private bool ValidateInterceptor(MemberInfo member)
+        public static bool HasInterceptor(MemberInfo member)
         {
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType.GetTypeInfo()));
         }
 
-        private bool ValidateInterceptor(IConfigurationOption<IInterceptor> aspectConfiguration, MethodInfo method)
+        public static bool HasInterceptor<T>(IConfigurationOption<IInterceptor> aspectConfiguration, MethodInfo method)
+            where T : class, IInterceptor
         {
-            return aspectConfiguration.Any(config => config(method) != null);
+            return aspectConfiguration.Any(config => (config(method) as T) != null);
         }
     }
 }

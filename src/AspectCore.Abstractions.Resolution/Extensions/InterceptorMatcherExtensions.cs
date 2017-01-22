@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace AspectCore.Abstractions.Extensions
 {
-    internal static class InterceptorMatcherExtensions
+    public static class InterceptorMatcherExtensions
     {
-        internal static IEnumerable<IInterceptor> DuplicateRemoval(this IEnumerable<IInterceptor> source)
+        public static IEnumerable<T> FilterMultiple<T>(this IEnumerable<T> source)
+            where T : IInterceptor
         {
             var set = new HashSet<Type>();
 

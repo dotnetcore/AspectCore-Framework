@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace AspectCore.Abstractions.Extensions
 {
-    internal static class DictionaryExtensions
+    public static class DictionaryExtensions
     {
-        internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory, object synchronization)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory, object synchronization)
         {
             var value = default(TValue);
 

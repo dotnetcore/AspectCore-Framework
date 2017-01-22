@@ -35,29 +35,30 @@ namespace AspectCore.Abstractions.Resolution
 
             return InterceptorCache.GetOrAdd(serviceMethod, _ =>
             {
-                var aggregate = Aggregate(serviceMethod, serviceTypeInfo, aspectConfiguration.GetConfigurationOption<IInterceptor>());
-                return aggregate.DuplicateRemoval().OrderBy(interceptor => interceptor.Order).ToArray();
+                var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, aspectConfiguration.GetConfigurationOption<IInterceptor>());
+                return aggregate.FilterMultiple().OrderBy(interceptor => interceptor.Order).ToArray();
             }, CacheLock);
         }
 
-        private IEnumerable<IInterceptor> Aggregate(
+        public static IEnumerable<TInterceptor> Aggregate<TInterceptor>(
            MethodInfo methodInfo, TypeInfo typeInfo, IConfigurationOption<IInterceptor> configurationOption)
+            where TInterceptor : class, IInterceptor
         {
             foreach (var attribute in methodInfo.GetCustomAttributes())
             {
-                var interceptor = attribute as IInterceptor;
+                var interceptor = attribute as TInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
 
             foreach (var attribute in typeInfo.GetCustomAttributes())
             {
-                var interceptor = attribute as IInterceptor;
+                var interceptor = attribute as TInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
 
             foreach (var option in configurationOption)
             {
-                var interceptor = option(methodInfo);
+                var interceptor = option(methodInfo) as TInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
         }
