@@ -1,7 +1,7 @@
 {
   "authors": [ "liuhaoyang" ],
   "dependencies": {
-    "AspectCore.Abstractions": "1.1.0-rc1-13186"
+    "AspectCore.Abstractions": "1.1.0-rc1-13188"
   },
   "description": "The default implementation of the AspectCore framework.",
   "frameworks": {
@@ -28,5 +28,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Abstractions",
   "title": "AspectCore.Abstractions.Resolution",
-  "version": "1.1.0-rc1-13186"
+  "version": "1.1.0-rc1-13188"
 }
