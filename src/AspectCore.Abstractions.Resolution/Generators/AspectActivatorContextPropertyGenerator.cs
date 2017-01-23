@@ -78,12 +78,10 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override PropertyBuilder ExecuteBuild()
         {
-            var builder = base.ExecuteBuild();
-
             Field = new AspectFieldGenerator($"_{PropertyName}", PropertyType, DeclaringMember);
             Field.Build();
 
-            return builder;
+            return base.ExecuteBuild();
         }
 
         private class ContextPropertyMethodGenerator : MethodGenerator

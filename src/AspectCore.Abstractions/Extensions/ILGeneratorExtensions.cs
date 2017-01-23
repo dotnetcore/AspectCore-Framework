@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -183,6 +184,19 @@ namespace AspectCore.Abstractions.Extensions
                         ilGenerator.Emit(OpCodes.Ldc_I4, value);
                     break;
             }
+        }
+
+        internal static class MethodInfoConstant
+        {
+            private static readonly Type ILGenType = typeof(Expression).GetTypeInfo().Assembly.GetType("System.Linq.Expressions.Compiler.ILGen");
+
+            internal static readonly MethodInfo EmitConvertToType = ILGenType.GetTypeInfo().GetMethod("EmitConvertToType", BindingFlags.NonPublic | BindingFlags.Static);
+
+            internal static readonly MethodInfo GetTypeFromHandle = MethodInfoExtensions.GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
+
+            internal static readonly MethodInfo GetMethodFromHandle = MethodInfoExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
+
+            internal static readonly ConstructorInfo ArgumentNullExceptionCtor = typeof(ArgumentNullException).GetTypeInfo().GetConstructor(new Type[] { typeof(string) });
         }
     }
 }

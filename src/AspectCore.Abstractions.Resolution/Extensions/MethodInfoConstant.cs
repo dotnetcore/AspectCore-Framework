@@ -10,7 +10,7 @@ namespace AspectCore.Abstractions.Extensions
     {
         private static readonly TypeInfo activatorContextType = new AspectActivatorContextGenerator().CreateTypeInfo();
 
-        internal static readonly ConstructorInfo AspectActivatorContex_Ctor = activatorContextType.DeclaredConstructors.Single();
+        internal static readonly ConstructorInfo AspectActivatorContex_Ctor = activatorContextType/*typeof(DefaultAspectActivatorContext).GetTypeInfo()*/ .DeclaredConstructors.Single();
 
         internal static readonly MethodInfo GetAspectActivator = MethodInfoHelpers.GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetAspectActivator());
 

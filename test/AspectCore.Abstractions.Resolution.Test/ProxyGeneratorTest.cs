@@ -15,7 +15,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         {
             var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
             var proxyType = generator.CreateType(typeof(ITargetService), typeof(TargetService));
-            var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceServiceProvider(null));
+            var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceServiceProvider(new TargetService()));
 
             Assert.IsAssignableFrom<ITargetService>(proxyInstance);
             Assert.IsAssignableFrom<TargetService>(proxyInstance);

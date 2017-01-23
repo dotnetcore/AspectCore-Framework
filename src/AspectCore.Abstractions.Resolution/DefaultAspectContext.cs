@@ -75,7 +75,7 @@ namespace AspectCore.Abstractions.Resolution
             : this(provider,
                  new TargetDescriptor(context.TargetInstance, context.ServiceMethod, context.ServiceType, context.TargetMethod, context.TargetInstance.GetType()),
                  new ProxyDescriptor(context.ProxyInstance, context.ProxyMethod, context.ProxyInstance.GetType()),
-                 new ParameterCollection(context.Parameter, context.ServiceMethod.GetParameters()),
+                 new ParameterCollection(context.Parameters, context.ServiceMethod.GetParameters()),
                  new ReturnParameterDescriptor(default(T), context.ServiceMethod.ReturnParameter))
         {
         }

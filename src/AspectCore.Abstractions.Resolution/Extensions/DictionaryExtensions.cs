@@ -5,7 +5,7 @@ namespace AspectCore.Abstractions.Extensions
 {
     public static class DictionaryExtensions
     {
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory, object synchronization)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory, ref object synchronization)
         {
             var value = default(TValue);
 

@@ -17,7 +17,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         private readonly ModuleBuilder moduleBuilder;
         private readonly AssemblyBuilder assemblyBuilder;
         private static readonly IDictionary<string, TypeInfo> createdTypeInfoCache = new Dictionary<string, TypeInfo>();
-        private static readonly object cacheLock = new object();
+        private static object cacheLock = new object();
 
         internal ModuleBuilder ModuleBuilder
         {
@@ -26,9 +26,9 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         private ModuleGenerator()
         {
-            var assemblyName = new AssemblyName($"AspectCore.Proxys{Guid.NewGuid()}");
+            var assemblyName = new AssemblyName($"AspectCore.Proxys.{Guid.NewGuid()}");
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-            moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
+            moduleBuilder = assemblyBuilder.DefineDynamicModule("main"); 
         }
 
         internal TypeInfo DefineTypeInfo(string typeName, Func<string, TypeInfo> valueFactory)
@@ -43,7 +43,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 throw new ArgumentNullException(nameof(valueFactory));
             }
 
-            return createdTypeInfoCache.GetOrAdd(typeName, valueFactory, cacheLock);
+            return createdTypeInfoCache.GetOrAdd(typeName, valueFactory, ref cacheLock);
         }
     }
 }

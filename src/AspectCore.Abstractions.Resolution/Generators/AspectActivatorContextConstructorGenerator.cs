@@ -45,12 +45,13 @@ namespace AspectCore.Abstractions.Resolution.Generators
             ilGenerator.EmitThis();
             var baseCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First();
             ilGenerator.Emit(OpCodes.Call, baseCtor);
-            for (int i = 0; 1 < 7; i++)
+            for (int i = 0; i < fields.Length; i++)
             {
                 ilGenerator.EmitThis();
                 ilGenerator.EmitLoadArg(i + 1);
                 ilGenerator.Emit(OpCodes.Stfld, fields[i].Build());
             }
+            ilGenerator.Emit(OpCodes.Ret);
         }
     }
 }

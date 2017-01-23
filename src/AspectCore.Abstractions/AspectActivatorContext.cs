@@ -25,7 +25,7 @@ namespace AspectCore.Abstractions
         public abstract object ProxyInstance { get; }
 
         [Index(6)]
-        public abstract object[] Parameter { get; }
+        public abstract object[] Parameters { get; }
 
         public class IndexAttribute : Attribute
         {

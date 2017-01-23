@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using static AspectCore.Abstractions.Extensions.ILGeneratorExtensions;
 
 namespace AspectCore.Abstractions.Extensions
 {
@@ -11,6 +12,8 @@ namespace AspectCore.Abstractions.Extensions
         private static readonly ConcurrentDictionary<MethodInfo, MethodInvoker> invokerTable = new ConcurrentDictionary<MethodInfo, MethodInvoker>();
 
         private readonly MethodInfo methodInfo;
+
+        public delegate object MethodInvoker(object instance, object[] parameters);
 
         public MethodAccessor(MethodInfo methodInfo)
         {
