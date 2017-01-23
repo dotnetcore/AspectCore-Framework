@@ -16,8 +16,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         private readonly ModuleBuilder moduleBuilder;
         private readonly AssemblyBuilder assemblyBuilder;
-        private readonly IDictionary<string, TypeInfo> createdTypeInfoCache;
-        private readonly object cacheLock = new object();
+        private static readonly IDictionary<string, TypeInfo> createdTypeInfoCache = new Dictionary<string, TypeInfo>();
+        private static readonly object cacheLock = new object();
 
         internal ModuleBuilder ModuleBuilder
         {
@@ -26,8 +26,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         private ModuleGenerator()
         {
-            createdTypeInfoCache = new Dictionary<string, TypeInfo>();
-            var assemblyName = new AssemblyName("AspectCore.Proxys");
+            var assemblyName = new AssemblyName($"AspectCore.Proxys{Guid.NewGuid()}");
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
         }

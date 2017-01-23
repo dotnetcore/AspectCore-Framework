@@ -7,7 +7,7 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
 {
     public class IncrementAttribute : InterceptorAttribute
     {
-        public async override Task Invoke(IAspectContext context, AspectDelegate next)
+        public async override Task Invoke(Abstractions.AspectContext context, AspectDelegate next)
         {
             await next(context);
             if (context.ReturnParameter.ParameterType == typeof(int))

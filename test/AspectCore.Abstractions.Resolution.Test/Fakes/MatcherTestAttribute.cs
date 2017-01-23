@@ -7,7 +7,7 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
 {
     public class MatcherTestAttribute : InterceptorAttribute
     {
-        public override Task Invoke(IAspectContext context, AspectDelegate next)
+        public override Task Invoke(Abstractions.AspectContext context, AspectDelegate next)
         {
             return next(context);
         }
@@ -23,7 +23,7 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
             }
         }
 
-        public override Task Invoke(IAspectContext context, AspectDelegate next)
+        public override Task Invoke(Abstractions.AspectContext context, AspectDelegate next)
         {
             return next(context);
         }

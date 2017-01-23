@@ -9,6 +9,6 @@ namespace AspectCore.Abstractions
 
         bool AllowMultiple { get; }
 
-        Task Invoke(IAspectContext context, AspectDelegate next);
+        Task Invoke(AspectContext context, AspectDelegate next);
     }
 }

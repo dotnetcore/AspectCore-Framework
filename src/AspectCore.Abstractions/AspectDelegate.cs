@@ -2,5 +2,5 @@
 
 namespace AspectCore.Abstractions
 {
-    public delegate Task AspectDelegate(IAspectContext context);
+    public delegate Task AspectDelegate(AspectContext context);
 }

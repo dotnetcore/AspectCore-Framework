@@ -17,7 +17,7 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
 
         public int Order { get; set; }
 
-        public Task Invoke(IAspectContext context, AspectDelegate next)
+        public Task Invoke(Abstractions.AspectContext context, AspectDelegate next)
         {
             return next(context);
         }

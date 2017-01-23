@@ -6,7 +6,7 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public interface IAspectBuilder
     {
-        void AddAspectDelegate(Func<IAspectContext, AspectDelegate, Task> interceptorInvoke);
+        void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke);
 
         AspectDelegate Build(Func<object> targetInvoke);
     }

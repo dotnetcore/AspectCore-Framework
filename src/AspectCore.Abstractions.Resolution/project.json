@@ -9,7 +9,9 @@
     },
     "net45": {
       "dependencies": {
-        "Nito.AsyncEx": "3.0.1"
+        "Nito.AsyncEx": "3.0.1",
+        "System.Runtime": "4.0.0",
+        "System.Threading.Tasks": "4.0.0"
       }
     }
   },
