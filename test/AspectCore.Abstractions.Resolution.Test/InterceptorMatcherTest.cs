@@ -18,7 +18,7 @@ namespace AspectCore.Abstractions.Resolution.Test
 
             var matcher = new InterceptorMatcher(configuration);
 
-            var method = MethodInfoHelpers.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithOutInterceptor());
+            var method = Extensions.MethodExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithOutInterceptor());
 
             var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
 
@@ -34,7 +34,7 @@ namespace AspectCore.Abstractions.Resolution.Test
             configuration.GetConfigurationOption<IInterceptor>().Add(m => configurationInterceptor);
 
             var matcher = new InterceptorMatcher(configuration);
-            var method = MethodInfoHelpers.GetMethod<Action<InterceptorMatcherModel>>(m => m.ConfigurationInterceptor());
+            var method = Extensions.MethodExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.ConfigurationInterceptor());
 
             var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
 
@@ -49,7 +49,7 @@ namespace AspectCore.Abstractions.Resolution.Test
             var configuration = new AspectConfiguration();
 
             var matcher = new InterceptorMatcher(configuration);
-            var method = MethodInfoHelpers.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithInterceptor());
+            var method = MethodExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithInterceptor());
 
             var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
 
@@ -64,7 +64,7 @@ namespace AspectCore.Abstractions.Resolution.Test
             var configuration = new AspectConfiguration();
 
             var matcher = new InterceptorMatcher(configuration);
-            var method = MethodInfoHelpers.GetMethod<Action<WithInterceptorMatcherModel>>(m => m.WithOutInterceptor());
+            var method = MethodExtensions.GetMethod<Action<WithInterceptorMatcherModel>>(m => m.WithOutInterceptor());
 
             var interceptors = matcher.Match(method, typeof(WithInterceptorMatcherModel).GetTypeInfo());
 

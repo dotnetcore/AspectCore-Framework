@@ -12,9 +12,9 @@ namespace AspectCore.Abstractions.Resolution.Test
         public void ValidateDeclaringType_Test()
         {
             var validator = new AspectValidator(new AspectConfiguration());
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<NotPublicValidatorModel>>(m => m.Validate())));
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<VauleTypeValidatorModel>>(m => m.Validate())));
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<SealedValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<NotPublicValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<VauleTypeValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<SealedValidatorModel>>(m => m.Validate())));
           
         }
 
@@ -34,9 +34,9 @@ namespace AspectCore.Abstractions.Resolution.Test
         public void ValidateDeclaringMethod_Test()
         {
             var validator = new AspectValidator(new AspectConfiguration());
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<FinalMethodValidatorModel>>(m => m.Validate())));
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<NonPublicMethodValidatorModel>>(m => m.Validate())));
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action>(() => StaticMethodValidatorModel.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<FinalMethodValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<NonPublicMethodValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action>(() => StaticMethodValidatorModel.Validate())));
         }
 
         [Fact]
@@ -55,8 +55,8 @@ namespace AspectCore.Abstractions.Resolution.Test
         public void ValidateNonAspect_Test()
         {
             var validator = new AspectValidator(new AspectConfiguration());
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<ClassNonAspectValidatorModel>>(m => m.Validate())));
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<MethodNonAspectValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<ClassNonAspectValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<MethodNonAspectValidatorModel>>(m => m.Validate())));
         }
 
         [Fact]
@@ -65,16 +65,16 @@ namespace AspectCore.Abstractions.Resolution.Test
             var configuration = new AspectConfiguration();
             configuration.GetConfigurationOption<bool>().Add(m => m.DeclaringType.Name.Matches("IgnoredList*"));
             var validator = new AspectValidator(configuration);
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<IgnoredListValidatorModel>>(m => m.Validate())));
-            Assert.False(validator.Validate(MethodInfoHelpers.GetMethod<Action<object>>(m => m.ToString())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<IgnoredListValidatorModel>>(m => m.Validate())));
+            Assert.False(validator.Validate(MethodExtensions.GetMethod<Action<object>>(m => m.ToString())));
         }
 
         [Fact]
         public void ValidateInterceptor_Test()
         {
             var validator = new AspectValidator(new AspectConfiguration());
-            Assert.True(validator.Validate(MethodInfoHelpers.GetMethod<Action<ClassWithInterceptorValidatorModel>>(m => m.Validate())));
-            Assert.True(validator.Validate(MethodInfoHelpers.GetMethod<Action<MethodWithInterceptorValidatorModel>>(m => m.Validate())));
+            Assert.True(validator.Validate(MethodExtensions.GetMethod<Action<ClassWithInterceptorValidatorModel>>(m => m.Validate())));
+            Assert.True(validator.Validate(MethodExtensions.GetMethod<Action<MethodWithInterceptorValidatorModel>>(m => m.Validate())));
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace AspectCore.Abstractions.Resolution.Test
             var configuration = new AspectConfiguration();
             configuration.GetConfigurationOption<IInterceptor>().Add(m => new IncrementAttribute());
             var validator = new AspectValidator(configuration);
-            Assert.True(validator.Validate(MethodInfoHelpers.GetMethod<Action<ConfigurationInterceptorValidatorModel>>(m => m.Validate())));
+            Assert.True(validator.Validate(MethodExtensions.GetMethod<Action<ConfigurationInterceptorValidatorModel>>(m => m.Validate())));
         }
     }
 }

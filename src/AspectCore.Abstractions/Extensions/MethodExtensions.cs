@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace AspectCore.Abstractions.Extensions
 {
-    public static class MethodInfoExtensions
+    public static class MethodExtensions
     {
         public static object DynamicInvoke(this MethodInfo method, object instance, params object[] parameters)
         {

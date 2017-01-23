@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions.Extensions
 {
@@ -12,6 +13,11 @@ namespace AspectCore.Abstractions.Extensions
                 return $"{declaringType.Name}.{member.Name}".Replace('+', '.');
             }
             return member.Name;
+        }
+
+        internal static bool IsReturnTask(this MethodInfo methodInfo)
+        {
+            return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
     }
 }

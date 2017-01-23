@@ -23,9 +23,9 @@ namespace AspectCore.Abstractions.Resolution.Test
             var activatorContext = Substitute.For<AspectActivatorContext>();
             activatorContext.Parameters.Returns(new object[] { input });
             activatorContext.ServiceType.Returns(typeof(ITargetService));
-            activatorContext.ServiceMethod.Returns(MethodInfoHelpers.GetMethod<Func<ITargetService, int, int>>((m, v) => m.Add(v)));
-            activatorContext.TargetMethod.Returns(MethodInfoHelpers.GetMethod<Func<TargetService, int, int>>((m, v) => m.Add(v)));
-            activatorContext.ProxyMethod.Returns(MethodInfoHelpers.GetMethod<Func<ProxyService, int, int>>((m, v) => m.Add(v)));
+            activatorContext.ServiceMethod.Returns(MethodExtensions.GetMethod<Func<ITargetService, int, int>>((m, v) => m.Add(v)));
+            activatorContext.TargetMethod.Returns(MethodExtensions.GetMethod<Func<TargetService, int, int>>((m, v) => m.Add(v)));
+            activatorContext.ProxyMethod.Returns(MethodExtensions.GetMethod<Func<ProxyService, int, int>>((m, v) => m.Add(v)));
             activatorContext.TargetInstance.Returns(new TargetService());
             activatorContext.ProxyInstance.Returns(new ProxyService());
     
@@ -46,9 +46,9 @@ namespace AspectCore.Abstractions.Resolution.Test
             var activatorContext = Substitute.For<AspectActivatorContext>();
             activatorContext.Parameters.Returns(new object[] { input });
             activatorContext.ServiceType.Returns(typeof(ITargetService));
-            activatorContext.ServiceMethod.Returns(MethodInfoHelpers.GetMethod<Func<ITargetService, int, int>>((m, v) => m.Add(v)));
-            activatorContext.TargetMethod.Returns(MethodInfoHelpers.GetMethod<Func<TargetService, int, int>>((m, v) => m.Add(v)));
-            activatorContext.ProxyMethod.Returns(MethodInfoHelpers.GetMethod<Func<ProxyService, int, int>>((m, v) => m.Add(v)));
+            activatorContext.ServiceMethod.Returns(MethodExtensions.GetMethod<Func<ITargetService, int, int>>((m, v) => m.Add(v)));
+            activatorContext.TargetMethod.Returns(MethodExtensions.GetMethod<Func<TargetService, int, int>>((m, v) => m.Add(v)));
+            activatorContext.ProxyMethod.Returns(MethodExtensions.GetMethod<Func<ProxyService, int, int>>((m, v) => m.Add(v)));
             activatorContext.TargetInstance.Returns(new TargetService());
             activatorContext.ProxyInstance.Returns(new ProxyService());
 
