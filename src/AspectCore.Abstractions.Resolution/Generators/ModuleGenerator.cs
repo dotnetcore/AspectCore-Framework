@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AspectCore.Abstractions.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using AspectCore.Abstractions.Extensions;
 using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators

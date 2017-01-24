@@ -44,9 +44,9 @@ namespace AspectCore.Abstractions.Resolution
            MethodInfo methodInfo, TypeInfo typeInfo, IConfigurationOption<IInterceptor> configurationOption)
             where TInterceptor : class, IInterceptor
         {
-            foreach (var attribute in methodInfo.GetCustomAttributes())
+            foreach (var option in configurationOption)
             {
-                var interceptor = attribute as TInterceptor;
+                var interceptor = option(methodInfo) as TInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
 
@@ -56,9 +56,9 @@ namespace AspectCore.Abstractions.Resolution
                 if (interceptor != null) yield return interceptor;
             }
 
-            foreach (var option in configurationOption)
+            foreach (var attribute in methodInfo.GetCustomAttributes())
             {
-                var interceptor = option(methodInfo) as TInterceptor;
+                var interceptor = attribute as TInterceptor;
                 if (interceptor != null) yield return interceptor;
             }
         }
