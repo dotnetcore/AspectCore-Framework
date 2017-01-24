@@ -192,9 +192,9 @@ namespace AspectCore.Abstractions.Extensions
 
             internal static readonly MethodInfo EmitConvertToType = ILGenType.GetTypeInfo().GetMethod("EmitConvertToType", BindingFlags.NonPublic | BindingFlags.Static);
 
-            internal static readonly MethodInfo GetTypeFromHandle = MethodExtensions.GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
+            internal static readonly MethodInfo GetTypeFromHandle = MethodInfosExtensions.GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
 
-            internal static readonly MethodInfo GetMethodFromHandle = MethodExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
+            internal static readonly MethodInfo GetMethodFromHandle = MethodInfosExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
 
             internal static readonly ConstructorInfo ArgumentNullExceptionCtor = typeof(ArgumentNullException).GetTypeInfo().GetConstructor(new Type[] { typeof(string) });
         }

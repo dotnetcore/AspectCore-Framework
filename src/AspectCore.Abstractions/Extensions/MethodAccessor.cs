@@ -9,11 +9,9 @@ namespace AspectCore.Abstractions.Extensions
 {
     public sealed class MethodAccessor
     {
-        private static readonly ConcurrentDictionary<MethodInfo, MethodInvoker> invokerTable = new ConcurrentDictionary<MethodInfo, MethodInvoker>();
+        private static readonly ConcurrentDictionary<MethodInfo, Func<object, object[], object>> invokerCache = new ConcurrentDictionary<MethodInfo, Func<object, object[], object>>();
 
         private readonly MethodInfo methodInfo;
-
-        public delegate object MethodInvoker(object instance, object[] parameters);
 
         public MethodAccessor(MethodInfo methodInfo)
         {
@@ -31,12 +29,12 @@ namespace AspectCore.Abstractions.Extensions
             this.methodInfo = methodInfo;
         }
 
-        public MethodInvoker CreateMethodInvoker()
+        public Func<object, object[], object> CreateMethodInvoker()
         {
-            return invokerTable.GetOrAdd(methodInfo, key => InternalCreateMethodInvoker());
+            return invokerCache.GetOrAdd(methodInfo, key => InternalCreateMethodInvoker());
         }
 
-        private MethodInvoker InternalCreateMethodInvoker()
+        private Func<object, object[], object> InternalCreateMethodInvoker()
         {
             DynamicMethod dynamicMethod = new DynamicMethod($"{methodInfo.Name}_handler",
                 typeof(object), new Type[] { typeof(object), typeof(object[]) }, methodInfo.Module, true);
@@ -110,7 +108,7 @@ namespace AspectCore.Abstractions.Extensions
 
             ilGen.Emit(OpCodes.Ret);
 
-            return (MethodInvoker)dynamicMethod.CreateDelegate(typeof(MethodInvoker));
+            return (Func<object, object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object, object[], object>));
         }
     }
 }

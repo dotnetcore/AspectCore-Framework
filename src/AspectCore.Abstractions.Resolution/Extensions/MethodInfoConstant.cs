@@ -10,12 +10,12 @@ namespace AspectCore.Abstractions.Extensions
     {
         internal static readonly ConstructorInfo AspectActivatorContex_Ctor = new AspectActivatorContextGenerator().CreateTypeInfo().DeclaredConstructors.Single();
 
-        internal static readonly MethodInfo GetAspectActivator = MethodExtensions.GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetAspectActivator());
+        internal static readonly MethodInfo GetAspectActivator = MethodInfosExtensions.GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetAspectActivator());
 
-        internal static readonly MethodInfo AspectActivator_Invoke = MethodExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.Invoke));
+        internal static readonly MethodInfo AspectActivator_Invoke = MethodInfosExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.Invoke));
 
-        internal static readonly MethodInfo AspectActivator_InvokeAsync = MethodExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeAsync));
+        internal static readonly MethodInfo AspectActivator_InvokeAsync = MethodInfosExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeAsync));
 
-        internal static readonly MethodInfo TargetInstanceProvider_GetInstance = MethodExtensions.GetMethod<Func<TargetInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
+        internal static readonly MethodInfo TargetInstanceProvider_GetInstance = MethodInfosExtensions.GetMethod<Func<TargetInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
     }
 }

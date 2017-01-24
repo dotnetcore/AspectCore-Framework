@@ -5,9 +5,9 @@ using System.Reflection;
 
 namespace AspectCore.Abstractions.Extensions
 {
-    public static class MethodExtensions
+    public static class MethodInfosExtensions
     {
-        public static object DynamicInvoke(this MethodInfo method, object instance, params object[] parameters)
+        public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
         {
             if (method == null)
             {
@@ -16,9 +16,9 @@ namespace AspectCore.Abstractions.Extensions
             return new MethodAccessor(method).CreateMethodInvoker()(instance, parameters);
         }
 
-        public static TResult DynamicInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
+        public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
         {
-            return (TResult)DynamicInvoke(method, instance, parameters);
+            return (TResult)FastInvoke(method, instance, parameters);
         }
 
         public static Type[] GetParameterTypes(this MethodInfo method)
