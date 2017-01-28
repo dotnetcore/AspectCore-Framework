@@ -31,7 +31,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             var typeBuilder = base.ExecuteBuild();
 
-            var properties = ParentType.GetTypeInfo().DeclaredProperties.OrderBy(p => p.GetCustomAttribute<AspectActivatorContext.IndexAttribute>().Index).ToArray();
+            var properties = ParentType.GetTypeInfo().DeclaredProperties.ToArray();
 
             var fields = GetFields(typeBuilder, properties);
 

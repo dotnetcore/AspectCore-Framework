@@ -1,4 +1,5 @@
-﻿using AspectCore.Abstractions.Resolution.Test.Fakes;
+﻿using AspectCore.Abstractions.Resolution.Internal;
+using AspectCore.Abstractions.Resolution.Test.Fakes;
 using Xunit;
 
 namespace AspectCore.Abstractions.Resolution.Test
@@ -14,7 +15,7 @@ namespace AspectCore.Abstractions.Resolution.Test
 
             Assert.Null(interceptor.Configuration);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration),new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
@@ -32,7 +33,7 @@ namespace AspectCore.Abstractions.Resolution.Test
 
             Assert.Null(interceptor.ConfigurationWithNoSet);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
@@ -48,7 +49,7 @@ namespace AspectCore.Abstractions.Resolution.Test
 
             Assert.Null(interceptor.ConfigurationWithNoFromServicesAttribute);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 

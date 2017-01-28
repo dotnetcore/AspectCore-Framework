@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public class AspectContext : IDisposable
+    public abstract class AspectContext : IDisposable
     {
         public virtual IServiceProvider ServiceProvider { get; }
 

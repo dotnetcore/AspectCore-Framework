@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading.Tasks;
 #if NET45
 using Nito.AsyncEx;
@@ -9,34 +8,19 @@ namespace AspectCore.Abstractions.Resolution
 {
     public class AspectActivator : IAspectActivator
     {
-        private readonly IAspectBuilder aspectBuilder;
         private readonly IServiceProvider serviceProvider;
-        private readonly IInterceptorMatcher interceptorMatcher;
-        private readonly IInterceptorInjector interceptorInjector;
+        private readonly IAspectBuilderProvider aspectBuilderProvider;
 
         public AspectActivator(
-            IServiceProvider serviceProvider,
-            IAspectBuilder aspectBuilder,
-            IInterceptorMatcher interceptorMatcher,
-            IInterceptorInjector interceptorInjector)
+            IServiceProvider serviceProvider, 
+            IAspectBuilderProvider aspectBuilderProvider)
         {
-            if (aspectBuilder == null)
+            if (aspectBuilderProvider == null)
             {
-                throw new ArgumentNullException(nameof(aspectBuilder));
+                throw new ArgumentNullException(nameof(aspectBuilderProvider));
             }
-            if (interceptorMatcher == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorMatcher));
-            }
-            if (interceptorInjector == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorInjector));
-            }
-
             this.serviceProvider = serviceProvider;
-            this.aspectBuilder = aspectBuilder;
-            this.interceptorMatcher = interceptorMatcher;
-            this.interceptorInjector = interceptorInjector;
+            this.aspectBuilderProvider = aspectBuilderProvider;
         }
 
         private async Task<T> ConvertReturnVaule<T>(object value)
@@ -76,16 +60,9 @@ namespace AspectCore.Abstractions.Resolution
         {
             using (var context = new DefaultAspectContext<T>(serviceProvider, activatorContext))
             {
-                var method = activatorContext.ServiceMethod;
-                foreach (var interceptor in interceptorMatcher.Match(method, method.DeclaringType.GetTypeInfo()))
-                {
+                var aspectBuilder = aspectBuilderProvider.GetBuilder(activatorContext);
 
-                    interceptorInjector.Inject(interceptor);
-                    aspectBuilder.AddAspectDelegate(interceptor.Invoke);
-
-                }
-
-                await aspectBuilder.Build(() => context.Target.Invoke(context.Parameters))(context);
+                await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
 
                 return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
             }

@@ -1,5 +1,6 @@
 ﻿using AspectCore.Abstractions.Extensions;
 using AspectCore.Abstractions.Generator;
+using AspectCore.Abstractions.Resolution.Internal;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -45,7 +46,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(TargetInstanceProvider) };
+                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(IServiceInstanceProvider) };
                 return serviceTypeParameters.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
             }
         }
@@ -75,7 +76,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
             {
                 ilGenerator.EmitTypeof(serviceType);
             }
-            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.TargetInstanceProvider_GetInstance);
+            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
             ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
 

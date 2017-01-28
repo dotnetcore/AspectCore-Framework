@@ -1,6 +1,6 @@
-﻿using System;
+﻿using AspectCore.Abstractions.Extensions;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions.Resolution
@@ -14,13 +14,18 @@ namespace AspectCore.Abstractions.Resolution
             delegates = new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
-        public void AddAspectDelegate(Func<Abstractions.AspectContext, AspectDelegate, Task> interceptorInvoke)
+        public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
         {
             if (interceptorInvoke == null)
             {
                 throw new ArgumentNullException(nameof(interceptorInvoke));
             }
             delegates.Add(next => context => interceptorInvoke(context, next));
+        }
+
+        public Func<Func<object>, AspectDelegate> Build()
+        {
+            return targetInvoke => Build(targetInvoke);
         }
 
         public AspectDelegate Build(Func<object> targetInvoke)
@@ -32,11 +37,12 @@ namespace AspectCore.Abstractions.Resolution
             AspectDelegate invoke = context =>
             {
                 context.ReturnParameter.Value = targetInvoke();
-                return Task.FromResult(false);
+                return TaskCache.CompletedTask;
             };
-            foreach (var next in delegates.Reverse())
+            var count = delegates.Count;
+            for (var i = count - 1; i > -1; i--)
             {
-                invoke = next(invoke);
+                invoke = delegates[i](invoke);
             }
             return invoke;
         }

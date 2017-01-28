@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    public class AspectActivatorContextConstructorGenerator : ConstructorGenerator
+    internal class AspectActivatorContextConstructorGenerator : ConstructorGenerator
     {
         private readonly FieldGenerator[] fields;
         public AspectActivatorContextConstructorGenerator(TypeBuilder declaringMember, params FieldGenerator[] fields) : base(declaringMember)

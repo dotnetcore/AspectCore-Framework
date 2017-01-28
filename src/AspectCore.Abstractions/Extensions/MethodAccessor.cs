@@ -11,7 +11,7 @@ namespace AspectCore.Abstractions.Extensions
     {
         private static readonly ConcurrentDictionary<MethodInfo, Func<object, object[], object>> invokerCache = new ConcurrentDictionary<MethodInfo, Func<object, object[], object>>();
 
-        private readonly MethodInfo methodInfo;
+        public MethodInfo Method { get; }
 
         public MethodAccessor(MethodInfo methodInfo)
         {
@@ -26,22 +26,22 @@ namespace AspectCore.Abstractions.Extensions
             if (methodInfo.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
                 throw new ArgumentException($"genericTypeDefinition \"{methodInfo.DeclaringType}\" generic types are not valid.");
 
-            this.methodInfo = methodInfo;
+            this.Method = methodInfo;
         }
 
         public Func<object, object[], object> CreateMethodInvoker()
         {
-            return invokerCache.GetOrAdd(methodInfo, key => InternalCreateMethodInvoker());
+            return invokerCache.GetOrAdd(Method, key => InternalCreateMethodInvoker());
         }
 
         private Func<object, object[], object> InternalCreateMethodInvoker()
         {
-            DynamicMethod dynamicMethod = new DynamicMethod($"{methodInfo.Name}_handler",
-                typeof(object), new Type[] { typeof(object), typeof(object[]) }, methodInfo.Module, true);
+            DynamicMethod dynamicMethod = new DynamicMethod($"{Method.Name}_handler",
+                typeof(object), new Type[] { typeof(object), typeof(object[]) }, Method.Module, true);
 
             ILGenerator ilGen = dynamicMethod.GetILGenerator();
 
-            var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+            var parameterTypes = Method.GetParameters().Select(p => p.ParameterType).ToArray();
 
             if (parameterTypes.Length != 0)
             {
@@ -54,7 +54,7 @@ namespace AspectCore.Abstractions.Extensions
                 ilGen.MarkLabel(lable);
             }
 
-            if (!methodInfo.IsStatic)
+            if (!Method.IsStatic)
             {
                 var lable = ilGen.DefineLabel();
                 ilGen.EmitLoadArg(0);
@@ -64,7 +64,7 @@ namespace AspectCore.Abstractions.Extensions
                 ilGen.Emit(OpCodes.Throw);
                 ilGen.MarkLabel(lable);
                 ilGen.EmitLoadArg(0);
-                ilGen.EmitConvertToType(typeof(object), methodInfo.DeclaringType, true);
+                ilGen.EmitConvertToType(typeof(object), Method.DeclaringType, true);
             }
 
             LocalBuilder[] locals = new LocalBuilder[parameterTypes.Length];
@@ -88,9 +88,9 @@ namespace AspectCore.Abstractions.Extensions
                 }
             }
 
-            ilGen.EmitCall(methodInfo.IsStatic || methodInfo.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, methodInfo, null);
+            ilGen.EmitCall(Method.IsStatic || Method.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, Method, null);
 
-            if (methodInfo.ReturnType != typeof(void)) ilGen.EmitConvertToType(methodInfo.ReturnType, typeof(object), true);
+            if (Method.ReturnType != typeof(void)) ilGen.EmitConvertToType(Method.ReturnType, typeof(object), true);
 
             for (var i = 0; i < parameterTypes.Length; i++)
             {
@@ -104,7 +104,7 @@ namespace AspectCore.Abstractions.Extensions
                 }
             }
 
-            if (methodInfo.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
+            if (Method.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
 
             ilGen.Emit(OpCodes.Ret);
 

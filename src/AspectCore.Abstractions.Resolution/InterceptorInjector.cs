@@ -1,20 +1,28 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using AspectCore.Abstractions.Resolution.Internal;
+using System;
+using System.Collections.Generic;
 
 namespace AspectCore.Abstractions.Resolution
 {
     public sealed class InterceptorInjector : IInterceptorInjector
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly IEnumerable<IPropertyInjector> propertyInjectors;
 
-        public InterceptorInjector(IServiceProvider serviceProvider)
+        public InterceptorInjector(
+            IServiceProvider serviceProvider,
+            IEnumerable<IPropertyInjector> propertyInjectors)
         {
             if (serviceProvider == null)
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
+            if (propertyInjectors == null)
+            {
+                throw new ArgumentNullException(nameof(propertyInjectors));
+            }
             this.serviceProvider = serviceProvider;
+            this.propertyInjectors = propertyInjectors;
         }
 
         public void Inject(IInterceptor interceptor)
@@ -24,16 +32,9 @@ namespace AspectCore.Abstractions.Resolution
                 throw new ArgumentNullException(nameof(interceptor));
             }
 
-            var properties = interceptor.GetType().GetTypeInfo().DeclaredProperties.Where(x => x.CanWrite && x.IsDefined(typeof(FromServicesAttribute))).ToArray();
-
-            if (!properties.Any())
+            foreach(var propertyInjector in propertyInjectors)
             {
-                return;
-            }
-
-            foreach (var property in properties)
-            {
-                property.SetValue(interceptor, serviceProvider.GetService(property.PropertyType));
+                propertyInjector.Invoke(serviceProvider, interceptor);
             }
         }
     }

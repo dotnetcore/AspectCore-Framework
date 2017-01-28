@@ -1,5 +1,6 @@
 ﻿using AspectCore.Abstractions.Resolution;
 using AspectCore.Abstractions.Resolution.Generators;
+using AspectCore.Abstractions.Resolution.Internal;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +17,6 @@ namespace AspectCore.Abstractions.Extensions
 
         internal static readonly MethodInfo AspectActivator_InvokeAsync = MethodInfosExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeAsync));
 
-        internal static readonly MethodInfo TargetInstanceProvider_GetInstance = MethodInfosExtensions.GetMethod<Func<TargetInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
+        internal static readonly MethodInfo ServiceInstanceProvider_GetInstance = MethodInfosExtensions.GetMethod<Func<IServiceInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
     }
 }

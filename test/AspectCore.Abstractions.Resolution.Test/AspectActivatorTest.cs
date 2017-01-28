@@ -1,4 +1,5 @@
 ﻿using AspectCore.Abstractions.Extensions;
+using AspectCore.Abstractions.Resolution.Internal;
 using AspectCore.Abstractions.Resolution.Test.Fakes;
 using NSubstitute;
 using System;
@@ -16,9 +17,10 @@ namespace AspectCore.Abstractions.Resolution.Test
         {
             var configuration = new AspectConfiguration();
             var serviceProvider = new InstanceServiceProvider(null);
-            var activator = new AspectActivator(serviceProvider, new AspectBuilder(), new InterceptorMatcher(configuration), new InterceptorInjector(serviceProvider));
-
-            var input = 0;
+            var activator = new AspectActivator(serviceProvider,
+                new AspectBuilderProvider(new InterceptorSelector(new InterceptorMatcher(configuration), new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+ 
+             var input = 0;
 
             var activatorContext = Substitute.For<AspectActivatorContext>();
             activatorContext.Parameters.Returns(new object[] { input });
@@ -39,7 +41,8 @@ namespace AspectCore.Abstractions.Resolution.Test
         {
             var configuration = new AspectConfiguration();
             var serviceProvider = new InstanceServiceProvider(null);
-            var activator = new AspectActivator(serviceProvider, new AspectBuilder(), new InterceptorMatcher(configuration), new InterceptorInjector(serviceProvider));
+            var activator = new AspectActivator(serviceProvider,
+                           new AspectBuilderProvider(new InterceptorSelector(new InterceptorMatcher(configuration), new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
 
             var input = 0;
 

@@ -8,9 +8,6 @@ namespace AspectCore.Abstractions.Resolution
 {
     public sealed class InterceptorMatcher : IInterceptorMatcher
     {
-        private static readonly IDictionary<MethodInfo, IInterceptor[]> InterceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
-        private static object CacheLock = new object();
-
         private readonly IAspectConfiguration aspectConfiguration;
 
         public InterceptorMatcher(IAspectConfiguration aspectConfiguration)
@@ -33,11 +30,8 @@ namespace AspectCore.Abstractions.Resolution
                 throw new ArgumentNullException(nameof(serviceTypeInfo));
             }
 
-            return InterceptorCache.GetOrAdd(serviceMethod, _ =>
-            {
-                var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, aspectConfiguration.GetConfigurationOption<IInterceptor>());
-                return aggregate.FilterMultiple().OrderBy(interceptor => interceptor.Order).ToArray();
-            }, ref CacheLock);
+            var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, aspectConfiguration.GetConfigurationOption<IInterceptor>());
+            return aggregate.FilterMultiple().OrderBy(interceptor => interceptor.Order).ToArray();
         }
 
         public static IEnumerable<TInterceptor> Aggregate<TInterceptor>(

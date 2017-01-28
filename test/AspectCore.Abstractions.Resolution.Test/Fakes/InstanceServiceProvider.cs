@@ -1,8 +1,9 @@
-﻿using System;
+﻿using AspectCore.Abstractions.Resolution.Internal;
+using System;
 
 namespace AspectCore.Abstractions.Resolution.Test.Fakes
 {
-    public class InstanceServiceProvider : TargetInstanceProvider, IServiceProvider
+    public class InstanceServiceProvider : IServiceInstanceProvider, IServiceProvider
     {
         private readonly object instance;
 
@@ -11,7 +12,7 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
             this.instance = instance;
         }
 
-        public override object GetInstance(Type serviceType)
+        public object GetInstance(Type serviceType)
         {
             return instance;
         }

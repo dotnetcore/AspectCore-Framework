@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    public class AspectActivatorContextPropertyGenerator : PropertyGenerator
+    internal class AspectActivatorContextPropertyGenerator : PropertyGenerator
     {
         private readonly PropertyInfo property;
 
