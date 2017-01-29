@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal sealed class AspectMethodBodyGenerator : MethodBodyGenerator
+    internal sealed class ProxyMethodBodyGenerator : MethodBodyGenerator
     {
         private readonly Type serviceType;
         private readonly Type parentType;
@@ -18,7 +18,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         private readonly FieldBuilder serviceProviderFieldBuilder;
         private readonly TypeBuilder declaringBuilder;
 
-        public AspectMethodBodyGenerator(
+        public ProxyMethodBodyGenerator(
                 MethodBuilder declaringMember, 
                 TypeBuilder declaringBuilder,
                 Type serviceType, 

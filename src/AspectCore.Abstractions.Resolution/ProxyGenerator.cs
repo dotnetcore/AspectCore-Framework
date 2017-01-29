@@ -19,8 +19,24 @@ namespace AspectCore.Abstractions.Resolution
 
         public Type CreateType(Type serviceType, Type implementationType)
         {
-            var typeGenerator = new AspectTypeGenerator(serviceType, implementationType, aspectValidator);
-            return typeGenerator.CreateType();
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+            var proxyGenerator = GetProxyTypeGenerator(serviceType);
+            return proxyGenerator.CreateTypeInfo().AsType();
+        }
+
+        private ProxyTypeGenerator GetProxyTypeGenerator(Type serviceType)
+        {
+            if (serviceType.GetTypeInfo().IsInterface)
+            {
+                return new InterfaceProxyTypeGenerator(serviceType, aspectValidator);
+            }
+            else
+            {
+                return new ClassProxyTypeGenerator(serviceType, aspectValidator);
+            }
         }
     }
 }

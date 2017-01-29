@@ -78,7 +78,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override PropertyBuilder ExecuteBuild()
         {
-            Field = new AspectFieldGenerator($"_{PropertyName}", PropertyType, DeclaringMember);
+            Field = new ProxyFieldGnerator($"_{PropertyName}", PropertyType, DeclaringMember);
             Field.Build();
 
             return base.ExecuteBuild();

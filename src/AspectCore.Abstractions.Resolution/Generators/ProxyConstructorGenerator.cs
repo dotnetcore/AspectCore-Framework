@@ -8,14 +8,16 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal sealed class AspectConstructorGenerator : ConstructorGenerator
+    internal class ProxyConstructorGenerator : ConstructorGenerator
     {
-        private readonly ConstructorInfo constructor;
-        private readonly FieldBuilder serviceInstanceFieldBuilder;
-        private readonly FieldBuilder serviceProviderFieldBuilder;
-        private readonly Type serviceType;
+        protected readonly static Type[] ProxyParameterTypes = new Type[] { typeof(IServiceProvider), typeof(IServiceInstanceProvider) };
 
-        public AspectConstructorGenerator(TypeBuilder declaringMember,
+        protected readonly ConstructorInfo constructor;
+        protected readonly FieldBuilder serviceInstanceFieldBuilder;
+        protected readonly FieldBuilder serviceProviderFieldBuilder;
+        protected readonly Type serviceType;
+
+        public ProxyConstructorGenerator(TypeBuilder declaringMember,
             Type serviceType, ConstructorInfo constructor,
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
             : base(declaringMember)
@@ -38,6 +40,17 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
+                var typeinfo = serviceType.GetTypeInfo();
+
+                if (typeinfo.IsClass &&
+                    typeinfo.IsAbstract &&
+                    typeinfo.DeclaredConstructors.All(c => !c.IsPublic) &&
+                    constructor.GetParameters().Length == 0)
+                {
+
+                    return MethodAttributes.Public;
+                }
+
                 return constructor.Attributes;
             }
         }
@@ -46,8 +59,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                var serviceTypeParameters = new Type[] { typeof(IServiceProvider), typeof(IServiceInstanceProvider) };
-                return serviceTypeParameters.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
+                return ProxyParameterTypes.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
             }
         }
 

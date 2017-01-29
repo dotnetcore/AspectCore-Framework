@@ -6,12 +6,12 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal sealed class NonAspectMethodBodyGenerator : MethodBodyGenerator
+    internal sealed class NonProxyMethodBodyGenerator : MethodBodyGenerator
     {
         private readonly MethodInfo serviceMethod;
         private readonly FieldBuilder serviceInstanceFieldBuilder;
 
-        public NonAspectMethodBodyGenerator(MethodBuilder declaringMember, MethodInfo serviceMethod, FieldBuilder serviceInstanceField)
+        public NonProxyMethodBodyGenerator(MethodBuilder declaringMember, MethodInfo serviceMethod, FieldBuilder serviceInstanceField)
             : base(declaringMember)
         {
             this.serviceMethod = serviceMethod;

@@ -2,10 +2,8 @@
 
 namespace AspectCore.Abstractions
 {
-    public interface ITypeProxies
+    public interface IServiceProviderAccessor
     {
         IServiceProvider ServiceProvider { get; }
-
-        object ServiceInstance { get; }
     }
 }

@@ -37,5 +37,19 @@ namespace AspectCore.Abstractions.Extensions
 
             return typeInfo.DeclaredMethods.Any(method => aspectValidator.Validate(method));
         }
+
+        public static bool Validate(this IAspectValidator aspectValidator, PropertyInfo property)
+        {
+            if (aspectValidator == null)
+            {
+                throw new ArgumentNullException(nameof(aspectValidator));
+            }
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+
+            return (property.CanRead && aspectValidator.Validate(property.GetMethod)) || (property.CanWrite && aspectValidator.Validate(property.SetMethod));
+        }
     }
 }

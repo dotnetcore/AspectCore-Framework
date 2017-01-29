@@ -5,9 +5,9 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal class AspectFieldGenerator : FieldGenerator
+    internal class ProxyFieldGnerator : FieldGenerator
     {
-        public AspectFieldGenerator(string name, Type fieldType, TypeBuilder declaringMember) : base(declaringMember)
+        public ProxyFieldGnerator(string name, Type fieldType, TypeBuilder declaringMember) : base(declaringMember)
         {
             FieldName = name;
             FieldType = fieldType;

@@ -6,15 +6,15 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal class AspectPropertyGenerator : PropertyGenerator
+    internal class ProxyPropertyGenerator : PropertyGenerator
     {
-        private readonly PropertyInfo propertyInfo;
-        private readonly Type serviceType;
-        private readonly Type parentType;
-        private readonly FieldBuilder serviceInstanceFieldBuilder;
-        private readonly FieldBuilder serviceProviderFieldBuilder;
+        protected readonly PropertyInfo propertyInfo;
+        protected readonly Type serviceType;
+        protected readonly Type parentType;
+        protected readonly FieldBuilder serviceInstanceFieldBuilder;
+        protected readonly FieldBuilder serviceProviderFieldBuilder;
 
-        public AspectPropertyGenerator(TypeBuilder declaringMember, PropertyInfo propertyInfo,
+        public ProxyPropertyGenerator(TypeBuilder declaringMember, PropertyInfo propertyInfo,
              Type serviceType, Type parentType,
              FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder) :
              base(declaringMember)
@@ -92,12 +92,12 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override MethodGenerator GetReadMethodGenerator(TypeBuilder declaringType)
         {
-            return new AspectMethodGenerator(declaringType, serviceType, parentType, GetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            return new ProxyMethodGenerator(declaringType, serviceType, parentType, GetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
         }
 
         protected override MethodGenerator GetWriteMethodGenerator(TypeBuilder declaringType)
         {
-            return new AspectMethodGenerator(declaringType, serviceType, parentType, SetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            return new ProxyMethodGenerator(declaringType, serviceType, parentType, SetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
         }
     }
 }

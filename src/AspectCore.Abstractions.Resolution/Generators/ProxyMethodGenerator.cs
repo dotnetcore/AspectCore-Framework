@@ -7,18 +7,18 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal sealed class AspectMethodGenerator : GenericMethodGenerator
+    internal class ProxyMethodGenerator : GenericMethodGenerator
     {
         const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
         const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
-        private readonly Type serviceType;
-        private readonly Type parentType;
-        private readonly MethodInfo serviceMethod;
-        private readonly FieldBuilder serviceInstanceFieldBuilder;
-        private readonly FieldBuilder serviceProviderFieldBuilder;
+        protected readonly Type serviceType;
+        protected readonly Type parentType;
+        protected readonly MethodInfo serviceMethod;
+        protected readonly FieldBuilder serviceInstanceFieldBuilder;
+        protected readonly FieldBuilder serviceProviderFieldBuilder;
 
-        public AspectMethodGenerator(TypeBuilder declaringMember, Type serviceType, Type parentType, MethodInfo serviceMethod,
+        public ProxyMethodGenerator(TypeBuilder declaringMember, Type serviceType, Type parentType, MethodInfo serviceMethod,
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder) : base(declaringMember)
         {
             this.serviceType = serviceType;
@@ -78,7 +78,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                return serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+                return serviceMethod.GetParameterTypes();
             }
         }
 
@@ -113,7 +113,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
             var parentMethod = parentType.GetTypeInfo().GetMethod(serviceMethod.Name, serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray());
-            return new AspectMethodBodyGenerator(declaringMethod,
+            return new ProxyMethodBodyGenerator(declaringMethod,
                 DeclaringMember,
                 serviceType,
                 parentType,
