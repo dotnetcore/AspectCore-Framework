@@ -17,26 +17,29 @@ namespace AspectCore.Abstractions.Resolution
             this.aspectValidator = aspectValidator;
         }
 
-        public Type CreateType(Type serviceType, Type implementationType)
+        public Type CreateClassProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
+        {
+            return new ClassProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator).CreateTypeInfo().AsType();
+        }
+
+        public Type CreateInterfaceProxyType(Type serviceType, Type implementationType)
         {
             if (serviceType == null)
             {
                 throw new ArgumentNullException(nameof(serviceType));
             }
-            var proxyGenerator = GetProxyTypeGenerator(serviceType);
-            return proxyGenerator.CreateTypeInfo().AsType();
+
+            return GetInterfaceProxyTypeGenerator(serviceType, implementationType).CreateTypeInfo().AsType();
         }
 
-        private ProxyTypeGenerator GetProxyTypeGenerator(Type serviceType)
+        private ProxyTypeGenerator GetInterfaceProxyTypeGenerator(Type serviceType, Type implementationType)
         {
-            if (serviceType.GetTypeInfo().IsInterface)
+            var proxyStructureAttribute = serviceType.GetTypeInfo().GetCustomAttribute<ProxyStructureAttribute>();
+            if (proxyStructureAttribute != null && proxyStructureAttribute.ProxyMode == ProxyMode.Inheritance)
             {
-                return new InterfaceProxyTypeGenerator(serviceType, aspectValidator);
+                return new InheritanceInterfaceProxyTypeGenerator(serviceType, implementationType, aspectValidator);
             }
-            else
-            {
-                return new ClassProxyTypeGenerator(serviceType, aspectValidator);
-            }
+            return new InterfaceProxyTypeGenerator(serviceType, aspectValidator);
         }
     }
 }

@@ -8,6 +8,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
 {
     internal sealed class ModuleGenerator
     {
+        internal const string ProxyNameSpace = "AspectCore.Proxies";
+
         private static readonly ModuleGenerator instance = new ModuleGenerator();
         internal static ModuleGenerator Default
         {
@@ -26,7 +28,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         private ModuleGenerator()
         {
-            var assemblyName = new AssemblyName($"AspectCore.Proxys.{Guid.NewGuid()}");
+            var assemblyName = new AssemblyName($"{ProxyNameSpace}.{Guid.NewGuid()}");
             assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
         }

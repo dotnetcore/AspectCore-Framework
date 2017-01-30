@@ -17,10 +17,6 @@ namespace AspectCore.Abstractions
         public TargetDescriptor(object implementationInstance,
             MethodInfo serviceMethod, Type serviceType, MethodInfo implementationMethod, Type implementationType)
         {
-            if (implementationInstance == null)
-            {
-                throw new ArgumentNullException(nameof(implementationInstance));
-            }
             if (serviceMethod == null)
             {
                 throw new ArgumentNullException(nameof(serviceMethod));
@@ -49,8 +45,12 @@ namespace AspectCore.Abstractions
         {
             try
             {
+                if (ImplementationInstance == null)
+                {
+                    return null;
+                }
                 var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value)?.ToArray();
-                return ImplementationMethod.FastInvoke(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
+                return new MethodAccessor(ImplementationMethod, ImplementationMethod.IsCallByLookupVTable()).CreateMethodInvoker()(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
             }
             catch (TargetInvocationException exception)
             {

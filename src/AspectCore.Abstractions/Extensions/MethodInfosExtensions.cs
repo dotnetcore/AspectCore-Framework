@@ -96,5 +96,20 @@ namespace AspectCore.Abstractions.Extensions
 
             return closedGenericType.GetTypeInfo().GetMethod(methodInfo.Name, methodInfo.GetParameterTypes());
         }
+
+        internal static bool IsCallByLookupVTable(this MethodInfo methodInfo)
+        {
+            var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
+            if (typeInfo.IsClass)
+            {
+                return false;
+            }
+            var proxyStructure = typeInfo.GetCustomAttribute<ProxyStructureAttribute>();
+            if (proxyStructure == null)
+            {
+                return true;
+            }
+            return proxyStructure.ProxyMode == ProxyMode.ServiceInstance;
+        }
     }
 }

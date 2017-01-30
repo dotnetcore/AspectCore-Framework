@@ -13,10 +13,12 @@ namespace AspectCore.Abstractions.Resolution.Generators
         protected readonly Type parentType;
         protected readonly FieldBuilder serviceInstanceFieldBuilder;
         protected readonly FieldBuilder serviceProviderFieldBuilder;
+        protected readonly bool isImplementExplicitly;
 
         public ProxyPropertyGenerator(TypeBuilder declaringMember, PropertyInfo propertyInfo,
              Type serviceType, Type parentType,
-             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder) :
+             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder,
+             bool isImplementExplicitly) :
              base(declaringMember)
         {
             this.propertyInfo = propertyInfo;
@@ -24,6 +26,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
             this.parentType = parentType;
             this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
             this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
+            this.isImplementExplicitly = isImplementExplicitly;
         }
 
         public override CallingConventions CallingConventions
@@ -70,7 +73,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                return propertyInfo.GetFullName();
+                return isImplementExplicitly ? propertyInfo.GetFullName() : propertyInfo.Name;
             }
         }
 
@@ -92,12 +95,12 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override MethodGenerator GetReadMethodGenerator(TypeBuilder declaringType)
         {
-            return new ProxyMethodGenerator(declaringType, serviceType, parentType, GetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            return new ProxyMethodGenerator(declaringType, serviceType, parentType, GetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, isImplementExplicitly);
         }
 
         protected override MethodGenerator GetWriteMethodGenerator(TypeBuilder declaringType)
         {
-            return new ProxyMethodGenerator(declaringType, serviceType, parentType, SetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder);
+            return new ProxyMethodGenerator(declaringType, serviceType, parentType, SetMethod, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, isImplementExplicitly);
         }
     }
 }

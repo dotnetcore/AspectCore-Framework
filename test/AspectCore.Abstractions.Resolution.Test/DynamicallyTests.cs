@@ -11,13 +11,19 @@ namespace AspectCore.Abstractions.Resolution.Test
 {
     public class DynamicallyTests
     {
-        [Theory]
-        [InlineData(typeof(ITargetService),typeof(TargetService))]
-        [InlineData(typeof(AbsTargetService), typeof(TargetService))]
-        public void Dynamically_Test(Type serviceType, Type impType)
+        [Fact]
+        public void Dynamically_Test()
         {
             var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
-            var proxyType = generator.CreateType(serviceType, impType);
+            var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
+            Assert.True(proxyType.GetTypeInfo().IsDynamically());
+        }
+
+        [Fact]
+        public void Dynamically_TestWithClass()
+        {
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var proxyType = generator.CreateClassProxyType(typeof(AbsTargetService), typeof(TargetService));
             Assert.True(proxyType.GetTypeInfo().IsDynamically());
         }
     }

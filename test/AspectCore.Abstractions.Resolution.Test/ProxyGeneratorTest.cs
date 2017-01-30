@@ -14,7 +14,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         public void CreateProxyType_Test()
         {
             var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
-            var proxyType = generator.CreateType(typeof(ITargetService), typeof(TargetService));
+            var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
             var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceServiceProvider(new TargetService()));
 
             Assert.IsAssignableFrom<ITargetService>(proxyInstance);
@@ -24,7 +24,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         public void Create_Generic_ProxyType_Test()
         {
             var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
-            var proxyType = generator.CreateType(typeof(ITargetService<>), typeof(TargetService<>));
+            var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService<>), typeof(TargetService<>));
 
             Assert.True(proxyType.GetTypeInfo().IsGenericTypeDefinition);
             Assert.Single(proxyType.GetTypeInfo().GenericTypeParameters);
@@ -38,8 +38,8 @@ namespace AspectCore.Abstractions.Resolution.Test
         public void CreateProxyType_Cache_Test()
         {
             var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
-            var proxyType = generator.CreateType(typeof(ITargetService), typeof(TargetService));
-            var proxyTypeCache = generator.CreateType(typeof(ITargetService), typeof(TargetService));
+            var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
+            var proxyTypeCache = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
         }
     }
 }

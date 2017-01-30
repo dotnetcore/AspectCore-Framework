@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Abstractions.Resolution.Generators
 {
-    internal sealed class InterfaceProxyTypeGenerator : ProxyTypeGenerator
+    internal class InterfaceProxyTypeGenerator : ProxyTypeGenerator
     {
         public InterfaceProxyTypeGenerator(Type serviceType, IAspectValidator aspectValidator) : base(serviceType, aspectValidator)
         {
@@ -18,6 +18,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
         public override Type[] Interfaces => new Type[] { ServiceType };
 
         public override Type ParentType => typeof(object);
+
+        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.ServiceInstance.Proxy{ServiceType.Name}";
 
         protected override void GeneratingConstructor(TypeBuilder declaringType)
         {
@@ -34,10 +36,10 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 }
                 if (!AspectValidator.Validate(method))
                 {
-                    new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder).Build();
+                    new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, false).Build();
                     continue;
                 }
-                new ProxyMethodGenerator(declaringType, ServiceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
+                new ProxyMethodGenerator(declaringType, ServiceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, false).Build();
             }
         }
 
@@ -47,11 +49,11 @@ namespace AspectCore.Abstractions.Resolution.Generators
             {
                 if (AspectValidator.Validate(property))
                 {
-                    new ProxyPropertyGenerator(declaringType, property, ServiceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
+                    new ProxyPropertyGenerator(declaringType, property, ServiceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, false).Build();
                 }
                 else
                 {
-                    new NonProxyPropertyGenerator(declaringType, property, ServiceType, serviceInstanceFieldBuilder).Build();
+                    new NonProxyPropertyGenerator(declaringType, property, ServiceType, serviceInstanceFieldBuilder, false).Build();
                 }
             }
         }

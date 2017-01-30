@@ -15,8 +15,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         public override TypeAttributes TypeAttributes => TypeAttributes.Class | TypeAttributes.Public;
 
-        public override string TypeName => $"{ServiceType.Namespace}.{ServiceType.Name}Proxy";
-
         protected FieldBuilder serviceInstanceFieldBuilder { get; set; }
         protected FieldBuilder serviceProviderFieldBuilder { get; set; }
 

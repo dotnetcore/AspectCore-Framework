@@ -40,17 +40,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                var typeinfo = serviceType.GetTypeInfo();
-
-                if (typeinfo.IsClass &&
-                    typeinfo.IsAbstract &&
-                    typeinfo.DeclaredConstructors.All(c => !c.IsPublic) &&
-                    constructor.GetParameters().Length == 0)
-                {
-
-                    return MethodAttributes.Public;
-                }
-
                 return constructor.Attributes;
             }
         }
@@ -59,7 +48,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                return ProxyParameterTypes.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
+                return new Type[] { typeof(IServiceProvider) }.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
             }
         }
 
@@ -68,7 +57,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
             var parameters = ParameterTypes;
 
             ilGenerator.EmitThis();
-            for (var i = 3; i <= parameters.Length; i++)
+            for (var i = 2; i <= parameters.Length; i++)
             {
                 ilGenerator.EmitLoadArg(i);
             }
@@ -79,17 +68,18 @@ namespace AspectCore.Abstractions.Resolution.Generators
             ilGenerator.Emit(OpCodes.Stfld, serviceProviderFieldBuilder);
 
             ilGenerator.EmitThis();
-            ilGenerator.EmitLoadArg(2);
-            if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                ilGenerator.EmitTypeof(serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
-            }
-            else
-            {
-                ilGenerator.EmitTypeof(serviceType);
-            }
-            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
-            ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
+            ilGenerator.EmitThis();
+            //ilGenerator.EmitLoadArg(2);
+            //if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
+            //{
+            //    ilGenerator.EmitTypeof(serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
+            //}
+            //else
+            //{
+            //    ilGenerator.EmitTypeof(serviceType);
+            //}
+            //ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
+            //ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
 
             ilGenerator.Emit(OpCodes.Ret);

@@ -9,11 +9,18 @@ namespace AspectCore.Abstractions.Extensions
 {
     public sealed class MethodAccessor
     {
-        private static readonly ConcurrentDictionary<MethodInfo, Func<object, object[], object>> invokerCache = new ConcurrentDictionary<MethodInfo, Func<object, object[], object>>();
+        private static readonly ConcurrentDictionary<Tuple<MethodInfo, bool>, Func<object, object[], object>> invokerCache = new ConcurrentDictionary<Tuple<MethodInfo, bool>, Func<object, object[], object>>();
+
+        private readonly bool isLookupVTable = false;
 
         public MethodInfo Method { get; }
 
         public MethodAccessor(MethodInfo methodInfo)
+            : this(methodInfo, true)
+        {
+        }
+
+        public MethodAccessor(MethodInfo methodInfo, bool isLookupVTable)
         {
             if (methodInfo == null)
             {
@@ -27,11 +34,12 @@ namespace AspectCore.Abstractions.Extensions
                 throw new ArgumentException($"genericTypeDefinition \"{methodInfo.DeclaringType}\" generic types are not valid.");
 
             this.Method = methodInfo;
+            this.isLookupVTable = isLookupVTable;
         }
 
         public Func<object, object[], object> CreateMethodInvoker()
         {
-            return invokerCache.GetOrAdd(Method, key => InternalCreateMethodInvoker());
+            return invokerCache.GetOrAdd(Tuple.Create(Method, isLookupVTable), key => InternalCreateMethodInvoker());
         }
 
         private Func<object, object[], object> InternalCreateMethodInvoker()
@@ -88,7 +96,7 @@ namespace AspectCore.Abstractions.Extensions
                 }
             }
 
-            ilGen.EmitCall(Method.IsStatic || Method.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, Method, null);
+            ilGen.EmitCall((Method.IsStatic || Method.DeclaringType.GetTypeInfo().IsValueType || !isLookupVTable) ? OpCodes.Call : OpCodes.Callvirt, Method, null);
 
             if (Method.ReturnType != typeof(void)) ilGen.EmitConvertToType(Method.ReturnType, typeof(object), true);
 

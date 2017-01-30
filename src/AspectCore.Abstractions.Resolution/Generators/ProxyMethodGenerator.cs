@@ -17,15 +17,17 @@ namespace AspectCore.Abstractions.Resolution.Generators
         protected readonly MethodInfo serviceMethod;
         protected readonly FieldBuilder serviceInstanceFieldBuilder;
         protected readonly FieldBuilder serviceProviderFieldBuilder;
+        protected readonly bool isImplementExplicitly;
 
         public ProxyMethodGenerator(TypeBuilder declaringMember, Type serviceType, Type parentType, MethodInfo serviceMethod,
-            FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder) : base(declaringMember)
+            FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder, bool isImplementExplicitly) : base(declaringMember)
         {
             this.serviceType = serviceType;
             this.parentType = parentType;
             this.serviceMethod = serviceMethod;
             this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
             this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
+            this.isImplementExplicitly = isImplementExplicitly;
         }
 
         public override CallingConventions CallingConventions
@@ -70,7 +72,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             get
             {
-                return serviceMethod.GetFullName();
+                return isImplementExplicitly ? serviceMethod.GetFullName() : serviceMethod.Name;
             }
         }
 
