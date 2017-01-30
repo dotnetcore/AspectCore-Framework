@@ -37,14 +37,5 @@ namespace AspectCore.Abstractions.Extensions
 
             new PropertyAccessor(property).CreatePropertySetter()(instance, value);
         }
-
-        public static bool IsVirtual(this PropertyInfo property)
-        {
-            if (property == null)
-            {
-                throw new ArgumentNullException(nameof(property));
-            }
-            return (property.CanRead && property.GetMethod.IsVirtual) || (property.CanWrite && property.SetMethod.IsVirtual);
-        }
     }
 }

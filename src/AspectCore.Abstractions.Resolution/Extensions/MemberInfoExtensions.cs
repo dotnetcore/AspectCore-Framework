@@ -5,7 +5,7 @@ namespace AspectCore.Abstractions.Extensions
 {
     internal static class MemberInfoExtensions
     {
-        internal static string GetFullName(this System.Reflection.MemberInfo member)
+        internal static string GetFullName(this MemberInfo member)
         {
             var declaringType = member.DeclaringType.GetTypeInfo();
             if (declaringType.IsInterface)

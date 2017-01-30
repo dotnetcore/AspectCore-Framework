@@ -31,7 +31,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override void GeneratingConstructor(TypeBuilder declaringType)
         {
-            var constructors = ServiceType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
+            var constructors = ParentType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
             if (constructors.Length == 0)
             {
                 throw new InvalidOperationException(
@@ -45,7 +45,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override void GeneratingMethod(TypeBuilder declaringType)
         {
-            foreach (var method in ServiceType.GetTypeInfo().DeclaredMethods)
+            foreach (var method in ParentType.GetTypeInfo().DeclaredMethods)
             {
                 if (method.IsPropertyBinding())
                 {
@@ -56,7 +56,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                     new ProxyMethodGenerator(declaringType, ServiceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, false).Build();
                     continue;
                 }
-                if (method.IsVirtual)
+                if (Resolution.AspectValidator.IsAccessibility(method))
                 {
                     new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, false).Build();
                 }
@@ -82,13 +82,13 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override void GeneratingProperty(TypeBuilder declaringType)
         {
-            foreach (var property in ServiceType.GetTypeInfo().DeclaredProperties)
+            foreach (var property in ParentType.GetTypeInfo().DeclaredProperties)
             {
                 if (AspectValidator.Validate(property))
                 {
                     new ProxyPropertyGenerator(declaringType, property, ServiceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, false).Build();
                 }
-                else if (property.IsVirtual())
+                else if (property.IsAccessibility())
                 {
                     new NonProxyPropertyGenerator(declaringType, property, ServiceType, serviceInstanceFieldBuilder, false).Build();
                 }

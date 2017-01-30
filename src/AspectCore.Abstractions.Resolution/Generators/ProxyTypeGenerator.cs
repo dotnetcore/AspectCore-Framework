@@ -28,7 +28,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
             {
                 throw new InvalidOperationException("No service for type 'AspectCore.Abstractions.IAspectValidator' has been registered.");
             }
-            if (!aspectValidator.Validate(serviceType))
+            if (!Resolution.AspectValidator.IsAccessibility(serviceType.GetTypeInfo()))
             {
                 throw new InvalidOperationException($"Validate '{serviceType}' failed because the type  does not satisfy the conditions of the generate proxy class.");
             }
