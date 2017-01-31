@@ -10,11 +10,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
     {
         public ClassProxyTypeGenerator(Type serviceType, Type parentType, Type[] interfaces, IAspectValidator aspectValidator) : base(serviceType, aspectValidator)
         {
-            if (!serviceType.GetTypeInfo().IsClass)
-            {
-                throw new ArgumentException($"Type '{serviceType}' must be class.", nameof(serviceType));
-            }
-
             if (!parentType.GetTypeInfo().CanInherited())
             {
                 throw new InvalidOperationException($"Validate '{parentType}' failed because the type does not satisfy the condition to be inherited.");

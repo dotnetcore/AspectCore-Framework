@@ -18,9 +18,9 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override void GeneratingMethod(TypeBuilder declaringType)
         {
-            foreach (var @interface in Interfaces)
+            foreach (var interfaceType in Interfaces)
             {
-                foreach (var method in @interface.GetTypeInfo().DeclaredMethods)
+                foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods)
                 {
                     if (method.IsPropertyBinding())
                     {
@@ -31,24 +31,24 @@ namespace AspectCore.Abstractions.Resolution.Generators
                         new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, true).Build();
                         continue;
                     }
-                    new ProxyMethodGenerator(declaringType, @interface, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
+                    new ProxyMethodGenerator(declaringType, interfaceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
                 }
             }
         }
 
         protected override void GeneratingProperty(TypeBuilder declaringType)
         {
-            foreach (var @interface in Interfaces)
+            foreach (var interfaceType in Interfaces)
             {
-                foreach (var property in @interface.GetTypeInfo().DeclaredProperties)
+                foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
                 {
                     if (AspectValidator.Validate(property))
                     {
-                        new ProxyPropertyGenerator(declaringType, property, @interface, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
+                        new ProxyPropertyGenerator(declaringType, property, interfaceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
                     }
                     else
                     {
-                        new NonProxyPropertyGenerator(declaringType, property, @interface, serviceInstanceFieldBuilder, true).Build();
+                        new NonProxyPropertyGenerator(declaringType, property, interfaceType, serviceInstanceFieldBuilder, true).Build();
                     }
                 }
             }
