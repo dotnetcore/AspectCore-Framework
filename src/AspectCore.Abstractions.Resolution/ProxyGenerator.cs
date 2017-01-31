@@ -22,7 +22,7 @@ namespace AspectCore.Abstractions.Resolution
             return new ClassProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator).CreateTypeInfo().AsType();
         }
 
-        public Type CreateInterfaceProxyType(Type serviceType, Type implementationType)
+        public Type CreateInterfaceProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
         {
             if (serviceType == null)
             {
@@ -32,14 +32,14 @@ namespace AspectCore.Abstractions.Resolution
             return GetInterfaceProxyTypeGenerator(serviceType, implementationType).CreateTypeInfo().AsType();
         }
 
-        private ProxyTypeGenerator GetInterfaceProxyTypeGenerator(Type serviceType, Type implementationType)
+        private ProxyTypeGenerator GetInterfaceProxyTypeGenerator(Type serviceType, Type implementationType, params Type[] interfaces)
         {
             var proxyStructureAttribute = serviceType.GetTypeInfo().GetCustomAttribute<ProxyStructureAttribute>();
             if (proxyStructureAttribute != null && proxyStructureAttribute.ProxyMode == ProxyMode.Inheritance)
             {
-                return new InheritanceInterfaceProxyTypeGenerator(serviceType, implementationType, aspectValidator);
+                return new InheritanceInterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
             }
-            return new InterfaceProxyTypeGenerator(serviceType, aspectValidator);
+            return new InterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
         }
     }
 }

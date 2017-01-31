@@ -1,5 +1,6 @@
 ﻿using AspectCore.Abstractions.Extensions;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -7,39 +8,48 @@ namespace AspectCore.Abstractions.Resolution.Generators
 {
     internal class InheritanceInterfaceProxyTypeGenerator : ClassProxyTypeGenerator
     {
-        public InheritanceInterfaceProxyTypeGenerator(Type serviceType, Type parentType, IAspectValidator aspectValidator)
-            : base(serviceType, parentType, null, aspectValidator)
+        public InheritanceInterfaceProxyTypeGenerator(Type serviceType, Type parentType, Type[] interfaces, IAspectValidator aspectValidator)
+            : base(serviceType, parentType, interfaces, aspectValidator)
         {
+            Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).ToArray();
         }
+
+        public override Type[] Interfaces { get; }
 
         protected override void GeneratingMethod(TypeBuilder declaringType)
         {
-            foreach (var method in ServiceType.GetTypeInfo().DeclaredMethods)
+            foreach (var @interface in Interfaces)
             {
-                if (method.IsPropertyBinding())
+                foreach (var method in @interface.GetTypeInfo().DeclaredMethods)
                 {
-                    continue;
+                    if (method.IsPropertyBinding())
+                    {
+                        continue;
+                    }
+                    if (!AspectValidator.Validate(method))
+                    {
+                        new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, true).Build();
+                        continue;
+                    }
+                    new ProxyMethodGenerator(declaringType, @interface, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
                 }
-                if (!AspectValidator.Validate(method))
-                {
-                    new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, true).Build();
-                    continue;
-                }
-                new ProxyMethodGenerator(declaringType, ServiceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
             }
         }
 
         protected override void GeneratingProperty(TypeBuilder declaringType)
         {
-            foreach (var property in ServiceType.GetTypeInfo().DeclaredProperties)
+            foreach (var @interface in Interfaces)
             {
-                if (AspectValidator.Validate(property))
+                foreach (var property in @interface.GetTypeInfo().DeclaredProperties)
                 {
-                    new ProxyPropertyGenerator(declaringType, property, ServiceType, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
-                }
-                else
-                {
-                    new NonProxyPropertyGenerator(declaringType, property, ServiceType, serviceInstanceFieldBuilder, true).Build();
+                    if (AspectValidator.Validate(property))
+                    {
+                        new ProxyPropertyGenerator(declaringType, property, @interface, ParentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
+                    }
+                    else
+                    {
+                        new NonProxyPropertyGenerator(declaringType, property, @interface, serviceInstanceFieldBuilder, true).Build();
+                    }
                 }
             }
         }
