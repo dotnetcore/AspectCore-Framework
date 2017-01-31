@@ -74,7 +74,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 ilGenerator.EmitMethodof(DeclaringMember);
             }
 
-            var parameters = serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            var parameters = serviceMethod.GetParameterTypes();
 
             ilGenerator.EmitThis();
             ilGenerator.Emit(OpCodes.Ldfld, serviceInstanceFieldBuilder);

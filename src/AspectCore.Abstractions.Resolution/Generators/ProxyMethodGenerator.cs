@@ -114,7 +114,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
-            var parentMethod = parentType.GetTypeInfo().GetMethod(serviceMethod.Name, serviceMethod.GetParameters().Select(p => p.ParameterType).ToArray());
+            var parentMethod = parentType.GetTypeInfo().GetMethod(serviceMethod.Name, serviceMethod.GetParameterTypes());
             return new ProxyMethodBodyGenerator(declaringMethod,
                 DeclaringMember,
                 serviceType,

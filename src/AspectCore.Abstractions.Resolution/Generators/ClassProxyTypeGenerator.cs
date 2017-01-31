@@ -40,7 +40,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override void GeneratingMethod(TypeBuilder declaringType)
         {
-            foreach (var method in ParentType.GetTypeInfo().DeclaredMethods)
+            foreach (var method in ServiceType.GetTypeInfo().DeclaredMethods)
             {
                 if (method.IsPropertyBinding())
                 {
@@ -53,7 +53,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 }
                 if (Resolution.AspectValidator.IsAccessibility(method))
                 {
-                    new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, false).Build();
+                    new NonProxyMethodGenerator(declaringType, ParentType, method, serviceInstanceFieldBuilder, false).Build();
                 }
             }
 
@@ -67,7 +67,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                     }
                     if (!AspectValidator.Validate(method))
                     {
-                        new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, true).Build();
+                        new NonProxyMethodGenerator(declaringType, ParentType, method, serviceInstanceFieldBuilder, true).Build();
                         continue;
                     }
                     new ProxyMethodGenerator(declaringType, @interface, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
@@ -77,7 +77,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override void GeneratingProperty(TypeBuilder declaringType)
         {
-            foreach (var property in ParentType.GetTypeInfo().DeclaredProperties)
+            foreach (var property in ServiceType.GetTypeInfo().DeclaredProperties)
             {
                 if (AspectValidator.Validate(property))
                 {
@@ -85,7 +85,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 }
                 else if (property.IsAccessibility())
                 {
-                    new NonProxyPropertyGenerator(declaringType, property, ServiceType, serviceInstanceFieldBuilder, false).Build();
+                    new NonProxyPropertyGenerator(declaringType, property, ServiceType, ParentType, serviceInstanceFieldBuilder, false).Build();
                 }
             }
 
@@ -99,7 +99,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                     }
                     else
                     {
-                        new NonProxyPropertyGenerator(declaringType, property, @interface, serviceInstanceFieldBuilder, true).Build();
+                        new NonProxyPropertyGenerator(declaringType, property, @interface, ParentType, serviceInstanceFieldBuilder, true).Build();
                     }
                 }
             }

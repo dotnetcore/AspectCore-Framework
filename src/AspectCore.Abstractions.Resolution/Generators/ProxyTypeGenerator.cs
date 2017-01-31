@@ -30,7 +30,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
             }
             if (!Resolution.AspectValidator.IsAccessibility(serviceType.GetTypeInfo()))
             {
-                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type  does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
             }
 
             ServiceType = serviceType;

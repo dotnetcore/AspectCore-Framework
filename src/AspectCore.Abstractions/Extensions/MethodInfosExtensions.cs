@@ -97,7 +97,7 @@ namespace AspectCore.Abstractions.Extensions
             return closedGenericType.GetTypeInfo().GetMethod(methodInfo.Name, methodInfo.GetParameterTypes());
         }
 
-        internal static bool IsCallByLookupVTable(this MethodInfo methodInfo)
+        public static bool IsCallByLookupVTable(this MethodInfo methodInfo)
         {
             var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
             if (typeInfo.IsClass)

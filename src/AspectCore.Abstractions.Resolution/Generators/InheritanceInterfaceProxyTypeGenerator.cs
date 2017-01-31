@@ -28,7 +28,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                     }
                     if (!AspectValidator.Validate(method))
                     {
-                        new NonProxyMethodGenerator(declaringType, method, serviceInstanceFieldBuilder, true).Build();
+                        new NonProxyMethodGenerator(declaringType, ParentType, method, serviceInstanceFieldBuilder, true).Build();
                         continue;
                     }
                     new ProxyMethodGenerator(declaringType, interfaceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, true).Build();
@@ -48,7 +48,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
                     }
                     else
                     {
-                        new NonProxyPropertyGenerator(declaringType, property, interfaceType, serviceInstanceFieldBuilder, true).Build();
+                        new NonProxyPropertyGenerator(declaringType, property, interfaceType, ParentType, serviceInstanceFieldBuilder, true).Build();
                     }
                 }
             }

@@ -1,4 +1,6 @@
-﻿using AspectCore.Abstractions.Generator;
+﻿using AspectCore.Abstractions.Extensions;
+using AspectCore.Abstractions.Generator;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -8,14 +10,15 @@ namespace AspectCore.Abstractions.Resolution.Generators
     {
         const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
 
-        public NonProxyMethodGenerator(TypeBuilder declaringMember, MethodInfo serviceMethod, FieldBuilder serviceInstanceFieldBuilder, bool isImplementExplicitly)
-            : base(declaringMember, serviceMethod.DeclaringType, null, serviceMethod, serviceInstanceFieldBuilder, null, isImplementExplicitly)
+        public NonProxyMethodGenerator(TypeBuilder declaringMember, Type parentType, MethodInfo serviceMethod, FieldBuilder serviceInstanceFieldBuilder, bool isImplementExplicitly)
+            : base(declaringMember, serviceMethod.DeclaringType, parentType, serviceMethod, serviceInstanceFieldBuilder, null, isImplementExplicitly)
         {
         }
 
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
-            return new NonProxyMethodBodyGenerator(declaringMethod, serviceMethod, serviceInstanceFieldBuilder);
+            var parentMethod = parentType.GetTypeInfo().GetMethod(serviceMethod.Name, serviceMethod.GetParameterTypes());
+            return new NonProxyMethodBodyGenerator(declaringMethod, parentMethod ?? serviceMethod, serviceInstanceFieldBuilder);
         }
     }
 }

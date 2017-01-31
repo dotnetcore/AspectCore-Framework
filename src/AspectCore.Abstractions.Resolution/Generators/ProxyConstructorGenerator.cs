@@ -69,6 +69,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
             ilGenerator.EmitThis();
             ilGenerator.EmitThis();
+            //ilGenerator.Emit(OpCodes.Ldnull);
             //ilGenerator.EmitLoadArg(2);
             //if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
             //{
