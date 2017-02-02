@@ -11,7 +11,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
     internal sealed class ProxyMethodBodyGenerator : MethodBodyGenerator
     {
         private readonly Type serviceType;
-        private readonly Type parentType;
         private readonly MethodInfo serviceMethod;
         private readonly MethodInfo parentMethod;
         private readonly FieldBuilder serviceInstanceFieldBuilder;
@@ -22,7 +21,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 MethodBuilder declaringMember, 
                 TypeBuilder declaringBuilder,
                 Type serviceType, 
-                Type parentType,
                 MethodInfo serviceMethod, 
                 MethodInfo parentMethod,
                 FieldBuilder serviceInstanceFieldBuilder, 
@@ -30,7 +28,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
                 : base(declaringMember)
         {
             this.serviceType = serviceType;
-            this.parentType = parentType;
             this.serviceMethod = serviceMethod;
             this.parentMethod = parentMethod;
             this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;

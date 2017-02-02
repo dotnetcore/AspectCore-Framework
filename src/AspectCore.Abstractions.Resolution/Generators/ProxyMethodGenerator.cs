@@ -118,7 +118,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
             return new ProxyMethodBodyGenerator(declaringMethod,
                 DeclaringMember,
                 serviceType,
-                parentType,
                 serviceMethod,
                 parentMethod ?? serviceMethod,
                 serviceInstanceFieldBuilder,
