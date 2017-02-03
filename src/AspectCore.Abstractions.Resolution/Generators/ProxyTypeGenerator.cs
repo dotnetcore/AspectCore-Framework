@@ -44,7 +44,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         protected override TypeBuilder ExecuteBuild()
         {
-            var builder = base.ExecuteBuild();
+            var accessorInterfaces = new Type[] { typeof(IServiceProviderAccessor), typeof(IServiceInstanceAccessor), typeof(IServiceInstanceAccessor<>).MakeGenericType(ServiceType) };
+            var builder = DeclaringMember.DefineType(TypeName, TypeAttributes, ParentType, Interfaces.Concat(accessorInterfaces).ToArray());
 
             if (ServiceType.GetTypeInfo().IsGenericTypeDefinition)
             {
@@ -60,6 +61,8 @@ namespace AspectCore.Abstractions.Resolution.Generators
             GeneratingConstructor(builder);
             GeneratingMethod(builder);
             GeneratingProperty(builder);
+
+            AccessorPropertyGenerator.Build(builder, serviceProviderFieldBuilder, serviceInstanceFieldBuilder);
 
             builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
             builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
