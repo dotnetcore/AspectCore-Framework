@@ -13,7 +13,7 @@ namespace AspectCore.Abstractions.Resolution.Generators
         {
             if (!serviceType.GetTypeInfo().IsInterface)
             {
-                throw new ArgumentException($"Type '{serviceType}' must be interface.", nameof(serviceType));
+                throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
             }
             if (parentType == null)
             {

@@ -11,6 +11,10 @@ namespace AspectCore.Abstractions.Resolution.Generators
         public InheritanceInterfaceProxyTypeGenerator(Type serviceType, Type parentType, Type[] interfaces, IAspectValidator aspectValidator)
             : base(serviceType, parentType, interfaces, aspectValidator)
         {
+            if (!serviceType.GetTypeInfo().IsInterface)
+            {
+                throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
+            }
             Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).ToArray();
         }
 

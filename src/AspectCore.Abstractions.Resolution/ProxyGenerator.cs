@@ -19,6 +19,14 @@ namespace AspectCore.Abstractions.Resolution
 
         public Type CreateClassProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
         {
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+            if (!serviceType.GetTypeInfo().IsClass)
+            {
+                throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
+            }
             return new ClassProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator).CreateTypeInfo().AsType();
         }
 
