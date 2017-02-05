@@ -15,10 +15,10 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public async Task InvokeAsync_Test()
         {
-            var configuration = new AspectConfiguration();
+            var configure = new AspectConfigure();
             var serviceProvider = new InstanceServiceProvider(null);
             var activator = new AspectActivator(serviceProvider,
-                new AspectBuilderProvider(new InterceptorSelector(new InterceptorMatcher(configuration), new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+                new AspectBuilderProvider(new InterceptorSelector(new InterceptorMatcher(configure), new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
  
              var input = 0;
 
@@ -39,10 +39,10 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void InvokeA_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
             var serviceProvider = new InstanceServiceProvider(null);
             var activator = new AspectActivator(serviceProvider,
-                           new AspectBuilderProvider(new InterceptorSelector(new InterceptorMatcher(configuration), new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+                           new AspectBuilderProvider(new InterceptorSelector(new InterceptorMatcher(Configure), new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
 
             var input = 0;
 

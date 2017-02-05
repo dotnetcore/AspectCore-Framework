@@ -11,7 +11,7 @@
         {
         }
 
-        public void ConfigurationInterceptor()
+        public void ConfigureInterceptor()
         {
         }
     }

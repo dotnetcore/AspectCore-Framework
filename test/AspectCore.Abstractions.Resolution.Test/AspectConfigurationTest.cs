@@ -4,13 +4,13 @@ using Xunit;
 
 namespace AspectCore.Abstractions.Resolution.Test
 {
-    public class AspectConfigurationTest
+    public class AspectConfigureTest
     {
         [Fact]
         public void UseOption_Test()
         {
-            var configuration = new AspectConfiguration();
-            var userOption = configuration.GetConfigurationOption<IInterceptor>();
+            var Configure = new AspectConfigure();
+            var userOption = Configure.GetConfigureOption<IInterceptor>();
             Assert.NotNull(userOption);
             Assert.Empty(userOption);
             Func<MethodInfo, IInterceptor> defaultOption = m => default(IInterceptor);
@@ -21,8 +21,8 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void IgnoreOption_Test()
         {
-            var configuration = new AspectConfiguration();
-            var ignoreOption = configuration.GetConfigurationOption<bool>();
+            var Configure = new AspectConfigure();
+            var ignoreOption = Configure.GetConfigureOption<bool>();
             Assert.NotNull(ignoreOption);
             Assert.NotEmpty(ignoreOption);
         }

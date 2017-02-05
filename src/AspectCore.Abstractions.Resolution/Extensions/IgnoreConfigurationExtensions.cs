@@ -2,9 +2,9 @@
 
 namespace AspectCore.Abstractions.Extensions
 {
-    internal static class IgnoreConfigurationExtensions
+    internal static class IgnoreConfigureExtensions
     {
-        internal static IConfigurationOption<bool> IgnoreAspNetCore(this IConfigurationOption<bool> option)
+        internal static IAspectConfigureOption<bool> IgnoreAspNetCore(this IAspectConfigureOption<bool> option)
         {
             option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNetCore.*"));
             option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNet.*"));
@@ -15,7 +15,7 @@ namespace AspectCore.Abstractions.Extensions
             return option;
         }
 
-        internal static IConfigurationOption<bool> IgnoreEntityFramework(this IConfigurationOption<bool> option)
+        internal static IAspectConfigureOption<bool> IgnoreEntityFramework(this IAspectConfigureOption<bool> option)
         {
             option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Data.*"));
             option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore"));
@@ -23,27 +23,27 @@ namespace AspectCore.Abstractions.Extensions
             return option;
         }
 
-        internal static IConfigurationOption<bool> IgnoreOwin(this IConfigurationOption<bool> option)
+        internal static IAspectConfigureOption<bool> IgnoreOwin(this IAspectConfigureOption<bool> option)
         {
             option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Owin.*"));
             option.Add(method => method.DeclaringType.Namespace.Matches("Owin"));
             return option;
         }
 
-        internal static IConfigurationOption<bool> IgnorePageGenerator(this IConfigurationOption<bool> option)
+        internal static IAspectConfigureOption<bool> IgnorePageGenerator(this IAspectConfigureOption<bool> option)
         {
             option.Add(method => method.DeclaringType.Namespace.Matches("PageGenerator"));
             return option;
         }
 
-        internal static IConfigurationOption<bool> IgnoreSystem(this IConfigurationOption<bool> option)
+        internal static IAspectConfigureOption<bool> IgnoreSystem(this IAspectConfigureOption<bool> option)
         {
             option.Add(method => method.DeclaringType.Namespace.Matches("System"));
             option.Add(method => method.DeclaringType.Namespace.Matches("System.*"));
             return option;
         }
 
-        internal static IConfigurationOption<bool> IgnoreObjectVMethod(this IConfigurationOption<bool> option)
+        internal static IAspectConfigureOption<bool> IgnoreObjectVMethod(this IAspectConfigureOption<bool> option)
         {
             option.Add(method => method.Name.Matches("Equals"));
             option.Add(method => method.Name.Matches("GetHashCode"));

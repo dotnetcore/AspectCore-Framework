@@ -6,12 +6,12 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
     public class InjectedInterceptor : IInterceptor
     {
         [FromServices]
-        public IAspectConfiguration Configuration { get; set; }
+        public IAspectConfigure Configure { get; set; }
 
         [FromServices]
-        public IAspectConfiguration ConfigurationWithNoSet { get; }
+        public IAspectConfigure ConfigureWithNoSet { get; }
 
-        public IAspectConfiguration ConfigurationWithNoFromServicesAttribute { get; set; }
+        public IAspectConfigure ConfigureWithNoFromServicesAttribute { get; set; }
 
         public bool AllowMultiple { get; }
 

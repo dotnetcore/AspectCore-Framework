@@ -8,15 +8,15 @@ namespace AspectCore.Abstractions.Resolution
 {
     public sealed class InterceptorMatcher : IInterceptorMatcher
     {
-        private readonly IAspectConfiguration aspectConfiguration;
+        private readonly IAspectConfigure aspectConfigure;
 
-        public InterceptorMatcher(IAspectConfiguration aspectConfiguration)
+        public InterceptorMatcher(IAspectConfigure aspectConfigure)
         {
-            if (aspectConfiguration == null)
+            if (aspectConfigure == null)
             {
-                throw new ArgumentNullException(nameof(aspectConfiguration));
+                throw new ArgumentNullException(nameof(aspectConfigure));
             }
-            this.aspectConfiguration = aspectConfiguration;
+            this.aspectConfigure = aspectConfigure;
         }
 
         public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
@@ -30,15 +30,15 @@ namespace AspectCore.Abstractions.Resolution
                 throw new ArgumentNullException(nameof(serviceTypeInfo));
             }
 
-            var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, aspectConfiguration.GetConfigurationOption<IInterceptor>());
+            var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, aspectConfigure.GetConfigureOption<IInterceptor>());
             return aggregate.FilterMultiple().OrderBy(interceptor => interceptor.Order).ToArray();
         }
 
         public static IEnumerable<TInterceptor> Aggregate<TInterceptor>(
-           MethodInfo methodInfo, TypeInfo typeInfo, IConfigurationOption<IInterceptor> configurationOption)
+           MethodInfo methodInfo, TypeInfo typeInfo, IAspectConfigureOption<IInterceptor> configureOption)
             where TInterceptor : class, IInterceptor
         {
-            foreach (var option in configurationOption)
+            foreach (var option in configureOption)
             {
                 var interceptor = option(methodInfo) as TInterceptor;
                 if (interceptor != null) yield return interceptor;

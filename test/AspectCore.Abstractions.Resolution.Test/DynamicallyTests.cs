@@ -14,7 +14,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void Dynamically_Test()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
             Assert.True(proxyType.GetTypeInfo().IsDynamically());
         }
@@ -22,7 +22,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void Dynamically_TestWithClass()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateClassProxyType(typeof(AbsTargetService), typeof(TargetService));
             Assert.True(proxyType.GetTypeInfo().IsDynamically());
         }

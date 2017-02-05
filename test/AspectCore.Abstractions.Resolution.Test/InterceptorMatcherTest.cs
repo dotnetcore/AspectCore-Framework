@@ -14,9 +14,9 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void WithOutInterceptor_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
 
-            var matcher = new InterceptorMatcher(configuration);
+            var matcher = new InterceptorMatcher(Configure);
 
             var method = MethodInfosExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithOutInterceptor());
 
@@ -26,29 +26,29 @@ namespace AspectCore.Abstractions.Resolution.Test
         }
 
         [Fact]
-        public void With_Configuration_Interceptor_Test()
+        public void With_Configure_Interceptor_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
 
-            var configurationInterceptor = new InjectedInterceptor();
-            configuration.GetConfigurationOption<IInterceptor>().Add(m => configurationInterceptor);
+            var ConfigureInterceptor = new InjectedInterceptor();
+            Configure.GetConfigureOption<IInterceptor>().Add(m => ConfigureInterceptor);
 
-            var matcher = new InterceptorMatcher(configuration);
-            var method = MethodInfosExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.ConfigurationInterceptor());
+            var matcher = new InterceptorMatcher(Configure);
+            var method = MethodInfosExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.ConfigureInterceptor());
 
             var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
 
             Assert.NotEmpty(interceptors);
 
-            Assert.Single(interceptors, configurationInterceptor);
+            Assert.Single(interceptors, ConfigureInterceptor);
         }
 
         [Fact]
         public void With_Method_Interceptor_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
 
-            var matcher = new InterceptorMatcher(configuration);
+            var matcher = new InterceptorMatcher(Configure);
             var method = MethodInfosExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithInterceptor());
 
             var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
@@ -61,9 +61,9 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void With_Type_Interceptor_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
 
-            var matcher = new InterceptorMatcher(configuration);
+            var matcher = new InterceptorMatcher(Configure);
             var method = MethodInfosExtensions.GetMethod<Action<WithInterceptorMatcherModel>>(m => m.WithOutInterceptor());
 
             var interceptors = matcher.Match(method, typeof(WithInterceptorMatcherModel).GetTypeInfo());

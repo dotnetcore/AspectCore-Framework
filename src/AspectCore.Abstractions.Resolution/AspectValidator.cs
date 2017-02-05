@@ -10,16 +10,16 @@ namespace AspectCore.Abstractions.Resolution
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
 
-        private readonly IAspectConfiguration aspectConfiguration;
+        private readonly IAspectConfigure aspectConfigure;
 
-        public AspectValidator(IAspectConfiguration aspectConfiguration)
+        public AspectValidator(IAspectConfigure aspectConfigure)
         {
-            if (aspectConfiguration == null)
+            if (aspectConfigure == null)
             {
-                throw new ArgumentNullException(nameof(aspectConfiguration));
+                throw new ArgumentNullException(nameof(aspectConfigure));
             }
 
-            this.aspectConfiguration = aspectConfiguration;
+            this.aspectConfigure = aspectConfigure;
         }
 
         public bool Validate(MethodInfo method)
@@ -50,12 +50,12 @@ namespace AspectCore.Abstractions.Resolution
                 return false;
             }
 
-            if (IsIgnored(aspectConfiguration.GetConfigurationOption<bool>(), method))
+            if (IsIgnored(aspectConfigure.GetConfigureOption<bool>(), method))
             {
                 return false;
             }
 
-            return HasInterceptor(method) || HasInterceptor(declaringType) || HasInterceptor<IInterceptor>(aspectConfiguration.GetConfigurationOption<IInterceptor>(), method);
+            return HasInterceptor(method) || HasInterceptor(declaringType) || HasInterceptor<IInterceptor>(aspectConfigure.GetConfigureOption<IInterceptor>(), method);
         }
 
         public static bool IsAccessibility(TypeInfo declaringType)
@@ -73,7 +73,7 @@ namespace AspectCore.Abstractions.Resolution
             return member.IsDefined(typeof(NonAspectAttribute), true);
         }
 
-        public static bool IsIgnored(IConfigurationOption<bool> ignores, MethodInfo method)
+        public static bool IsIgnored(IAspectConfigureOption<bool> ignores, MethodInfo method)
         {
             return ignores.Any(configure => configure(method));
         }
@@ -83,10 +83,10 @@ namespace AspectCore.Abstractions.Resolution
             return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType.GetTypeInfo()));
         }
 
-        public static bool HasInterceptor<T>(IConfigurationOption<IInterceptor> aspectConfiguration, MethodInfo method)
+        public static bool HasInterceptor<T>(IAspectConfigureOption<IInterceptor> aspectConfigure, MethodInfo method)
             where T : class, IInterceptor
         {
-            return aspectConfiguration.Any(config => (config(method) as T) != null);
+            return aspectConfigure.Any(config => (config(method) as T) != null);
         }
     }
 }

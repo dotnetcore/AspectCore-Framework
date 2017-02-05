@@ -12,7 +12,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void get_ServiceInstance_Test()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
             var serviceInsatnce = new TargetService();
             var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceServiceProvider(serviceInsatnce));
@@ -26,7 +26,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void get_ServiceInstance_With_Generic_Test()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
             var serviceInsatnce = new TargetService();
             var proxyInstance = Activator.CreateInstance(proxyType, new InstanceServiceProvider(null), new InstanceServiceProvider(serviceInsatnce));

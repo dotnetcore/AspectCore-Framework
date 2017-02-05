@@ -9,51 +9,51 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void Inject_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
            
             var interceptor = new InjectedInterceptor();
 
-            Assert.Null(interceptor.Configuration);
+            Assert.Null(interceptor.Configure);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration),new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(Configure),new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
-            Assert.NotNull(interceptor.Configuration);
+            Assert.NotNull(interceptor.Configure);
 
-            Assert.Equal(interceptor.Configuration, configuration);
+            Assert.Equal(interceptor.Configure, Configure);
         }
 
         [Fact]
         public void Inject_NoSetAccessor_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
 
             var interceptor = new InjectedInterceptor();
 
-            Assert.Null(interceptor.ConfigurationWithNoSet);
+            Assert.Null(interceptor.ConfigureWithNoSet);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(Configure), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
-            Assert.Null(interceptor.ConfigurationWithNoSet);
+            Assert.Null(interceptor.ConfigureWithNoSet);
         }
 
         [Fact]
         public void Inject_NoFromServicesAttribute_Test()
         {
-            var configuration = new AspectConfiguration();
+            var Configure = new AspectConfigure();
 
             var interceptor = new InjectedInterceptor();
 
-            Assert.Null(interceptor.ConfigurationWithNoFromServicesAttribute);
+            Assert.Null(interceptor.ConfigureWithNoFromServicesAttribute);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(configuration), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(Configure), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
-            Assert.Null(interceptor.ConfigurationWithNoFromServicesAttribute);
+            Assert.Null(interceptor.ConfigureWithNoFromServicesAttribute);
         }
     }
 }

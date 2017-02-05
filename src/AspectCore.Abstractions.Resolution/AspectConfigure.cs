@@ -4,15 +4,15 @@ using System.Collections.Concurrent;
 
 namespace AspectCore.Abstractions.Resolution
 {
-    public sealed class AspectConfiguration : IAspectConfiguration
+    public sealed class AspectConfigure : IAspectConfigure
     {
         private readonly ConcurrentDictionary<Type, object> optionCache;
 
-        public AspectConfiguration()
+        public AspectConfigure()
         {
             optionCache = new ConcurrentDictionary<Type, object>();
 
-            var ignoreOption = GetConfigurationOption<bool>();
+            var ignoreOption = GetConfigureOption<bool>();
 
             ignoreOption.IgnoreAspNetCore()
                         .IgnoreEntityFramework()
@@ -22,9 +22,9 @@ namespace AspectCore.Abstractions.Resolution
                         .IgnoreObjectVMethod();
         }
 
-        public IConfigurationOption<TOption> GetConfigurationOption<TOption>()
+        public IAspectConfigureOption<TOption> GetConfigureOption<TOption>()
         {
-            return (ConfigurationOption<TOption>)optionCache.GetOrAdd(typeof(TOption), key => new ConfigurationOption<TOption>());
+            return (AspectConfigureOption<TOption>)optionCache.GetOrAdd(typeof(TOption), key => new AspectConfigureOption<TOption>());
         }
     }
 }

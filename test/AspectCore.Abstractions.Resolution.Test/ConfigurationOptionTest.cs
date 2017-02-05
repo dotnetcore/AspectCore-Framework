@@ -8,15 +8,15 @@ using Xunit;
 
 namespace AspectCore.Abstractions.Resolution.Test
 {
-    public class ConfigurationOptionTest
+    public class ConfigureOptionTest
     {
        [Fact]
-        public void ConfigurationOption_Add_Test()
+        public void ConfigureOption_Add_Test()
         {
-            IConfigurationOption<object> configurationOption = new AspectConfiguration().GetConfigurationOption<object>();
+            IAspectConfigureOption<object> ConfigureOption = new AspectConfigure().GetConfigureOption<object>();
             Func<MethodInfo, object> option = m => new object();
-            configurationOption.Add(option);
-            Assert.Single(configurationOption, option);
+            ConfigureOption.Add(option);
+            Assert.Single(ConfigureOption, option);
         }
     }
 }

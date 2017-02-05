@@ -96,7 +96,7 @@ namespace AspectCore.Abstractions.Resolution.Test.Fakes
         }
     }
 
-    public class ConfigurationInterceptorValidatorModel : IValidatorModel
+    public class ConfigureInterceptorValidatorModel : IValidatorModel
     {
         public virtual void Validate()
         {

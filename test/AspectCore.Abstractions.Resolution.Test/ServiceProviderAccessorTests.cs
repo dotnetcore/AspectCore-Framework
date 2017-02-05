@@ -12,7 +12,7 @@ namespace AspectCore.Abstractions.Resolution.Test
         [Fact]
         public void get_ServiceProvider_Test()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfiguration()));
+            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
             var serviceProvider = new InstanceServiceProvider(null);
             var proxyInstance = Activator.CreateInstance(proxyType, serviceProvider, new InstanceServiceProvider(new TargetService()));
