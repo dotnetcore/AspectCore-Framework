@@ -106,7 +106,6 @@ namespace AspectCore.Abstractions.Resolution.Generators
 
         private class AccessorPropertyMethodBodyGenerator : MethodBodyGenerator
         {
-            private readonly Type propertyType;
             private readonly FieldBuilder fieldBuilder;
 
             public AccessorPropertyMethodBodyGenerator(MethodBuilder declaringMember, FieldBuilder fieldBuilder) : base(declaringMember)
