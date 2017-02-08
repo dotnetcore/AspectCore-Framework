@@ -9,6 +9,7 @@
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "System.Reflection": "4.3.0",
     "System.Linq": "4.3.0",
+    "NSubstitute": "2.0.1-rc",
     "AspectCore.Abstractions": "1.1.0-*"
   },
   "testRunner": "xunit",

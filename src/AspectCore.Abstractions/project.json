@@ -14,7 +14,13 @@
         "System.Reflection.Emit.Lightweight": "4.3.0"
       }
     },
-    "net45": {}
+    "net45": {
+      "dependencies": {
+        "Nito.AsyncEx": "3.0.1",
+        "System.Runtime": "4.0.0",
+        "System.Threading.Tasks": "4.0.0"
+      }
+    }
   },
   "packOptions": {
     "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
@@ -29,5 +35,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Abstractions",
   "title": "AspectCore.Abstractions",
-  "version": "1.1.0-rc1-13206"
+  "version": "1.1.0-rc1-13210"
 }

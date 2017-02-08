@@ -9,10 +9,8 @@ for /R "packages" %%s in (*) do (
 )
 
 dotnet test test/AspectCore.Abstractions.Test --configuration Release
-dotnet test test/AspectCore.Abstractions.Resolution.Test --configuration Release
 
 dotnet pack src/AspectCore.Abstractions --configuration Release --output packages
-dotnet pack src/AspectCore.Abstractions.Resolution --configuration Release --output packages
 
 for /R "packages" %%s in (*symbols.nupkg) do (
     del %%s

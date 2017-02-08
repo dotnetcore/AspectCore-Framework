@@ -2,13 +2,17 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-
+using static AspectCore.Abstractions.Extensions.ReflectionExtensions;
 
 namespace AspectCore.Abstractions.Extensions
 {
     public static class ILGeneratorExtensions
     {
-        private static readonly Delegate ConvertToType = MethodInfoConstant.EmitConvertToType.CreateDelegate(typeof(Action<ILGenerator, Type, Type, bool>));
+        private static readonly Type ILGenType = typeof(Expression).GetTypeInfo().Assembly.GetType("System.Linq.Expressions.Compiler.ILGen");
+
+        private static readonly MethodInfo EmitConvertToTypeMethod = ILGenType.GetTypeInfo().GetMethod("EmitConvertToType", BindingFlags.NonPublic | BindingFlags.Static);
+
+        private static readonly Delegate ConvertToType = EmitConvertToTypeMethod.CreateDelegate(typeof(Action<ILGenerator, Type, Type, bool>));
 
         public static void EmitLoadArg(this ILGenerator ilGenerator, int index)
         {
@@ -184,19 +188,6 @@ namespace AspectCore.Abstractions.Extensions
                         ilGenerator.Emit(OpCodes.Ldc_I4, value);
                     break;
             }
-        }
-
-        internal static class MethodInfoConstant
-        {
-            private static readonly Type ILGenType = typeof(Expression).GetTypeInfo().Assembly.GetType("System.Linq.Expressions.Compiler.ILGen");
-
-            internal static readonly MethodInfo EmitConvertToType = ILGenType.GetTypeInfo().GetMethod("EmitConvertToType", BindingFlags.NonPublic | BindingFlags.Static);
-
-            internal static readonly MethodInfo GetTypeFromHandle = MethodInfosExtensions.GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
-
-            internal static readonly MethodInfo GetMethodFromHandle = MethodInfosExtensions.GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
-
-            internal static readonly ConstructorInfo ArgumentNullExceptionCtor = typeof(ArgumentNullException).GetTypeInfo().GetConstructor(new Type[] { typeof(string) });
         }
     }
 }
