@@ -42,11 +42,11 @@ namespace AspectCore.Abstractions.Internal
 
         private ProxyTypeGenerator GetInterfaceProxyTypeGenerator(Type serviceType, Type implementationType, params Type[] interfaces)
         {
-            var proxyStructureAttribute = serviceType.GetTypeInfo().GetCustomAttribute<ProxyStructureAttribute>();
-            if (proxyStructureAttribute != null && proxyStructureAttribute.ProxyMode == ProxyMode.Inheritance)
-            {
-                return new InheritanceInterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
-            }
+            //var proxyStructureAttribute = serviceType.GetTypeInfo().GetCustomAttribute<ProxyStructureAttribute>();
+            //if (proxyStructureAttribute != null && proxyStructureAttribute.ProxyMode == ProxyMode.Inheritance)
+            //{
+            //    return new InheritanceInterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
+            //}
             return new InterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
         }
     }
