@@ -37,7 +37,7 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
-            return GetInterfaceProxyTypeGenerator(serviceType, implementationType).CreateTypeInfo().AsType();
+            return GetInterfaceProxyTypeGenerator(serviceType, implementationType, interfaces).CreateTypeInfo().AsType();
         }
 
         private ProxyTypeGenerator GetInterfaceProxyTypeGenerator(Type serviceType, Type implementationType, params Type[] interfaces)
