@@ -2,7 +2,7 @@
 
 namespace AspectCore.Abstractions
 {
-    public interface IAspectContextItemProvider
+    public interface IAspectContextDataProvider
     {
         IDictionary<string, object> Items { get; }
     }

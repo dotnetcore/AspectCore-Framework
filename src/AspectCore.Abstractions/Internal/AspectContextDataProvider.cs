@@ -2,11 +2,11 @@
 
 namespace AspectCore.Abstractions.Internal
 {
-    internal class AspectContextItemProvider : IAspectContextItemProvider
+    internal class AspectContextDataProvider : IAspectContextDataProvider
     {
         private readonly IDictionary<string, object> items;
 
-        internal AspectContextItemProvider(IDictionary<string, object> items)
+        internal AspectContextDataProvider(IDictionary<string, object> items)
         {
             this.items = items;
         }

@@ -32,7 +32,7 @@ namespace AspectCore.Abstractions.Test
         {
             public virtual void Test1() { }
 
-            public virtual void Test2(int arg, IAspectContextItemProvider aspectContextItemProvider = null)
+            public virtual void Test2(int arg, IAspectContextDataProvider aspectContextItemProvider = null)
             {
                 Assert.Equal(aspectContextItemProvider.Items["key"], "ItemInterceptor");
             }

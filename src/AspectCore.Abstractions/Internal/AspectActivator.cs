@@ -63,9 +63,9 @@ namespace AspectCore.Abstractions.Internal
             using (var context = new DefaultAspectContext<T>(serviceProvider, activatorContext))
             {
                 var lastParameter = context.Parameters.LastOrDefault();
-                if (lastParameter?.ParameterType == typeof(IAspectContextItemProvider))
+                if (lastParameter?.ParameterType == typeof(IAspectContextDataProvider))
                 {
-                    lastParameter.Value = new AspectContextItemProvider(context.Items);
+                    lastParameter.Value = new AspectContextDataProvider(context.Items);
                 }
 
                 var aspectBuilder = aspectBuilderProvider.GetBuilder(activatorContext);
