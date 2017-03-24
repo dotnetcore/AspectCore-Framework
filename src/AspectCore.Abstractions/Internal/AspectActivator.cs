@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 #if NET45
 using Nito.AsyncEx;
@@ -12,7 +13,7 @@ namespace AspectCore.Abstractions.Internal
         private readonly IAspectBuilderProvider aspectBuilderProvider;
 
         public AspectActivator(
-            IServiceProvider serviceProvider, 
+            IServiceProvider serviceProvider,
             IAspectBuilderProvider aspectBuilderProvider)
         {
             if (aspectBuilderProvider == null)
@@ -61,6 +62,12 @@ namespace AspectCore.Abstractions.Internal
         {
             using (var context = new DefaultAspectContext<T>(serviceProvider, activatorContext))
             {
+                var lastParameter = context.Parameters.LastOrDefault();
+                if (lastParameter?.ParameterType == typeof(IAspectContextItemProvider))
+                {
+                    lastParameter.Value = new AspectContextItemProvider(context.Items);
+                }
+
                 var aspectBuilder = aspectBuilderProvider.GetBuilder(activatorContext);
 
                 await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
