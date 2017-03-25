@@ -3,8 +3,7 @@
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public interface IOriginalServiceProvider
+    public interface IOriginalServiceProvider : IServiceProvider
     {
-        object GetService(Type serviceType);
     }
 }

@@ -64,7 +64,8 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(returnParameter));
             }
 
-            serviceProvider = provider;
+            var originalServiceProvider = provider as IOriginalServiceProvider;
+            serviceProvider = originalServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IOriginalServiceProvider));
             Target = target;
             Proxy = proxy;
             Parameters = parameters;
