@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace AspectCore.Abstractions.Internal
@@ -7,7 +6,7 @@ namespace AspectCore.Abstractions.Internal
     public sealed class DefaultAspectContext<T> : AspectContext
     {
         private IServiceProvider serviceProvider;
-        private IDictionary<string, object> items;
+        private DynamicDictionary data;
         private bool disposedValue = false;
 
         public override IServiceProvider ServiceProvider
@@ -23,7 +22,7 @@ namespace AspectCore.Abstractions.Internal
             }
         }
 
-        public override IDictionary<string, object> Items { get { return items ?? (items = new Dictionary<string, object>()); } }
+        public override DynamicDictionary Data { get { return data ?? (data = new DynamicDictionary()); } }
 
         public override ParameterCollection Parameters
         {
@@ -93,22 +92,22 @@ namespace AspectCore.Abstractions.Internal
                 return;
             }
 
-            if (items == null)
+            if (data == null)
             {
                 return;
             }
 
-            foreach (var key in items.Keys.ToArray())
+            foreach (var key in data.Keys.ToArray())
             {
                 object value = null;
 
-                items.TryGetValue(key, out value);
+                data.TryGetValue(key, out value);
 
                 var disposable = value as IDisposable;
 
                 disposable?.Dispose();
 
-                items.Remove(key);
+                data.Remove(key);
             }
 
             disposedValue = true;

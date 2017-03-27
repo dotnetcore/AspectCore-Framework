@@ -11,7 +11,7 @@ namespace AspectCore.Abstractions
             {
                 if (parameter.ParameterType == typeof(IAspectContextDataProvider))
                 {
-                    parameter.Value = new AspectContextDataProvider(context.Items);
+                    parameter.Value = new AspectContextDataProvider(context.Data);
                 }
             }
             return next(context);

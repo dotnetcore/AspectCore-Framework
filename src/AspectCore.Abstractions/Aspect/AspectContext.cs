@@ -16,7 +16,7 @@ namespace AspectCore.Abstractions
 
         public virtual ParameterDescriptor ReturnParameter { get; }
 
-        public virtual IDictionary<string, object> Items { get; }
+        public virtual DynamicDictionary Data { get; }
 
         protected virtual void Dispose(bool disposing)
         { 
