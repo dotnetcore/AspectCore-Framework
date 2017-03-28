@@ -26,7 +26,11 @@ namespace AspectCore.Abstractions.Internal
                 if (property.CanWrite && property.IsDefined(typeof(FromServicesAttribute)))
                 {
                     yield return new PropertyInjector(
-                        p => p.GetService(property.PropertyType),
+                        provider =>
+                        {
+                            var originalProvider = (IOriginalServiceProvider)provider.GetService(typeof(IOriginalServiceProvider));
+                            return originalProvider.GetService(property.PropertyType);
+                        },
                         new PropertyAccessor(property).CreatePropertySetter());
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using AspectCore.Abstractions.Internal.Test.Fakes;
+using AspectCore.Abstractions.Test.Fakes;
 using Xunit;
 
 namespace AspectCore.Abstractions.Internal.Test
@@ -9,12 +10,12 @@ namespace AspectCore.Abstractions.Internal.Test
         public void Inject_Test()
         {
             var Configure = new AspectConfigure();
-           
+
             var interceptor = new InjectedInterceptor();
 
             Assert.Null(interceptor.Configure);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(Configure),new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(new OriginalServiceProvider(Configure)), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
@@ -32,7 +33,7 @@ namespace AspectCore.Abstractions.Internal.Test
 
             Assert.Null(interceptor.ConfigureWithNoSet);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(Configure), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(new OriginalServiceProvider(Configure)), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
@@ -48,7 +49,7 @@ namespace AspectCore.Abstractions.Internal.Test
 
             Assert.Null(interceptor.ConfigureWithNoFromServicesAttribute);
 
-            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(Configure), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
+            var interceptorInjector = new InterceptorInjector(new InstanceServiceProvider(new OriginalServiceProvider(Configure)), new PropertyInjectorSelector().SelectPropertyInjector(typeof(InjectedInterceptor)));
 
             interceptorInjector.Inject(interceptor);
 
