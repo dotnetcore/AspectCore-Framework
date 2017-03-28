@@ -3,11 +3,12 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions
 {
-    public sealed class EnableAspectContextDataProviderAttribute : InterceptorAttribute
+    public class AspectFeatureAttribute : InterceptorAttribute
     {
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            foreach(var parameter in context.Parameters)
+
+            foreach (var parameter in context.Parameters)
             {
                 if (parameter.ParameterType == typeof(IAspectContextDataProvider))
                 {
