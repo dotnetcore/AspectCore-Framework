@@ -13,15 +13,5 @@ namespace AspectCore.Abstractions.Extensions
 
             return (IAspectActivator)provider.GetService(typeof(IAspectActivator));
         }
-
-        public static T GetService<T>(this IOriginalServiceProvider originalServiceProvider)
-        {
-            if (originalServiceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(originalServiceProvider));
-            }
-
-            return (T)originalServiceProvider.GetService(typeof(T));
-        }
     }
 }
