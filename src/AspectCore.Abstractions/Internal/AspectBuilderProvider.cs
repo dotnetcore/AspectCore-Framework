@@ -7,9 +7,9 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class AspectBuilderProvider : IAspectBuilderProvider
     {
-        private readonly IInterceptorSelector interceptorSelector;
+        private readonly IInterceptorProvider interceptorSelector;
 
-        public AspectBuilderProvider(IInterceptorSelector interceptorSelector)
+        public AspectBuilderProvider(IInterceptorProvider interceptorSelector)
         {
             if (interceptorSelector == null)
             {
@@ -21,7 +21,7 @@ namespace AspectCore.Abstractions.Internal
         public IAspectBuilder GetBuilder(AspectActivatorContext context)
         {
             var aspectBuilder = new AspectBuilder();
-            foreach (var interceptor in interceptorSelector.Select(context.ServiceMethod))
+            foreach (var interceptor in interceptorSelector.GetInterceptors(context.ServiceMethod))
             {
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
             }

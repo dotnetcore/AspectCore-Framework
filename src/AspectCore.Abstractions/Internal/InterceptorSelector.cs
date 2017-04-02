@@ -6,16 +6,16 @@ using AspectCore.Abstractions.Extensions;
 
 namespace AspectCore.Abstractions.Internal
 {
-    public sealed class InterceptorSelector : IInterceptorSelector
+    public sealed class InterceptorSelector : IInterceptorProvider
     {
         private static readonly IDictionary<MethodInfo, IInterceptor[]> InterceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
         private static readonly object CacheLock = new object();
 
-        private readonly IInterceptorMatcher interceptorMatcher;
+        private readonly IInterceptorSelector interceptorMatcher;
         private readonly IInterceptorInjectorProvider interceptorInjectorProvider;
 
         public InterceptorSelector(
-          IInterceptorMatcher interceptorMatcher,
+          IInterceptorSelector interceptorMatcher,
           IInterceptorInjectorProvider interceptorInjectorProvider)
         {
             if (interceptorMatcher == null)
@@ -30,7 +30,7 @@ namespace AspectCore.Abstractions.Internal
             this.interceptorInjectorProvider = interceptorInjectorProvider;
         }
 
-        public IInterceptor[] Select(MethodInfo method)
+        public IInterceptor[] GetInterceptors(MethodInfo method)
         {
             if (method == null)
             {
@@ -38,7 +38,7 @@ namespace AspectCore.Abstractions.Internal
             }
             return InterceptorCache.GetOrAdd(method, _ =>
             {
-                return interceptorMatcher.Match(method, method.DeclaringType.GetTypeInfo()).
+                return interceptorMatcher.Select(method, method.DeclaringType.GetTypeInfo()).
                  Select(i =>
                  {
                      interceptorInjectorProvider.GetInjector(i.GetType()).Inject(i);

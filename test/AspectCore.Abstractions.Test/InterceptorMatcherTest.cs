@@ -20,7 +20,7 @@ namespace AspectCore.Abstractions.Internal.Test
 
             var method = ReflectionExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithOutInterceptor());
 
-            var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
+            var interceptors = matcher.Select(method, method.DeclaringType.GetTypeInfo());
 
             Assert.Empty(interceptors);
         }
@@ -36,7 +36,7 @@ namespace AspectCore.Abstractions.Internal.Test
             var matcher = new InterceptorMatcher(Configure);
             var method = ReflectionExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.ConfigureInterceptor());
 
-            var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
+            var interceptors = matcher.Select(method, method.DeclaringType.GetTypeInfo());
 
             Assert.NotEmpty(interceptors);
 
@@ -51,7 +51,7 @@ namespace AspectCore.Abstractions.Internal.Test
             var matcher = new InterceptorMatcher(Configure);
             var method = ReflectionExtensions.GetMethod<Action<InterceptorMatcherModel>>(m => m.WithInterceptor());
 
-            var interceptors = matcher.Match(method, method.DeclaringType.GetTypeInfo());
+            var interceptors = matcher.Select(method, method.DeclaringType.GetTypeInfo());
 
             Assert.NotEmpty(interceptors);
             Assert.Single(interceptors);
@@ -66,7 +66,7 @@ namespace AspectCore.Abstractions.Internal.Test
             var matcher = new InterceptorMatcher(Configure);
             var method = ReflectionExtensions.GetMethod<Action<WithInterceptorMatcherModel>>(m => m.WithOutInterceptor());
 
-            var interceptors = matcher.Match(method, typeof(WithInterceptorMatcherModel).GetTypeInfo());
+            var interceptors = matcher.Select(method, typeof(WithInterceptorMatcherModel).GetTypeInfo());
 
             Assert.NotEmpty(interceptors);
             Assert.Single(interceptors);

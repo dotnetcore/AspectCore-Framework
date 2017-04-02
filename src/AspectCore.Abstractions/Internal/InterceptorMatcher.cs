@@ -6,7 +6,7 @@ using AspectCore.Abstractions.Extensions;
 
 namespace AspectCore.Abstractions.Internal
 {
-    public sealed class InterceptorMatcher : IInterceptorMatcher
+    public sealed class InterceptorMatcher : IInterceptorSelector
     {
         private readonly IAspectConfigure aspectConfigure;
 
@@ -19,7 +19,7 @@ namespace AspectCore.Abstractions.Internal
             this.aspectConfigure = aspectConfigure;
         }
 
-        public IInterceptor[] Match(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
+        public IInterceptor[] Select(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
         {
             if (serviceMethod == null)
             {

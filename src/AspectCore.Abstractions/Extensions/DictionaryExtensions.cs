@@ -5,7 +5,7 @@ namespace AspectCore.Abstractions.Extensions
 {
     internal static class DictionaryExtensions
     {
-        internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory, object synchronization)
+        internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
             var value = default(TValue);
 
@@ -14,7 +14,7 @@ namespace AspectCore.Abstractions.Extensions
                 return value;
             }
 
-            lock (synchronization)
+            lock (dictionary)
             {
                 if (dictionary.TryGetValue(key, out value))
                 {
