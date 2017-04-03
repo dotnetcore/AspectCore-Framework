@@ -9,14 +9,14 @@ namespace AspectCore.Abstractions.Internal
 {
     public class PropertyInjectorSelector : IPropertyInjectorSelector
     {
-        private static readonly ConcurrentDictionary<Type, IPropertyInjector[]> PropertyInjectorCache = new ConcurrentDictionary<Type, IPropertyInjector[]>();
+        private static readonly ConcurrentDictionary<Type, IPropertyInjector[]> propertyInjectorCache = new ConcurrentDictionary<Type, IPropertyInjector[]>();
         public IPropertyInjector[] SelectPropertyInjector(Type interceptorType)
         {
             if (interceptorType == null)
             {
                 throw new ArgumentNullException(nameof(interceptorType));
             }
-            return PropertyInjectorCache.GetOrAdd(interceptorType, type => SelectPropertyInjectorCache(type).ToArray());
+            return propertyInjectorCache.GetOrAdd(interceptorType, type => SelectPropertyInjectorCache(type).ToArray());
         }
 
         private IEnumerable<IPropertyInjector> SelectPropertyInjectorCache(Type type)

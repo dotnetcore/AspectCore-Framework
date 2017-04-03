@@ -11,27 +11,27 @@ namespace AspectCore.Abstractions.Internal.Generator
     {
         protected readonly static Type[] ProxyParameterTypes = new Type[] { typeof(IServiceProvider), typeof(IServiceInstanceProvider) };
 
-        protected readonly ConstructorInfo constructor;
-        protected readonly FieldBuilder serviceInstanceFieldBuilder;
-        protected readonly FieldBuilder serviceProviderFieldBuilder;
-        protected readonly Type serviceType;
+        protected readonly ConstructorInfo _constructor;
+        protected readonly FieldBuilder _serviceInstanceFieldBuilder;
+        protected readonly FieldBuilder _serviceProviderFieldBuilder;
+        protected readonly Type _serviceType;
 
         public ProxyConstructorGenerator(TypeBuilder declaringMember,
             Type serviceType, ConstructorInfo constructor,
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder)
             : base(declaringMember)
         {
-            this.serviceType = serviceType;
-            this.constructor = constructor;
-            this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
-            this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
+            _serviceType = serviceType;
+            _constructor = constructor;
+            _serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
+            _serviceProviderFieldBuilder = serviceProviderFieldBuilder;
         }
 
         public override CallingConventions CallingConventions
         {
             get
             {
-                return constructor.CallingConvention;
+                return _constructor.CallingConvention;
             }
         }
 
@@ -39,7 +39,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return constructor.Attributes;
+                return _constructor.Attributes;
             }
         }
 
@@ -47,7 +47,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return new Type[] { typeof(IServiceProvider) }.Concat(constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
+                return new Type[] { typeof(IServiceProvider) }.Concat(_constructor.GetParameters().Select(p => p.ParameterType)).ToArray();
             }
         }
 
@@ -60,11 +60,11 @@ namespace AspectCore.Abstractions.Internal.Generator
             {
                 ilGenerator.EmitLoadArg(i);
             }
-            ilGenerator.Emit(OpCodes.Call, constructor);
+            ilGenerator.Emit(OpCodes.Call, _constructor);
 
             ilGenerator.EmitThis();
             ilGenerator.EmitLoadArg(1);
-            ilGenerator.Emit(OpCodes.Stfld, serviceProviderFieldBuilder);
+            ilGenerator.Emit(OpCodes.Stfld, _serviceProviderFieldBuilder);
 
             ilGenerator.EmitThis();
             ilGenerator.EmitThis();
@@ -80,7 +80,7 @@ namespace AspectCore.Abstractions.Internal.Generator
             //}
             //ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
             //ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
-            ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
+            ilGenerator.Emit(OpCodes.Stfld, _serviceInstanceFieldBuilder);
 
             ilGenerator.Emit(OpCodes.Ret);
         }

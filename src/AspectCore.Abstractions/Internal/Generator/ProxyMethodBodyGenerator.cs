@@ -11,12 +11,12 @@ namespace AspectCore.Abstractions.Internal.Generator
 {
     internal sealed class ProxyMethodBodyGenerator : MethodBodyGenerator
     {
-        private readonly Type serviceType;
-        private readonly MethodInfo serviceMethod;
-        private readonly MethodInfo parentMethod;
-        private readonly FieldBuilder serviceInstanceFieldBuilder;
-        private readonly FieldBuilder serviceProviderFieldBuilder;
-        private readonly TypeBuilder declaringBuilder;
+        private readonly Type _serviceType;
+        private readonly MethodInfo _serviceMethod;
+        private readonly MethodInfo _parentMethod;
+        private readonly FieldBuilder _serviceInstanceFieldBuilder;
+        private readonly FieldBuilder _serviceProviderFieldBuilder;
+        private readonly TypeBuilder _declaringBuilder;
 
         public ProxyMethodBodyGenerator(
                 MethodBuilder declaringMember, 
@@ -28,18 +28,18 @@ namespace AspectCore.Abstractions.Internal.Generator
                 FieldBuilder serviceProviderFieldBuilder)
                 : base(declaringMember)
         {
-            this.serviceType = serviceType;
-            this.serviceMethod = serviceMethod;
-            this.parentMethod = parentMethod;
-            this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
-            this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
-            this.declaringBuilder = declaringBuilder;
+            _serviceType = serviceType;
+            _serviceMethod = serviceMethod;
+            _parentMethod = parentMethod;
+            _serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
+            _serviceProviderFieldBuilder = serviceProviderFieldBuilder;
+            _declaringBuilder = declaringBuilder;
         }
 
         protected override void GeneratingMethodBody(ILGenerator ilGenerator)
         {
             ilGenerator.EmitThis();
-            ilGenerator.Emit(OpCodes.Ldfld, serviceProviderFieldBuilder);
+            ilGenerator.Emit(OpCodes.Ldfld, _serviceProviderFieldBuilder);
             ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetAspectActivator);  //var aspectActivator = this.serviceProvider.GetService<IAspectActivator>();      
             GeneratingInitializeMetaData(ilGenerator);
             ilGenerator.Emit(OpCodes.Newobj, MethodInfoConstant.AspectActivatorContex_Ctor);
@@ -49,33 +49,33 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         private void GeneratingInitializeMetaData(ILGenerator ilGenerator)
         {
-            if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
+            if (_serviceType.GetTypeInfo().IsGenericTypeDefinition)
             {
-                var serviceTypeOfGeneric = serviceType.GetTypeInfo().MakeGenericType(declaringBuilder.GetGenericArguments());
+                var serviceTypeOfGeneric = _serviceType.GetTypeInfo().MakeGenericType(_declaringBuilder.GetGenericArguments());
                 ilGenerator.EmitTypeof(serviceTypeOfGeneric);
             }
             else
             {
-                ilGenerator.EmitTypeof(serviceType);
+                ilGenerator.EmitTypeof(_serviceType);
             }
 
-            if (serviceMethod.IsGenericMethodDefinition)
+            if (_serviceMethod.IsGenericMethodDefinition)
             {
-                ilGenerator.EmitMethodof(serviceMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
-                ilGenerator.EmitMethodof(parentMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethodof(_serviceMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethodof(_parentMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
                 ilGenerator.EmitMethodof(DeclaringMember.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
             }
             else
             {
-                ilGenerator.EmitMethodof(serviceMethod);
-                ilGenerator.EmitMethodof(parentMethod);
+                ilGenerator.EmitMethodof(_serviceMethod);
+                ilGenerator.EmitMethodof(_parentMethod);
                 ilGenerator.EmitMethodof(DeclaringMember);
             }
 
-            var parameters = serviceMethod.GetParameterTypes();
+            var parameters = _serviceMethod.GetParameterTypes();
 
             ilGenerator.EmitThis();
-            ilGenerator.Emit(OpCodes.Ldfld, serviceInstanceFieldBuilder);
+            ilGenerator.Emit(OpCodes.Ldfld, _serviceInstanceFieldBuilder);
             ilGenerator.EmitThis();
             ilGenerator.EmitLoadInt(parameters.Length);
             ilGenerator.Emit(OpCodes.Newarr, typeof(object));
@@ -92,23 +92,23 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         private void GeneratingReturnVaule(ILGenerator ilGenerator)
         {
-            if (serviceMethod.ReturnType == typeof(void))
+            if (_serviceMethod.ReturnType == typeof(void))
             {
                 ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_Invoke.MakeGenericMethod(typeof(object)));
                 ilGenerator.Emit(OpCodes.Pop);
             }
-            else if (serviceMethod.ReturnType == typeof(Task))
+            else if (_serviceMethod.ReturnType == typeof(Task))
             {
                 ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_InvokeAsync.MakeGenericMethod(typeof(object)));
             }
-            else if (serviceMethod.IsReturnTask())
+            else if (_serviceMethod.IsReturnTask())
             {
-                var returnType = serviceMethod.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                var returnType = _serviceMethod.ReturnType.GetTypeInfo().GetGenericArguments().Single();
                 ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_InvokeAsync.MakeGenericMethod(returnType));
             }
             else
             {
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_Invoke.MakeGenericMethod(serviceMethod.ReturnType));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivator_Invoke.MakeGenericMethod(_serviceMethod.ReturnType));
             }
         }
     }

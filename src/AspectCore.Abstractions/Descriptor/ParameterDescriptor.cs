@@ -6,8 +6,8 @@ namespace AspectCore.Abstractions
 {
     public class ParameterDescriptor
     {
-        private object value;
-        private ParameterInfo parameterInfo;
+        private object _value;
+        private ParameterInfo _parameterInfo;
 
         public ParameterDescriptor(object value, ParameterInfo parameterInfo)
         {
@@ -15,15 +15,15 @@ namespace AspectCore.Abstractions
             {
                 throw new ArgumentNullException(nameof(parameterInfo));
             }
-            this.parameterInfo = parameterInfo;
-            this.value = value;
+            _parameterInfo = parameterInfo;
+            _value = value;
         }
 
         public virtual string Name
         {
             get
             {
-                return parameterInfo.Name;
+                return _parameterInfo.Name;
             }
         }
 
@@ -31,7 +31,7 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return value;
+                return _value;
             }
             set
             {
@@ -41,7 +41,7 @@ namespace AspectCore.Abstractions
                     {
                         throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                     }
-                    this.value = value;
+                    this._value = value;
                     return;
                 }
                 Type valueType = value.GetType();
@@ -49,7 +49,7 @@ namespace AspectCore.Abstractions
                 {
                     throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                 }
-                this.value = value;
+                this._value = value;
             }
         }
 
@@ -57,7 +57,7 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return parameterInfo.ParameterType;
+                return _parameterInfo.ParameterType;
             }
         }
 
@@ -65,7 +65,7 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return parameterInfo;
+                return _parameterInfo;
             }
         }
 
@@ -73,7 +73,7 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return parameterInfo.GetCustomAttributes().ToArray();
+                return _parameterInfo.GetCustomAttributes().ToArray();
             }
         }
     }

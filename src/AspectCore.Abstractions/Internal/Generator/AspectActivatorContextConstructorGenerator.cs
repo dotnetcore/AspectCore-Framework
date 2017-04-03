@@ -10,10 +10,10 @@ namespace AspectCore.Abstractions.Internal.Generator
 {
     internal class AspectActivatorContextConstructorGenerator : ConstructorGenerator
     {
-        private readonly FieldGenerator[] fields;
+        private readonly FieldGenerator[] _fields;
         public AspectActivatorContextConstructorGenerator(TypeBuilder declaringMember, params FieldGenerator[] fields) : base(declaringMember)
         {
-            this.fields = fields;
+            _fields = fields;
         }
 
         public override CallingConventions CallingConventions
@@ -45,11 +45,11 @@ namespace AspectCore.Abstractions.Internal.Generator
             ilGenerator.EmitThis();
             var baseCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First();
             ilGenerator.Emit(OpCodes.Call, baseCtor);
-            for (int i = 0; i < fields.Length; i++)
+            for (int i = 0; i < _fields.Length; i++)
             {
                 ilGenerator.EmitThis();
                 ilGenerator.EmitLoadArg(i + 1);
-                ilGenerator.Emit(OpCodes.Stfld, fields[i].Build());
+                ilGenerator.Emit(OpCodes.Stfld, _fields[i].Build());
             }
             ilGenerator.Emit(OpCodes.Ret);
         }

@@ -6,11 +6,11 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class AspectConfigure : IAspectConfigure
     {
-        private readonly ConcurrentDictionary<Type, object> optionCache;
+        private readonly ConcurrentDictionary<Type, object> _optionCache;
 
         public AspectConfigure()
         {
-            optionCache = new ConcurrentDictionary<Type, object>();
+            _optionCache = new ConcurrentDictionary<Type, object>();
 
             var ignoreOption = GetConfigureOption<bool>();
 
@@ -24,7 +24,7 @@ namespace AspectCore.Abstractions.Internal
 
         public IAspectConfigureOption<TOption> GetConfigureOption<TOption>()
         {
-            return (AspectConfigureOption<TOption>)optionCache.GetOrAdd(typeof(TOption), key => new AspectConfigureOption<TOption>());
+            return (AspectConfigureOption<TOption>)_optionCache.GetOrAdd(typeof(TOption), key => new AspectConfigureOption<TOption>());
         }
     }
 }

@@ -4,8 +4,8 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class PropertyInjector : IPropertyInjector
     {
-        private readonly Func<IServiceProvider, object> propertyFactory;
-        private readonly Action<object, object> setter;
+        private readonly Func<IServiceProvider, object> _propertyFactory;
+        private readonly Action<object, object> _setter;
 
         public PropertyInjector(Func<IServiceProvider, object> propertyFactory, Action<object, object> setter)
         {
@@ -18,8 +18,8 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(setter));
             }
 
-            this.propertyFactory = propertyFactory;
-            this.setter = setter;
+            this._propertyFactory = propertyFactory;
+            this._setter = setter;
         }
 
         public void Invoke(IServiceProvider serviceProvider, IInterceptor interceptor)
@@ -33,7 +33,7 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(interceptor));
             }
 
-            setter(interceptor, propertyFactory(serviceProvider));
+            _setter(interceptor, _propertyFactory(serviceProvider));
         }
     }
 }

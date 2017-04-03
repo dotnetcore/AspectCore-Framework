@@ -8,10 +8,10 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class InterceptorSelector : IInterceptorProvider
     {
-        private static readonly IDictionary<MethodInfo, IInterceptor[]> InterceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
+        private static readonly IDictionary<MethodInfo, IInterceptor[]> interceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
 
-        private readonly IInterceptorSelector interceptorMatcher;
-        private readonly IInterceptorInjectorProvider interceptorInjectorProvider;
+        private readonly IInterceptorSelector _interceptorMatcher;
+        private readonly IInterceptorInjectorProvider _interceptorInjectorProvider;
 
         public InterceptorSelector(
           IInterceptorSelector interceptorMatcher,
@@ -25,8 +25,8 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(interceptorInjectorProvider));
             }
-            this.interceptorMatcher = interceptorMatcher;
-            this.interceptorInjectorProvider = interceptorInjectorProvider;
+            this._interceptorMatcher = interceptorMatcher;
+            this._interceptorInjectorProvider = interceptorInjectorProvider;
         }
 
         public IInterceptor[] GetInterceptors(MethodInfo method)
@@ -35,12 +35,12 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            return InterceptorCache.GetOrAdd(method, _ =>
+            return interceptorCache.GetOrAdd(method, _ =>
             {
-                return interceptorMatcher.Select(method, method.DeclaringType.GetTypeInfo()).
+                return _interceptorMatcher.Select(method, method.DeclaringType.GetTypeInfo()).
                  Select(i =>
                  {
-                     interceptorInjectorProvider.GetInjector(i.GetType()).Inject(i);
+                     _interceptorInjectorProvider.GetInjector(i.GetType()).Inject(i);
                      return i;
                  }).ToArray();
             });

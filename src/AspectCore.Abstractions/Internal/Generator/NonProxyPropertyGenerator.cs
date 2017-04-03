@@ -14,12 +14,12 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         protected override MethodGenerator GetReadMethodGenerator(TypeBuilder declaringType)
         {
-            return new NonProxyMethodGenerator(declaringType, parentType, GetMethod, serviceInstanceFieldBuilder, isImplementExplicitly);
+            return new NonProxyMethodGenerator(declaringType, _parentType, GetMethod, _serviceInstanceFieldBuilder, _isImplementExplicitly);
         }
 
         protected override MethodGenerator GetWriteMethodGenerator(TypeBuilder declaringType)
         {
-            return new NonProxyMethodGenerator(declaringType, parentType, SetMethod, serviceInstanceFieldBuilder, isImplementExplicitly);
+            return new NonProxyMethodGenerator(declaringType, _parentType, SetMethod, _serviceInstanceFieldBuilder, _isImplementExplicitly);
         }
     }
 }

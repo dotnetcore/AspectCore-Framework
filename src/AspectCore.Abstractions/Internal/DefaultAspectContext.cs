@@ -3,26 +3,26 @@ using System.Linq;
 
 namespace AspectCore.Abstractions.Internal
 {
-    public sealed class DefaultAspectContext<T> : AspectContext
+    public sealed class DefaultAspectContext : AspectContext
     {
-        private IServiceProvider serviceProvider;
-        private DynamicDictionary data;
-        private bool disposedValue = false;
+        private IServiceProvider _serviceProvider;
+        private DynamicDictionary _data;
+        private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
         {
             get
             {
-                if (serviceProvider == null)
+                if (_serviceProvider == null)
                 {
                     throw new NotImplementedException("The current context does not support IServiceProvider.");
                 }
 
-                return serviceProvider;
+                return _serviceProvider;
             }
         }
 
-        public override DynamicDictionary Data { get { return data ?? (data = new DynamicDictionary()); } }
+        public override DynamicDictionary Data { get { return _data ?? (_data = new DynamicDictionary()); } }
 
         public override ParameterCollection Parameters
         {
@@ -64,25 +64,16 @@ namespace AspectCore.Abstractions.Internal
             }
 
             var originalServiceProvider = provider as IOriginalServiceProvider;
-            serviceProvider = originalServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IOriginalServiceProvider));
+            _serviceProvider = originalServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IOriginalServiceProvider));
             Target = target;
             Proxy = proxy;
             Parameters = parameters;
             ReturnParameter = returnParameter;
         }
 
-        public DefaultAspectContext(IServiceProvider provider, AspectActivatorContext context)
-            : this(provider,
-                 new TargetDescriptor(context.TargetInstance, context.ServiceMethod, context.ServiceType, context.TargetMethod, context.TargetInstance?.GetType() ?? context.TargetMethod.DeclaringType),
-                 new ProxyDescriptor(context.ProxyInstance, context.ProxyMethod, context.ProxyInstance.GetType()),
-                 new ParameterCollection(context.Parameters, context.ServiceMethod.GetParameters()),
-                 new ReturnParameterDescriptor(default(T), context.ServiceMethod.ReturnParameter))
-        {
-        }
-
         protected override void Dispose(bool disposing)
         {
-            if (disposedValue)
+            if (_disposedValue)
             {
                 return;
             }
@@ -92,25 +83,25 @@ namespace AspectCore.Abstractions.Internal
                 return;
             }
 
-            if (data == null)
+            if (_data == null)
             {
                 return;
             }
 
-            foreach (var key in data.Keys.ToArray())
+            foreach (var key in _data.Keys.ToArray())
             {
                 object value = null;
 
-                data.TryGetValue(key, out value);
+                _data.TryGetValue(key, out value);
 
                 var disposable = value as IDisposable;
 
                 disposable?.Dispose();
 
-                data.Remove(key);
+                _data.Remove(key);
             }
 
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 }

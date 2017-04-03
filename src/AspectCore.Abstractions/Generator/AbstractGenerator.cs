@@ -4,8 +4,8 @@ namespace AspectCore.Abstractions.Generator
 {
     public abstract class AbstractGenerator<TDeclaringMember, TBuilder>
     {
-        private object buildLock = new object();
-        private TBuilder builder;
+        private object _buildLock = new object();
+        private TBuilder _builder;
 
         public virtual TDeclaringMember DeclaringMember { get; }
 
@@ -21,17 +21,17 @@ namespace AspectCore.Abstractions.Generator
 
         public TBuilder Build()
         {
-            if (builder == null)
+            if (_builder == null)
             {
-                lock (buildLock)
+                lock (_buildLock)
                 {
-                    if (builder == null)
+                    if (_builder == null)
                     {
-                        builder = ExecuteBuild();
+                        _builder = ExecuteBuild();
                     }
                 }
             }
-            return builder;
+            return _builder;
         }
 
         protected abstract TBuilder ExecuteBuild();

@@ -8,7 +8,7 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class InterceptorMatcher : IInterceptorSelector
     {
-        private readonly IAspectConfigure aspectConfigure;
+        private readonly IAspectConfigure _aspectConfigure;
 
         public InterceptorMatcher(IAspectConfigure aspectConfigure)
         {
@@ -16,7 +16,7 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(aspectConfigure));
             }
-            this.aspectConfigure = aspectConfigure;
+            this._aspectConfigure = aspectConfigure;
         }
 
         public IInterceptor[] Select(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
@@ -30,7 +30,7 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(serviceTypeInfo));
             }
 
-            var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, aspectConfigure.GetConfigureOption<IInterceptor>());
+            var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, _aspectConfigure.GetConfigureOption<IInterceptor>());
             return aggregate.FilterMultiple().OrderBy(interceptor => interceptor.Order).ToArray();
         }
 

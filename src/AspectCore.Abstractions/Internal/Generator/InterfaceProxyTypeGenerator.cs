@@ -9,7 +9,7 @@ namespace AspectCore.Abstractions.Internal.Generator
 {
     internal class InterfaceProxyTypeGenerator : ProxyTypeGenerator
     {
-        private readonly Type parentType;
+        private readonly Type _parentType;
         public InterfaceProxyTypeGenerator(Type serviceType, Type parentType, Type[] interfaces, IAspectValidator aspectValidator) : base(serviceType, aspectValidator)
         {
             if (!serviceType.GetTypeInfo().IsInterface)
@@ -21,14 +21,14 @@ namespace AspectCore.Abstractions.Internal.Generator
                 throw new ArgumentNullException(nameof(parentType));
             }
             Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).ToArray();
-            this.parentType = parentType;
+            _parentType = parentType;
         }
 
         public override Type[] Interfaces { get; }
 
         public override Type ParentType => typeof(object);
 
-        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.ServiceInstance.Proxy{parentType.Name}As{ServiceType.Name}";
+        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.ServiceInstance.Proxy{_parentType.Name}As{ServiceType.Name}";
 
         protected override void GeneratingConstructor(TypeBuilder declaringType)
         {
@@ -47,10 +47,10 @@ namespace AspectCore.Abstractions.Internal.Generator
                     }
                     if (!AspectValidator.Validate(method))
                     {
-                        new NonProxyMethodGenerator(declaringType, parentType, method, serviceInstanceFieldBuilder, i != 0).Build();
+                        new NonProxyMethodGenerator(declaringType, _parentType, method, serviceInstanceFieldBuilder, i != 0).Build();
                         continue;
                     }
-                    new ProxyMethodGenerator(declaringType, Interfaces[i], parentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, i != 0).Build();
+                    new ProxyMethodGenerator(declaringType, Interfaces[i], _parentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, i != 0).Build();
                 }
             }
         }
@@ -63,11 +63,11 @@ namespace AspectCore.Abstractions.Internal.Generator
                 {
                     if (AspectValidator.Validate(property))
                     {
-                        new ProxyPropertyGenerator(declaringType, property, Interfaces[i], parentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, i != 0).Build();
+                        new ProxyPropertyGenerator(declaringType, property, Interfaces[i], _parentType, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, i != 0).Build();
                     }
                     else
                     {
-                        new NonProxyPropertyGenerator(declaringType, property, Interfaces[i], parentType, serviceInstanceFieldBuilder, i != 0).Build();
+                        new NonProxyPropertyGenerator(declaringType, property, Interfaces[i], _parentType, serviceInstanceFieldBuilder, i != 0).Build();
                     }
                 }
             }

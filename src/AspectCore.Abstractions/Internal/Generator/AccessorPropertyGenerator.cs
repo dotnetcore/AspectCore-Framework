@@ -9,11 +9,11 @@ namespace AspectCore.Abstractions.Internal.Generator
 {
     internal abstract class AccessorPropertyGenerator : PropertyGenerator
     {
-        protected readonly FieldBuilder fieldBuilder;
+        protected readonly FieldBuilder _fieldBuilder;
 
         public AccessorPropertyGenerator(TypeBuilder declaringMember, FieldBuilder fieldBuilder) : base(declaringMember)
         {
-            this.fieldBuilder = fieldBuilder;
+            _fieldBuilder = fieldBuilder;
         }
 
         public override CallingConventions CallingConventions { get; } = CallingConventions.HasThis;
@@ -34,7 +34,7 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         protected override MethodGenerator GetReadMethodGenerator(TypeBuilder declaringType)
         {
-            return new AccessorPropertyMethodGenerator(declaringType, GetMethod, fieldBuilder);
+            return new AccessorPropertyMethodGenerator(declaringType, GetMethod, _fieldBuilder);
         }
 
         protected override MethodGenerator GetWriteMethodGenerator(TypeBuilder declaringType)
@@ -157,7 +157,7 @@ namespace AspectCore.Abstractions.Internal.Generator
 
             public override string PropertyName => $"'AspectCore.Abstractions.IServiceInstanceAccessor<{PropertyType.FullName}>.ServiceInstance'";
 
-            public override Type PropertyType => fieldBuilder.FieldType;
+            public override Type PropertyType => _fieldBuilder.FieldType;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace AspectCore.Abstractions.Extensions
 
         private readonly static ConcurrentDictionary<PropertyInfo, Action<object, object>> setterCache = new ConcurrentDictionary<PropertyInfo, Action<object, object>>();
 
-        private readonly PropertyInfo property;
+        private readonly PropertyInfo _property;
 
         public PropertyAccessor(PropertyInfo property)
         {
@@ -20,17 +20,17 @@ namespace AspectCore.Abstractions.Extensions
                 throw new ArgumentNullException(nameof(property));
             }
 
-            this.property = property;
+            _property = property;
         }
 
         public Func<object, object> CreatePropertyGetter()
         {
-            return getterCache.GetOrAdd(property, MakeFastPropertyGetter);
+            return getterCache.GetOrAdd(_property, MakeFastPropertyGetter);
         }
 
         public Action<object,object> CreatePropertySetter()
         {
-            return setterCache.GetOrAdd(property, MakeFastPropertySetter);
+            return setterCache.GetOrAdd(_property, MakeFastPropertySetter);
         }
 
         private Func<object, object> MakeFastPropertyGetter(PropertyInfo propertyInfo)

@@ -8,9 +8,9 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class AspectValidator : IAspectValidator
     {
-        private static readonly ConcurrentDictionary<MethodInfo, bool> DetectorCache = new ConcurrentDictionary<MethodInfo, bool>();
+        private static readonly ConcurrentDictionary<MethodInfo, bool> detectorCache = new ConcurrentDictionary<MethodInfo, bool>();
 
-        private readonly IAspectConfigure aspectConfigure;
+        private readonly IAspectConfigure _aspectConfigure;
 
         public AspectValidator(IAspectConfigure aspectConfigure)
         {
@@ -19,7 +19,7 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(aspectConfigure));
             }
 
-            this.aspectConfigure = aspectConfigure;
+            this._aspectConfigure = aspectConfigure;
         }
 
         public bool Validate(MethodInfo method)
@@ -28,7 +28,7 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            return DetectorCache.GetOrAdd(method, ValidateCache);
+            return detectorCache.GetOrAdd(method, ValidateCache);
         }
 
         private bool ValidateCache(MethodInfo method)
@@ -50,12 +50,12 @@ namespace AspectCore.Abstractions.Internal
                 return false;
             }
 
-            if (IsIgnored(aspectConfigure.GetConfigureOption<bool>(), method))
+            if (IsIgnored(_aspectConfigure.GetConfigureOption<bool>(), method))
             {
                 return false;
             }
 
-            return HasInterceptor(method) || HasInterceptor(declaringType) || HasInterceptor<IInterceptor>(aspectConfigure.GetConfigureOption<IInterceptor>(), method);
+            return HasInterceptor(method) || HasInterceptor(declaringType) || HasInterceptor<IInterceptor>(_aspectConfigure.GetConfigureOption<IInterceptor>(), method);
         }
 
         public static bool IsAccessibility(TypeInfo declaringType)

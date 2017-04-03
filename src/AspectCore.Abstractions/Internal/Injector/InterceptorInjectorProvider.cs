@@ -4,8 +4,8 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class InterceptorInjectorProvider : IInterceptorInjectorProvider
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IPropertyInjectorSelector propertyInjectorSelector;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IPropertyInjectorSelector _propertyInjectorSelector;
 
         public InterceptorInjectorProvider(
             IServiceProvider serviceProvider,
@@ -19,14 +19,14 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(propertyInjectorSelector));
             }
-            this.serviceProvider = serviceProvider;
-            this.propertyInjectorSelector = propertyInjectorSelector;
+            this._serviceProvider = serviceProvider;
+            this._propertyInjectorSelector = propertyInjectorSelector;
         }
 
         public IInterceptorInjector GetInjector(Type interceptorType)
         {
-            var propertyInjectors = propertyInjectorSelector.SelectPropertyInjector(interceptorType);
-            return new InterceptorInjector(serviceProvider, propertyInjectors);
+            var propertyInjectors = _propertyInjectorSelector.SelectPropertyInjector(interceptorType);
+            return new InterceptorInjector(_serviceProvider, propertyInjectors);
         }
     }
 }

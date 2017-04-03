@@ -7,11 +7,11 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class AspectBuilder : IAspectBuilder
     {
-        private readonly IList<Func<AspectDelegate, AspectDelegate>> delegates;
+        private readonly IList<Func<AspectDelegate, AspectDelegate>> _delegates;
 
         public AspectBuilder()
         {
-            delegates = new List<Func<AspectDelegate, AspectDelegate>>();
+            _delegates = new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
         public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
@@ -20,7 +20,7 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(interceptorInvoke));
             }
-            delegates.Add(next => context => interceptorInvoke(context, next));
+            _delegates.Add(next => context => interceptorInvoke(context, next));
         }
 
         public Func<Func<object>, AspectDelegate> Build()
@@ -39,10 +39,10 @@ namespace AspectCore.Abstractions.Internal
                 context.ReturnParameter.Value = targetInvoke();
                 return TaskCache.CompletedTask;
             };
-            var count = delegates.Count;
+            var count = _delegates.Count;
             for (var i = count - 1; i > -1; i--)
             {
-                invoke = delegates[i](invoke);
+                invoke = _delegates[i](invoke);
             }
             return invoke;
         }

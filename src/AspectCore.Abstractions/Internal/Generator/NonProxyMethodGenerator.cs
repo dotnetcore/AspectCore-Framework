@@ -17,8 +17,8 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
-            var parentMethod = parentType.GetTypeInfo().GetMethodBySign(serviceMethod);
-            return new NonProxyMethodBodyGenerator(declaringMethod, parentMethod ?? serviceMethod, serviceInstanceFieldBuilder);
+            var parentMethod = _parentType.GetTypeInfo().GetMethodBySign(_serviceMethod);
+            return new NonProxyMethodBodyGenerator(declaringMethod, parentMethod ?? _serviceMethod, _serviceInstanceFieldBuilder);
         }
     }
 }

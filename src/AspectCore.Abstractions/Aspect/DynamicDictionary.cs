@@ -7,11 +7,11 @@ namespace AspectCore.Abstractions
 {
     public sealed class DynamicDictionary : DynamicObject, IDictionary<string, object>
     {
-        private readonly IDictionary<string, object> data;
+        private readonly IDictionary<string, object> _data;
 
         public DynamicDictionary()
         {
-            data = new Dictionary<string, object>();
+            _data = new Dictionary<string, object>();
         }
 
         #region IDictionary
@@ -19,12 +19,12 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return data[key];
+                return _data[key];
             }
 
             set
             {
-                data[key] = value;
+                _data[key] = value;
             }
         }
 
@@ -32,7 +32,7 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return data.Count;
+                return _data.Count;
             }
         }
 
@@ -48,7 +48,7 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return data.Keys;
+                return _data.Keys;
             }
         }
 
@@ -56,63 +56,63 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return data.Values;
+                return _data.Values;
             }
         }
 
         public void Add(KeyValuePair<string, object> item)
         {
-            data.Add(item);
+            _data.Add(item);
         }
 
         public void Add(string key, object value)
         {
-            data.Add(key, value);
+            _data.Add(key, value);
         }
 
         public void Clear()
         {
-            data.Clear();
+            _data.Clear();
         }
 
         public bool Contains(KeyValuePair<string, object> item)
         {
-            return data.Contains(item);
+            return _data.Contains(item);
         }
 
         public bool ContainsKey(string key)
         {
-            return data.ContainsKey(key);
+            return _data.ContainsKey(key);
         }
 
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            data.CopyTo(array, arrayIndex);
+            _data.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            return data.GetEnumerator();
+            return _data.GetEnumerator();
         }
 
         public bool Remove(KeyValuePair<string, object> item)
         {
-          return  data.Remove(item);
+          return  _data.Remove(item);
         }
 
         public bool Remove(string key)
         {
-          return  data.Remove(key);
+          return  _data.Remove(key);
         }
 
         public bool TryGetValue(string key, out object value)
         {
-            return data.TryGetValue(key, out value);
+            return _data.TryGetValue(key, out value);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return data.GetEnumerator();
+            return _data.GetEnumerator();
         }
         #endregion
 
@@ -125,7 +125,7 @@ namespace AspectCore.Abstractions
                 throw new ArgumentNullException(nameof(binder));
             }
 
-            result = data[binder.Name];
+            result = _data[binder.Name];
 
             return true;
         }
@@ -137,14 +137,14 @@ namespace AspectCore.Abstractions
                 throw new ArgumentNullException(nameof(binder));
             }
 
-            data[binder.Name] = value;
+            _data[binder.Name] = value;
 
             return true;
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            return data.Keys;
+            return _data.Keys;
         }
 
         #endregion

@@ -8,11 +8,11 @@ namespace AspectCore.Abstractions.Internal.Generator
 {
     internal class AspectActivatorContextPropertyGenerator : PropertyGenerator
     {
-        private readonly PropertyInfo property;
+        private readonly PropertyInfo _property;
 
         public AspectActivatorContextPropertyGenerator(TypeBuilder declaringMember,PropertyInfo property) : base(declaringMember)
         {
-            this.property = property;
+            _property = property;
         }
 
         public override CallingConventions CallingConventions { get; } = CallingConventions.HasThis;
@@ -25,7 +25,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return property.GetMethod;
+                return _property.GetMethod;
             }
         }
 
@@ -33,7 +33,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return property.Attributes;
+                return _property.Attributes;
             }
         }
 
@@ -41,7 +41,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return property.Name;
+                return _property.Name;
             }
         }
 
@@ -49,7 +49,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return property.PropertyType;
+                return _property.PropertyType;
             }
         }
 
@@ -145,16 +145,16 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         private class ContextPropertyMethodGeneratorBody : MethodBodyGenerator
         {
-            private readonly FieldGenerator field;
+            private readonly FieldGenerator _field;
             public ContextPropertyMethodGeneratorBody(MethodBuilder declaringMember, FieldGenerator field) : base(declaringMember)
             {
-                this.field = field;
+                _field = field;
             }
 
             protected override void GeneratingMethodBody(ILGenerator ilGenerator)
             {
                 ilGenerator.EmitThis();
-                ilGenerator.Emit(OpCodes.Ldfld, field.Build());
+                ilGenerator.Emit(OpCodes.Ldfld, _field.Build());
                 ilGenerator.Emit(OpCodes.Ret);
             }
         }

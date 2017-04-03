@@ -6,7 +6,7 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class ProxyGenerator : IProxyGenerator
     {
-        private readonly IAspectValidator aspectValidator;
+        private readonly IAspectValidator _aspectValidator;
 
         public ProxyGenerator(IAspectValidator aspectValidator)
         {
@@ -14,7 +14,7 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(aspectValidator));
             }
-            this.aspectValidator = aspectValidator;
+            this._aspectValidator = aspectValidator;
         }
 
         public Type CreateClassProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
@@ -27,7 +27,7 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
             }
-            return new ClassProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator).CreateTypeInfo().AsType();
+            return new ClassProxyTypeGenerator(serviceType, implementationType, interfaces, _aspectValidator).CreateTypeInfo().AsType();
         }
 
         public Type CreateInterfaceProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
@@ -37,17 +37,7 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
-            return GetInterfaceProxyTypeGenerator(serviceType, implementationType, interfaces).CreateTypeInfo().AsType();
-        }
-
-        private ProxyTypeGenerator GetInterfaceProxyTypeGenerator(Type serviceType, Type implementationType, params Type[] interfaces)
-        {
-            //var proxyStructureAttribute = serviceType.GetTypeInfo().GetCustomAttribute<ProxyStructureAttribute>();
-            //if (proxyStructureAttribute != null && proxyStructureAttribute.ProxyMode == ProxyMode.Inheritance)
-            //{
-            //    return new InheritanceInterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
-            //}
-            return new InterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, aspectValidator);
+            return new InterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, _aspectValidator).CreateTypeInfo().AsType();
         }
     }
 }

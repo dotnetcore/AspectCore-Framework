@@ -16,20 +16,20 @@ namespace AspectCore.Abstractions.Internal.Generator
             get { return instance; }
         }
 
-        private readonly ModuleBuilder moduleBuilder;
-        private readonly AssemblyBuilder assemblyBuilder;
+        private readonly ModuleBuilder _moduleBuilder;
+        private readonly AssemblyBuilder _assemblyBuilder;
         private readonly IDictionary<string, TypeInfo> createdTypeInfoCache = new Dictionary<string, TypeInfo>();
 
         internal ModuleBuilder ModuleBuilder
         {
-            get { return moduleBuilder; }
+            get { return _moduleBuilder; }
         }
 
         private ModuleGenerator()
         {
             var assemblyName = new AssemblyName($"{ProxyNameSpace}.{Guid.NewGuid()}");
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-            moduleBuilder = assemblyBuilder.DefineDynamicModule("main");
+            _assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            _moduleBuilder = _assemblyBuilder.DefineDynamicModule("main");
         }
 
         internal TypeInfo DefineTypeInfo(string typeName, Func<string, TypeInfo> valueFactory)

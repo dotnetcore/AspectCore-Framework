@@ -12,29 +12,29 @@ namespace AspectCore.Abstractions.Internal.Generator
         const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
         const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
-        protected readonly Type serviceType;
-        protected readonly Type parentType;
-        protected readonly MethodInfo serviceMethod;
-        protected readonly FieldBuilder serviceInstanceFieldBuilder;
-        protected readonly FieldBuilder serviceProviderFieldBuilder;
-        protected readonly bool isImplementExplicitly;
+        protected readonly Type _serviceType;
+        protected readonly Type _parentType;
+        protected readonly MethodInfo _serviceMethod;
+        protected readonly FieldBuilder _serviceInstanceFieldBuilder;
+        protected readonly FieldBuilder _serviceProviderFieldBuilder;
+        protected readonly bool _isImplementExplicitly;
 
         public ProxyMethodGenerator(TypeBuilder declaringMember, Type serviceType, Type parentType, MethodInfo serviceMethod,
             FieldBuilder serviceInstanceFieldBuilder, FieldBuilder serviceProviderFieldBuilder, bool isImplementExplicitly) : base(declaringMember)
         {
-            this.serviceType = serviceType;
-            this.parentType = parentType;
-            this.serviceMethod = serviceMethod;
-            this.serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
-            this.serviceProviderFieldBuilder = serviceProviderFieldBuilder;
-            this.isImplementExplicitly = isImplementExplicitly;
+            _serviceType = serviceType;
+            _parentType = parentType;
+            _serviceMethod = serviceMethod;
+            _serviceInstanceFieldBuilder = serviceInstanceFieldBuilder;
+            _serviceProviderFieldBuilder = serviceProviderFieldBuilder;
+            _isImplementExplicitly = isImplementExplicitly;
         }
 
         public override CallingConventions CallingConventions
         {
             get
             {
-                return serviceMethod.CallingConvention;
+                return _serviceMethod.CallingConvention;
             }
         }
 
@@ -42,24 +42,24 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                if (serviceType.GetTypeInfo().IsInterface)
+                if (_serviceType.GetTypeInfo().IsInterface)
                 {
                     return ExplicitMethodAttributes;
                 }
 
                 var attributes = OverrideMethodAttributes;
 
-                if (serviceMethod.Attributes.HasFlag(MethodAttributes.Public))
+                if (_serviceMethod.Attributes.HasFlag(MethodAttributes.Public))
                 {
                     attributes = attributes | MethodAttributes.Public;
                 }
 
-                if (serviceMethod.Attributes.HasFlag(MethodAttributes.Family))
+                if (_serviceMethod.Attributes.HasFlag(MethodAttributes.Family))
                 {
                     attributes = attributes | MethodAttributes.Family;
                 }
 
-                if (serviceMethod.Attributes.HasFlag(MethodAttributes.FamORAssem))
+                if (_serviceMethod.Attributes.HasFlag(MethodAttributes.FamORAssem))
                 {
                     attributes = attributes | MethodAttributes.FamORAssem;
                 }
@@ -72,7 +72,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return isImplementExplicitly ? serviceMethod.GetFullName() : serviceMethod.Name;
+                return _isImplementExplicitly ? _serviceMethod.GetFullName() : _serviceMethod.Name;
             }
         }
 
@@ -80,7 +80,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return serviceMethod.GetParameterTypes();
+                return _serviceMethod.GetParameterTypes();
             }
         }
 
@@ -88,7 +88,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return serviceMethod.ReturnType;
+                return _serviceMethod.ReturnType;
             }
         }
 
@@ -96,7 +96,7 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             get
             {
-                return serviceMethod.IsGenericMethod;
+                return _serviceMethod.IsGenericMethod;
             }
         }
 
@@ -104,9 +104,9 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             var builder = base.ExecuteBuild();
 
-            if (serviceType.GetTypeInfo().IsInterface)
+            if (_serviceType.GetTypeInfo().IsInterface)
             {
-                DeclaringMember.DefineMethodOverride(builder, serviceMethod);
+                DeclaringMember.DefineMethodOverride(builder, _serviceMethod);
             }
 
             return builder;
@@ -114,19 +114,19 @@ namespace AspectCore.Abstractions.Internal.Generator
 
         protected override MethodBodyGenerator GetMethodBodyGenerator(MethodBuilder declaringMethod)
         {
-            var parentMethod = parentType.GetTypeInfo().GetMethodBySign(serviceMethod);
+            var parentMethod = _parentType.GetTypeInfo().GetMethodBySign(_serviceMethod);
             return new ProxyMethodBodyGenerator(declaringMethod,
                 DeclaringMember,
-                serviceType,
-                serviceMethod,
-                parentMethod ?? serviceMethod,
-                serviceInstanceFieldBuilder,
-                serviceProviderFieldBuilder);
+                _serviceType,
+                _serviceMethod,
+                parentMethod ?? _serviceMethod,
+                _serviceInstanceFieldBuilder,
+                _serviceProviderFieldBuilder);
         }
 
         protected internal override void GeneratingGenericParameter(MethodBuilder declaringMethod)
         {
-            var genericArguments = serviceMethod.GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
+            var genericArguments = _serviceMethod.GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
             var genericArgumentsBuilders = declaringMethod.DefineGenericParameters(genericArguments.Select(a => a.Name).ToArray());
             for (var index = 0; index < genericArguments.Length; index++)
             {

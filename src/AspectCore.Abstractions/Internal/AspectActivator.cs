@@ -9,8 +9,8 @@ namespace AspectCore.Abstractions.Internal
 {
     public class AspectActivator : IAspectActivator
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IAspectBuilderProvider aspectBuilderProvider;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IAspectBuilderProvider _aspectBuilderProvider;
 
         public AspectActivator(
             IServiceProvider serviceProvider,
@@ -20,8 +20,8 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(aspectBuilderProvider));
             }
-            this.serviceProvider = serviceProvider;
-            this.aspectBuilderProvider = aspectBuilderProvider;
+            this._serviceProvider = serviceProvider;
+            this._aspectBuilderProvider = aspectBuilderProvider;
         }
 
         private async Task<T> ConvertReturnVaule<T>(object value)
@@ -60,9 +60,18 @@ namespace AspectCore.Abstractions.Internal
 
         public async Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext)
         {
-            using (var context = new DefaultAspectContext<T>(serviceProvider, activatorContext))
+            var target = new TargetDescriptor(activatorContext.TargetInstance, activatorContext.ServiceMethod, activatorContext.ServiceType,
+                 activatorContext.TargetMethod, activatorContext.TargetInstance?.GetType() ?? activatorContext.TargetMethod.DeclaringType);
+
+            var proxy = new ProxyDescriptor(activatorContext.ProxyInstance, activatorContext.ProxyMethod, activatorContext.ProxyInstance.GetType());
+
+            var parameters = new ParameterCollection(activatorContext.Parameters, activatorContext.ServiceMethod.GetParameters());
+
+            var returnParameter = new ReturnParameterDescriptor(default(T), activatorContext.ServiceMethod.ReturnParameter);
+
+            using (var context = new DefaultAspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
             {
-                var aspectBuilder = aspectBuilderProvider.GetBuilder(activatorContext);
+                var aspectBuilder = _aspectBuilderProvider.GetBuilder(activatorContext);
 
                 await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
 

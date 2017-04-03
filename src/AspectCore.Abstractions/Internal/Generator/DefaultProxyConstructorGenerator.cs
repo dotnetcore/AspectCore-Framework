@@ -18,25 +18,25 @@ namespace AspectCore.Abstractions.Internal.Generator
         {
             ilGenerator.EmitThis();
 
-            ilGenerator.Emit(OpCodes.Call, constructor);
+            ilGenerator.Emit(OpCodes.Call, _constructor);
 
             ilGenerator.EmitThis();
             ilGenerator.EmitLoadArg(1);
-            ilGenerator.Emit(OpCodes.Stfld, serviceProviderFieldBuilder);
+            ilGenerator.Emit(OpCodes.Stfld, _serviceProviderFieldBuilder);
 
             ilGenerator.EmitThis();
             ilGenerator.EmitLoadArg(2);
-            if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
+            if (_serviceType.GetTypeInfo().IsGenericTypeDefinition)
             {
-                ilGenerator.EmitTypeof(serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitTypeof(_serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
             }
             else
             {
-                ilGenerator.EmitTypeof(serviceType);
+                ilGenerator.EmitTypeof(_serviceType);
             }
             ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
-            ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
-            ilGenerator.Emit(OpCodes.Stfld, serviceInstanceFieldBuilder);
+            ilGenerator.EmitConvertToType(typeof(object), _serviceType, false);
+            ilGenerator.Emit(OpCodes.Stfld, _serviceInstanceFieldBuilder);
 
             ilGenerator.Emit(OpCodes.Ret);
         }

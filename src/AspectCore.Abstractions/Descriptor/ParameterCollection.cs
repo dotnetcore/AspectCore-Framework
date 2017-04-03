@@ -8,7 +8,7 @@ namespace AspectCore.Abstractions
 {
     public class ParameterCollection : IEnumerable<ParameterDescriptor>, IReadOnlyList<ParameterDescriptor>
     {
-        private readonly IDictionary<string, ParameterDescriptor> parameterEntries;
+        private readonly IDictionary<string, ParameterDescriptor> _parameterEntries;
 
         public ParameterCollection(object[] parameters, ParameterInfo[] parameterInfos)
         {
@@ -25,11 +25,11 @@ namespace AspectCore.Abstractions
                 throw new ArgumentException("The number of parameters must equal the number of parameterInfos.");
             }
 
-            parameterEntries = new Dictionary<string, ParameterDescriptor>(parameterInfos.Length);
+            _parameterEntries = new Dictionary<string, ParameterDescriptor>(parameterInfos.Length);
 
             for (int index = 0; index < parameterInfos.Length; index++)
             {
-                parameterEntries.Add(parameterInfos[index].Name, new ParameterDescriptor(parameters[index], parameterInfos[index]));
+                _parameterEntries.Add(parameterInfos[index].Name, new ParameterDescriptor(parameters[index], parameterInfos[index]));
             }
         }
 
@@ -41,7 +41,7 @@ namespace AspectCore.Abstractions
                 {
                     throw new ArgumentOutOfRangeException(nameof(index), "index value out of range.");
                 }
-                ParameterDescriptor[] descriptors = parameterEntries.Select(pair => pair.Value).ToArray();
+                ParameterDescriptor[] descriptors = _parameterEntries.Select(pair => pair.Value).ToArray();
                 return descriptors[index];
             }
         }
@@ -55,7 +55,7 @@ namespace AspectCore.Abstractions
                     throw new ArgumentNullException(nameof(name));
                 }
                 ParameterDescriptor descriptor = null;
-                if (!parameterEntries.TryGetValue(name, out descriptor))
+                if (!_parameterEntries.TryGetValue(name, out descriptor))
                 {
                     throw new KeyNotFoundException($"Does not exist the parameter nameof \"{name}\".");
                 }
@@ -67,13 +67,13 @@ namespace AspectCore.Abstractions
         {
             get
             {
-                return parameterEntries.Count;
+                return _parameterEntries.Count;
             }
         }
 
         public virtual IEnumerator<ParameterDescriptor> GetEnumerator()
         {
-            IEnumerable<ParameterDescriptor> entries = parameterEntries.Values;
+            IEnumerable<ParameterDescriptor> entries = _parameterEntries.Values;
             foreach (ParameterDescriptor descriptor in entries)
                 yield return descriptor;
         }

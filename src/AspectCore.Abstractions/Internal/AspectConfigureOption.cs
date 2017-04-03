@@ -8,7 +8,7 @@ namespace AspectCore.Abstractions.Internal
 {
     public sealed class AspectConfigureOption<TOption> : IAspectConfigureOption<TOption>
     {
-        private readonly ICollection<Func<MethodInfo, TOption>> collection = new List<Func<MethodInfo, TOption>>();
+        private readonly ICollection<Func<MethodInfo, TOption>> _collection = new List<Func<MethodInfo, TOption>>();
 
         public void Add(Func<MethodInfo, TOption> configure)
         {
@@ -16,12 +16,12 @@ namespace AspectCore.Abstractions.Internal
             {
                 throw new ArgumentNullException(nameof(configure));
             }
-            collection.Add(configure);
+            _collection.Add(configure);
         }
 
         public IEnumerator<Func<MethodInfo, TOption>> GetEnumerator()
         {
-            foreach (var item in collection.ToArray())
+            foreach (var item in _collection.ToArray())
                 yield return item;
         }
 
