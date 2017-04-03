@@ -26,7 +26,7 @@ namespace AspectCore.Abstractions.Internal.Generator
             {
                 ilGenerator.EmitLoadArg(i);
             }
-            ilGenerator.Emit(parentMethod.IsCallByLookupVTable() ? OpCodes.Callvirt : OpCodes.Call, parentMethod);
+            ilGenerator.Emit(parentMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, parentMethod);
             ilGenerator.Emit(OpCodes.Ret);
         }
     }

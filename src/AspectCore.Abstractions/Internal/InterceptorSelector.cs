@@ -9,7 +9,6 @@ namespace AspectCore.Abstractions.Internal
     public sealed class InterceptorSelector : IInterceptorProvider
     {
         private static readonly IDictionary<MethodInfo, IInterceptor[]> InterceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
-        private static readonly object CacheLock = new object();
 
         private readonly IInterceptorSelector interceptorMatcher;
         private readonly IInterceptorInjectorProvider interceptorInjectorProvider;
@@ -44,7 +43,7 @@ namespace AspectCore.Abstractions.Internal
                      interceptorInjectorProvider.GetInjector(i.GetType()).Inject(i);
                      return i;
                  }).ToArray();
-            }, CacheLock);
+            });
         }
     }
 }

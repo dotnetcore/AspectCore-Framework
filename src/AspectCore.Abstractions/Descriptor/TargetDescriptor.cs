@@ -50,7 +50,7 @@ namespace AspectCore.Abstractions
                     return null;
                 }
                 var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value)?.ToArray();
-                return new MethodAccessor(ImplementationMethod, ImplementationMethod.IsCallByLookupVTable()).CreateMethodInvoker()(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
+                return new MethodAccessor(ImplementationMethod, ImplementationMethod.IsCallvirt()).CreateMethodInvoker()(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
             }
             catch (TargetInvocationException exception)
             {

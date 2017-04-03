@@ -19,7 +19,6 @@ namespace AspectCore.Abstractions.Internal.Generator
         private readonly ModuleBuilder moduleBuilder;
         private readonly AssemblyBuilder assemblyBuilder;
         private readonly IDictionary<string, TypeInfo> createdTypeInfoCache = new Dictionary<string, TypeInfo>();
-        private readonly object cacheLock = new object();
 
         internal ModuleBuilder ModuleBuilder
         {
@@ -45,7 +44,7 @@ namespace AspectCore.Abstractions.Internal.Generator
                 throw new ArgumentNullException(nameof(valueFactory));
             }
 
-            return createdTypeInfoCache.GetOrAdd(typeName, valueFactory, cacheLock);
+            return createdTypeInfoCache.GetOrAdd(typeName, valueFactory);
         }
     }
 }
