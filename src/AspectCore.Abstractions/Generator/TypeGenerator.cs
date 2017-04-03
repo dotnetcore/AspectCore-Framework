@@ -14,7 +14,7 @@ namespace AspectCore.Abstractions.Generator
 
         public abstract Type[] Interfaces { get; }
 
-        public TypeGenerator(ModuleBuilder declaringMember) : base(declaringMember)
+        protected TypeGenerator(ModuleBuilder declaringMember) : base(declaringMember)
         {
         }
 

@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Threading;
 
 namespace AspectCore.Abstractions.Generator
 {
     public abstract class AbstractGenerator<TDeclaringMember, TBuilder>
     {
-        private object _buildLock = new object();
+        private readonly object _buildLock = new object();
         private TBuilder _builder;
 
         public virtual TDeclaringMember DeclaringMember { get; }
 
-        public AbstractGenerator(TDeclaringMember declaringMember)
+        protected AbstractGenerator(TDeclaringMember declaringMember)
         {
             if (declaringMember == null)
             {
@@ -21,14 +22,12 @@ namespace AspectCore.Abstractions.Generator
 
         public TBuilder Build()
         {
-            if (_builder == null)
+            if (_builder != null) return _builder;
+            lock (_buildLock)
             {
-                lock (_buildLock)
+                if (_builder == null)
                 {
-                    if (_builder == null)
-                    {
-                        _builder = ExecuteBuild();
-                    }
+                  _builder = ExecuteBuild();
                 }
             }
             return _builder;

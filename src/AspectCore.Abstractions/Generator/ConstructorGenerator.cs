@@ -12,7 +12,7 @@ namespace AspectCore.Abstractions.Generator
 
         public abstract Type[] ParameterTypes { get; }
 
-        public ConstructorGenerator(TypeBuilder declaringMember) : base(declaringMember)
+        protected ConstructorGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
         }
 

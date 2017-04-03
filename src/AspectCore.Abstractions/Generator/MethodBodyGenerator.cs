@@ -5,7 +5,7 @@ namespace AspectCore.Abstractions.Generator
 {
     public abstract class MethodBodyGenerator : AbstractGenerator<MethodBuilder, ILGenerator>
     {
-        public MethodBodyGenerator(MethodBuilder declaringMember) : base(declaringMember)
+        protected MethodBodyGenerator(MethodBuilder declaringMember) : base(declaringMember)
         {
         }
 

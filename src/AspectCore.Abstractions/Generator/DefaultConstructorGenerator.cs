@@ -22,7 +22,7 @@ namespace AspectCore.Abstractions.Generator
             }
         }
 
-        public DefaultConstructorGenerator(TypeBuilder declaringMember) : base(declaringMember)
+        protected DefaultConstructorGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
         }
 

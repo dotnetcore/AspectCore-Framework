@@ -6,7 +6,7 @@ namespace AspectCore.Abstractions.Generator
 {
     public abstract class FieldGenerator : AbstractGenerator<TypeBuilder, FieldBuilder>
     {
-        public FieldGenerator(TypeBuilder declaringMember) : base(declaringMember)
+        protected FieldGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
         }
 

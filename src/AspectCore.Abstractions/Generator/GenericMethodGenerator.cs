@@ -7,7 +7,7 @@ namespace AspectCore.Abstractions.Generator
     {
         public abstract bool IsGenericMethod { get; }
 
-        public GenericMethodGenerator(TypeBuilder declaringMember) : base(declaringMember)
+        protected GenericMethodGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
         }
 

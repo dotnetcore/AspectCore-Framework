@@ -16,7 +16,7 @@ namespace AspectCore.Abstractions.Generator
 
         public abstract Type[] ParameterTypes { get; }
 
-        public MethodGenerator(TypeBuilder declaringMember) : base(declaringMember)
+        protected MethodGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
         }
 

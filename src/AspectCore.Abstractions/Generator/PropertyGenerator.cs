@@ -30,7 +30,7 @@ namespace AspectCore.Abstractions.Generator
             }
         }
 
-        public PropertyGenerator(TypeBuilder declaringMember) : base(declaringMember)
+        protected PropertyGenerator(TypeBuilder declaringMember) : base(declaringMember)
         {
         }
 

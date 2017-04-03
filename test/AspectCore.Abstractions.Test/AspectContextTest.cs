@@ -16,7 +16,7 @@ namespace AspectCore.Abstractions.Internal.Test
             var type = typeof(object);
             var method = type.GetTypeInfo().GetMethod("Equals", new Type[] { typeof(object) });
             var parameter = method.GetParameters().First();
-            var context = new DefaultAspectContext<object>(null, new TargetDescriptor(new object(), method, type, method, type), new ProxyDescriptor(new object(), method, type),
+            var context = new DefaultAspectContext(null, new TargetDescriptor(new object(), method, type, method, type), new ProxyDescriptor(new object(), method, type),
                 new ParameterCollection(EmptyArray<object>.Value, EmptyArray<ParameterInfo>.Value), new ReturnParameterDescriptor(null, parameter));
             Assert.NotNull(context);
             var exception = Assert.Throws<NotImplementedException>(() => context.ServiceProvider);
