@@ -155,6 +155,15 @@ namespace AspectCore.Abstractions.Extensions
             new PropertyAccessor(property).CreatePropertySetter()(instance, value);
         }
 
+        public static bool IsNonAspect(this MemberInfo member)
+        {
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
+            return member.IsDefined(typeof(NonAspectAttribute), true);
+        }
+
         #endregion
 
         #region internal
