@@ -60,14 +60,21 @@ namespace AspectCore.Abstractions.Internal
 
         public async Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext)
         {
-            var target = new TargetDescriptor(activatorContext.TargetInstance, activatorContext.ServiceMethod, activatorContext.ServiceType,
-                 activatorContext.TargetMethod, activatorContext.TargetInstance?.GetType() ?? activatorContext.TargetMethod.DeclaringType);
+            var target = new TargetDescriptor(activatorContext.TargetInstance, 
+                activatorContext.ServiceMethod, 
+                activatorContext.ServiceType,
+                activatorContext.TargetMethod, 
+                activatorContext.TargetInstance?.GetType() ?? activatorContext.TargetMethod.DeclaringType);
 
-            var proxy = new ProxyDescriptor(activatorContext.ProxyInstance, activatorContext.ProxyMethod, activatorContext.ProxyInstance.GetType());
+            var proxy = new ProxyDescriptor(activatorContext.ProxyInstance, 
+                activatorContext.ProxyMethod, 
+                activatorContext.ProxyInstance.GetType());
 
-            var parameters = new ParameterCollection(activatorContext.Parameters, activatorContext.ServiceMethod.GetParameters());
+            var parameters = new ParameterCollection(activatorContext.Parameters, 
+                activatorContext.ServiceMethod.GetParameters());
 
-            var returnParameter = new ReturnParameterDescriptor(default(T), activatorContext.ServiceMethod.ReturnParameter);
+            var returnParameter = new ReturnParameterDescriptor(default(T), 
+                activatorContext.ServiceMethod.ReturnParameter);
 
             using (var context = new DefaultAspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
             {
