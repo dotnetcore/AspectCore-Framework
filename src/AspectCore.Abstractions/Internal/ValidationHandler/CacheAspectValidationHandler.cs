@@ -7,7 +7,7 @@ namespace AspectCore.Abstractions.Internal
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> detectorCache = new ConcurrentDictionary<MethodInfo, bool>();
 
-        public int Order { get; } = -100;
+        public int Order { get; } = --101;
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {

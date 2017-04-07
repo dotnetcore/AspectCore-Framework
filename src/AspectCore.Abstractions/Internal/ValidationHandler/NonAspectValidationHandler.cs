@@ -5,7 +5,7 @@ namespace AspectCore.Abstractions.Internal
 {
     public class NonAspectValidationHandler : IAspectValidationHandler
     {
-        public int Order { get; } = 2;
+        public int Order { get; } = 3;
 
         public virtual bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {

@@ -4,7 +4,7 @@ namespace AspectCore.Abstractions.Internal.ValidationHandler
 {
     public class AccessibleAspectValidationHandler : IAspectValidationHandler
     {
-        public int Order { get; } = 3;
+        public int Order { get; } = 5;
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
