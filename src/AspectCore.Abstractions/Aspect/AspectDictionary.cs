@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
 
 namespace AspectCore.Abstractions
 {
-    public sealed class DynamicDictionary : DynamicObject, IDictionary<string, object>
+    public sealed class AspectDictionary : IDictionary<string, object>
     {
         private readonly IDictionary<string, object> _data;
 
-        public DynamicDictionary()
+        public AspectDictionary()
         {
             _data = new Dictionary<string, object>();
         }
@@ -114,39 +112,6 @@ namespace AspectCore.Abstractions
         {
             return _data.GetEnumerator();
         }
-        #endregion
-
-        #region DynamicObject
-
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            if (binder == null)
-            {
-                throw new ArgumentNullException(nameof(binder));
-            }
-
-            result = _data[binder.Name];
-
-            return true;
-        }
-
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            if (binder == null)
-            {
-                throw new ArgumentNullException(nameof(binder));
-            }
-
-            _data[binder.Name] = value;
-
-            return true;
-        }
-
-        public override IEnumerable<string> GetDynamicMemberNames()
-        {
-            return _data.Keys;
-        }
-
         #endregion
     }
 }
