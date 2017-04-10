@@ -30,7 +30,7 @@ namespace AspectCore.Abstractions.Extensions
             return byRefTypeInfo.Assembly.GetType(assemblyQualifiedName, true);
         }
 
-        public static bool IsDynamically(this TypeInfo typeInfo)
+        public static bool IsProxyType(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
@@ -51,7 +51,7 @@ namespace AspectCore.Abstractions.Extensions
                 return false;
             }
 
-            if (typeInfo.IsDefined(typeof(NonAspectAttribute)) || typeInfo.IsDynamically())
+            if (typeInfo.IsDefined(typeof(NonAspectAttribute)) || typeInfo.IsProxyType())
             {
                 return false;
             }
@@ -249,7 +249,17 @@ namespace AspectCore.Abstractions.Extensions
             {
                 throw new ArgumentNullException(nameof(property));
             }
-            return (property.CanRead && AspectValidator.IsAccessibility(property.GetMethod)) || (property.CanWrite && AspectValidator.IsAccessibility(property.GetMethod));
+            return (property.CanRead && property.GetMethod.IsAccessibility()) || (property.CanWrite && property.GetMethod.IsAccessibility());
+        }
+
+        public static bool IsAccessibility(this TypeInfo declaringType)
+        {
+            return !(declaringType.IsNotPublic || declaringType.IsValueType || declaringType.IsSealed);
+        }
+
+        public static bool IsAccessibility(this MethodInfo method)
+        {
+            return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
         internal static class MethodInfoConstant

@@ -6,7 +6,7 @@ namespace AspectCore.Abstractions.Internal
     public sealed class DefaultAspectContext : AspectContext
     {
         private IServiceProvider _serviceProvider;
-        private DynamicDictionary _data;
+        private AspectDictionary _data;
         private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
@@ -22,7 +22,7 @@ namespace AspectCore.Abstractions.Internal
             }
         }
 
-        public override DynamicDictionary Data { get { return _data ?? (_data = new DynamicDictionary()); } }
+        public override AspectDictionary Data { get { return _data ?? (_data = new AspectDictionary()); } }
 
         public override ParameterCollection Parameters
         {
@@ -63,8 +63,8 @@ namespace AspectCore.Abstractions.Internal
                 throw new ArgumentNullException(nameof(returnParameter));
             }
 
-            var originalServiceProvider = provider as IOriginalServiceProvider;
-            _serviceProvider = originalServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IOriginalServiceProvider));
+            var originalServiceProvider = provider as IRealServiceProvider;
+            _serviceProvider = originalServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IRealServiceProvider));
             Target = target;
             Proxy = proxy;
             Parameters = parameters;

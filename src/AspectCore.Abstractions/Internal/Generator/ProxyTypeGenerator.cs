@@ -28,7 +28,7 @@ namespace AspectCore.Abstractions.Internal.Generator
             {
                 throw new InvalidOperationException("No service for type 'AspectCore.Abstractions.IAspectValidator' has been registered.");
             }
-            if (!Internal.AspectValidator.IsAccessibility(serviceType.GetTypeInfo()))
+            if (!serviceType.GetTypeInfo().IsAccessibility())
             {
                 throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
             }

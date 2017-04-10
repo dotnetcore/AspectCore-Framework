@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-#if NET45
-using Nito.AsyncEx;
-#endif
 
 namespace AspectCore.Abstractions.Internal
 {
@@ -24,23 +21,6 @@ namespace AspectCore.Abstractions.Internal
             _aspectBuilderProvider = aspectBuilderProvider;
         }
 
-        private async Task<T> ConvertReturnVaule<T>(object value)
-        {
-            if (value is Task<T>)
-            {
-                return await (Task<T>)value;
-            }
-            else if (value is Task)
-            {
-                await (Task)value;
-                return default(T);
-            }
-            else
-            {
-                return (T)value;
-            }
-        }
-
         public T Invoke<T>(AspectActivatorContext activatorContext)
         {
             var invokeAsync = InvokeAsync<T>(activatorContext);
@@ -50,12 +30,7 @@ namespace AspectCore.Abstractions.Internal
                 return invokeAsync.Result;
             }
 
-#if NET45
-            return AsyncContext.Run(() => invokeAsync);
-#else
-
             return Task.Run(async () => await invokeAsync).GetAwaiter().GetResult();
-#endif
         }
 
         public async Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext)
@@ -85,5 +60,23 @@ namespace AspectCore.Abstractions.Internal
                 return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
             }
         }
+
+        private async Task<T> ConvertReturnVaule<T>(object value)
+        {
+            if (value is Task<T>)
+            {
+                return await (Task<T>)value;
+            }
+            else if (value is Task)
+            {
+                await (Task)value;
+                return default(T);
+            }
+            else
+            {
+                return (T)value;
+            }
+        }
+
     }
 }

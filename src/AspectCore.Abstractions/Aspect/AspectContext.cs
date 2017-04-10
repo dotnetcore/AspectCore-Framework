@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace AspectCore.Abstractions
 {
@@ -16,7 +15,7 @@ namespace AspectCore.Abstractions
 
         public virtual ParameterDescriptor ReturnParameter { get; }
 
-        public virtual DynamicDictionary Data { get; }
+        public virtual AspectDictionary Data { get; }
 
         protected virtual void Dispose(bool disposing)
         { 

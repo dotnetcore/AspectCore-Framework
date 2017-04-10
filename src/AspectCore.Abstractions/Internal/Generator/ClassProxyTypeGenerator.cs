@@ -51,7 +51,7 @@ namespace AspectCore.Abstractions.Internal.Generator
                     new ProxyMethodGenerator(declaringType, ServiceType, ParentType, method, serviceInstanceFieldBuilder, serviceProviderFieldBuilder, false).Build();
                     continue;
                 }
-                if (Internal.AspectValidator.IsAccessibility(method))
+                if (method.IsAccessibility())
                 {
                     new NonProxyMethodGenerator(declaringType, ParentType, method, serviceInstanceFieldBuilder, false).Build();
                 }

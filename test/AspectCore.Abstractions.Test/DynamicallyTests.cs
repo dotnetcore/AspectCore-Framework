@@ -1,10 +1,7 @@
-﻿using AspectCore.Abstractions.Extensions;
+﻿using System.Reflection;
+using AspectCore.Abstractions.Extensions;
 using AspectCore.Abstractions.Internal.Test.Fakes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+using AspectCore.Abstractions.Test.Fakes;
 using Xunit;
 
 namespace AspectCore.Abstractions.Internal.Test
@@ -14,17 +11,17 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void Dynamically_Test()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
+            var generator = new ProxyGenerator(AspectValidatorFactory.GetAspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateInterfaceProxyType(typeof(ITargetService), typeof(TargetService));
-            Assert.True(proxyType.GetTypeInfo().IsDynamically());
+            Assert.True(proxyType.GetTypeInfo().IsProxyType());
         }
 
         [Fact]
         public void Dynamically_TestWithClass()
         {
-            var generator = new ProxyGenerator(new AspectValidator(new AspectConfigure()));
+            var generator = new ProxyGenerator(AspectValidatorFactory.GetAspectValidator(new AspectConfigure()));
             var proxyType = generator.CreateClassProxyType(typeof(AbsTargetService), typeof(TargetService));
-            Assert.True(proxyType.GetTypeInfo().IsDynamically());
+            Assert.True(proxyType.GetTypeInfo().IsProxyType());
         }
     }
 }

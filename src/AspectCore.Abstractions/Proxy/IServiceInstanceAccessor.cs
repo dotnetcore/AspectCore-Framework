@@ -6,7 +6,6 @@
         object ServiceInstance { get; }
     }
 
-
     [NonAspect]
     public interface IServiceInstanceAccessor<TService>
     {

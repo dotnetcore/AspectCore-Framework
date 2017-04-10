@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Abstractions.Test.Fakes
 {
-    public class OriginalServiceProvider : IOriginalServiceProvider
+    public class OriginalServiceProvider : IRealServiceProvider
     {
         private readonly object instance;
         public OriginalServiceProvider(object instance)

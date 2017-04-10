@@ -1,7 +1,9 @@
-﻿using AspectCore.Abstractions.Extensions;
-using AspectCore.Abstractions.Internal.Test.Fakes;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using AspectCore.Abstractions.Extensions;
+using AspectCore.Abstractions.Internal.Test.Fakes;
+using AspectCore.Abstractions.Test.Fakes;
 using Xunit;
 
 namespace AspectCore.Abstractions.Internal.Test
@@ -11,17 +13,17 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateDeclaringType_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<NotPublicValidatorModel>>(m => m.Validate())));
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<VauleTypeValidatorModel>>(m => m.Validate())));
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<SealedValidatorModel>>(m => m.Validate())));
-          
+
         }
 
         [Fact]
         public void ValidateDeclaringType_Type_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.False(validator.Validate(typeof(NotPublicValidatorModel)));
             Assert.False(validator.Validate(typeof(VauleTypeValidatorModel)));
             Assert.False(validator.Validate(typeof(SealedValidatorModel)));
@@ -33,7 +35,7 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateDeclaringMethod_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<FinalMethodValidatorModel>>(m => m.Validate())));
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<NonPublicMethodValidatorModel>>(m => m.Validate())));
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action>(() => StaticMethodValidatorModel.Validate())));
@@ -42,7 +44,7 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateDeclaringMethod_Type_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.False(validator.Validate(typeof(FinalMethodValidatorModel)));
             Assert.False(validator.Validate(typeof(NonPublicMethodValidatorModel)));
             Assert.False(validator.Validate(typeof(StaticMethodValidatorModel)));
@@ -54,7 +56,7 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateNonAspect_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<ClassNonAspectValidatorModel>>(m => m.Validate())));
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<MethodNonAspectValidatorModel>>(m => m.Validate())));
         }
@@ -62,9 +64,9 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateIgnoredList_Test()
         {
-            var Configure = new AspectConfigure();
-            Configure.GetConfigureOption<bool>().Add(m => m.DeclaringType.Name.Matches("IgnoredList*"));
-            var validator = new AspectValidator(Configure);
+            var configure = new AspectConfigure();
+            configure.GetConfigureOption<bool>().Add(m => m.DeclaringType.Name.Matches("IgnoredList*"));
+            var validator = AspectValidatorFactory.GetAspectValidator(configure);
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<IgnoredListValidatorModel>>(m => m.Validate())));
             Assert.False(validator.Validate(ReflectionExtensions.GetMethod<Action<object>>(m => m.ToString())));
         }
@@ -72,7 +74,7 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateInterceptor_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.True(validator.Validate(ReflectionExtensions.GetMethod<Action<ClassWithInterceptorValidatorModel>>(m => m.Validate())));
             Assert.True(validator.Validate(ReflectionExtensions.GetMethod<Action<MethodWithInterceptorValidatorModel>>(m => m.Validate())));
         }
@@ -80,7 +82,7 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void ValidateInterceptor_Type_Test()
         {
-            var validator = new AspectValidator(new AspectConfigure());
+            var validator = AspectValidatorFactory.GetAspectValidator(new AspectConfigure());
             Assert.True(validator.Validate(typeof(ClassWithInterceptorValidatorModel)));
             Assert.True(validator.Validate(typeof(MethodWithInterceptorValidatorModel)));
             Assert.True(validator.Validate(typeof(ClassWithInterceptorValidatorModel).GetTypeInfo()));
@@ -90,9 +92,9 @@ namespace AspectCore.Abstractions.Internal.Test
         [Fact]
         public void Configure_ValidateInterceptor_Test()
         {
-            var Configure = new AspectConfigure();
-            Configure.GetConfigureOption<IInterceptor>().Add(m => new IncrementAttribute());
-            var validator = new AspectValidator(Configure);
+            var configure = new AspectConfigure();
+            configure.GetConfigureOption<IInterceptor>().Add(m => new IncrementAttribute());
+            var validator = AspectValidatorFactory.GetAspectValidator(configure);
             Assert.True(validator.Validate(ReflectionExtensions.GetMethod<Action<ConfigureInterceptorValidatorModel>>(m => m.Validate())));
         }
     }

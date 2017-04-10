@@ -28,7 +28,7 @@ namespace AspectCore.Abstractions.Internal
                     yield return new PropertyInjector(
                         provider =>
                         {
-                            var originalProvider = (IOriginalServiceProvider)provider.GetService(typeof(IOriginalServiceProvider));
+                            var originalProvider = (IRealServiceProvider)provider.GetService(typeof(IRealServiceProvider));
                             return originalProvider.GetService(property.PropertyType);
                         },
                         new PropertyAccessor(property).CreatePropertySetter());
