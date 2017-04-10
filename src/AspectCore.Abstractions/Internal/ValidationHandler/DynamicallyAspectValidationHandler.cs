@@ -9,7 +9,7 @@ namespace AspectCore.Abstractions.Internal
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
-            if (method.DeclaringType.GetTypeInfo().IsDynamically())
+            if (method.DeclaringType.GetTypeInfo().IsProxyType())
             {
                 return false;
             }

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using AspectCore.Abstractions.Extensions;
 
-namespace AspectCore.Abstractions.Internal.ValidationHandler
+namespace AspectCore.Abstractions.Internal
 {
     public class AccessibleAspectValidationHandler : IAspectValidationHandler
     {
@@ -9,21 +10,11 @@ namespace AspectCore.Abstractions.Internal.ValidationHandler
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
             var declaringType = method.DeclaringType.GetTypeInfo();
-            if (!IsAccessibility(declaringType) || !IsAccessibility(method))
+            if (!declaringType.IsAccessibility() || !method.IsAccessibility())
             {
                 return false;
             }
             return next(method);
-        }
-
-        private bool IsAccessibility(TypeInfo declaringType)
-        {
-            return !(declaringType.IsNotPublic || declaringType.IsValueType || declaringType.IsSealed || !declaringType.IsNestedPublic);
-        }
-
-        private bool IsAccessibility(MethodInfo method)
-        {
-            return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
     }
 }
