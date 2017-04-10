@@ -10,17 +10,11 @@
       "dependencies": {
         "NETStandard.Library": "1.6.0",
         "System.ComponentModel": "4.3.0",
-        "System.Dynamic.Runtime": "4.3.0",
         "System.Reflection.Emit": "4.3.0",
         "System.Reflection.Emit.Lightweight": "4.3.0"
       }
     },
     "net45": {
-      "dependencies": {
-        "Nito.AsyncEx": "3.0.1",
-        "System.Runtime": "4.0.0",
-        "System.Threading.Tasks": "4.0.0"
-      }
     }
   },
   "packOptions": {
