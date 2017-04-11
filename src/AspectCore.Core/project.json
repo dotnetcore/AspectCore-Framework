@@ -1,0 +1,25 @@
+{
+  "authors": [ "liuhaoyang" ],
+  "dependencies": {
+    "AspectCore.Abstractions": "1.1.0-rc1-*"
+  },
+  "description": "The core implementation of the AspectCore framework.",
+  "frameworks": {
+    "netstandard1.6": {},
+    "net45": {}
+  },
+  "packOptions": {
+    "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
+    "licenseUrl": "https://mit-license.org/",
+    "owners": [ "liuhaoyang" ],
+    "releaseNotes": "The core implementation of the AspectCore framework.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/AspectCore/Abstractions"
+    },
+    "tags": [ "DynamicProxy", "Aop", "Aspect", "AspectCore", "Intercepter" ]
+  },
+  "projectUrl": "https://github.com/AspectCore/Abstractions",
+  "title": "AspectCore.Abstractions",
+  "version": "1.1.0-rc1-13272"
+}
