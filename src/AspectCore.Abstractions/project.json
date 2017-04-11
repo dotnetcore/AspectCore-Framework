@@ -1,7 +1,5 @@
 {
   "authors": [ "liuhaoyang" ],
-  "buildOptions": { "allowUnsafe": true },
-  "compilationOptions": { "allowUnsafe": true },
   "dependencies": {
   },
   "description": "The abstract design of the AspectCore framework.",
