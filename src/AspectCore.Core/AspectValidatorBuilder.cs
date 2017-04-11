@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public class AspectValidatorBuilder : IAspectValidatorBuilder
     {

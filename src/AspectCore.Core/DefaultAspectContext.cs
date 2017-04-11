@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class DefaultAspectContext : AspectContext
     {

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AspectCore.Abstractions;
 using AspectCore.Abstractions.Internal;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class InterceptorMatcher : IInterceptorSelector
     {

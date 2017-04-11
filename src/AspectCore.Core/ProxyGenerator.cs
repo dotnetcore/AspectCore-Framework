@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using AspectCore.Abstractions.Internal.Generator;
+using AspectCore.Abstractions;
+using AspectCore.Core.Internal.Generator;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class ProxyGenerator : IProxyGenerator
     {

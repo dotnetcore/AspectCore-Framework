@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using AspectCore.Abstractions;
 using AspectCore.Abstractions.Internal;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class AspectConfigure : IAspectConfigure
     {

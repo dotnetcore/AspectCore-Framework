@@ -3,8 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public class PropertyInjectorSelector : IPropertyInjectorSelector
     {

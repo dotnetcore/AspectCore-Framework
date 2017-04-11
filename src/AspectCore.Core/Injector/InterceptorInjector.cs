@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class InterceptorInjector : IInterceptorInjector
     {

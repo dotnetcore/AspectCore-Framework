@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AspectCore.Abstractions;
 using AspectCore.Abstractions.Internal;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class AspectBuilder : IAspectBuilder
     {

@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Abstractions;
 using AspectCore.Abstractions.Internal;
-using AspectCore.Abstractions.Generator;
+using AspectCore.Core.Generator;
 
 namespace AspectCore.Core.Internal.Generator
 {
@@ -68,18 +69,6 @@ namespace AspectCore.Core.Internal.Generator
 
             ilGenerator.EmitThis();
             ilGenerator.EmitThis();
-            //ilGenerator.Emit(OpCodes.Ldnull);
-            //ilGenerator.EmitLoadArg(2);
-            //if (serviceType.GetTypeInfo().IsGenericTypeDefinition)
-            //{
-            //    ilGenerator.EmitTypeof(serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
-            //}
-            //else
-            //{
-            //    ilGenerator.EmitTypeof(serviceType);
-            //}
-            //ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
-            //ilGenerator.EmitConvertToType(typeof(object), serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, _serviceInstanceFieldBuilder);
 
             ilGenerator.Emit(OpCodes.Ret);

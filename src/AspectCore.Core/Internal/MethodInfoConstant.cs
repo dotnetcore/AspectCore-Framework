@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 using AspectCore.Abstractions.Internal;
-using AspectCore.Abstractions.Internal.Generator;
+using AspectCore.Core.Internal.Generator;
 
 namespace AspectCore.Core.Internal
 {

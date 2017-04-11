@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class AspectValidator : IAspectValidator
     {
