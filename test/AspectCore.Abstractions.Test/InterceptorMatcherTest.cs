@@ -1,4 +1,4 @@
-﻿using AspectCore.Abstractions.Extensions;
+﻿using AspectCore.Abstractions.Internal;
 using AspectCore.Abstractions.Internal.Test.Fakes;
 using System;
 using System.Collections.Generic;

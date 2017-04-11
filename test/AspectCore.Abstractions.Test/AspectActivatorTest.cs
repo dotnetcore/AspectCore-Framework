@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AspectCore.Abstractions.Extensions;
 using AspectCore.Abstractions.Internal.Test.Fakes;
 using NSubstitute;
 using Xunit;

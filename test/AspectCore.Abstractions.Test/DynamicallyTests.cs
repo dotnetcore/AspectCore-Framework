@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using AspectCore.Abstractions.Extensions;
+using AspectCore.Abstractions.Internal;
 using AspectCore.Abstractions.Internal.Test.Fakes;
 using AspectCore.Abstractions.Test.Fakes;
 using Xunit;
