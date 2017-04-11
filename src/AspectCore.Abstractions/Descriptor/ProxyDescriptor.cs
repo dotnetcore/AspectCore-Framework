@@ -1,4 +1,4 @@
-﻿using AspectCore.Abstractions.Extensions;
+﻿using AspectCore.Abstractions.Internal;
 using System;
 using System.Reflection;
 

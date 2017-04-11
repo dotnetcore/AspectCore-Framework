@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
-    public class ParameterDescriptor
+    public class ParameterDescriptor: IParameterDescriptor
     {
         private object _value;
         private ParameterInfo _parameterInfo;
