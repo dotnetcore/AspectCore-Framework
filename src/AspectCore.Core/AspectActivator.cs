@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
 
@@ -36,23 +35,23 @@ namespace AspectCore.Core
 
         public async Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext)
         {
-            var target = new TargetDescriptor(activatorContext.TargetInstance, 
-                activatorContext.ServiceMethod, 
+            var target = new TargetDescriptor(activatorContext.TargetInstance,
+                activatorContext.ServiceMethod,
                 activatorContext.ServiceType,
-                activatorContext.TargetMethod, 
+                activatorContext.TargetMethod,
                 activatorContext.TargetInstance?.GetType() ?? activatorContext.TargetMethod.DeclaringType);
 
-            var proxy = new ProxyDescriptor(activatorContext.ProxyInstance, 
-                activatorContext.ProxyMethod, 
+            var proxy = new ProxyDescriptor(activatorContext.ProxyInstance,
+                activatorContext.ProxyMethod,
                 activatorContext.ProxyInstance.GetType());
 
-            var parameters = new ParameterCollection(activatorContext.Parameters, 
+            var parameters = new ParameterCollection(activatorContext.Parameters,
                 activatorContext.ServiceMethod.GetParameters());
 
-            var returnParameter = new ReturnParameterDescriptor(default(T), 
+            var returnParameter = new ReturnParameterDescriptor(default(T),
                 activatorContext.ServiceMethod.ReturnParameter);
 
-            using (var context = new DefaultAspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
+            using (var context = new AspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
             {
                 var aspectBuilder = _aspectBuilderProvider.GetBuilder(activatorContext);
 

@@ -5,24 +5,24 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public abstract class AspectContext : IDisposable
     {
-        public virtual IServiceProvider ServiceProvider { get; }
+        public abstract IServiceProvider ServiceProvider { get; }
 
-        public virtual TargetDescriptor Target { get; }
+        public abstract ITargetDescriptor Target { get; }
 
-        public virtual ProxyDescriptor Proxy { get; }
+        public abstract IProxyDescriptor Proxy { get; }
 
-        public virtual ParameterCollection Parameters { get; }
+        public abstract IParameterCollection Parameters { get; }
 
-        public virtual ParameterDescriptor ReturnParameter { get; }
+        public abstract IParameterDescriptor ReturnParameter { get; }
 
-        public virtual AspectDictionary Data { get; }
+        public abstract AspectDictionary Data { get; }
 
         protected virtual void Dispose(bool disposing)
-        { 
+        {
         }
 
         public void Dispose()
-        {   
+        {
             Dispose(true);
         }
     }

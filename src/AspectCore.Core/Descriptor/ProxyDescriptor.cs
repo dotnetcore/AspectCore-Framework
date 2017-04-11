@@ -1,10 +1,11 @@
-﻿using AspectCore.Abstractions.Internal;
-using System;
+﻿using System;
 using System.Reflection;
+using AspectCore.Abstractions;
+using AspectCore.Abstractions.Internal;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Core
 {
-    public class ProxyDescriptor
+    internal class ProxyDescriptor : IProxyDescriptor
     {
         public virtual object ProxyInstance { get; }
         public virtual MethodInfo ProxyMethod { get; }

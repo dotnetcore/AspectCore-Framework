@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Core
 {
-    public class TargetDescriptor
+    public class TargetDescriptor: ITargetDescriptor
     {
         public virtual object ImplementationInstance { get; }
         public virtual MethodInfo ServiceMethod { get; }
@@ -41,7 +42,7 @@ namespace AspectCore.Abstractions
             ImplementationMethod = implementationMethod.ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(implementationType);
         }
 
-        public virtual object Invoke(IEnumerable<ParameterDescriptor> parameterDescriptors)
+        public virtual object Invoke(IEnumerable<IParameterDescriptor> parameterDescriptors)
         {
             try
             {

@@ -1,11 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
-    public interface IParameterDescriptor
+    public interface IParameterDescriptor : ICustomAttributeProvider
     {
+        string Name { get; }
+
+        object Value { get; set; }
+
+        Type ParameterType { get; }
+
+        ParameterInfo ParameterInfo { get; }
     }
 }

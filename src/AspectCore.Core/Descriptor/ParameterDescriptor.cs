@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Core
 {
-    public class ParameterDescriptor: IParameterDescriptor
+    internal class ParameterDescriptor : IParameterDescriptor
     {
         private object _value;
         private ParameterInfo _parameterInfo;
@@ -19,7 +20,7 @@ namespace AspectCore.Abstractions
             _value = value;
         }
 
-        public virtual string Name
+        public string Name
         {
             get
             {
@@ -41,19 +42,19 @@ namespace AspectCore.Abstractions
                     {
                         throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                     }
-                    this._value = value;
+                    _value = value;
                     return;
                 }
-                Type valueType = value.GetType();
+                var valueType = value.GetType();
                 if (valueType != ParameterType && !ParameterType.GetTypeInfo().IsAssignableFrom(valueType.GetTypeInfo()))
                 {
                     throw new InvalidOperationException($"object type are not equal \"{Name}\" parameter type or not a derived type of parameter type.");
                 }
-                this._value = value;
+                _value = value;
             }
         }
 
-        public virtual Type ParameterType
+        public Type ParameterType
         {
             get
             {
@@ -61,7 +62,7 @@ namespace AspectCore.Abstractions
             }
         }
 
-        public virtual ParameterInfo ParameterInfo
+        public ParameterInfo ParameterInfo
         {
             get
             {
@@ -69,12 +70,19 @@ namespace AspectCore.Abstractions
             }
         }
 
-        public virtual Attribute[] CustomAttributes
+        public object[] GetCustomAttributes(bool inherit)
         {
-            get
-            {
-                return _parameterInfo.GetCustomAttributes().ToArray();
-            }
+            return _parameterInfo.GetCustomAttributes(inherit).ToArray();
+        }
+
+        public object[] GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            return _parameterInfo.GetCustomAttributes(attributeType, inherit).ToArray();
+        }
+
+        public bool IsDefined(Type attributeType, bool inherit)
+        {
+            return _parameterInfo.IsDefined(attributeType, inherit);
         }
     }
 }

@@ -74,9 +74,7 @@ namespace AspectCore.Core
 
         public IEnumerator<IParameterDescriptor> GetEnumerator()
         {
-            IEnumerable<IParameterDescriptor> entries = _parameterEntries.Values;
-            foreach (var descriptor in entries)
-                yield return descriptor;
+            return _parameterEntries.Values.ToList().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -4,7 +4,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public sealed class DefaultAspectContext : AspectContext
+    public sealed class AspectContext : Abstractions.AspectContext
     {
         private IServiceProvider _serviceProvider;
         private AspectDictionary _data;
@@ -25,27 +25,27 @@ namespace AspectCore.Core
 
         public override AspectDictionary Data { get { return _data ?? (_data = new AspectDictionary()); } }
 
-        public override ParameterCollection Parameters
+        public override IParameterCollection Parameters
         {
             get;
         }
 
-        public override ParameterDescriptor ReturnParameter
+        public override IParameterDescriptor ReturnParameter
         {
             get;
         }
 
-        public override TargetDescriptor Target
+        public override ITargetDescriptor Target
         {
             get;
         }
 
-        public override ProxyDescriptor Proxy
+        public override IProxyDescriptor Proxy
         {
             get;
         }
 
-        public DefaultAspectContext(IServiceProvider provider, TargetDescriptor target, ProxyDescriptor proxy, ParameterCollection parameters, ReturnParameterDescriptor returnParameter)
+        public AspectContext(IServiceProvider provider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
         {
             if (target == null)
             {

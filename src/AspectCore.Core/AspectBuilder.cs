@@ -15,7 +15,7 @@ namespace AspectCore.Core
             _delegates = new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
-        public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
+        public void AddAspectDelegate(Func<Abstractions.AspectContext, AspectDelegate, Task> interceptorInvoke)
         {
             if (interceptorInvoke == null)
             {

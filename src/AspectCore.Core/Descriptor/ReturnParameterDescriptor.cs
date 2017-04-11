@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Core
 {
-    public class ReturnParameterDescriptor : ParameterDescriptor
+    internal class ReturnParameterDescriptor : ParameterDescriptor
     {
         public ReturnParameterDescriptor(object value, ParameterInfo parameterInfo) : base(value, parameterInfo)
         {
