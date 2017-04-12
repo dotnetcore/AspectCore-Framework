@@ -12,7 +12,7 @@ namespace AspectCore.Abstractions.Test.Fakes
                new AccessibleAspectValidationHandler(),
                new AttributeAspectValidationHandler(),
                new CacheAspectValidationHandler(),
-               new ConfigureAspectValidationHandler(configure),
+               new GlobalAspectValidationHandler(configure),
                new DynamicallyAspectValidationHandler(),
                new IgnoreAspectValidationHandler(configure),
                new NonAspectValidationHandler()
