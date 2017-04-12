@@ -1,31 +1,31 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
 using AspectCore.Abstractions;
-using AspectCore.Abstractions.Internal;
+using System;
 
 namespace AspectCore.Core
 {
     public sealed class AspectConfigure : IAspectConfigure
     {
-        private readonly ConcurrentDictionary<Type, object> _optionCache;
+        private readonly IEnumerable<IInterceptorFactory> _interceptorFactories;
+        private readonly IEnumerable<NonAspectOptions> _nonAspectOptions;
 
-        public AspectConfigure()
+        public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<NonAspectOptions> nonAspectOptions)
         {
-            _optionCache = new ConcurrentDictionary<Type, object>();
+            if (interceptorFactories == null)
+            {
+                throw new ArgumentNullException(nameof(interceptorFactories));
+            }
+            if (nonAspectOptions == null)
+            {
+                throw new ArgumentNullException(nameof(nonAspectOptions));
+            }
 
-            var ignoreOption = GetConfigureOption<bool>();
-
-            ignoreOption.IgnoreAspNetCore()
-                        .IgnoreEntityFramework()
-                        .IgnoreOwin()
-                        .IgnorePageGenerator()
-                        .IgnoreSystem()
-                        .IgnoreObjectVMethod();
+            InterceptorFactories = interceptorFactories;
+            NonAspectOptions = nonAspectOptions;
         }
 
-        public IAspectConfigureOption<TOption> GetConfigureOption<TOption>()
-        {
-            return (AspectConfigureOption<TOption>)_optionCache.GetOrAdd(typeof(TOption), key => new AspectConfigureOption<TOption>());
-        }
+        public IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
+
+        public IEnumerable<NonAspectOptions> NonAspectOptions { get; }
     }
 }
