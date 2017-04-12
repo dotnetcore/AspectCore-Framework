@@ -1,8 +1,12 @@
-﻿namespace AspectCore.Abstractions
+﻿using System.Collections.Generic;
+
+namespace AspectCore.Abstractions
 {
     [NonAspect]
     public interface IAspectConfigure
     {
-        IAspectConfigureOption<TOption> GetConfigureOption<TOption>();
+        IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
+
+        IEnumerable<NonAspectOptions> NonAspectOptions { get; }
     }
 }
