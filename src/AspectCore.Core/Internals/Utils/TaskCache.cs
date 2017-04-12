@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core.Internal
 {
     internal static class TaskCache
     {

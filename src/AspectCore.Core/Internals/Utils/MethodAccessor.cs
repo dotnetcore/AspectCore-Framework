@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core.Internal
 {
     internal sealed class MethodAccessor
     {

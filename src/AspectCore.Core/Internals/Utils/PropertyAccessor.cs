@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core.Internal
 {
     public sealed class PropertyAccessor
     {

@@ -33,7 +33,7 @@ namespace AspectCore.Core.Internal.Generator
             {
                 ilGenerator.EmitTypeof(_serviceType);
             }
-            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProvider_GetInstance);
+            ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProviderGetInstance);
             ilGenerator.EmitConvertToType(typeof(object), _serviceType, false);
             ilGenerator.Emit(OpCodes.Stfld, _serviceInstanceFieldBuilder);
 

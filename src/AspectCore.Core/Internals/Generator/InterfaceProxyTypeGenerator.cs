@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using static AspectCore.Abstractions.Internal.ReflectionExtensions;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Internal.Generator
 {
@@ -31,7 +31,7 @@ namespace AspectCore.Core.Internal.Generator
 
         protected override void GeneratingConstructor(TypeBuilder declaringType)
         {
-            new DefaultProxyConstructorGenerator(declaringType, ServiceType, MethodInfoConstant.Object_Ctor, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
+            new DefaultProxyConstructorGenerator(declaringType, ServiceType, MethodInfoConstant.ObjectCtor, serviceInstanceFieldBuilder, serviceProviderFieldBuilder).Build();
         }
 
         protected override void GeneratingMethod(TypeBuilder declaringType)

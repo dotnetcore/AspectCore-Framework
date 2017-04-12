@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using AspectCore.Abstractions.Internal;
-using AspectCore.Abstractions.Generator;
+using AspectCore.Core.Generator;
+using AspectCore.Core.Internals;
 
 namespace AspectCore.Core.Internal.Generator
 {

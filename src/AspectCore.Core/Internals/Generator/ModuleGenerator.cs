@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using AspectCore.Abstractions.Internal;
 
 namespace AspectCore.Core.Internal.Generator
 {
     internal sealed class ModuleGenerator
     {
-        internal const string ProxyNameSpace = "AspectCore.Proxies";
+        internal const string ProxyNameSpace = "AspectCore.Proxy";
 
         private static readonly ModuleGenerator instance = new ModuleGenerator();
         internal static ModuleGenerator Default

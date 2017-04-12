@@ -1,4 +1,4 @@
-﻿namespace AspectCore.Abstractions.Internal
+﻿namespace AspectCore.Core.Internal
 {
     public static class EmptyArray<T>
     {
