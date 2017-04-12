@@ -13,7 +13,7 @@ namespace AspectCore.Core
             {
                 throw new ArgumentNullException(nameof(interceptorSelector));
             }
-            this._interceptorSelector = interceptorSelector;
+            _interceptorSelector = interceptorSelector;
         }
 
         public IAspectBuilder GetBuilder(AspectActivatorContext context)

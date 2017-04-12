@@ -7,44 +7,55 @@ using AspectCore.Abstractions.Internal;
 
 namespace AspectCore.Core
 {
-    public sealed class InterceptorSelector : IInterceptorProvider
-    {
-        private static readonly IDictionary<MethodInfo, IInterceptor[]> interceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
+    //public sealed class InterceptorSelector : IInterceptorSelector
+    //{
+    //    private readonly IAspectConfigure _aspectConfigure;
 
-        private readonly IInterceptorSelector _interceptorMatcher;
-        private readonly IInterceptorInjectorProvider _interceptorInjectorProvider;
+    //    public InterceptorSelector(IAspectConfigure aspectConfigure)
+    //    {
+    //        if (aspectConfigure == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(aspectConfigure));
+    //        }
+    //        _aspectConfigure = aspectConfigure;
+    //    }
 
-        public InterceptorSelector(
-          IInterceptorSelector interceptorMatcher,
-          IInterceptorInjectorProvider interceptorInjectorProvider)
-        {
-            if (interceptorMatcher == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorMatcher));
-            }
-            if (interceptorInjectorProvider == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorInjectorProvider));
-            }
-            this._interceptorMatcher = interceptorMatcher;
-            this._interceptorInjectorProvider = interceptorInjectorProvider;
-        }
+    //    public IInterceptor[] Select(MethodInfo serviceMethod, TypeInfo serviceTypeInfo)
+    //    {
+    //        if (serviceMethod == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(serviceMethod));
+    //        }
+    //        if (serviceTypeInfo == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(serviceTypeInfo));
+    //        }
 
-        public IInterceptor[] GetInterceptors(MethodInfo method)
-        {
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-            return interceptorCache.GetOrAdd(method, _ =>
-            {
-                return _interceptorMatcher.Select(method, method.DeclaringType.GetTypeInfo()).
-                 Select(i =>
-                 {
-                     _interceptorInjectorProvider.GetInjector(i.GetType()).Inject(i);
-                     return i;
-                 }).ToArray();
-            });
-        }
-    }
+    //        var aggregate = Aggregate<IInterceptor>(serviceMethod, serviceTypeInfo, _aspectConfigure.GetConfigureOption<IInterceptor>());
+    //        return aggregate.FilterMultiple().OrderBy(interceptor => interceptor.Order).ToArray();
+    //    }
+
+    //    public static IEnumerable<TInterceptor> Aggregate<TInterceptor>(
+    //       MethodInfo methodInfo, TypeInfo typeInfo, IAspectConfigureOption<IInterceptor> configureOption)
+    //        where TInterceptor : class, IInterceptor
+    //    {
+    //        foreach (var option in configureOption)
+    //        {
+    //            var interceptor = option(methodInfo) as TInterceptor;
+    //            if (interceptor != null) yield return interceptor;
+    //        }
+
+    //        foreach (var attribute in typeInfo.GetCustomAttributes())
+    //        {
+    //            var interceptor = attribute as TInterceptor;
+    //            if (interceptor != null) yield return interceptor;
+    //        }
+
+    //        foreach (var attribute in methodInfo.GetCustomAttributes())
+    //        {
+    //            var interceptor = attribute as TInterceptor;
+    //            if (interceptor != null) yield return interceptor;
+    //        }
+    //    }
+    //}
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Abstractions.Internal;
+using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {

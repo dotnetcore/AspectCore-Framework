@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using AspectCore.Abstractions;
+using AbstractAspectContext = AspectCore.Abstractions.AspectContext;
 
 namespace AspectCore.Core
 {
-    public sealed class AspectContext : Abstractions.AspectContext
+    public sealed class AspectContext : AbstractAspectContext
     {
         private IServiceProvider _serviceProvider;
         private AspectDictionary _data;
