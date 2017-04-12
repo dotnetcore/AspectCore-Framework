@@ -1,25 +1,22 @@
 ﻿using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions.Internal;
 
 namespace AspectCore.Abstractions.Internal
 {
     public class AttributeAspectValidationHandler : IAspectValidationHandler
     {
-        public int Order { get; } = 13;
+        public int Order { get; } = 11;
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
-            if (method.IsPropertyBinding())
+            if (!method.IsPropertyBinding())
             {
-                return false;
-            }
+                var declaringType = method.DeclaringType.GetTypeInfo();
 
-            var declaringType = method.DeclaringType.GetTypeInfo();
-
-            if (IsAttributeAspect(declaringType) || IsAttributeAspect(method))
-            {
-                return true;
+                if (IsAttributeAspect(declaringType) || IsAttributeAspect(method))
+                {
+                    return true;
+                }
             }
 
             return next(method);
