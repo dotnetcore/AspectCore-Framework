@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
 
-namespace AspectCore.Core.Internals
+namespace AspectCore.Core.Internal
 {
     internal static class DictionaryExtensions
     {

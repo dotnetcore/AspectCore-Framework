@@ -9,13 +9,13 @@ namespace AspectCore.Core
     {
         private readonly IAspectValidator _aspectValidator;
 
-        public ProxyGenerator(IAspectValidator aspectValidator)
+        public ProxyGenerator(IAspectValidatorBuilder aspectValidatorBuilder)
         {
-            if (aspectValidator == null)
+            if (aspectValidatorBuilder == null)
             {
-                throw new ArgumentNullException(nameof(aspectValidator));
+                throw new ArgumentNullException(nameof(aspectValidatorBuilder));
             }
-            this._aspectValidator = aspectValidator;
+            _aspectValidator = aspectValidatorBuilder.Build();
         }
 
         public Type CreateClassProxyType(Type serviceType, Type implementationType, params Type[] interfaces)

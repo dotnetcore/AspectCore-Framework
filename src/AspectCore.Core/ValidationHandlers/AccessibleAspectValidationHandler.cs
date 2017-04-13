@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using AspectCore.Core.Internal;
 
 namespace AspectCore.Abstractions.Internal
 {
