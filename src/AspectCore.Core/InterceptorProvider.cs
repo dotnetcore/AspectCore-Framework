@@ -9,7 +9,7 @@ namespace AspectCore.Core
 {
     public sealed class InterceptorProvider : IInterceptorProvider
     {
-        private static readonly IDictionary<MethodInfo, IInterceptor[]> interceptorCache = new Dictionary<MethodInfo, IInterceptor[]>();
+        private static readonly IDictionary<MethodInfo, IEnumerable<IInterceptor>> interceptorCache = new Dictionary<MethodInfo, IEnumerable<IInterceptor>>();
 
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
         private readonly IInterceptorInjectorProvider _interceptorInjectorProvider;
@@ -28,7 +28,7 @@ namespace AspectCore.Core
             _interceptorInjectorProvider = interceptorInjectorProvider;
         }
 
-        public IInterceptor[] GetInterceptors(MethodInfo method)
+        public IEnumerable<IInterceptor> GetInterceptors(MethodInfo method)
         {
             if (method == null)
             {

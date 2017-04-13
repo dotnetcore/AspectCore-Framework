@@ -5,21 +5,21 @@ namespace AspectCore.Core
 {
     public sealed class AspectBuilderProvider : IAspectBuilderProvider
     {
-        private readonly IInterceptorProvider _interceptorSelector;
+        private readonly IInterceptorProvider _interceptorProvider;
 
-        public AspectBuilderProvider(IInterceptorProvider interceptorSelector)
+        public AspectBuilderProvider(IInterceptorProvider interceptorProvider)
         {
-            if (interceptorSelector == null)
+            if (interceptorProvider == null)
             {
-                throw new ArgumentNullException(nameof(interceptorSelector));
+                throw new ArgumentNullException(nameof(interceptorProvider));
             }
-            _interceptorSelector = interceptorSelector;
+            _interceptorProvider = interceptorProvider;
         }
 
         public IAspectBuilder GetBuilder(AspectActivatorContext context)
         {
             var aspectBuilder = new AspectBuilder();
-            foreach (var interceptor in _interceptorSelector.GetInterceptors(context.ServiceMethod))
+            foreach (var interceptor in _interceptorProvider.GetInterceptors(context.ServiceMethod))
             {
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
             }

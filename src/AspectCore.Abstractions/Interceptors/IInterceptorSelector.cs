@@ -1,10 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
     [NonAspect]
     public interface IInterceptorSelector
     {
-        IInterceptor[] Select(MethodInfo method, TypeInfo typeInfo);
-     }
+        IEnumerable<IInterceptor> Select(MethodInfo method, TypeInfo typeInfo);
+    }
 }

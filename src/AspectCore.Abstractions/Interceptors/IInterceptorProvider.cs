@@ -1,10 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
     [NonAspect]
     public interface IInterceptorProvider
     {
-        IInterceptor[] GetInterceptors(MethodInfo method);
+        IEnumerable<IInterceptor> GetInterceptors(MethodInfo method);
     }
 }

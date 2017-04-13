@@ -4,11 +4,11 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Abstractions.Internal
 {
-    public class GlobalAspectValidationHandler : IAspectValidationHandler
+    public class ConfigureAspectValidationHandler : IAspectValidationHandler
     {
         private readonly IAspectConfigureProvider _aspectConfigureProvider;
 
-        public GlobalAspectValidationHandler(IAspectConfigureProvider aspectConfigureProvider)
+        public ConfigureAspectValidationHandler(IAspectConfigureProvider aspectConfigureProvider)
         {
             _aspectConfigureProvider = aspectConfigureProvider;
         }
