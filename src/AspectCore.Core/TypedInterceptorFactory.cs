@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using AspectCore.Abstractions;
 
 namespace AspectCore.Core
@@ -34,7 +31,7 @@ namespace AspectCore.Core
             Args = args;
         }
 
-        public IInterceptor CreateInterceptor(IServiceProvider serviceProvider)
+        public IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
             var activator = (ITypedInterceptorActivator)serviceProvider.GetService(typeof(ITypedInterceptorActivator));
             return activator.CreateInstance(InterceptorType, Args);

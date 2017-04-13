@@ -8,6 +8,6 @@ namespace AspectCore.Abstractions
     {
         Predicate<MethodInfo> Predicate { get; }
 
-        IInterceptor CreateInterceptor(IServiceProvider serviceProvider);
+        IInterceptor CreateInstance(IServiceProvider serviceProvider);
     }
 }
