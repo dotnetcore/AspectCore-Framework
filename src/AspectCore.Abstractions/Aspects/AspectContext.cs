@@ -15,7 +15,7 @@ namespace AspectCore.Abstractions
 
         public abstract IParameterDescriptor ReturnParameter { get; }
 
-        public abstract AspectDictionary Data { get; }
+        public abstract AspectDictionary Items { get; }
 
         protected virtual void Dispose(bool disposing)
         {
