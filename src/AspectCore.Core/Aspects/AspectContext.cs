@@ -24,7 +24,7 @@ namespace AspectCore.Core
             }
         }
 
-        public override AspectDictionary Data { get { return _data ?? (_data = new AspectDictionary()); } }
+        public override AspectDictionary Items { get { return _data ?? (_data = new AspectDictionary()); } }
 
         public override IParameterCollection Parameters
         {
@@ -65,8 +65,8 @@ namespace AspectCore.Core
                 throw new ArgumentNullException(nameof(returnParameter));
             }
 
-            var originalServiceProvider = provider as IRealServiceProvider;
-            _serviceProvider = originalServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IRealServiceProvider));
+            var realServiceProvider = provider as IRealServiceProvider;
+            _serviceProvider = realServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IRealServiceProvider));
             Target = target;
             Proxy = proxy;
             Parameters = parameters;

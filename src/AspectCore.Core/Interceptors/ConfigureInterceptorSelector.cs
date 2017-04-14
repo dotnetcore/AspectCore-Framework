@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
@@ -9,9 +8,9 @@ namespace AspectCore.Core
     public class ConfigureInterceptorSelector : IInterceptorSelector
     {
         private readonly IAspectConfigureProvider _aspectConfigureProvider;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IRealServiceProvider _serviceProvider;
 
-        public ConfigureInterceptorSelector(IAspectConfigureProvider aspectConfigureProvider, IServiceProvider serviceProvider)
+        public ConfigureInterceptorSelector(IAspectConfigureProvider aspectConfigureProvider, IRealServiceProvider serviceProvider)
         {
             _aspectConfigureProvider = aspectConfigureProvider;
             _serviceProvider = serviceProvider;

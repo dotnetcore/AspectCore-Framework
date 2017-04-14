@@ -1,7 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public sealed class CacheAspectValidationHandler : IAspectValidationHandler
     {

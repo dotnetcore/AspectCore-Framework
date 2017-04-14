@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
+using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
 
-namespace AspectCore.Abstractions.Internal
+namespace AspectCore.Core
 {
     public class DynamicallyAspectValidationHandler : IAspectValidationHandler
     {

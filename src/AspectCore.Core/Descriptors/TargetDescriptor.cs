@@ -7,7 +7,7 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
-    public class TargetDescriptor: ITargetDescriptor
+    internal class TargetDescriptor: ITargetDescriptor
     {
         public virtual object ImplementationInstance { get; }
         public virtual MethodInfo ServiceMethod { get; }

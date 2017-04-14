@@ -21,8 +21,8 @@ namespace AspectCore.Core
             {
                 throw new ArgumentNullException(nameof(propertyInjectors));
             }
-            this._serviceProvider = serviceProvider;
-            this._propertyInjectors = propertyInjectors;
+            _serviceProvider = serviceProvider;
+            _propertyInjectors = propertyInjectors;
         }
 
         public void Inject(IInterceptor interceptor)

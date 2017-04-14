@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using AspectCore.Abstractions.Internal;
 
 namespace AspectCore.Core.Internal.Generator
 {

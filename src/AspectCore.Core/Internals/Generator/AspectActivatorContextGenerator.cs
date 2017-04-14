@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Abstractions;
-using AspectCore.Abstractions.Internal;
 using AspectCore.Core.Generator;
 
 namespace AspectCore.Core.Internal.Generator

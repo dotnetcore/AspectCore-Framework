@@ -4,10 +4,11 @@ using System;
 
 namespace AspectCore.Core
 {
-    public sealed class AspectConfigure : IAspectConfigure
+    internal sealed class AspectConfigure : IAspectConfigure
     {
-        private readonly IEnumerable<IInterceptorFactory> _interceptorFactories;
-        private readonly IEnumerable<NonAspectOptions> _nonAspectOptions;
+        public IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
+
+        public IEnumerable<NonAspectOptions> NonAspectOptions { get; }
 
         public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<NonAspectOptions> nonAspectOptions)
         {
@@ -24,8 +25,6 @@ namespace AspectCore.Core
             NonAspectOptions = nonAspectOptions;
         }
 
-        public IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
 
-        public IEnumerable<NonAspectOptions> NonAspectOptions { get; }
     }
 }

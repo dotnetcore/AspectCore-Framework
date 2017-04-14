@@ -4,13 +4,13 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public class AspectActivator : IAspectActivator
+    public sealed class AspectActivator : IAspectActivator
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IRealServiceProvider _serviceProvider;
         private readonly IAspectBuilderProvider _aspectBuilderProvider;
 
         public AspectActivator(
-            IServiceProvider serviceProvider,
+            IRealServiceProvider serviceProvider,
             IAspectBuilderProvider aspectBuilderProvider)
         {
             if (aspectBuilderProvider == null)
@@ -77,6 +77,5 @@ namespace AspectCore.Core
                 return (T)value;
             }
         }
-
     }
 }

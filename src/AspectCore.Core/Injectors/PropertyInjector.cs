@@ -19,8 +19,8 @@ namespace AspectCore.Core
                 throw new ArgumentNullException(nameof(setter));
             }
 
-            this._propertyFactory = propertyFactory;
-            this._setter = setter;
+            _propertyFactory = propertyFactory;
+            _setter = setter;
         }
 
         public void Invoke(IServiceProvider serviceProvider, IInterceptor interceptor)

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
-using AspectCore.Abstractions;
+using AspectCore.Core;
 
-namespace AspectCore.Core
+namespace AspectCore.Abstractions
 {
     public class TypedInterceptorFactory : IInterceptorFactory
     {
