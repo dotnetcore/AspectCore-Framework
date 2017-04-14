@@ -9,7 +9,7 @@ namespace AspectCore.Abstractions.Test.Fakes
     {
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            context.Data.Add("key", "ItemInterceptor");
+            context.Items.Add("key", "ItemInterceptor");
             return base.Invoke(context, next);
         }
     }
