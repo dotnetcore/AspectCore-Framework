@@ -3,7 +3,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public sealed class PropertyInjector : IPropertyInjector
+    internal sealed class PropertyInjector : IPropertyInjector
     {
         private readonly Func<IServiceProvider, object> _propertyFactory;
         private readonly Action<object, object> _setter;

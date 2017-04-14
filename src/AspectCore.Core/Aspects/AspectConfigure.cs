@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AspectCore.Abstractions;
-using System;
 
 namespace AspectCore.Core
 {

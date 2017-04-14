@@ -4,13 +4,13 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public sealed class InterceptorInjector : IInterceptorInjector
+    internal sealed class InterceptorInjector : IInterceptorInjector
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IRealServiceProvider _serviceProvider;
         private readonly IEnumerable<IPropertyInjector> _propertyInjectors;
 
         public InterceptorInjector(
-            IServiceProvider serviceProvider,
+            IRealServiceProvider serviceProvider,
             IEnumerable<IPropertyInjector> propertyInjectors)
         {
             if (serviceProvider == null)

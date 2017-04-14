@@ -3,7 +3,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public sealed class AspectValidator : IAspectValidator
+    internal sealed class AspectValidator : IAspectValidator
     {
         private readonly AspectValidationDelegate _aspectValidationDelegate;
 

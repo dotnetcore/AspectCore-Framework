@@ -38,6 +38,10 @@ namespace AspectCore.Core
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
+            if (!serviceType.GetTypeInfo().IsInterface)
+            {
+                throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
+            }
             return new InterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, _aspectValidator).CreateTypeInfo().AsType();
         }
     }

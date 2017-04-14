@@ -11,6 +11,7 @@ namespace AspectCore.Core
     public class PropertyInjectorSelector : IPropertyInjectorSelector
     {
         private static readonly ConcurrentDictionary<Type, IPropertyInjector[]> propertyInjectorCache = new ConcurrentDictionary<Type, IPropertyInjector[]>();
+
         public IPropertyInjector[] SelectPropertyInjector(Type interceptorType)
         {
             if (interceptorType == null)
@@ -27,11 +28,7 @@ namespace AspectCore.Core
                 if (property.CanWrite && property.IsDefined(typeof(FromServicesAttribute)))
                 {
                     yield return new PropertyInjector(
-                        provider =>
-                        {
-                            var originalProvider = (IRealServiceProvider)provider.GetService(typeof(IRealServiceProvider));
-                            return originalProvider.GetService(property.PropertyType);
-                        },
+                        provider => provider.GetService(property.PropertyType),
                         new PropertyAccessor(property).CreatePropertySetter());
                 }
             }

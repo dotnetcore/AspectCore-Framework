@@ -5,7 +5,7 @@ using AbstractAspectContext = AspectCore.Abstractions.AspectContext;
 
 namespace AspectCore.Core
 {
-    public sealed class AspectContext : AbstractAspectContext
+    internal sealed class AspectContext : AbstractAspectContext
     {
         private IServiceProvider _serviceProvider;
         private AspectDictionary _data;

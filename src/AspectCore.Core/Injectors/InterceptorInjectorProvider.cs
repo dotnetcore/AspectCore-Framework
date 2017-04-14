@@ -5,11 +5,11 @@ namespace AspectCore.Core
 {
     public sealed class InterceptorInjectorProvider : IInterceptorInjectorProvider
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IRealServiceProvider _serviceProvider;
         private readonly IPropertyInjectorSelector _propertyInjectorSelector;
 
         public InterceptorInjectorProvider(
-            IServiceProvider serviceProvider,
+            IRealServiceProvider serviceProvider,
             IPropertyInjectorSelector propertyInjectorSelector)
         {
             if (serviceProvider == null)
@@ -20,8 +20,8 @@ namespace AspectCore.Core
             {
                 throw new ArgumentNullException(nameof(propertyInjectorSelector));
             }
-            this._serviceProvider = serviceProvider;
-            this._propertyInjectorSelector = propertyInjectorSelector;
+            _serviceProvider = serviceProvider;
+            _propertyInjectorSelector = propertyInjectorSelector;
         }
 
         public IInterceptorInjector GetInjector(Type interceptorType)
