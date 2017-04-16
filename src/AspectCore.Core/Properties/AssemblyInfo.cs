@@ -20,3 +20,7 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("AspectCore.Abstractions.Test")]
 [assembly: InternalsVisibleTo("AspectCore.Proxy")]
+[assembly: InternalsVisibleTo("AspectCore.Extensions.DependencyInjection")]
+[assembly: InternalsVisibleTo("AspectCore.Extensions.Autofac")]
+[assembly: InternalsVisibleTo("AspectCore.Extensions.Configuration")]
+[assembly: InternalsVisibleTo("AspectCore.Extensions.CrossProperties")]
