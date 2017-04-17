@@ -1,7 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Abstractions
 {
     public interface ITypedInterceptorActivator
     {

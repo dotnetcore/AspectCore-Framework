@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
 
-namespace AspectCore.Core
+namespace AspectCore.Abstractions
 {
     public class TypedInterceptorFactory : IInterceptorFactory
     {
@@ -44,7 +42,7 @@ namespace AspectCore.Core
             }
             Predicate = predicate;
             InterceptorType = interceptorType;
-            Args = args ?? EmptyArray<object>.Value;
+            Args = args ?? new object[0];
         }
 
         public IInterceptor CreateInstance(IServiceProvider serviceProvider)
