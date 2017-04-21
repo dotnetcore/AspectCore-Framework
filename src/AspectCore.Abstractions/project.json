@@ -1,5 +1,5 @@
 {
-  "authors": [ "liuhaoyang" ],
+  "authors": [ "Lemon" ],
   "dependencies": {
   },
   "description": "The abstract design of the AspectCore framework.",
@@ -26,5 +26,5 @@
   },
   "projectUrl": "https://github.com/AspectCore/Abstractions",
   "title": "AspectCore.Abstractions",
-  "version": "1.1.0-rc1-13280"
+  "version": "0.1.0.0"
 }

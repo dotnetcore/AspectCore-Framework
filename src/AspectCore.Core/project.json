@@ -1,9 +1,9 @@
 {
-  "authors": [ "liuhaoyang" ],
+  "authors": [ "Lemon" ],
   "buildOptions": { "allowUnsafe": true },
   "compilationOptions": { "allowUnsafe": true },
   "dependencies": {
-    "AspectCore.Abstractions": "1.1.0-rc1-*"
+    "AspectCore.Abstractions": "*"
   },
   "description": "The implementation of the AspectCore framework.",
   "frameworks": {
@@ -27,6 +27,6 @@
     "tags": [ "DynamicProxy", "Aop", "Aspect", "AspectCore", "Intercepter" ]
   },
   "projectUrl": "https://github.com/AspectCore/Abstractions",
-  "title": "AspectCore.Abstractions",
-  "version": "1.1.0-rc1-13280"
+  "title": "AspectCore.Core",
+  "version": "0.1.0.0"
 }
