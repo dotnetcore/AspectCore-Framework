@@ -18,7 +18,7 @@
   "packOptions": {
     "iconUrl": "https://avatars1.githubusercontent.com/u/19426425?v=3&s=200",
     "licenseUrl": "https://mit-license.org/",
-    "owners": [ "liuhaoyang" ],
+    "owners": [ "AspectCoreProject" ],
     "releaseNotes": "The implementation of the AspectCore framework.",
     "repository": {
       "type": "git",
