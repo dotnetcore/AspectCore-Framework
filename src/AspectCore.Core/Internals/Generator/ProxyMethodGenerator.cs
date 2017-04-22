@@ -108,6 +108,8 @@ namespace AspectCore.Core.Internal.Generator
                 DeclaringMember.DefineMethodOverride(builder, _serviceMethod);
             }
 
+            GeneratingCustomAttribute(builder);
+
             return builder;
         }
 
@@ -135,6 +137,14 @@ namespace AspectCore.Core.Internal.Generator
                     if (constraint.IsClass) genericArgumentsBuilders[index].SetBaseTypeConstraint(constraint.AsType());
                     if (constraint.IsInterface) genericArgumentsBuilders[index].SetInterfaceConstraints(constraint.AsType());
                 }
+            }
+        }
+
+        protected virtual void GeneratingCustomAttribute(MethodBuilder declaringMethod)
+        {
+            foreach (var customAttributeData in _serviceMethod.CustomAttributes)
+            {
+                declaringMethod.SetCustomAttribute(new MethodAttributeGenerator(declaringMethod, customAttributeData).Build());
             }
         }
     }

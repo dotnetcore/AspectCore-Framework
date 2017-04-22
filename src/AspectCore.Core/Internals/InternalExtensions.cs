@@ -457,18 +457,19 @@ namespace AspectCore.Core.Internal
 
         internal static MethodInfo GetMethodBySign(this TypeInfo typeInfo, MethodInfo method)
         {
-            if (method.IsGenericMethod)
-            {
-                foreach (var genericMethod in typeInfo.DeclaredMethods.Where(m => m.IsGenericMethod))
-                {
-                    if (method.ToString() == genericMethod.ToString())
-                    {
-                        return genericMethod;
-                    }
-                }
-            }
+            return typeInfo.DeclaredMethods.FirstOrDefault(m => m.ToString() == method.ToString());
+            //if (method.IsGenericMethod)
+            //{
+            //    foreach (var genericMethod in typeInfo.DeclaredMethods.Where(m => m.IsGenericMethod))
+            //    {
+            //        if (method.ToString() == genericMethod.ToString())
+            //        {
+            //            return genericMethod;
+            //        }
+            //    }
+            //}
 
-            return typeInfo.GetMethod(method.Name, method.GetParameterTypes());
+            //return typeInfo.GetMethod(method.Name, method.GetParameterTypes());
         }
 
         internal static MethodInfo GetMethod<T>(Expression<T> expression)

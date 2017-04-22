@@ -61,11 +61,9 @@ namespace AspectCore.Core.Internal.Generator
             GeneratingConstructor(builder);
             GeneratingMethod(builder);
             GeneratingProperty(builder);
+            GeneratingCustomAttribute(builder);
 
             AccessorPropertyGenerator.Build(builder, serviceProviderFieldBuilder, serviceInstanceFieldBuilder);
-
-            builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
-            builder.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
 
             return builder;
         }
@@ -89,6 +87,17 @@ namespace AspectCore.Core.Internal.Generator
                     if (constraint.IsInterface) genericArgumentsBuilders[index].SetInterfaceConstraints(constraint.AsType());
                 }
             }
+        }
+
+        protected virtual void GeneratingCustomAttribute(TypeBuilder declaringType)
+        {
+            declaringType.SetCustomAttribute(new CustomAttributeBuilder(typeof(NonAspectAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
+
+            declaringType.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
+
+            foreach (var customAttributeData in ServiceType.GetTypeInfo().CustomAttributes)
+
+                declaringType.SetCustomAttribute(new TypeAttributeGenerator(declaringType, customAttributeData).Build());
         }
     }
 }
