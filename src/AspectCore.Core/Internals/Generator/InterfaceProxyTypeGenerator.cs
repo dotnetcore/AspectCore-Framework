@@ -27,7 +27,7 @@ namespace AspectCore.Core.Internal.Generator
 
         public override Type ParentType => typeof(object);
 
-        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.ServiceInstance.Proxy{_parentType.Name}As{ServiceType.Name}";
+        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.{_parentType.Name}Proxy_As_{ServiceType.Name}";
 
         protected override void GeneratingConstructor(TypeBuilder declaringType)
         {

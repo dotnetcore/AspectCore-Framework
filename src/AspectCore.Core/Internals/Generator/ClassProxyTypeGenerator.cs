@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Abstractions;
+using AspectCore.Core.Internal;
 
 namespace AspectCore.Core.Internal.Generator
 {
@@ -15,10 +16,10 @@ namespace AspectCore.Core.Internal.Generator
                 throw new InvalidOperationException($"Validate '{parentType}' failed because the type does not satisfy the condition to be inherited.");
             }
             ParentType = parentType;
-            Interfaces = interfaces ?? Type.EmptyTypes;
+            Interfaces = interfaces?.Where(i => aspectValidator.Validate(i.GetTypeInfo()))?.ToArray() ?? Type.EmptyTypes;
         }
 
-        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.Inheritance.Proxy{ParentType.Name}As{ServiceType.Name}";
+        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.{ParentType.Name}Proxy_As_{ServiceType.Name}";
 
         public override Type[] Interfaces { get; }
 
