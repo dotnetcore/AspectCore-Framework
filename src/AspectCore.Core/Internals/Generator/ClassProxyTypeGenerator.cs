@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
 
 namespace AspectCore.Core.Internal.Generator
 {
@@ -19,7 +18,7 @@ namespace AspectCore.Core.Internal.Generator
             Interfaces = interfaces?.Where(i => aspectValidator.Validate(i.GetTypeInfo()))?.ToArray() ?? Type.EmptyTypes;
         }
 
-        public override string TypeName => $"{ModuleGenerator.ProxyNameSpace}.{ParentType.Name}Proxy_As_{ServiceType.Name}";
+        public override string TypeName => $"{ServiceType.Namespace}.{ParentType.Name}Proxy_As_{ServiceType.Name}";
 
         public override Type[] Interfaces { get; }
 
@@ -41,7 +40,7 @@ namespace AspectCore.Core.Internal.Generator
 
         protected override void GeneratingMethod(TypeBuilder declaringType)
         {
-            foreach (var method in ServiceType.GetTypeInfo().DeclaredMethods)
+            foreach (var method in ServiceType.GetTypeInfo().GetMethods())
             {
                 if (method.IsPropertyBinding())
                 {
@@ -78,7 +77,7 @@ namespace AspectCore.Core.Internal.Generator
 
         protected override void GeneratingProperty(TypeBuilder declaringType)
         {
-            foreach (var property in ServiceType.GetTypeInfo().DeclaredProperties)
+            foreach (var property in ServiceType.GetTypeInfo().GetProperties())
             {
                 if (AspectValidator.Validate(property))
                 {
