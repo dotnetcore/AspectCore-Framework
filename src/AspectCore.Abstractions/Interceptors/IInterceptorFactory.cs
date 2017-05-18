@@ -6,7 +6,7 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public interface IInterceptorFactory
     {
-        Predicate<MethodInfo> Predicate { get; }
+        bool CanCreated(MethodInfo method);
 
         IInterceptor CreateInstance(IServiceProvider serviceProvider);
     }

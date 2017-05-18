@@ -20,7 +20,7 @@ namespace AspectCore.Core
         {
             if (!method.IsPropertyBinding())
             {
-                if (_aspectConfigureProvider.AspectConfigure.InterceptorFactories.Any(x => x.Predicate(method)))
+                if (_aspectConfigureProvider.AspectConfigure.InterceptorFactories.Any(x => x.CanCreated(method)))
                 {
                     return true;
                 }

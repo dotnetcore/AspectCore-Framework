@@ -19,7 +19,7 @@ namespace AspectCore.Core
         public IEnumerable<IInterceptor> Select(MethodInfo method, TypeInfo typeInfo)
         {
             return _aspectConfigureProvider.AspectConfigure.InterceptorFactories
-                .Where(x => x.Predicate(method))
+                .Where(x => x.CanCreated(method))
                 .Select(x => x.CreateInstance(_serviceProvider));
         }
     }
