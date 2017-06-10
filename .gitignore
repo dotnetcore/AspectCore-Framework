@@ -257,3 +257,4 @@ paket-files/
 .idea/
 *.sln.iml
 /src/AspectCore.Lite.Generators
+*.snk
