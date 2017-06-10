@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73F38B6C-1A0
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F107A365-9FC9-4FD8-9865-9FB652E83E61}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		NuGet.config = NuGet.config
 		Publish.bat = Publish.bat
 		README.md = README.md
