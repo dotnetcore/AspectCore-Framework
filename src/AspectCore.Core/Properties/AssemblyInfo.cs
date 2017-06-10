@@ -17,10 +17,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("54ffb88e-6e90-4e57-886d-a8430039da23")]
-
-[assembly: InternalsVisibleTo("AspectCore.Abstractions.Test")]
-[assembly: InternalsVisibleTo("AspectCore.Proxy")]
-[assembly: InternalsVisibleTo("AspectCore.Extensions.DependencyInjection")]
-[assembly: InternalsVisibleTo("AspectCore.Extensions.Autofac")]
-[assembly: InternalsVisibleTo("AspectCore.Extensions.Configuration")]
-[assembly: InternalsVisibleTo("AspectCore.Extensions.CrossProperties")]
