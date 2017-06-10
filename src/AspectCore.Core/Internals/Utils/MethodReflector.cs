@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Core.Internal
 {
-    internal sealed class MethodAccessor
+    public sealed class MethodReflector
     {
         private static readonly ConcurrentDictionary<Tuple<MethodInfo, bool>, Func<object, object[], object>> invokerCache = new ConcurrentDictionary<Tuple<MethodInfo, bool>, Func<object, object[], object>>();
 
@@ -14,12 +14,12 @@ namespace AspectCore.Core.Internal
 
         private readonly MethodInfo _method;
 
-        public MethodAccessor(MethodInfo methodInfo)
+        public MethodReflector(MethodInfo methodInfo)
             : this(methodInfo, true)
         {
         }
 
-        public MethodAccessor(MethodInfo methodInfo, bool isCallvirt)
+        public MethodReflector(MethodInfo methodInfo, bool isCallvirt)
         {
             if (methodInfo == null)
             {

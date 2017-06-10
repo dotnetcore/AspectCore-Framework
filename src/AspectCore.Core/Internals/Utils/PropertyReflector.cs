@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace AspectCore.Core.Internal
 {
-    public sealed class PropertyAccessor
+    public sealed class PropertyReflector
     {
         private readonly static ConcurrentDictionary<PropertyInfo, Func<object, object>> getterCache = new ConcurrentDictionary<PropertyInfo, Func<object, object>>();
 
@@ -13,7 +13,7 @@ namespace AspectCore.Core.Internal
 
         private readonly PropertyInfo _property;
 
-        public PropertyAccessor(PropertyInfo property)
+        public PropertyReflector(PropertyInfo property)
         {
             if (property == null)
             {

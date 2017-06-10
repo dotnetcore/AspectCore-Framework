@@ -51,7 +51,7 @@ namespace AspectCore.Core
                     return null;
                 }
                 var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value)?.ToArray();
-                return new MethodAccessor(ImplementationMethod, ImplementationMethod.IsCallvirt()).CreateMethodInvoker()(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
+                return new MethodReflector(ImplementationMethod, ImplementationMethod.IsCallvirt()).CreateMethodInvoker()(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
             }
             catch (TargetInvocationException exception)
             {

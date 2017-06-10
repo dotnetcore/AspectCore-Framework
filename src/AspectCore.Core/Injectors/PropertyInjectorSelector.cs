@@ -29,7 +29,7 @@ namespace AspectCore.Core
                 {
                     yield return new PropertyInjector(
                         provider => provider.GetService(property.PropertyType),
-                        new PropertyAccessor(property).CreatePropertySetter());
+                        new PropertyReflector(property).CreatePropertySetter());
                 }
             }
         }

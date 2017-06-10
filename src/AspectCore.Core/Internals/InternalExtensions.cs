@@ -10,7 +10,7 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core.Internal
 {
-    internal static class DictionaryExtensions
+    public static class DictionaryExtensions
     {
         internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
@@ -35,7 +35,7 @@ namespace AspectCore.Core.Internal
         }
     }
 
-    internal static class AspectValidatorExtensions
+    public static class AspectValidatorExtensions
     {
         internal static bool Validate(this IAspectValidator aspectValidator, TypeInfo typeInfo)
         {
@@ -70,7 +70,7 @@ namespace AspectCore.Core.Internal
         }
     }
 
-    internal static class ILGeneratorExtensions
+    public static class ILGeneratorExtensions
     {
         private static readonly Type ILGenType = typeof(Expression).GetTypeInfo().Assembly.GetType("System.Linq.Expressions.Compiler.ILGen");
 
@@ -255,7 +255,7 @@ namespace AspectCore.Core.Internal
         }
     }
 
-    internal static class ServiceProviderExtensions
+    public static class ServiceProviderExtensions
     {
         internal static IAspectActivator GetAspectActivator(this IServiceProvider provider)
         {
@@ -268,7 +268,7 @@ namespace AspectCore.Core.Internal
         }
     }
 
-    internal static class StringExtensions
+    public static class StringExtensions
     {
         internal static unsafe bool Matches(this string input, string pattern)
         {
@@ -301,7 +301,7 @@ namespace AspectCore.Core.Internal
         }
     }
 
-    internal static class ReflectionExtensions
+    public static class ReflectionExtensions
     {
         internal static Type MakeDefType(this TypeInfo byRefTypeInfo)
         {
@@ -321,7 +321,7 @@ namespace AspectCore.Core.Internal
             return byRefTypeInfo.Assembly.GetType(assemblyQualifiedName, true);
         }
 
-        internal static bool IsProxyType(this TypeInfo typeInfo)
+        public static bool IsProxyType(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
@@ -330,7 +330,7 @@ namespace AspectCore.Core.Internal
             return typeInfo.IsDefined(typeof(DynamicallyAttribute), false);
         }
 
-        internal static bool CanInherited(this TypeInfo typeInfo)
+        public static bool CanInherited(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
@@ -357,21 +357,21 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        internal static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
+        public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
         {
             if (method == null)
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            return new MethodAccessor(method).CreateMethodInvoker()(instance, parameters);
+            return new MethodReflector(method).CreateMethodInvoker()(instance, parameters);
         }
 
-        internal static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
+        public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
         {
             return (TResult)FastInvoke(method, instance, parameters);
         }
 
-        internal static Type[] GetParameterTypes(this MethodInfo method)
+        public static Type[] GetParameterTypes(this MethodInfo method)
         {
             if (method == null)
             {
@@ -380,7 +380,7 @@ namespace AspectCore.Core.Internal
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
         }
 
-        internal static bool IsPropertyBinding(this MethodInfo method)
+        public static bool IsPropertyBinding(this MethodInfo method)
         {
             if (method == null)
             {
@@ -390,7 +390,7 @@ namespace AspectCore.Core.Internal
             return method.GetBindingProperty() != null;
         }
 
-        internal static PropertyInfo GetBindingProperty(this MethodInfo method)
+        public static PropertyInfo GetBindingProperty(this MethodInfo method)
         {
             if (method == null)
             {
@@ -413,7 +413,7 @@ namespace AspectCore.Core.Internal
             return null;
         }
 
-        internal static object FastGetValue(this PropertyInfo property, object instance)
+        public static object FastGetValue(this PropertyInfo property, object instance)
         {
             if (property == null)
             {
@@ -424,15 +424,15 @@ namespace AspectCore.Core.Internal
                 throw new ArgumentNullException(nameof(instance));
             }
 
-            return new PropertyAccessor(property).CreatePropertyGetter()(instance);
+            return new PropertyReflector(property).CreatePropertyGetter()(instance);
         }
 
-        internal static TReturn FastGetValue<TReturn>(this PropertyInfo property, object instance)
+        public static TReturn FastGetValue<TReturn>(this PropertyInfo property, object instance)
         {
             return (TReturn)FastGetValue(property, instance);
         }
 
-        internal static void FastSetValue(this PropertyInfo property, object instance, object value)
+        public static void FastSetValue(this PropertyInfo property, object instance, object value)
         {
             if (property == null)
             {
@@ -443,10 +443,10 @@ namespace AspectCore.Core.Internal
                 throw new ArgumentNullException(nameof(instance));
             }
 
-            new PropertyAccessor(property).CreatePropertySetter()(instance, value);
+            new PropertyReflector(property).CreatePropertySetter()(instance, value);
         }
 
-        internal static bool IsNonAspect(this MemberInfo member)
+        public static bool IsNonAspect(this MemberInfo member)
         {
             if (member == null)
             {
@@ -551,9 +551,9 @@ namespace AspectCore.Core.Internal
         }
     }
 
-    internal static class NonAspectOptionExtensions
+    public static class NonAspectOptionExtensions
     {
-        internal static NonAspectOptionCollection AddAspNetCore(this NonAspectOptionCollection option)
+        public static NonAspectOptionCollection AddAspNetCore(this NonAspectOptionCollection option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNetCore.*")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNet.*")));
@@ -564,7 +564,7 @@ namespace AspectCore.Core.Internal
             return option;
         }
 
-        internal static NonAspectOptionCollection AddEntityFramework(this NonAspectOptionCollection option)
+        public static NonAspectOptionCollection AddEntityFramework(this NonAspectOptionCollection option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Data.*")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore")));
@@ -572,27 +572,27 @@ namespace AspectCore.Core.Internal
             return option;
         }
 
-        internal static NonAspectOptionCollection AddOwin(this NonAspectOptionCollection option)
+        public static NonAspectOptionCollection AddOwin(this NonAspectOptionCollection option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Owin.*")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Owin")));
             return option;
         }
 
-        internal static NonAspectOptionCollection AddPageGenerator(this NonAspectOptionCollection option)
+        public static NonAspectOptionCollection AddPageGenerator(this NonAspectOptionCollection option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("PageGenerator")));
             return option;
         }
 
-        internal static NonAspectOptionCollection AddSystem(this NonAspectOptionCollection option)
+        public static NonAspectOptionCollection AddSystem(this NonAspectOptionCollection option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("System")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("System.*")));
             return option;
         }
 
-        internal static NonAspectOptionCollection AddObjectVMethod(this NonAspectOptionCollection option)
+        public static NonAspectOptionCollection AddObjectVMethod(this NonAspectOptionCollection option)
         {
             option.Add(new NonAspectOptions(method => method.Name.Matches("Equals")));
             option.Add(new NonAspectOptions(method => method.Name.Matches("GetHashCode")));

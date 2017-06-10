@@ -5,17 +5,13 @@ using System.Reflection.Emit;
 
 namespace AspectCore.Core.Internal
 {
-    internal sealed class CustomAttributeBuilderProvider
+    public sealed class CustomAttributeBuilderProvider
     {
         private readonly CustomAttributeData _customAttributeData;
 
         public CustomAttributeBuilderProvider(CustomAttributeData customAttributeData)
         {
-            if (customAttributeData == null)
-            {
-                throw new ArgumentNullException(nameof(customAttributeData));
-            }
-            _customAttributeData = customAttributeData;
+            _customAttributeData = customAttributeData ?? throw new ArgumentNullException(nameof(customAttributeData));
         }
 
         public CustomAttributeBuilder CustomAttributeBuilder
