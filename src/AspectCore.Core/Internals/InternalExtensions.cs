@@ -12,7 +12,7 @@ namespace AspectCore.Core.Internal
 {
     public static class DictionaryExtensions
     {
-        internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
             var value = default(TValue);
 
@@ -37,7 +37,7 @@ namespace AspectCore.Core.Internal
 
     public static class AspectValidatorExtensions
     {
-        internal static bool Validate(this IAspectValidator aspectValidator, TypeInfo typeInfo)
+        public static bool Validate(this IAspectValidator aspectValidator, TypeInfo typeInfo)
         {
             if (aspectValidator == null)
             {
@@ -55,7 +55,7 @@ namespace AspectCore.Core.Internal
             return typeInfo.DeclaredMethods.Any(method => aspectValidator.Validate(method));
         }
 
-        internal static bool Validate(this IAspectValidator aspectValidator, PropertyInfo property)
+        public static bool Validate(this IAspectValidator aspectValidator, PropertyInfo property)
         {
             if (aspectValidator == null)
             {
@@ -78,7 +78,7 @@ namespace AspectCore.Core.Internal
 
         private static readonly Delegate ConvertToType = EmitConvertToTypeMethod.CreateDelegate(typeof(Action<ILGenerator, Type, Type, bool>));
 
-        internal static void EmitLoadArg(this ILGenerator ilGenerator, int index)
+        public static void EmitLoadArg(this ILGenerator ilGenerator, int index)
         {
             if (ilGenerator == null)
             {
@@ -106,7 +106,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        internal static void EmitLoadArgA(this ILGenerator ilGenerator, int index)
+        public static void EmitLoadArgA(this ILGenerator ilGenerator, int index)
         {
             if (ilGenerator == null)
             {
@@ -117,7 +117,7 @@ namespace AspectCore.Core.Internal
             else ilGenerator.Emit(OpCodes.Ldarga, index);
         }
 
-        internal static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked)
+        public static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked)
         {
             if (ilGenerator == null)
             {
@@ -127,7 +127,7 @@ namespace AspectCore.Core.Internal
             ((Action<ILGenerator, Type, Type, bool>)ConvertToType)(ilGenerator, typeFrom, typeTo, isChecked);
         }
 
-        internal static void EmitConvertToObject(this ILGenerator ilGenerator, Type typeFrom)
+        public static void EmitConvertToObject(this ILGenerator ilGenerator, Type typeFrom)
         {
             if (ilGenerator == null)
             {
@@ -148,7 +148,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        internal static void EmitThis(this ILGenerator ilGenerator)
+        public static void EmitThis(this ILGenerator ilGenerator)
         {
             if (ilGenerator == null)
             {
@@ -158,7 +158,7 @@ namespace AspectCore.Core.Internal
             ilGenerator.EmitLoadArg(0);
         }
 
-        internal static void EmitTypeof(this ILGenerator ilGenerator, Type type)
+        public static void EmitTypeof(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
             {
@@ -172,7 +172,7 @@ namespace AspectCore.Core.Internal
             ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetTypeFromHandle);
         }
 
-        internal static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method)
+        public static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method)
         {
             if (ilGenerator == null)
             {
@@ -185,7 +185,7 @@ namespace AspectCore.Core.Internal
             EmitMethodof(ilGenerator, method, method.DeclaringType);
         }
 
-        internal static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method, Type declaringType)
+        public static void EmitMethodof(this ILGenerator ilGenerator, MethodInfo method, Type declaringType)
         {
             if (ilGenerator == null)
             {
@@ -206,7 +206,7 @@ namespace AspectCore.Core.Internal
             ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo), false);
         }
 
-        internal static void EmitLoadInt(this ILGenerator ilGenerator, int value)
+        public static void EmitLoadInt(this ILGenerator ilGenerator, int value)
         {
             if (ilGenerator == null)
             {
@@ -257,7 +257,7 @@ namespace AspectCore.Core.Internal
 
     public static class ServiceProviderExtensions
     {
-        internal static IAspectActivator GetAspectActivator(this IServiceProvider provider)
+        public static IAspectActivator GetAspectActivator(this IServiceProvider provider)
         {
             if (provider == null)
             {
@@ -270,7 +270,7 @@ namespace AspectCore.Core.Internal
 
     public static class StringExtensions
     {
-        internal static unsafe bool Matches(this string input, string pattern)
+        public static unsafe bool Matches(this string input, string pattern)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentNullException(nameof(input));
@@ -303,7 +303,7 @@ namespace AspectCore.Core.Internal
 
     public static class ReflectionExtensions
     {
-        internal static Type MakeDefType(this TypeInfo byRefTypeInfo)
+        public static Type MakeDefType(this TypeInfo byRefTypeInfo)
         {
             if (byRefTypeInfo == null)
             {
