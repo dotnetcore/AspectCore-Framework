@@ -9,8 +9,6 @@ namespace AspectCore.Core.Internal.Generator
 {
     internal class ProxyConstructorGenerator : ConstructorGenerator
     {
-        protected readonly static Type[] ProxyParameterTypes = new Type[] { typeof(IServiceProvider), typeof(IServiceInstanceProvider) };
-
         protected readonly ConstructorInfo _constructor;
         protected readonly FieldBuilder _serviceInstanceFieldBuilder;
         protected readonly FieldBuilder _serviceProviderFieldBuilder;
@@ -51,6 +49,17 @@ namespace AspectCore.Core.Internal.Generator
             }
         }
 
+        protected override ConstructorBuilder ExecuteBuild()
+        {
+            var builder = base.ExecuteBuild();
+
+            GeneratingParameters(builder);
+
+            GeneratingCustomAttribute(builder);
+
+            return builder;
+        }
+
         protected override void GeneratingConstructorBody(ILGenerator ilGenerator)
         {
             var parameters = ParameterTypes;
@@ -71,6 +80,35 @@ namespace AspectCore.Core.Internal.Generator
             ilGenerator.Emit(OpCodes.Stfld, _serviceInstanceFieldBuilder);
 
             ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        protected virtual void GeneratingCustomAttribute(ConstructorBuilder constructorBuilder)
+        {
+            constructorBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
+        }
+
+        protected virtual void GeneratingParameters(ConstructorBuilder constructorBuilder)
+        {
+            constructorBuilder.DefineParameter(1, ParameterAttributes.None, "serviceProvider");
+            var parameters = _constructor.GetParameters();
+            if (parameters.Length > 0)
+            {
+                var paramOffset = 2;    //ParameterTypes.Length - parameters.Length + 1
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameter = parameters[i];
+                    var parameterBuilder = constructorBuilder.DefineParameter(i + paramOffset, parameter.Attributes, parameter.Name);
+                    if (parameter.HasDefaultValue)
+                    {
+                        parameterBuilder.SetConstant(parameter.DefaultValue);
+                    }
+                    new ParameterAttributeBuilder(parameterBuilder, typeof(DynamicallyAttribute)).Build();
+                    foreach (var attribute in parameter.CustomAttributes)
+                    {
+                        new ParameterAttributeBuilder(parameterBuilder, attribute).Build();
+                    }
+                }
+            }
         }
     }
 }

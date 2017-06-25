@@ -13,7 +13,7 @@ namespace AspectCore.Core.Internal.Generator
 
         public virtual IAspectValidator AspectValidator { get; }
 
-        public override TypeAttributes TypeAttributes => TypeAttributes.Class | TypeAttributes.Public;
+        public override TypeAttributes TypeAttributes => TypeAttributes.Class;
 
         protected FieldBuilder serviceInstanceFieldBuilder { get; set; }
         protected FieldBuilder serviceProviderFieldBuilder { get; set; }
