@@ -4,7 +4,7 @@ namespace AspectCore.Abstractions
 {
     [NonAspect]
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
-    public sealed class FromServicesAttribute : Attribute
+    public sealed class InjectionAttribute : Attribute
     {
     }
 }
