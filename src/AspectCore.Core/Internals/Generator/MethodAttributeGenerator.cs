@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Core.Generator;
 
@@ -6,18 +7,33 @@ namespace AspectCore.Core.Internal.Generator
 {
     internal sealed class MethodAttributeGenerator : AttributeGenerator<MethodBuilder>
     {
-        private readonly CustomAttributeData _customAttributeData;
+        private readonly Type _attributeType;
+
+        public MethodAttributeGenerator(MethodBuilder declaringMember, Type attributeType) : base(declaringMember)
+        {
+            _attributeType = attributeType;
+        }
 
         public MethodAttributeGenerator(MethodBuilder declaringMember, CustomAttributeData customAttributeData) : base(declaringMember)
         {
-            _customAttributeData = customAttributeData;
+            CustomAttributeData = customAttributeData;
         }
 
-        public override CustomAttributeData CustomAttributeData
+        public override CustomAttributeData CustomAttributeData { get; }
+
+        protected override CustomAttributeBuilder ExecuteBuild()
         {
-            get
+            if (CustomAttributeData != null)
             {
-                return _customAttributeData;
+                var builder = base.ExecuteBuild();
+                DeclaringMember.SetCustomAttribute(builder);
+                return builder;
+            }
+            else
+            {
+                var builder = new CustomAttributeBuilder(_attributeType.GetTypeInfo().GetConstructor(Type.EmptyTypes), EmptyArray<object>.Value);
+                DeclaringMember.SetCustomAttribute(builder);
+                return builder;
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Abstractions;
 using AspectCore.Core.Generator;
 
 namespace AspectCore.Core.Internal.Generator
@@ -109,6 +110,7 @@ namespace AspectCore.Core.Internal.Generator
             }
 
             GeneratingCustomAttribute(builder);
+            GeneratingParameters(builder);
 
             return builder;
         }
@@ -142,9 +144,41 @@ namespace AspectCore.Core.Internal.Generator
 
         protected virtual void GeneratingCustomAttribute(MethodBuilder declaringMethod)
         {
+            new MethodAttributeGenerator(declaringMethod, typeof(DynamicallyAttribute));
             foreach (var customAttributeData in _serviceMethod.CustomAttributes)
             {
-                declaringMethod.SetCustomAttribute(new MethodAttributeGenerator(declaringMethod, customAttributeData).Build());
+                new MethodAttributeGenerator(declaringMethod, customAttributeData).Build();
+            }
+        }
+
+        protected virtual void GeneratingParameters(MethodBuilder declaringMethod)
+        {
+            var parameters = _serviceMethod.GetParameters();
+            if (parameters.Length > 0)
+            {
+                var paramOffset = 1;   // 1
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameter = parameters[i];
+                    var parameterBuilder = declaringMethod.DefineParameter(i + paramOffset, parameter.Attributes, parameter.Name);
+                    if (parameter.HasDefaultValue)
+                    {
+                        parameterBuilder.SetConstant(parameter.DefaultValue);
+                    }
+                    new ParameterAttributeBuilder(parameterBuilder, typeof(DynamicallyAttribute)).Build();
+                    foreach (var attribute in parameter.CustomAttributes)
+                    {
+                        new ParameterAttributeBuilder(parameterBuilder, attribute).Build();
+                    }
+                }
+            }
+
+            var returnParamter = _serviceMethod.ReturnParameter;
+            var returnParameterBuilder = declaringMethod.DefineParameter(0, returnParamter.Attributes, returnParamter.Name);
+            new ParameterAttributeBuilder(returnParameterBuilder, typeof(DynamicallyAttribute)).Build();
+            foreach (var attribute in returnParamter.CustomAttributes)
+            {
+                new ParameterAttributeBuilder(returnParameterBuilder, attribute).Build();
             }
         }
     }
