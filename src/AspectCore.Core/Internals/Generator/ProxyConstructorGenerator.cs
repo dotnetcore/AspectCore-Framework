@@ -85,6 +85,10 @@ namespace AspectCore.Core.Internal.Generator
         protected virtual void GeneratingCustomAttribute(ConstructorBuilder constructorBuilder)
         {
             constructorBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(DynamicallyAttribute).GetTypeInfo().DeclaredConstructors.First(), EmptyArray<object>.Value));
+            foreach(var attribute in _constructor.CustomAttributes)
+            {
+                new ConstructorAttributeBuilder(constructorBuilder, attribute).Build();
+            }
         }
 
         protected virtual void GeneratingParameters(ConstructorBuilder constructorBuilder)
