@@ -23,7 +23,7 @@
     <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.1.1.2</Version>
+    <Version>0.1.1.3</Version>
     <DelaySign>False</DelaySign>
   </PropertyGroup>
 

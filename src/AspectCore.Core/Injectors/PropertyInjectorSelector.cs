@@ -25,7 +25,7 @@ namespace AspectCore.Core
         {
             foreach (var property in type.GetTypeInfo().DeclaredProperties)
             {
-                if (property.CanWrite && property.IsDefined(typeof(InjectionAttribute)))
+                if (property.CanWrite && property.IsDefined(typeof(InjectAttribute)))
                 {
                     yield return new PropertyInjector(
                         provider => provider.GetService(property.PropertyType),
