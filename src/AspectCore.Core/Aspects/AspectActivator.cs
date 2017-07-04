@@ -25,12 +25,17 @@ namespace AspectCore.Core
         {
             var invokeAsync = InvokeAsync<T>(activatorContext);
 
+            if (invokeAsync.IsFaulted)
+            {
+                throw invokeAsync.Exception?.InnerException;
+            }
+
             if (invokeAsync.IsCompleted)
             {
                 return invokeAsync.Result;
             }
 
-            return Task.Run(async () => await invokeAsync).GetAwaiter().GetResult();
+            return invokeAsync.GetAwaiter().GetResult();
         }
 
         public async Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext)
