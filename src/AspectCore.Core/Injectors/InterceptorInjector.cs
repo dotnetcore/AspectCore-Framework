@@ -6,11 +6,11 @@ namespace AspectCore.Core
 {
     internal sealed class InterceptorInjector : IInterceptorInjector
     {
-        private readonly IRealServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IEnumerable<IPropertyInjector> _propertyInjectors;
 
         public InterceptorInjector(
-            IRealServiceProvider serviceProvider,
+            IServiceProvider serviceProvider,
             IEnumerable<IPropertyInjector> propertyInjectors)
         {
             if (serviceProvider == null)

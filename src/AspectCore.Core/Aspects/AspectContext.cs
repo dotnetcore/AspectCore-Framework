@@ -46,7 +46,7 @@ namespace AspectCore.Core
             get;
         }
 
-        public AspectContext(IServiceProvider provider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
+        public AspectContext(IServiceProvider serviceProvider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
         {
             if (target == null)
             {
@@ -65,8 +65,7 @@ namespace AspectCore.Core
                 throw new ArgumentNullException(nameof(returnParameter));
             }
 
-            var realServiceProvider = provider as IRealServiceProvider;
-            _serviceProvider = realServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IRealServiceProvider));
+            _serviceProvider = serviceProvider;
             Target = target;
             Proxy = proxy;
             Parameters = parameters;
