@@ -3,6 +3,6 @@
     [NonAspect]
     public interface IAspectBuilderProvider
     {
-        IAspectBuilder GetBuilder(AspectActivatorContext context);
+        IAspectBuilder GetBuilder(AspectContext context);
     }
 }

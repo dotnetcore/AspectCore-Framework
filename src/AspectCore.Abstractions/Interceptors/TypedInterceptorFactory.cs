@@ -45,13 +45,13 @@ namespace AspectCore.Abstractions
             _predicates = predicates ?? EmptyPredicates;
         }
 
-        public IInterceptor CreateInstance(IServiceProvider serviceProvider)
+        public virtual IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
             var activator = (ITypedInterceptorActivator)serviceProvider.GetService(typeof(ITypedInterceptorActivator));
             return activator.CreateInstance(InterceptorType, Args);
         }
 
-        public bool CanCreated(MethodInfo method)
+        public virtual bool CanCreated(MethodInfo method)
         {
             if (_predicates.Count == 0)
             {

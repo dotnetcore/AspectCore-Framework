@@ -11,6 +11,8 @@ namespace AspectCore.Abstractions
 
         public virtual int Order { get; set; } = 0;
 
+        public virtual ExecutionMode Execution { get; set; } = ExecutionMode.PerExecuted;
+
         public virtual Task Invoke(AspectContext context, AspectDelegate next) => next(context);
     }
 }

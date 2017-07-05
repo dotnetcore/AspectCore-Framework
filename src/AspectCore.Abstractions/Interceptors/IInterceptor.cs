@@ -9,6 +9,8 @@ namespace AspectCore.Abstractions
 
         bool AllowMultiple { get; }
 
+        ExecutionMode Execution { get; set; }
+
         Task Invoke(AspectContext context, AspectDelegate next);
     }
 }

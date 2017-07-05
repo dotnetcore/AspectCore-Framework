@@ -58,7 +58,7 @@ namespace AspectCore.Core
 
             using (var context = new AspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
             {
-                var aspectBuilder = _aspectBuilderProvider.GetBuilder(activatorContext);
+                var aspectBuilder = _aspectBuilderProvider.GetBuilder(context);
 
                 await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
 

@@ -7,6 +7,7 @@ namespace AspectCore.Core
 {
     internal sealed class AspectContext : AbstractAspectContext
     {
+        private AspectScopeManager _aspectScopeManager;
         private IServiceProvider _serviceProvider;
         private AspectDictionary _data;
         private bool _disposedValue = false;
@@ -46,30 +47,21 @@ namespace AspectCore.Core
             get;
         }
 
-        public AspectContext(IServiceProvider serviceProvider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
+        public AspectContext(
+            IServiceProvider serviceProvider, 
+            ITargetDescriptor target, 
+            IProxyDescriptor proxy, 
+            IParameterCollection parameters, 
+            IParameterDescriptor returnParameter,
+            AspectScopeManager aspectScopeManager)
         {
-            if (target == null)
-            {
-                throw new ArgumentNullException(nameof(target));
-            }
-            if (proxy == null)
-            {
-                throw new ArgumentNullException(nameof(proxy));
-            }
-            if (parameters == null)
-            {
-                throw new ArgumentNullException(nameof(parameters));
-            }
-            if (returnParameter == null)
-            {
-                throw new ArgumentNullException(nameof(returnParameter));
-            }
-
             _serviceProvider = serviceProvider;
-            Target = target;
-            Proxy = proxy;
-            Parameters = parameters;
-            ReturnParameter = returnParameter;
+            Target = target ?? throw new ArgumentNullException(nameof(target));
+            Proxy = proxy ?? throw new ArgumentNullException(nameof(proxy));
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            ReturnParameter = returnParameter ?? throw new ArgumentNullException(nameof(returnParameter));
+            _aspectScopeManager = aspectScopeManager;
+            _aspectScopeManager.AddScope(this);
         }
 
         protected override void Dispose(bool disposing)
@@ -101,6 +93,8 @@ namespace AspectCore.Core
 
                 _data.Remove(key);
             }
+
+            _aspectScopeManager.Remove(this);
 
             _disposedValue = true;
         }

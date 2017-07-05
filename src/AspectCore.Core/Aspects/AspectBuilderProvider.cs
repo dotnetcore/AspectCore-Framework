@@ -16,10 +16,10 @@ namespace AspectCore.Core
             _interceptorProvider = interceptorProvider;
         }
 
-        public IAspectBuilder GetBuilder(AspectActivatorContext context)
+        public IAspectBuilder GetBuilder(Abstractions.AspectContext context)
         {
             var aspectBuilder = new AspectBuilder();
-            foreach (var interceptor in _interceptorProvider.GetInterceptors(context.ServiceMethod))
+            foreach (var interceptor in _interceptorProvider.GetInterceptors(context.Target.ServiceMethod))
             {
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
             }
