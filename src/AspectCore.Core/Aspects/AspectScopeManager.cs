@@ -3,44 +3,42 @@ using System.Linq;
 using System.Collections.Concurrent;
 using AspectCore.Abstractions;
 using System.Threading;
+using AbsAspectContext = AspectCore.Abstractions.AspectContext;
 
 namespace AspectCore.Core
 {
     [NonAspect]
-    public class AspectScopeManager : IDisposable
+    public sealed class AspectScopeManager : IDisposable
     {
-        private readonly ConcurrentDictionary<AspectContext, AspectScope> _scopes;
-        private readonly IInterceptorProvider _interceptorProvider;
+        private readonly ConcurrentDictionary<AbsAspectContext, AspectScope> _scopes;
+      
         private int _count = 0;
+
+        internal int Count => _count;
 
         public AspectScopeManager(IInterceptorProvider interceptorProvider)
         {
-            if (interceptorProvider == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorProvider));
-            }
-            _interceptorProvider = interceptorProvider;
+            _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
             _scopes = new ConcurrentDictionary<AspectContext, AspectScope>();
         }
 
-        internal void AddScope(AspectContext context)
+        internal void AddScope(AbsAspectContext context)
         {
             var scope = new AspectScope(context);
             scope.Level = Interlocked.Increment(ref _count);
             _scopes.TryAdd(context, scope);
         }
 
-        internal void Remove(AspectContext context)
+        internal void Remove(AbsAspectContext context)
         {
             AspectScope scope;
             if (_scopes.TryRemove(context, out scope))
             {
-                scope.Local.Value = null;
-                scope.Local = null;
+                scope.AspectContext = null;
             }
         }
 
-        internal bool TryGetScope(AspectContext context, out AspectScope scope)
+        internal bool TryGetScope(AbsAspectContext context, out AspectScope scope)
         {
             return _scopes.TryGetValue(context, out scope);
         }
@@ -50,47 +48,13 @@ namespace AspectCore.Core
             return _scopes.Values.ToArray();
         }
 
-        internal bool CanExecute(AspectContext context, IInterceptor interceptor)
-        {
-            if (interceptor.Execution == ExecutionMode.PerExecuted)
-            {
-                return true;
-            }
-            if (_scopes.Count <= 1)
-            {
-                return true;
-            }
-            AspectScope scope;
-            if (!TryGetScope(context, out scope))
-            {
-                return true;
-            }
-            if (scope.Level == 0)
-            {
-                return true;
-            }
-            if (interceptor.Execution == ExecutionMode.PerNested)
-            {
-                var scopes = GetScopes().Where(x => x.ScopeId != scope.ScopeId).OrderByDescending(x => x.Level).ToArray();
-                for (var i = 0; i < scopes.Length; i++)
-                {
-                    
-                }
-            }
-        }
-
         public void Dispose()
         {
             var keys = _scopes.Keys.ToArray();
             if (keys.Length == 0) return;
             foreach (var key in keys)
             {
-                AspectScope scope;
-                if (_scopes.TryRemove(key, out scope))
-                {
-                    scope.Local.Value = null;
-                    scope.Local = null;
-                }
+                Remove(key);
             }
         }
     }

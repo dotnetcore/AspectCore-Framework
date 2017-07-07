@@ -3,13 +3,9 @@
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public interface IInterceptor
+    public interface IInterceptor : IExecutableInterceptor, ISortableInterceptor
     {
-        int Order { get; set; }
-
         bool AllowMultiple { get; }
-
-        ExecutionMode Execution { get; set; }
 
         Task Invoke(AspectContext context, AspectDelegate next);
     }

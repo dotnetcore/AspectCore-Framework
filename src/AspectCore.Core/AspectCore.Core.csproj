@@ -5,7 +5,7 @@
     <AssemblyTitle>AspectCore.Core</AssemblyTitle>
     <VersionPrefix>0.1.1.0</VersionPrefix>
     <Authors>Lemon</Authors>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Core</AssemblyName>
     <PackageId>AspectCore.Core</PackageId>
@@ -27,6 +27,10 @@
     <DelaySign>False</DelaySign>
     <FileVersion>0.1.1.3</FileVersion>
     <AssemblyVersion>0.1.1.3</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

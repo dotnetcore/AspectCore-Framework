@@ -6,14 +6,12 @@ namespace AspectCore.Core
     public sealed class AspectBuilderProvider : IAspectBuilderProvider
     {
         private readonly IInterceptorProvider _interceptorProvider;
+        private readonly IExecutableInterceptorValidator _executableInterceptorValidator;
 
-        public AspectBuilderProvider(IInterceptorProvider interceptorProvider)
+        public AspectBuilderProvider(IInterceptorProvider interceptorProvider, IExecutableInterceptorValidator executableInterceptorValidator)
         {
-            if (interceptorProvider == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorProvider));
-            }
-            _interceptorProvider = interceptorProvider;
+            _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
+            _executableInterceptorValidator = executableInterceptorValidator ?? throw new ArgumentNullException(nameof(executableInterceptorValidator));
         }
 
         public IAspectBuilder GetBuilder(Abstractions.AspectContext context)

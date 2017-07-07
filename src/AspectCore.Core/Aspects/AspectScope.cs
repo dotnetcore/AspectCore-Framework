@@ -1,23 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace AspectCore.Core
 {
     internal class AspectScope
     {
-        internal Guid ScopeId { get; }
+        private static AsyncLocal<AspectContext> _AspectContextCurrent = new AsyncLocal<AspectContext>();
+        internal AspectContext AspectContext
+        {
+            get
+            {
+                return _AspectContextCurrent.Value;
+            }
+            set
+            {
+                _AspectContextCurrent.Value = value;
+            }
+        }
 
-        internal AsyncLocal<AspectContext> Local { get; set; }
+        internal Guid ScopeId { get; }
 
         internal int Level { get; set; }
 
         internal AspectScope(AspectContext aspectContext)
         {
             ScopeId = Guid.NewGuid();
-            Local = new AsyncLocal<AspectContext>();
-            Local.Value = aspectContext;
+            AspectContext = aspectContext;
         }
     }
 }
