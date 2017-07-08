@@ -12,7 +12,7 @@
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
     <PackageReleaseNotes>The implementation of the AspectCore framework.</PackageReleaseNotes>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/AspectCore/Abstractions</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore</PackageProjectUrl>
     <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AspectCore/Abstractions</RepositoryUrl>
@@ -21,7 +21,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.1.2.0</Version>
+    <Version>0.1.2</Version>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>

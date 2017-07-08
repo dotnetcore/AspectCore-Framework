@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/AspectCore/Abstractions</PackageProjectUrl>
     <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/AspectCore/Abstractions</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dotnetcore/AspectCore</RepositoryUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -23,7 +23,7 @@
     <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.1.2.0</Version>
+    <Version>0.1.2</Version>
     <DelaySign>False</DelaySign>
   </PropertyGroup>
 
