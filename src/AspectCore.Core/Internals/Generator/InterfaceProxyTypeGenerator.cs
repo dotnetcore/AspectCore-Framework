@@ -19,7 +19,7 @@ namespace AspectCore.Core.Internal.Generator
             {
                 throw new ArgumentNullException(nameof(parentType));
             }
-            Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).ToArray();
+            Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).Distinct().ToArray();
             _parentType = parentType;
         }
 

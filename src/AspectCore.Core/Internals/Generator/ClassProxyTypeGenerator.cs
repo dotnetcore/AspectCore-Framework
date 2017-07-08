@@ -15,7 +15,7 @@ namespace AspectCore.Core.Internal.Generator
                 throw new InvalidOperationException($"Validate '{parentType}' failed because the type does not satisfy the condition to be inherited.");
             }
             ParentType = parentType;
-            Interfaces = interfaces?.Where(i => aspectValidator.Validate(i.GetTypeInfo()))?.ToArray() ?? Type.EmptyTypes;
+            Interfaces = interfaces?.Distinct().Where(i => aspectValidator.Validate(i.GetTypeInfo()))?.ToArray() ?? Type.EmptyTypes;
         }
 
         public override string TypeName => $"{ServiceType.Namespace}.{ParentType.Name}Proxy_As_{ServiceType.Name}";
