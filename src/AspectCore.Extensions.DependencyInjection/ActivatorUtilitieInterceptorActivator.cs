@@ -7,9 +7,9 @@ namespace AspectCore.Extensions.DependencyInjection
 {
     internal sealed class ActivatorUtilitieInterceptorActivator : ITypedInterceptorActivator
     {
-        private readonly IRealServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
-        public ActivatorUtilitieInterceptorActivator(IRealServiceProvider serviceProvider)
+        public ActivatorUtilitieInterceptorActivator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
