@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.DependencyInjection</AssemblyTitle>
-    <VersionPrefix>0.1.1.1</VersionPrefix>
+    <VersionPrefix>0.1.0</VersionPrefix>
     <Authors>Lemon</Authors>
     <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.DependencyInjection</AssemblyName>
@@ -11,7 +11,7 @@
     <PackageTags>DynamicProxy;Aop;DependencyInjection;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</PackageReleaseNotes>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/AspectCore/DependencyInjection</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore</PackageProjectUrl>
     <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AspectCore/DependencyInjection</RepositoryUrl>
@@ -21,8 +21,10 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Version>0.1.1.2</Version>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Version>0.1.2</Version>
+    <AssemblyVersion>0.1.2.0</AssemblyVersion>
+    <FileVersion>0.1.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

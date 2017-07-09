@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
@@ -39,11 +40,18 @@ namespace AspectCore.Extensions.DependencyInjection
 
                 if (descriptor.ServiceType.GetTypeInfo().IsInterface)
                 {
-                    proxyType = generator.CreateInterfaceProxyType(descriptor.ServiceType, implementationType, descriptor.ServiceType.GetTypeInfo().GetInterfaces());
+                    if (serviceCollection.Count(x => x.ServiceType == descriptor.ServiceType) > 1)
+                    {
+                        proxyType = generator.CreateClassProxyType(implementationType, implementationType, implementationType.GetTypeInfo().GetInterfaces());
+                    }
+                    else
+                    {
+                        proxyType = generator.CreateInterfaceProxyType(descriptor.ServiceType, implementationType, implementationType.GetTypeInfo().GetInterfaces());
+                    }
                 }
                 else
                 {
-                    proxyType = generator.CreateClassProxyType(descriptor.ServiceType, implementationType, descriptor.ServiceType.GetTypeInfo().GetInterfaces());
+                    proxyType = generator.CreateClassProxyType(descriptor.ServiceType, implementationType, implementationType.GetTypeInfo().GetInterfaces());
                 }
                 dynamicProxyServices.Add(ServiceDescriptor.Describe(descriptor.ServiceType, proxyType, descriptor.Lifetime));
                 ServiceInstanceProvider.MapServiceDescriptor(descriptor);
