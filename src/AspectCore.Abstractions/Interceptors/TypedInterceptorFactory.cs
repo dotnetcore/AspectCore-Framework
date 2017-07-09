@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
+    [NonAspect]
     public class TypedInterceptorFactory : IInterceptorFactory
     {
         private static readonly Predicate<MethodInfo>[] EmptyPredicates = new Predicate<MethodInfo>[0];
