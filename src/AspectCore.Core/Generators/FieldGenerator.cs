@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Generator
 {
+    [NonAspect]
     public abstract class FieldGenerator : AbstractGenerator<TypeBuilder, FieldBuilder>
     {
         protected FieldGenerator(TypeBuilder declaringMember) : base(declaringMember)

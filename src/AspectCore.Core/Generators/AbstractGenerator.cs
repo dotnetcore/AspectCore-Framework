@@ -1,7 +1,9 @@
 ﻿using System;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Generator
 {
+    [NonAspect]
     public abstract class AbstractGenerator<TDeclaringMember, TBuilder>
     {
         private readonly object _buildLock = new object();

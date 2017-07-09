@@ -5,6 +5,7 @@ using AbstractAspectContext = AspectCore.Abstractions.AspectContext;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     internal sealed class AspectContext : AbstractAspectContext
     {
         private AspectScopeManager _aspectScopeManager;

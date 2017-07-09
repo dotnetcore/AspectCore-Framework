@@ -8,7 +8,8 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
-    public class PropertyInjectorSelector : IPropertyInjectorSelector
+    [NonAspect]
+    public sealed class PropertyInjectorSelector : IPropertyInjectorSelector
     {
         private static readonly ConcurrentDictionary<Type, IPropertyInjector[]> propertyInjectorCache = new ConcurrentDictionary<Type, IPropertyInjector[]>();
 

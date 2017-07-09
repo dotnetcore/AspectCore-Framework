@@ -6,7 +6,8 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public class ConfigureInterceptorSelector : IInterceptorSelector
+    [NonAspect]
+    public sealed class ConfigureInterceptorSelector : IInterceptorSelector
     {
         private readonly IAspectConfigureProvider _aspectConfigureProvider;
         private readonly IServiceProvider _serviceProvider;

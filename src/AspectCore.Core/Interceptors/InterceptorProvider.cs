@@ -7,6 +7,7 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class InterceptorProvider : IInterceptorProvider
     {
         private static readonly IDictionary<MethodInfo, IEnumerable<IInterceptor>> interceptorCache = new Dictionary<MethodInfo, IEnumerable<IInterceptor>>();

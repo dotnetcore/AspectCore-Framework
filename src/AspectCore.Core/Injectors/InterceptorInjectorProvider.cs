@@ -3,6 +3,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class InterceptorInjectorProvider : IInterceptorInjectorProvider
     {
         private readonly IServiceProvider _serviceProvider;

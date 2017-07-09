@@ -5,7 +5,8 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    public class AspectValidatorBuilder : IAspectValidatorBuilder
+    [NonAspect]
+    public sealed class AspectValidatorBuilder : IAspectValidatorBuilder
     {
         private readonly IList<Func<AspectValidationDelegate, AspectValidationDelegate>> _collections;
 
