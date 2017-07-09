@@ -18,7 +18,7 @@ namespace AspectCore.Core.Internal.Generator
             Interfaces = interfaces?.Distinct().Where(i => aspectValidator.Validate(i.GetTypeInfo()))?.ToArray() ?? Type.EmptyTypes;
         }
 
-        public override string TypeName => $"{ServiceType.Namespace}.{ParentType.Name}Proxy_As_{ServiceType.Name}";
+        public override string TypeName => $"{ParentType.Namespace}.{ParentType.Name}Proxy";
 
         public override Type[] Interfaces { get; }
 
