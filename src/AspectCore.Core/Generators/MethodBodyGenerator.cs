@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Reflection.Emit;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Generator
 {
+    [NonAspect]
     public abstract class MethodBodyGenerator : AbstractGenerator<MethodBuilder, ILGenerator>
     {
         protected MethodBodyGenerator(MethodBuilder declaringMember) : base(declaringMember)

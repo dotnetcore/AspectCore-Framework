@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
+    [NonAspect]
     public sealed class NonAspectOptions
     {
         public Predicate<MethodInfo> Predicate { get; }

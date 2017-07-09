@@ -5,7 +5,8 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
-    public class ConfigureAspectValidationHandler : IAspectValidationHandler
+    [NonAspect]
+    public sealed class ConfigureAspectValidationHandler : IAspectValidationHandler
     {
         private readonly IAspectConfigureProvider _aspectConfigureProvider;
 

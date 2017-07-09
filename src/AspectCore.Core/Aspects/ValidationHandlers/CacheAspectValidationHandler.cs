@@ -4,6 +4,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class CacheAspectValidationHandler : IAspectValidationHandler
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> detectorCache = new ConcurrentDictionary<MethodInfo, bool>();

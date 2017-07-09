@@ -4,6 +4,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     internal sealed class InterceptorInjector : IInterceptorInjector
     {
         private readonly IRealServiceProvider _serviceProvider;

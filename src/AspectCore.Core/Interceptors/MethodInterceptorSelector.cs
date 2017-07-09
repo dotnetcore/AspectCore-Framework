@@ -6,6 +6,7 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class MethodInterceptorSelector : IInterceptorSelector
     {
         public IEnumerable<IInterceptor> Select(MethodInfo method, TypeInfo typeInfo)

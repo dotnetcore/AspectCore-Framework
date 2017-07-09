@@ -6,6 +6,7 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     internal sealed class AspectBuilder : IAspectBuilder
     {
         private readonly IList<Func<AspectDelegate, AspectDelegate>> _delegates;

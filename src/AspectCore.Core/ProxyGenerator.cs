@@ -5,6 +5,7 @@ using AspectCore.Core.Internal.Generator;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class ProxyGenerator : IProxyGenerator
     {
         private readonly IAspectValidator _aspectValidator;

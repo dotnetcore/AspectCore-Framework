@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Generator
 {
+    [NonAspect]
     public abstract class MethodGenerator : AbstractGenerator<TypeBuilder, MethodBuilder>
     {
         public abstract string MethodName { get; }

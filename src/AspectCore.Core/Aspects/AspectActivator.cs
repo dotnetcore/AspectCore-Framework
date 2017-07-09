@@ -4,6 +4,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class AspectActivator : IAspectActivator
     {
         private readonly IRealServiceProvider _serviceProvider;
