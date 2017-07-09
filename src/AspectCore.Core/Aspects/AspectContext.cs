@@ -66,8 +66,7 @@ namespace AspectCore.Core
                 throw new ArgumentNullException(nameof(returnParameter));
             }
 
-            var realServiceProvider = provider as IRealServiceProvider;
-            _serviceProvider = realServiceProvider ?? (IServiceProvider)provider?.GetService(typeof(IRealServiceProvider));
+            _serviceProvider = provider;
             Target = target;
             Proxy = proxy;
             Parameters = parameters;

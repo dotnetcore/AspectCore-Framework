@@ -7,11 +7,11 @@ namespace AspectCore.Core
     [NonAspect]
     public sealed class AspectActivator : IAspectActivator
     {
-        private readonly IRealServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAspectBuilderProvider _aspectBuilderProvider;
 
         public AspectActivator(
-            IRealServiceProvider serviceProvider,
+            IServiceProvider serviceProvider,
             IAspectBuilderProvider aspectBuilderProvider)
         {
             if (aspectBuilderProvider == null)
