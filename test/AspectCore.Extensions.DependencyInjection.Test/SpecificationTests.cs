@@ -9,9 +9,10 @@ namespace AspectCore.Extensions.DependencyInjection.Test
     {
         protected override IServiceProvider CreateServiceProvider(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddAspectCore();
-            var aspectCoreServiceProviderFactory = new AspectCoreServiceProviderFactory();
-            return aspectCoreServiceProviderFactory.CreateServiceProvider(serviceCollection);
+            serviceCollection.AddAspectCore(c => c.InterceptorFactories.Add(new TypedInterceptorFactory(typeof(Interceptor))));
+            return serviceCollection.BuildAspectCoreServiceProvider();
         }
     }
+
+    public class Interceptor : InterceptorAttribute { }
 }
