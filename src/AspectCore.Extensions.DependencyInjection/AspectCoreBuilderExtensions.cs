@@ -23,6 +23,8 @@ namespace AspectCore.Extensions.DependencyInjection
 
             builder.Services.AddTransient<IRealServiceProvider>(p => new RealServiceProvider(p));
 
+            builder.Services.AddScoped<IAspectContextScheduler, AspectContextScheduler>();
+
             return builder;
         }
 

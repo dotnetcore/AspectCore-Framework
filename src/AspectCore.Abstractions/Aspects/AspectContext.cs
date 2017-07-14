@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AspectCore.Abstractions
 {
@@ -15,7 +16,7 @@ namespace AspectCore.Abstractions
 
         public abstract IParameterDescriptor ReturnParameter { get; }
 
-        public abstract AspectDictionary Items { get; }
+        public abstract IDictionary<string, object> Items { get; }
 
         protected virtual void Dispose(bool disposing)
         {

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>The implementation of the AspectCore framework.</Description>
     <AssemblyTitle>AspectCore.Core</AssemblyTitle>
-    <VersionPrefix>0.1.2.0</VersionPrefix>
+    <VersionPrefix>0.2.0</VersionPrefix>
     <Authors>Lemon</Authors>
     <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -21,12 +21,12 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.1.2</Version>
+    <Version>0.2.0-preview1</Version>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
-    <FileVersion>0.1.2.0</FileVersion>
-    <AssemblyVersion>0.1.2.0</AssemblyVersion>
+    <FileVersion>0.2.0.0</FileVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
@@ -42,7 +42,7 @@
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
