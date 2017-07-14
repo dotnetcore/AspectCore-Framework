@@ -49,7 +49,7 @@ namespace AspectCore.Abstractions
 
         public virtual IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
-            var activator = (ITypedInterceptorActivator)serviceProvider.GetService(typeof(ITypedInterceptorActivator));
+            var activator = (IInterceptorActivator)serviceProvider.GetService(typeof(IInterceptorActivator));
             return activator.CreateInstance(InterceptorType, Args);
         }
 

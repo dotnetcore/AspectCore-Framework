@@ -4,7 +4,7 @@ using AspectCore.Abstractions;
 namespace AspectCore.Core
 {
     [NonAspect]
-    public interface ITypedInterceptorActivator
+    public interface IInterceptorActivator
     {
         IInterceptor CreateInstance(Type interceptorType, object[] args);
     }
