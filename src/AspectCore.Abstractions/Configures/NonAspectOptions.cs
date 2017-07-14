@@ -6,9 +6,9 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public sealed class NonAspectOptions
     {
-        public Predicate<MethodInfo> Predicate { get; }
+        public Func<MethodInfo, bool> Predicate { get; }
 
-        public NonAspectOptions(Predicate<MethodInfo> predicate)
+        public NonAspectOptions(Func<MethodInfo, bool> predicate)
         {
             if (predicate == null)
             {
