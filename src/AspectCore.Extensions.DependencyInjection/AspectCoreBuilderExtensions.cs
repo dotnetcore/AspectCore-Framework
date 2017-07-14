@@ -84,8 +84,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddTransient<ITypedInterceptorActivator, ReflectionTypedInterceptorActivator>();
-            builder.Services.AddTransient<ITypedInterceptorActivator, ActivatorUtilitieInterceptorActivator>();
+            builder.Services.AddTransient<IInterceptorActivator, ActivatorUtilitieInterceptorActivator>();
 
             return builder;
         }

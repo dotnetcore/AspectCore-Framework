@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
-    internal sealed class ActivatorUtilitieInterceptorActivator : ITypedInterceptorActivator
+    internal sealed class ActivatorUtilitieInterceptorActivator : IInterceptorActivator
     {
         private readonly IServiceProvider _serviceProvider;
 

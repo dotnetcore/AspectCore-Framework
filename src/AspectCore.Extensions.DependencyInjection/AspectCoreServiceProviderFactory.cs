@@ -42,16 +42,16 @@ namespace AspectCore.Extensions.DependencyInjection
                 {
                     if (serviceCollection.Count(x => x.ServiceType == descriptor.ServiceType) > 1)
                     {
-                        proxyType = generator.CreateClassProxyType(implementationType, implementationType, implementationType.GetTypeInfo().GetInterfaces());
+                        proxyType = generator.CreateClassProxyType(implementationType, implementationType);
                     }
                     else
                     {
-                        proxyType = generator.CreateInterfaceProxyType(descriptor.ServiceType, implementationType, implementationType.GetTypeInfo().GetInterfaces());
+                        proxyType = generator.CreateInterfaceProxyType(descriptor.ServiceType, implementationType);
                     }
                 }
                 else
                 {
-                    proxyType = generator.CreateClassProxyType(descriptor.ServiceType, implementationType, implementationType.GetTypeInfo().GetInterfaces());
+                    proxyType = generator.CreateClassProxyType(descriptor.ServiceType, implementationType);
                 }
                 dynamicProxyServices.Add(ServiceDescriptor.Describe(descriptor.ServiceType, proxyType, descriptor.Lifetime));
                 ServiceInstanceProvider.MapServiceDescriptor(descriptor);
