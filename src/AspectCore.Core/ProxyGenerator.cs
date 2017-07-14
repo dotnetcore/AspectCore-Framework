@@ -19,7 +19,7 @@ namespace AspectCore.Core
             _aspectValidator = aspectValidatorBuilder.Build();
         }
 
-        public Type CreateClassProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
+        public Type CreateClassProxyType(Type serviceType, Type implementationType)
         {
             if (serviceType == null)
             {
@@ -29,10 +29,10 @@ namespace AspectCore.Core
             {
                 throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
             }
-            return new ClassProxyTypeGenerator(serviceType, implementationType, interfaces, _aspectValidator).CreateTypeInfo().AsType();
+            return new ClassProxyTypeGenerator(serviceType, implementationType, implementationType.GetTypeInfo().GetInterfaces(), _aspectValidator).CreateTypeInfo().AsType();
         }
 
-        public Type CreateInterfaceProxyType(Type serviceType, Type implementationType, params Type[] interfaces)
+        public Type CreateInterfaceProxyType(Type serviceType, Type implementationType)
         {
             if (serviceType == null)
             {
@@ -43,7 +43,7 @@ namespace AspectCore.Core
             {
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
             }
-            return new InterfaceProxyTypeGenerator(serviceType, implementationType, interfaces, _aspectValidator).CreateTypeInfo().AsType();
+            return new InterfaceProxyTypeGenerator(serviceType, implementationType, serviceType.GetTypeInfo().GetInterfaces(), _aspectValidator).CreateTypeInfo().AsType();
         }
     }
 }

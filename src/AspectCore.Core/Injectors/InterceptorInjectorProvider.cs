@@ -13,16 +13,8 @@ namespace AspectCore.Core
             IServiceProvider serviceProvider,
             IPropertyInjectorSelector propertyInjectorSelector)
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-            if (propertyInjectorSelector == null)
-            {
-                throw new ArgumentNullException(nameof(propertyInjectorSelector));
-            }
-            _serviceProvider = serviceProvider;
-            _propertyInjectorSelector = propertyInjectorSelector;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _propertyInjectorSelector = propertyInjectorSelector ?? throw new ArgumentNullException(nameof(propertyInjectorSelector));
         }
 
         public IInterceptorInjector GetInjector(Type interceptorType)

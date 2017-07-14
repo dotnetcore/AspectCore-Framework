@@ -1,10 +1,12 @@
-﻿namespace AspectCore.Abstractions
+﻿using System.Collections.Generic;
+
+namespace AspectCore.Abstractions
 {
     [NonAspect]
     public sealed class AspectCoreOptions
     {
-        public InterceptorFactoryCollection InterceptorFactories { get; } = new InterceptorFactoryCollection();
+        public ICollection<IInterceptorFactory> InterceptorFactories { get; } = new List<IInterceptorFactory>();
 
-        public NonAspectOptionCollection NonAspectOptions { get; } = new NonAspectOptionCollection();
+        public ICollection<NonAspectOptions> NonAspectOptions { get; } = new List<NonAspectOptions>();
     }
 }
