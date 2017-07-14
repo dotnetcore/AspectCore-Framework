@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Description>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.DependencyInjection</AssemblyTitle>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.2.0</VersionPrefix>
     <Authors>Lemon</Authors>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.DependencyInjection</AssemblyName>
     <PackageId>AspectCore.Extensions.DependencyInjection</PackageId>
     <PackageTags>DynamicProxy;Aop;DependencyInjection;AspectCore</PackageTags>
@@ -22,17 +22,17 @@
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.1.2</Version>
-    <AssemblyVersion>0.1.2.0</AssemblyVersion>
-    <FileVersion>0.1.2.0</FileVersion>
+    <Version>0.2.0-preview1</Version>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <FileVersion>0.2.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspectCore.Core" Version="0.1.2" />
+    <PackageReference Include="AspectCore.Core" Version="0.2.0-preview1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
