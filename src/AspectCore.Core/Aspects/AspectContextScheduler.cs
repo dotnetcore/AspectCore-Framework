@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AspectCore.Abstractions;
@@ -42,22 +43,32 @@ namespace AspectCore.Core
             {
                 return true;
             }
-            var currentContexts = GetCurrentContexts().OfType<ScopedAspectContext>().OrderBy(x => x.Id).ToArray();
-            if (currentContexts.Length == 1)
+            var currentContexts = GetCurrentScopedContexts(context).ToArray();
+            if (currentContexts.Length == 0)
             {
                 return true;
             }
             if (interceptor.ScopedOption == ScopedOptions.OnlyNested)
             {
                 var preContext = currentContexts[currentContexts.Length - 1];
-                return TryIncludeImpl(preContext);
+                return !TryIncludeImpl(preContext);
             }
 
             foreach (var current in currentContexts)
                 if (TryIncludeImpl(current))
-                    return true;
+                    return false;
 
-            return false;
+            return true;
+
+            IEnumerable<ScopedAspectContext> GetCurrentScopedContexts(ScopedAspectContext ctx)
+            {
+                foreach (var current in GetCurrentContexts().OfType<ScopedAspectContext>().OrderBy(x => x.Id))
+                {
+                    if (current == ctx)
+                        break;
+                    yield return current;
+                }
+            }
 
             bool TryIncludeImpl(ScopedAspectContext ctx)
             {
