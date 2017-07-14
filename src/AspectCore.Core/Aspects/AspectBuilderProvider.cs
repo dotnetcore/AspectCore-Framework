@@ -7,21 +7,22 @@ namespace AspectCore.Core
     public sealed class AspectBuilderProvider : IAspectBuilderProvider
     {
         private readonly IInterceptorProvider _interceptorProvider;
-        private readonly IExecutableInterceptorValidator _executableInterceptorValidator;
+        private readonly IAspectContextScheduler _aspectContextScheduler;
 
-        public AspectBuilderProvider(IInterceptorProvider interceptorProvider, IExecutableInterceptorValidator executableInterceptorValidator)
+        public AspectBuilderProvider(IInterceptorProvider interceptorProvider, IAspectContextScheduler aspectContextScheduler)
         {
             _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
-            _executableInterceptorValidator = executableInterceptorValidator ?? throw new ArgumentNullException(nameof(executableInterceptorValidator));
+            _aspectContextScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
         }
 
-        public IAspectBuilder GetBuilder(Abstractions.AspectContext context)
+        public IAspectBuilder GetBuilder(AspectContext context)
         {
             var aspectBuilder = new AspectBuilder();
+
             foreach (var interceptor in _interceptorProvider.GetInterceptors(context.Target.ServiceMethod))
-            {
-                aspectBuilder.AddAspectDelegate(interceptor.Invoke);
-            }
+                if (_aspectContextScheduler.TryInclude(context as ScopedAspectContext, interceptor))
+                    aspectBuilder.AddAspectDelegate(interceptor.Invoke);
+
             return aspectBuilder;
         }
     }

@@ -9,10 +9,12 @@ namespace AspectCore.Core
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IAspectBuilderProvider _aspectBuilderProvider;
+        private readonly IAspectContextScheduler _aspectContextScheduler;
 
         public AspectActivator(
             IServiceProvider serviceProvider,
-            IAspectBuilderProvider aspectBuilderProvider)
+            IAspectBuilderProvider aspectBuilderProvider,
+           IAspectContextScheduler aspectContextScheduler)
         {
             if (aspectBuilderProvider == null)
             {
@@ -20,6 +22,7 @@ namespace AspectCore.Core
             }
             _serviceProvider = serviceProvider;
             _aspectBuilderProvider = aspectBuilderProvider;
+            _aspectContextScheduler = aspectContextScheduler;
         }
 
         public T Invoke<T>(AspectActivatorContext activatorContext)
@@ -57,30 +60,29 @@ namespace AspectCore.Core
             var returnParameter = new ReturnParameterDescriptor(default(T),
                 activatorContext.ServiceMethod.ReturnParameter);
 
-            using (var context = new AspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
+            var rtContext = new RuntimeAspectContext(_serviceProvider, target, proxy, parameters, returnParameter);
+            using (var context = new ScopedAspectContext(rtContext, _aspectContextScheduler))
             {
                 var aspectBuilder = _aspectBuilderProvider.GetBuilder(context);
-
                 await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
+                return await Unwrap(context.ReturnParameter.Value);
+            }
 
-                return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
-            }
-        }
-
-        private async Task<T> ConvertReturnVaule<T>(object value)
-        {
-            if (value is Task<T>)
+            async Task<T> Unwrap(object value)
             {
-                return await (Task<T>)value;
-            }
-            else if (value is Task)
-            {
-                await (Task)value;
-                return default(T);
-            }
-            else
-            {
-                return (T)value;
+                if (value is Task<T>)
+                {
+                    return await (Task<T>)value;
+                }
+                else if (value is Task)
+                {
+                    await (Task)value;
+                    return default(T);
+                }
+                else
+                {
+                    return (T)value;
+                }
             }
         }
     }
