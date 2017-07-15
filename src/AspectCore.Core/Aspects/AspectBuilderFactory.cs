@@ -4,18 +4,18 @@ using AspectCore.Abstractions;
 namespace AspectCore.Core
 {
     [NonAspect]
-    public sealed class AspectBuilderProvider : IAspectBuilderProvider
+    public sealed class AspectBuilderFactory : IAspectBuilderFactory
     {
         private readonly IInterceptorProvider _interceptorProvider;
         private readonly IAspectContextScheduler _aspectContextScheduler;
 
-        public AspectBuilderProvider(IInterceptorProvider interceptorProvider, IAspectContextScheduler aspectContextScheduler)
+        public AspectBuilderFactory(IInterceptorProvider interceptorProvider, IAspectContextScheduler aspectContextScheduler)
         {
             _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
             _aspectContextScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
         }
 
-        public IAspectBuilder GetBuilder(AspectContext context)
+        public IAspectBuilder Create(AspectContext context)
         {
             var aspectBuilder = new AspectBuilder();
 
