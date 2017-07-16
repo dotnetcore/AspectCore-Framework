@@ -84,9 +84,7 @@ namespace AspectCore.Core
 
             foreach (var key in _data.Keys.ToArray())
             {
-                object value = null;
-
-                _data.TryGetValue(key, out value);
+                _data.TryGetValue(key, out object value);
 
                 var disposable = value as IDisposable;
 

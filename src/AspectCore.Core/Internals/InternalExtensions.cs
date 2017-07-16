@@ -14,9 +14,7 @@ namespace AspectCore.Core.Internal
     {
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
-            var value = default(TValue);
-
-            if (dictionary.TryGetValue(key, out value))
+            if (dictionary.TryGetValue(key, out TValue value))
             {
                 return value;
             }

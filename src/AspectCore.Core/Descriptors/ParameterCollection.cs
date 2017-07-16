@@ -55,8 +55,7 @@ namespace AspectCore.Core
                 {
                     throw new ArgumentNullException(nameof(name));
                 }
-                IParameterDescriptor descriptor = null;
-                if (!_parameterEntries.TryGetValue(name, out descriptor))
+                if (!_parameterEntries.TryGetValue(name, out IParameterDescriptor descriptor))
                 {
                     throw new KeyNotFoundException($"Does not exist the parameter nameof \"{name}\".");
                 }

@@ -7,7 +7,7 @@ using AspectCore.Core.Internal;
 namespace AspectCore.Core
 {
     [NonAspect]
-    internal sealed class AspectBuilder : IAspectBuilder
+    public sealed class AspectBuilder : IAspectBuilder
     {
         private readonly IList<Func<AspectDelegate, AspectDelegate>> _delegates;
 
@@ -16,7 +16,7 @@ namespace AspectCore.Core
             _delegates = new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
-        public void AddAspectDelegate(Func<Abstractions.AspectContext, AspectDelegate, Task> interceptorInvoke)
+        public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
         {
             if (interceptorInvoke == null)
             {
