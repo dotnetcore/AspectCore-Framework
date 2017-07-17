@@ -7,7 +7,7 @@ namespace AspectCore.Extensions.DependencyInjection
 {
     internal static class AspectCoreBuilderExtensions
     {
-        internal static IAspectCoreBuilder AddAspectBuilder(this IAspectCoreBuilder builder)
+        internal static IAspectCoreBuilder AddAspectActivator(this IAspectCoreBuilder builder)
         {
             if (builder == null)
             {
@@ -15,15 +15,25 @@ namespace AspectCore.Extensions.DependencyInjection
             }
             builder.Services.AddTransient<IAspectActivator, AspectActivator>();
 
-            builder.Services.AddTransient<IAspectBuilderProvider, AspectBuilderProvider>();
-
             builder.Services.AddTransient<IServiceInstanceProvider, ServiceInstanceProvider>();
 
             builder.Services.AddTransient<IProxyGenerator, ProxyGenerator>();
 
             builder.Services.AddTransient<IRealServiceProvider>(p => new RealServiceProvider(p));
 
-            builder.Services.AddScoped<IAspectContextScheduler, AspectContextScheduler>();
+            return builder;
+        }
+
+        internal static IAspectCoreBuilder AddAspectContext(this IAspectCoreBuilder builder)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            builder.Services.AddTransient<IAspectBuilderFactory, AspectBuilderFactory>();
+
+            builder.Services.AddTransient<IAspectContextFactory, AspectContextFactory>();
 
             return builder;
         }

@@ -24,7 +24,8 @@ namespace AspectCore.Extensions.DependencyInjection
 
             var builder = new AspectCoreBuilder(services);
 
-            builder.AddAspectBuilder();
+            builder.AddAspectActivator();
+            builder.AddAspectContext();
             builder.AddAspectConfigure(options);
             builder.AddAspectValidator();
             builder.AddInterceptorActivator();

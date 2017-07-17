@@ -34,9 +34,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
-            var descriptorList = default(IList<ServiceDescriptor>);
-
-            if (!ServiceDescriptorCache.TryGetValue(serviceType, out descriptorList))
+            if (!ServiceDescriptorCache.TryGetValue(serviceType, out IList<ServiceDescriptor> descriptorList))
             {
                 return _serviceProvider.GetRequiredService(serviceType);
             }
@@ -75,8 +73,7 @@ namespace AspectCore.Extensions.DependencyInjection
 
         private ConcurrentDictionary<Type, object> GetOrAddResolvedCache()
         {
-            var resolvedCache = ScopedResolvedServiceCache.GetOrAdd(_serviceProvider, _ => new ConcurrentDictionary<Type, object>());
-            return resolvedCache;
+            return ScopedResolvedServiceCache.GetOrAdd(_serviceProvider, _ => new ConcurrentDictionary<Type, object>());
         }
 
         internal static void MapServiceDescriptor(ServiceDescriptor descriptor)
@@ -101,8 +98,7 @@ namespace AspectCore.Extensions.DependencyInjection
 
         public void Dispose()
         {
-            ConcurrentDictionary<Type, object> resolvedServices;
-            if (ScopedResolvedServiceCache.TryRemove(_serviceProvider, out resolvedServices))
+            if (ScopedResolvedServiceCache.TryRemove(_serviceProvider, out ConcurrentDictionary<Type, object> resolvedServices))
             {
                 resolvedServices.Clear();
             }

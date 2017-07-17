@@ -15,13 +15,13 @@ namespace AspectCore.Extensions.DependencyInjection
 
         private readonly static MethodReflector GetImplementationTypeAccessor = new MethodReflector(GetImplementationType);
 
-        public IServiceCollection CreateBuilder(IServiceCollection serviceCollection)
+        public IServiceCollection CreateBuilder(IServiceCollection services)
         {
-            if (serviceCollection == null)
+            if (services == null)
             {
-                throw new ArgumentNullException(nameof(serviceCollection));
+                throw new ArgumentNullException(nameof(services));
             }
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
 
             var aspectValidator = serviceProvider.GetRequiredService<IAspectValidatorBuilder>().Build();
 
@@ -29,10 +29,10 @@ namespace AspectCore.Extensions.DependencyInjection
 
             var generator = serviceProvider.GetRequiredService<IProxyGenerator>();
 
-            foreach (var descriptor in serviceCollection)
+            foreach (var descriptor in services)
             {
-                Type proxyType, implementationType;
-                if (!Validate(descriptor, aspectValidator, out implementationType))
+                Type proxyType;
+                if (!Validate(descriptor, aspectValidator, out Type implementationType))
                 {
                     dynamicProxyServices.Add(descriptor);
                     continue;
@@ -40,7 +40,7 @@ namespace AspectCore.Extensions.DependencyInjection
 
                 if (descriptor.ServiceType.GetTypeInfo().IsInterface)
                 {
-                    if (serviceCollection.Count(x => x.ServiceType == descriptor.ServiceType) > 1)
+                    if (services.Count(x => x.ServiceType == descriptor.ServiceType) > 1)
                     {
                         proxyType = generator.CreateClassProxyType(implementationType, implementationType);
                     }
