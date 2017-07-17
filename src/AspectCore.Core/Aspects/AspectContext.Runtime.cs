@@ -1,16 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Abstractions;
-using AbstractAspectContext = AspectCore.Abstractions.AspectContext;
 
 namespace AspectCore.Core
 {
-    internal sealed class AspectContext : AbstractAspectContext
+    [NonAspect]
+    internal sealed class RuntimeAspectContext : AspectContext
     {
-        private AspectScopeManager _aspectScopeManager;
         private IServiceProvider _serviceProvider;
-        private AspectDictionary _data;
+        private IDictionary<string, object> _data;
         private bool _disposedValue = false;
+
+        internal Action<AspectContext> Disposing { get; set; }
 
         public override IServiceProvider ServiceProvider
         {
@@ -18,14 +20,21 @@ namespace AspectCore.Core
             {
                 if (_serviceProvider == null)
                 {
-                    throw new NotImplementedException("The current context does not support IServiceProvider.");
+                    throw new NotSupportedException("The current context does not support IServiceProvider.");
                 }
 
                 return _serviceProvider;
             }
         }
 
-        public override AspectDictionary Items { get { return _data ?? (_data = new AspectDictionary()); } }
+        public override IDictionary<string, object> Items
+        {
+            get
+            {
+                return _data ??
+                    (_data = new Dictionary<string, object>());
+            }
+        }
 
         public override IParameterCollection Parameters
         {
@@ -47,21 +56,13 @@ namespace AspectCore.Core
             get;
         }
 
-        public AspectContext(
-            IServiceProvider serviceProvider, 
-            ITargetDescriptor target, 
-            IProxyDescriptor proxy, 
-            IParameterCollection parameters, 
-            IParameterDescriptor returnParameter,
-            AspectScopeManager aspectScopeManager)
+        public RuntimeAspectContext(IServiceProvider serviceProvider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
         {
             _serviceProvider = serviceProvider;
             Target = target ?? throw new ArgumentNullException(nameof(target));
             Proxy = proxy ?? throw new ArgumentNullException(nameof(proxy));
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             ReturnParameter = returnParameter ?? throw new ArgumentNullException(nameof(returnParameter));
-            _aspectScopeManager = aspectScopeManager;
-            _aspectScopeManager.AddScope(this);
         }
 
         protected override void Dispose(bool disposing)
@@ -83,9 +84,7 @@ namespace AspectCore.Core
 
             foreach (var key in _data.Keys.ToArray())
             {
-                object value = null;
-
-                _data.TryGetValue(key, out value);
+                _data.TryGetValue(key, out object value);
 
                 var disposable = value as IDisposable;
 
@@ -93,8 +92,6 @@ namespace AspectCore.Core
 
                 _data.Remove(key);
             }
-
-            _aspectScopeManager.Remove(this);
 
             _disposedValue = true;
         }

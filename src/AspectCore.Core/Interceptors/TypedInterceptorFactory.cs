@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using AspectCore.Core;
 
 namespace AspectCore.Abstractions
 {
+    [NonAspect]
     public class TypedInterceptorFactory : IInterceptorFactory
     {
         private static readonly Predicate<MethodInfo>[] EmptyPredicates = new Predicate<MethodInfo>[0];
@@ -47,7 +49,7 @@ namespace AspectCore.Abstractions
 
         public virtual IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
-            var activator = (ITypedInterceptorActivator)serviceProvider.GetService(typeof(ITypedInterceptorActivator));
+            var activator = (IInterceptorActivator)serviceProvider.GetService(typeof(IInterceptorActivator));
             return activator.CreateInstance(InterceptorType, Args);
         }
 

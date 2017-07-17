@@ -3,7 +3,8 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
-    public class AspectConfigureProvider : IAspectConfigureProvider
+    [NonAspect]
+    public sealed class AspectConfigureProvider : IAspectConfigureProvider
     {
         public IAspectConfigure AspectConfigure { get; }
 

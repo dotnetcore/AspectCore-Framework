@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Core
 {
     [NonAspect]
     public interface IAspectValidationHandler

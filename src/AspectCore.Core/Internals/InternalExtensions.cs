@@ -14,9 +14,7 @@ namespace AspectCore.Core.Internal
     {
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> factory)
         {
-            var value = default(TValue);
-
-            if (dictionary.TryGetValue(key, out value))
+            if (dictionary.TryGetValue(key, out TValue value))
             {
                 return value;
             }
@@ -553,7 +551,7 @@ namespace AspectCore.Core.Internal
 
     public static class NonAspectOptionExtensions
     {
-        public static NonAspectOptionCollection AddAspNetCore(this NonAspectOptionCollection option)
+        public static ICollection<NonAspectOptions> AddAspNetCore(this ICollection<NonAspectOptions> option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNetCore.*")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNet.*")));
@@ -564,7 +562,7 @@ namespace AspectCore.Core.Internal
             return option;
         }
 
-        public static NonAspectOptionCollection AddEntityFramework(this NonAspectOptionCollection option)
+        public static ICollection<NonAspectOptions> AddEntityFramework(this ICollection<NonAspectOptions> option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Data.*")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore")));
@@ -572,27 +570,27 @@ namespace AspectCore.Core.Internal
             return option;
         }
 
-        public static NonAspectOptionCollection AddOwin(this NonAspectOptionCollection option)
+        public static ICollection<NonAspectOptions> AddOwin(this ICollection<NonAspectOptions> option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Owin.*")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Owin")));
             return option;
         }
 
-        public static NonAspectOptionCollection AddPageGenerator(this NonAspectOptionCollection option)
+        public static ICollection<NonAspectOptions> AddPageGenerator(this ICollection<NonAspectOptions> option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("PageGenerator")));
             return option;
         }
 
-        public static NonAspectOptionCollection AddSystem(this NonAspectOptionCollection option)
+        public static ICollection<NonAspectOptions> AddSystem(this ICollection<NonAspectOptions> option)
         {
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("System")));
             option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("System.*")));
             return option;
         }
 
-        public static NonAspectOptionCollection AddObjectVMethod(this NonAspectOptionCollection option)
+        public static ICollection<NonAspectOptions> AddObjectVMethod(this ICollection<NonAspectOptions> option)
         {
             option.Add(new NonAspectOptions(method => method.Name.Matches("Equals")));
             option.Add(new NonAspectOptions(method => method.Name.Matches("GetHashCode")));

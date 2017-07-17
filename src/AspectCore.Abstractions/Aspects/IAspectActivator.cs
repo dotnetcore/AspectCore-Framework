@@ -5,8 +5,8 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public interface IAspectActivator
     {
-        T Invoke<T>(AspectActivatorContext activatorContext);
+        TReturn Invoke<TReturn>(AspectActivatorContext activatorContext);
 
-        Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext);
+        Task<TReturn> InvokeAsync<TReturn>(AspectActivatorContext activatorContext);
     }
 }

@@ -5,11 +5,11 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public interface IInterceptor
     {
-        int Order { get; set; }
-
         bool AllowMultiple { get; }
 
-        ExecutionMode Execution { get; set; }
+        int Order { get; set; }
+
+        ScopedOptions ScopedOption { get; set; }
 
         Task Invoke(AspectContext context, AspectDelegate next);
     }

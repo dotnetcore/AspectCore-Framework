@@ -4,7 +4,8 @@ using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
-    public class DynamicallyAspectValidationHandler : IAspectValidationHandler
+    [NonAspect]
+    public sealed class DynamicallyAspectValidationHandler : IAspectValidationHandler
     {
         public int Order { get; } = 1;
 

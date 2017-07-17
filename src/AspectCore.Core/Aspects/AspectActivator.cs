@@ -4,26 +4,22 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
+    [NonAspect]
     public sealed class AspectActivator : IAspectActivator
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IAspectBuilderProvider _aspectBuilderProvider;
+        private readonly IAspectContextFactory _aspectContextFactory;
+        private readonly IAspectBuilderFactory _aspectBuilderFactory;
+       
 
-        public AspectActivator(
-            IServiceProvider serviceProvider,
-            IAspectBuilderProvider aspectBuilderProvider)
+        public AspectActivator(IAspectContextFactory aspectContextFactory, IAspectBuilderFactory aspectBuilderFactory)
         {
-            if (aspectBuilderProvider == null)
-            {
-                throw new ArgumentNullException(nameof(aspectBuilderProvider));
-            }
-            _serviceProvider = serviceProvider;
-            _aspectBuilderProvider = aspectBuilderProvider;
+            _aspectContextFactory = aspectContextFactory ?? throw new ArgumentNullException(nameof(aspectContextFactory));
+            _aspectBuilderFactory = aspectBuilderFactory ?? throw new ArgumentNullException(nameof(aspectBuilderFactory));   
         }
 
-        public T Invoke<T>(AspectActivatorContext activatorContext)
+        public TReturn Invoke<TReturn>(AspectActivatorContext activatorContext)
         {
-            var invokeAsync = InvokeAsync<T>(activatorContext);
+            var invokeAsync = InvokeAsync<TReturn>(activatorContext);
 
             if (invokeAsync.IsFaulted)
             {
@@ -38,48 +34,30 @@ namespace AspectCore.Core
             return invokeAsync.GetAwaiter().GetResult();
         }
 
-        public async Task<T> InvokeAsync<T>(AspectActivatorContext activatorContext)
+        public async Task<TReturn> InvokeAsync<TReturn>(AspectActivatorContext activatorContext)
         {
-            var target = new TargetDescriptor(activatorContext.TargetInstance,
-                activatorContext.ServiceMethod,
-                activatorContext.ServiceType,
-                activatorContext.TargetMethod,
-                activatorContext.TargetInstance?.GetType() ?? activatorContext.TargetMethod.DeclaringType);
-
-            var proxy = new ProxyDescriptor(activatorContext.ProxyInstance,
-                activatorContext.ProxyMethod,
-                activatorContext.ProxyInstance.GetType());
-
-            var parameters = new ParameterCollection(activatorContext.Parameters,
-                activatorContext.ServiceMethod.GetParameters());
-
-            var returnParameter = new ReturnParameterDescriptor(default(T),
-                activatorContext.ServiceMethod.ReturnParameter);
-
-            using (var context = new AspectContext(_serviceProvider, target, proxy, parameters, returnParameter))
+            using (var context = _aspectContextFactory.CreateContext<TReturn>(activatorContext))
             {
-                var aspectBuilder = _aspectBuilderProvider.GetBuilder(context);
-
+                var aspectBuilder = _aspectBuilderFactory.Create(context);
                 await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
+                return await Unwrap(context.ReturnParameter.Value);
+            }
 
-                return await ConvertReturnVaule<T>(context.ReturnParameter.Value);
-            }
-        }
-
-        private async Task<T> ConvertReturnVaule<T>(object value)
-        {
-            if (value is Task<T>)
+            async Task<TReturn> Unwrap(object value)
             {
-                return await (Task<T>)value;
-            }
-            else if (value is Task)
-            {
-                await (Task)value;
-                return default(T);
-            }
-            else
-            {
-                return (T)value;
+                if (value is Task<TReturn>)
+                {
+                    return await (Task<TReturn>)value;
+                }
+                else if (value is Task)
+                {
+                    await (Task)value;
+                    return default(TReturn);
+                }
+                else
+                {
+                    return (TReturn)value;
+                }
             }
         }
     }

@@ -4,12 +4,12 @@ using System.Text;
 
 namespace AspectCore.Abstractions
 {
-    public enum ExecutionMode
+    public enum ScopedOptions
     {
-        PerExecuted,
+        None,
 
-        PerNested,
+        OnlyNested,
 
-        PerScope
+        Full
     }
 }

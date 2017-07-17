@@ -19,7 +19,7 @@ namespace AspectCore.Core.Internal.Generator
             {
                 throw new ArgumentNullException(nameof(parentType));
             }
-            Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).ToArray();
+            Interfaces = new Type[] { serviceType }.Concat(interfaces ?? Type.EmptyTypes).Distinct().ToArray();
             _parentType = parentType;
         }
 
@@ -27,7 +27,7 @@ namespace AspectCore.Core.Internal.Generator
 
         public override Type ParentType => typeof(object);
 
-        public override string TypeName => $"{ServiceType.Namespace}.{_parentType.Name}Proxy_As_{ServiceType.Name}";
+        public override string TypeName => $"{_parentType.Namespace}.{_parentType.Name}Proxy^{ServiceType.Name}";
 
         protected override void GeneratingConstructor(TypeBuilder declaringType)
         {
