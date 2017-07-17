@@ -6,7 +6,6 @@
     <VersionPrefix>0.2.0</VersionPrefix>
     <Authors>Lemon</Authors>
     <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Core</AssemblyName>
     <PackageId>AspectCore.Core</PackageId>
