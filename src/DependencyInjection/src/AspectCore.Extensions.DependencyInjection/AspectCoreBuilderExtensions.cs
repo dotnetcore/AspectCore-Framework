@@ -48,18 +48,21 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            var aspectCoreOptions = new AspectCoreOptions();
+            var aspectCoreOptions = new AspectCoreOptions(builder.Services);
 
             options?.Invoke(aspectCoreOptions);
 
             builder.Services.AddSingleton<IAspectConfigureProvider>(new AspectConfigureProvider
                 (aspectCoreOptions.InterceptorFactories, aspectCoreOptions.NonAspectPredicates));
 
-            foreach(var descriptor in aspectCoreOptions.InternalServices)
+            if (builder.Services != aspectCoreOptions.InternalServices)
             {
-                builder.Services.Add(descriptor);
+                foreach (var descriptor in aspectCoreOptions.InternalServices)
+                {
+                    builder.Services.Add(descriptor);
+                }
             }
-
+          
             return builder;
         }
 
