@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using AspectCore.Abstractions;
 
 namespace AspectCore.Core
@@ -9,23 +10,21 @@ namespace AspectCore.Core
     {
         public IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
 
-        public IEnumerable<NonAspectOptions> NonAspectOptions { get; }
+        public IEnumerable<Func<MethodInfo, bool>> NonAspectPredicates { get; }
 
-        public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<NonAspectOptions> nonAspectOptions)
+        public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates)
         {
             if (interceptorFactories == null)
             {
                 throw new ArgumentNullException(nameof(interceptorFactories));
             }
-            if (nonAspectOptions == null)
+            if (nonAspectPredicates == null)
             {
-                throw new ArgumentNullException(nameof(nonAspectOptions));
+                throw new ArgumentNullException(nameof(nonAspectPredicates));
             }
 
             InterceptorFactories = interceptorFactories;
-            NonAspectOptions = nonAspectOptions;
+            NonAspectPredicates = nonAspectPredicates;
         }
-
-
     }
 }

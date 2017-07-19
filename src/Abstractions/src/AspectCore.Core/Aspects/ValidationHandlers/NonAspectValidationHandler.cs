@@ -24,7 +24,7 @@ namespace AspectCore.Core
             {
                 return false;
             }
-            if (_aspectConfigureProvider.AspectConfigure.NonAspectOptions.Any(x => x.Predicate(method)))
+            if (_aspectConfigureProvider.AspectConfigure.NonAspectPredicates.Any(x => x(method)))
             {
                 return false;
             }

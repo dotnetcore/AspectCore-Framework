@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
@@ -7,6 +9,6 @@ namespace AspectCore.Abstractions
     {
         IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
 
-        IEnumerable<NonAspectOptions> NonAspectOptions { get; }
+        IEnumerable<Func<MethodInfo, bool>> NonAspectPredicates { get; }
     }
 }

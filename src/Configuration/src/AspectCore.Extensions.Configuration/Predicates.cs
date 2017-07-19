@@ -5,7 +5,7 @@ namespace AspectCore.Extensions.Configuration
 {
     public static class Predicates
     {
-        public static Predicate<MemberInfo> ForNamespace(string nameSpace)
+        public static Func<MethodInfo, bool> ForNamespace(string nameSpace)
         {
             if (nameSpace == null)
             {
@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.Configuration
             return method => method.DeclaringType.Namespace.Matches(nameSpace);
         }
 
-        public static Predicate<MethodInfo> ForService(string service)
+        public static Func<MethodInfo, bool> ForService(string service)
         {
             if (service == null)
             {
@@ -25,7 +25,7 @@ namespace AspectCore.Extensions.Configuration
             return method => method.DeclaringType.FullName.Matches(service);
         }
 
-        public static Predicate<MethodInfo> ForMethod(string method)
+        public static Func<MethodInfo, bool> ForMethod(string method)
         {
             if (method == null)
             {
@@ -35,7 +35,7 @@ namespace AspectCore.Extensions.Configuration
             return methodInfo => methodInfo.Name.Matches(method);
         }
 
-        public static Predicate<MethodInfo> ForMethod(string service, string method)
+        public static Func<MethodInfo, bool> ForMethod(string service, string method)
         {
             if (service == null)
             {

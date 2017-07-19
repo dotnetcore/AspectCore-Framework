@@ -551,51 +551,51 @@ namespace AspectCore.Core.Internal
 
     public static class NonAspectOptionExtensions
     {
-        public static ICollection<NonAspectOptions> AddAspNetCore(this ICollection<NonAspectOptions> option)
+        public static ICollection<Func<MethodInfo, bool>> AddAspNetCore(this ICollection<Func<MethodInfo, bool>> option)
         {
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNetCore.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNet.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Extensions.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.ApplicationInsights.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Net.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Web.*")));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNetCore.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.AspNet.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Extensions.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.ApplicationInsights.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Net.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Web.*"));
             return option;
         }
 
-        public static ICollection<NonAspectOptions> AddEntityFramework(this ICollection<NonAspectOptions> option)
+        public static ICollection<Func<MethodInfo, bool>> AddEntityFramework(this ICollection<Func<MethodInfo, bool>> option)
         {
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Data.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore.*")));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Data.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.EntityFrameworkCore.*"));
             return option;
         }
 
-        public static ICollection<NonAspectOptions> AddOwin(this ICollection<NonAspectOptions> option)
+        public static ICollection<Func<MethodInfo, bool>> AddOwin(this ICollection<Func<MethodInfo, bool>> option)
         {
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Microsoft.Owin.*")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("Owin")));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Microsoft.Owin.*"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("Owin"));
             return option;
         }
 
-        public static ICollection<NonAspectOptions> AddPageGenerator(this ICollection<NonAspectOptions> option)
+        public static ICollection<Func<MethodInfo, bool>> AddPageGenerator(this ICollection<Func<MethodInfo, bool>> option)
         {
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("PageGenerator")));
+            option.Add(method => method.DeclaringType.Namespace.Matches("PageGenerator"));
             return option;
         }
 
-        public static ICollection<NonAspectOptions> AddSystem(this ICollection<NonAspectOptions> option)
+        public static ICollection<Func<MethodInfo, bool>> AddSystem(this ICollection<Func<MethodInfo, bool>> option)
         {
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("System")));
-            option.Add(new NonAspectOptions(method => method.DeclaringType.Namespace.Matches("System.*")));
+            option.Add(method => method.DeclaringType.Namespace.Matches("System"));
+            option.Add(method => method.DeclaringType.Namespace.Matches("System.*"));
             return option;
         }
 
-        public static ICollection<NonAspectOptions> AddObjectVMethod(this ICollection<NonAspectOptions> option)
+        public static ICollection<Func<MethodInfo, bool>> AddObjectVMethod(this ICollection<Func<MethodInfo, bool>> option)
         {
-            option.Add(new NonAspectOptions(method => method.Name.Matches("Equals")));
-            option.Add(new NonAspectOptions(method => method.Name.Matches("GetHashCode")));
-            option.Add(new NonAspectOptions(method => method.Name.Matches("ToString")));
-            option.Add(new NonAspectOptions(method => method.Name.Matches("GetType")));
+            option.Add(method => method.Name.Matches("Equals"));
+            option.Add(method => method.Name.Matches("GetHashCode"));
+            option.Add(method => method.Name.Matches("ToString"));
+            option.Add(method => method.Name.Matches("GetType"));
             return option;
         }
     }

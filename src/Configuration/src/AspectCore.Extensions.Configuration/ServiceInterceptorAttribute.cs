@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
+using AspectCore.Extensions.Configuration.InterceptorFactories;
 
 namespace AspectCore.Extensions.Configuration
 {
@@ -33,7 +34,7 @@ namespace AspectCore.Extensions.Configuration
 
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            var factory = new ServiceInterceptorFactory(interceptorType, new Predicate<MethodInfo>[] { Predicates.ForMethod(Service ?? Wildcard, Method ?? Wildcard) });
+            var factory = new ServiceInterceptorFactory(interceptorType, new Func<MethodInfo, bool>[] { Predicates.ForMethod(Service ?? Wildcard, Method ?? Wildcard) });
 
             if (factory.CanCreated(context.Target.ServiceMethod))
             {

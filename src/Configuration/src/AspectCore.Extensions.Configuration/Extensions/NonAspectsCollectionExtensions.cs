@@ -1,24 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
-using AspectCore.Abstractions;
 
 namespace AspectCore.Extensions.Configuration
 {
-    public static class NonAspectOptionCollectionExtensions
+    public static class NonAspectsCollectionExtensions
     {
-        public static NonAspectOptionCollection Add(this NonAspectOptionCollection collection, Predicate<MethodInfo> predicate)
-        {
-            if (collection == null)
-            {
-                throw new ArgumentNullException(nameof(collection));
-            }
-
-            collection.Add(new NonAspectOptions(predicate));
-
-            return collection;
-        }
-
-        public static NonAspectOptionCollection AddNamespace(this NonAspectOptionCollection collection, string nameSpace)
+        public static ICollection<Func<MethodInfo, bool>> AddNamespace(this ICollection<Func<MethodInfo, bool>> collection, string nameSpace)
         {
             if (collection == null)
             {
@@ -30,7 +18,7 @@ namespace AspectCore.Extensions.Configuration
             return collection;
         }
 
-        public static NonAspectOptionCollection AddService(this NonAspectOptionCollection collection, string service)
+        public static ICollection<Func<MethodInfo, bool>> AddService(this ICollection<Func<MethodInfo, bool>> collection, string service)
         {
             if (collection == null)
             {
@@ -42,7 +30,7 @@ namespace AspectCore.Extensions.Configuration
             return collection;
         }
 
-        public static NonAspectOptionCollection AddMethod(this NonAspectOptionCollection collection, string method)
+        public static ICollection<Func<MethodInfo, bool>> AddMethod(this ICollection<Func<MethodInfo, bool>> collection, string method)
         {
             if (collection == null)
             {
@@ -54,7 +42,7 @@ namespace AspectCore.Extensions.Configuration
             return collection;
         }
 
-        public static NonAspectOptionCollection AddMethod(this NonAspectOptionCollection collection, string service, string method)
+        public static ICollection<Func<MethodInfo, bool>> AddMethod(this ICollection<Func<MethodInfo, bool>> collection, string service, string method)
         {
             if (collection == null)
             {
