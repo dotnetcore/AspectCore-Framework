@@ -1,16 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73F38B6C-1A05-41C8-8029-D1F2F41D3279}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F107A365-9FC9-4FD8-9865-9FB652E83E61}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		NuGet.config = NuGet.config
-		README.md = README.md
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2DFB45E4-F9D9-472C-93E4-224E3C210FCB}"
 EndProject
