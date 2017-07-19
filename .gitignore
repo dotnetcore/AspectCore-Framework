@@ -258,3 +258,4 @@ paket-files/
 *.sln.iml
 /src/AspectCore.Lite.Generators
 *.snk
+publish.*.bat
