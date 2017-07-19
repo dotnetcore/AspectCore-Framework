@@ -1,6 +1,7 @@
 ﻿using System;
 using AspectCore.Abstractions;
 using AspectCore.Core;
+using AspectCore.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
@@ -15,11 +16,13 @@ namespace AspectCore.Extensions.DependencyInjection
             }
             builder.Services.AddTransient<IAspectActivator, AspectActivator>();
 
-            builder.Services.AddTransient<IServiceInstanceProvider, ServiceInstanceProvider>();
+            builder.Services.AddScoped<IServiceInstanceProvider, ServiceInstanceProvider>();
 
             builder.Services.AddTransient<IProxyGenerator, ProxyGenerator>();
 
             builder.Services.AddTransient<IRealServiceProvider>(p => new RealServiceProvider(p));
+
+            builder.Services.AddTransient<IServiceProviderFactory<IServiceCollection>, AspectCoreServiceProviderFactory>();
 
             return builder;
         }
@@ -49,7 +52,13 @@ namespace AspectCore.Extensions.DependencyInjection
 
             options?.Invoke(aspectCoreOptions);
 
-            builder.Services.AddSingleton<IAspectConfigureProvider>(new AspectConfigureProvider(aspectCoreOptions));
+            builder.Services.AddSingleton<IAspectConfigureProvider>(new AspectConfigureProvider
+                (aspectCoreOptions.InterceptorFactories, aspectCoreOptions.NonAspectPredicates));
+
+            foreach(var descriptor in aspectCoreOptions.InternalServices)
+            {
+                builder.Services.Add(descriptor);
+            }
 
             return builder;
         }
@@ -62,13 +71,13 @@ namespace AspectCore.Extensions.DependencyInjection
             }
 
             builder.Services.AddTransient<IAspectValidatorBuilder, AspectValidatorBuilder>();
-            builder.Services.AddTransient<IAspectValidationHandler, AccessibleAspectValidationHandler>();
-            builder.Services.AddTransient<IAspectValidationHandler, AttributeAspectValidationHandler>();
-            builder.Services.AddTransient<IAspectValidationHandler, CacheAspectValidationHandler>();
-            builder.Services.AddTransient<IAspectValidationHandler, ConfigureAspectValidationHandler>();
-            builder.Services.AddTransient<IAspectValidationHandler, DynamicallyAspectValidationHandler>();
-            builder.Services.AddTransient<IAspectValidationHandler, NonAspectValidationHandler>();
-            builder.Services.AddTransient<IServiceProviderFactory<IServiceCollection>, AspectCoreServiceProviderFactory>();
+            builder.Services.AddSingleton<IAspectValidationHandler, AccessibleAspectValidationHandler>();
+            builder.Services.AddSingleton<IAspectValidationHandler, AttributeAspectValidationHandler>();
+            builder.Services.AddSingleton<IAspectValidationHandler, CacheAspectValidationHandler>();
+            builder.Services.AddSingleton<IAspectValidationHandler, ConfigureAspectValidationHandler>();
+            builder.Services.AddSingleton<IAspectValidationHandler, DynamicallyAspectValidationHandler>();
+            builder.Services.AddSingleton<IAspectValidationHandler, NonAspectValidationHandler>();
+
             return builder;
         }
 
@@ -79,10 +88,10 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddTransient<IInterceptorProvider, InterceptorProvider>();
-            builder.Services.AddTransient<IInterceptorSelector, ConfigureInterceptorSelector>();
-            builder.Services.AddTransient<IInterceptorSelector, TypeInterceptorSelector>();
-            builder.Services.AddTransient<IInterceptorSelector, MethodInterceptorSelector>();
+            builder.Services.AddScoped<IInterceptorProvider, InterceptorProvider>();
+            builder.Services.AddScoped<IInterceptorSelector, ConfigureInterceptorSelector>();
+            builder.Services.AddSingleton<IInterceptorSelector, TypeInterceptorSelector>();
+            builder.Services.AddSingleton<IInterceptorSelector, MethodInterceptorSelector>();
 
             return builder;
         }
@@ -94,7 +103,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddTransient<IInterceptorActivator, ActivatorUtilitieInterceptorActivator>();
+            builder.Services.AddScoped<IInterceptorActivator, ActivatorUtilitieInterceptorActivator>();
 
             return builder;
         }
@@ -106,8 +115,8 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            builder.Services.AddTransient<IInterceptorInjectorProvider, InterceptorInjectorProvider>();
-            builder.Services.AddTransient<IPropertyInjectorSelector, PropertyInjectorSelector>();
+            builder.Services.AddScoped<IInterceptorInjectorProvider, InterceptorInjectorProvider>();
+            builder.Services.AddSingleton<IPropertyInjectorSelector, PropertyInjectorSelector>();
 
             return builder;
         }

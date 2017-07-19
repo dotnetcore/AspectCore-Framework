@@ -22,7 +22,8 @@ namespace AspectCore.Core
         {
             return _aspectConfigureProvider.AspectConfigure.InterceptorFactories
                 .Where(x => x.CanCreated(method))
-                .Select(x => x.CreateInstance(_serviceProvider));
+                .Select(x => x.CreateInstance(_serviceProvider))
+                .OfType<IInterceptor>();
         }
     }
 }

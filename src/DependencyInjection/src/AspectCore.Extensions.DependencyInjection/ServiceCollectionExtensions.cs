@@ -1,5 +1,6 @@
 ﻿using System;
 using AspectCore.Abstractions;
+using AspectCore.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
@@ -25,12 +26,12 @@ namespace AspectCore.Extensions.DependencyInjection
             var builder = new AspectCoreBuilder(services);
 
             builder.AddAspectActivator();
-            builder.AddAspectContext();
-            builder.AddAspectConfigure(options);
+            builder.AddAspectContext();     
             builder.AddAspectValidator();
             builder.AddInterceptorActivator();
             builder.AddInterceptorInjector();
             builder.AddInterceptorProvider();
+            builder.AddAspectConfigure(options);
 
             return builder;
         }

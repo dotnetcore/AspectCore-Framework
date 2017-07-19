@@ -1,15 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4FD0A3F9-A898-4720-A400-020BDBB97EAD}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		NuGet.config = NuGet.config
-		Publish.bat = Publish.bat
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5EDE520E-48F5-4630-8110-15401F491F1A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C3DBD66F-46E1-4BF1-8726-81628A808ABB}"
