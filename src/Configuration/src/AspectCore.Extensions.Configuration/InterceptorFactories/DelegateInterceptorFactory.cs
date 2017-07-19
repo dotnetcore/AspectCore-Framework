@@ -18,7 +18,7 @@ namespace AspectCore.Extensions.Configuration.InterceptorFactories
 
         public override IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            return new DelegateInterceptor(_aspectDelegate, _order);
         }
     }
 }

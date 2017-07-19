@@ -12,8 +12,6 @@ namespace AspectCore.Extensions.Configuration
 
         public int Order { get; set; }
 
-        public ScopedOptions ScopedOption { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
         public DelegateInterceptor(Func<AspectDelegate, AspectDelegate> aspectDelegate, int order = 0)
         {
             _aspectDelegate = aspectDelegate ?? throw new ArgumentNullException(nameof(aspectDelegate));

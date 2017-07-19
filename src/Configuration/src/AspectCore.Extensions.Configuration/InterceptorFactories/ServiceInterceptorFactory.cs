@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using AspectCore.Abstractions;
 
 namespace AspectCore.Extensions.Configuration.InterceptorFactories
@@ -26,7 +24,7 @@ namespace AspectCore.Extensions.Configuration.InterceptorFactories
 
         public override IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
-            return (IInterceptor)serviceProvider.GetService(_interceptorType);
+            return new ServiceInterceptorAttribute(_interceptorType);
         }
     }
 }

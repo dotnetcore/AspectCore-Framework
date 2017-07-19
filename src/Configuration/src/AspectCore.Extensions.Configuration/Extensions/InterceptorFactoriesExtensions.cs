@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using AspectCore.Extensions.Configuration.InterceptorFactories;
 
@@ -78,6 +79,33 @@ namespace AspectCore.Extensions.Configuration
             where TInterceptor : IInterceptor
         {
             return AddServiced(interceptorFactories, typeof(TInterceptor), predicates);
+        }
+
+        public static ICollection<IInterceptorFactory> AddDelegate(this ICollection<IInterceptorFactory> interceptorFactories, Func<AspectDelegate, AspectDelegate> aspectDelegate, int order, params Func<MethodInfo, bool>[] predicates)
+        {
+            if (interceptorFactories == null)
+            {
+                throw new ArgumentNullException(nameof(interceptorFactories));
+            }
+
+            interceptorFactories.Add(new DelegateInterceptorFactory(aspectDelegate, order, predicates));
+
+            return interceptorFactories;
+        }
+
+        public static ICollection<IInterceptorFactory> AddDelegate(this ICollection<IInterceptorFactory> interceptorFactories, Func<AspectDelegate, AspectDelegate> aspectDelegate, params Func<MethodInfo, bool>[] predicates)
+        {
+            return AddDelegate(interceptorFactories, aspectDelegate, 0, predicates);
+        }
+
+        public static ICollection<IInterceptorFactory> AddDelegate(this ICollection<IInterceptorFactory> interceptorFactories, Func<AspectContext, AspectDelegate, Task> aspectDelegate, int order, params Func<MethodInfo, bool>[] predicates)
+        {
+            return AddDelegate(interceptorFactories, next => context => aspectDelegate(context, next), order, predicates);
+        }
+
+        public static ICollection<IInterceptorFactory> AddDelegate(this ICollection<IInterceptorFactory> interceptorFactories, Func<AspectContext, AspectDelegate, Task> aspectDelegate, params Func<MethodInfo, bool>[] predicates)
+        {
+            return AddDelegate(interceptorFactories, aspectDelegate, 0, predicates);
         }
     }
 }

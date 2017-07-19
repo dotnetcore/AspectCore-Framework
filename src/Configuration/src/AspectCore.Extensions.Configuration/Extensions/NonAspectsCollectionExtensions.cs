@@ -53,5 +53,53 @@ namespace AspectCore.Extensions.Configuration
 
             return collection;
         }
+
+        public static ICollection<Func<MethodInfo, bool>> AddAspNetCore(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            collection.AddNamespace("Microsoft.AspNetCore.*");
+            collection.AddNamespace("Microsoft.AspNet.*");
+            collection.AddNamespace("Microsoft.Extensions.*");
+            collection.AddNamespace("Microsoft.ApplicationInsights.*");
+            collection.AddNamespace("Microsoft.Net.*");
+            collection.AddNamespace("Microsoft.Web.*");
+            return collection;
+        }
+
+        public static ICollection<Func<MethodInfo, bool>> AddEntityFramework(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            collection.AddNamespace("Microsoft.Data.*");
+            collection.AddNamespace("Microsoft.EntityFrameworkCore");
+            collection.AddNamespace("Microsoft.EntityFrameworkCore.*");
+            return collection;
+        }
+
+        public static ICollection<Func<MethodInfo, bool>> AddOwin(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            collection.AddNamespace("Microsoft.Owin.*");
+            collection.AddNamespace("Owin");
+            return collection;
+        }
+
+        public static ICollection<Func<MethodInfo, bool>> AddPageGenerator(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            collection.AddNamespace("PageGenerator");
+            return collection;
+        }
+
+        public static ICollection<Func<MethodInfo, bool>> AddSystem(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            collection.AddNamespace("System");
+            collection.AddNamespace("System.*");
+            return collection;
+        }
+
+        public static ICollection<Func<MethodInfo, bool>> AddObjectVMethod(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            collection.AddMethod("Equals");
+            collection.AddMethod("GetHashCode");
+            collection.AddMethod("ToString");
+            collection.AddMethod("GetType");
+            return collection;
+        }
     }
 }
