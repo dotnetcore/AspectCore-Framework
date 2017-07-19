@@ -33,7 +33,7 @@ namespace AspectCore.Extensions.ScopedContext
             return false;
         }
 
-        public bool TryInclude(AspectContext context, IInterceptor interceptor)
+        public bool TryInclude(AspectContext context, IScopedInterceptor interceptor)
         {
             if (interceptor == null || context == null)
             {

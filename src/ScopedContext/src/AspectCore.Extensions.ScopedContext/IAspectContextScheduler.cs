@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AspectCore.Abstractions;
+﻿using AspectCore.Abstractions;
 
 namespace AspectCore.Extensions.ScopedContext
 {
@@ -12,7 +9,7 @@ namespace AspectCore.Extensions.ScopedContext
 
         void Release(AspectContext context);
 
-        bool TryInclude(AspectContext context, IInterceptor interceptor);
+        bool TryInclude(AspectContext context, IScopedInterceptor interceptor);
 
         AspectContext[] GetCurrentContexts();
     }

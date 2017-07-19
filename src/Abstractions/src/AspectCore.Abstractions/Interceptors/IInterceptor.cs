@@ -9,8 +9,6 @@ namespace AspectCore.Abstractions
 
         int Order { get; set; }
 
-        ScopedOptions ScopedOption { get; set; }
-
         Task Invoke(AspectContext context, AspectDelegate next);
     }
 }

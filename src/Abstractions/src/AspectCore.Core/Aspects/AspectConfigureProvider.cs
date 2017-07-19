@@ -11,7 +11,7 @@ namespace AspectCore.Core
     {
         public IAspectConfigure AspectConfigure { get; }
 
-        public AspectConfigureProvider(ICollection<IInterceptorFactory> interceptorFactories, ICollection<Func<MethodInfo, bool>> nonAspectPredicates)
+        public AspectConfigureProvider(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates)
         {
             if (interceptorFactories == null)
             {
@@ -21,8 +21,6 @@ namespace AspectCore.Core
             {
                 throw new ArgumentNullException(nameof(nonAspectPredicates));
             }
-            nonAspectPredicates
-              .AddObjectVMethod().AddSystem().AddAspNetCore().AddEntityFramework().AddOwin().AddPageGenerator();
             AspectConfigure = new AspectConfigure(interceptorFactories, nonAspectPredicates);
         }
     }

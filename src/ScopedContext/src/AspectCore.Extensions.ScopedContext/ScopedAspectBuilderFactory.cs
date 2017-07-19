@@ -21,8 +21,14 @@ namespace AspectCore.Extensions.ScopedContext
             var aspectBuilder = new AspectBuilder();
 
             foreach (var interceptor in _interceptorProvider.GetInterceptors(context.Target.ServiceMethod))
-                if (_aspectContextScheduler.TryInclude(context as ScopedAspectContext, interceptor))
-                    aspectBuilder.AddAspectDelegate(interceptor.Invoke);
+            {
+                if (interceptor is IScopedInterceptor scopedInterceptor)
+                {
+                    if (!_aspectContextScheduler.TryInclude(context as ScopedAspectContext, scopedInterceptor))
+                        continue;
+                }
+                aspectBuilder.AddAspectDelegate(interceptor.Invoke);
+            }
 
             return aspectBuilder;
         }

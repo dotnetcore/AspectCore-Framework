@@ -11,8 +11,6 @@ namespace AspectCore.Abstractions
 
         public virtual int Order { get; set; } = 0;
 
-        public ScopedOptions ScopedOption { get; set; } = ScopedOptions.None;
-
         public virtual Task Invoke(AspectContext context, AspectDelegate next) => next(context);
     }
 }
