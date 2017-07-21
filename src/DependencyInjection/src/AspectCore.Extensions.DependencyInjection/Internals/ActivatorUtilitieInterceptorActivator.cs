@@ -1,9 +1,8 @@
 ﻿using System;
 using AspectCore.Abstractions;
-using AspectCore.Core;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspectCore.Extensions.DependencyInjection
+namespace AspectCore.Extensions.DependencyInjection.Internals
 {
     internal sealed class ActivatorUtilitieInterceptorActivator : IInterceptorActivator
     {

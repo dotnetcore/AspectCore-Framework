@@ -2,6 +2,7 @@
 using AspectCore.Abstractions;
 using AspectCore.Core;
 using AspectCore.Extensions.Configuration;
+using AspectCore.Extensions.DependencyInjection.Internals;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
@@ -122,6 +123,6 @@ namespace AspectCore.Extensions.DependencyInjection
             builder.Services.AddSingleton<IPropertyInjectorSelector, PropertyInjectorSelector>();
 
             return builder;
-        }
+        } 
     }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using AspectCore.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AspectCore.Extensions.DependencyInjection
+namespace AspectCore.Extensions.DependencyInjection.Internals
 {
     internal sealed class ServiceInstanceProvider : IServiceInstanceProvider, IDisposable
     {

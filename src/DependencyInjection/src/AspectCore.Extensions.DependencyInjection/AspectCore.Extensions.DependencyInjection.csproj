@@ -5,7 +5,7 @@
     <AssemblyTitle>AspectCore.Extensions.DependencyInjection</AssemblyTitle>
     <VersionPrefix>0.2.0</VersionPrefix>
     <Authors>Lemon</Authors>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.DependencyInjection</AssemblyName>
     <PackageId>AspectCore.Extensions.DependencyInjection</PackageId>
     <PackageTags>DynamicProxy;Aop;DependencyInjection;AspectCore</PackageTags>
@@ -27,13 +27,17 @@
     <FileVersion>0.2.0.0</FileVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AspectCore.Core" Version="0.2.0-preview1" />
     <PackageReference Include="AspectCore.Extensions.Configuration" Version="0.2.0-preview1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 using AspectCore.Extensions.Configuration;
+using AspectCore.Extensions.DependencyInjection.Internals;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
@@ -26,13 +26,13 @@ namespace AspectCore.Extensions.DependencyInjection
             var builder = new AspectCoreBuilder(services);
 
             builder.AddAspectActivator();
-            builder.AddAspectContext();     
+            builder.AddAspectContext();
             builder.AddAspectValidator();
             builder.AddInterceptorActivator();
             builder.AddInterceptorInjector();
             builder.AddInterceptorProvider();
             builder.AddAspectConfigure(options);
-
+          
             return builder;
         }
 
@@ -40,6 +40,5 @@ namespace AspectCore.Extensions.DependencyInjection
         {
             return new AspectCoreServiceProviderFactory().CreateServiceProvider(services);
         }
-
     }
 }

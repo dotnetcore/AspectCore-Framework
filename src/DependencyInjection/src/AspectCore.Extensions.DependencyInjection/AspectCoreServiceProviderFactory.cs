@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
+using AspectCore.Extensions.DependencyInjection.Internals;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -68,7 +69,7 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
-            return CreateBuilder(containerBuilder).BuildServiceProvider();
+            return CreateBuilder(containerBuilder).BuildServiceProvider().GetRequiredService<IServiceProvider>();
         }
 
         private static bool Validate(ServiceDescriptor descriptor, IAspectValidator aspectValidator, out Type implementationType)
