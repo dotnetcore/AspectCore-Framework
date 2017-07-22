@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Reflection extension system for AspectCore Framework.</Description>
+    <AssemblyTitle>AspectCore.Extensions.Reflection</AssemblyTitle>
+    <VersionPrefix>0.0.1.0</VersionPrefix>
+    <Authors>Lemon</Authors>
+    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>AspectCore.Extensions.Reflection</AssemblyName>
+    <PackageId>AspectCore.Extensions.Reflection</PackageId>
+    <PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
+    <PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
+    <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/AspectCore/Reflection</PackageProjectUrl>
+    <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/AspectCore/Reflection</RepositoryUrl>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
