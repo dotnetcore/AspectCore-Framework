@@ -4,36 +4,36 @@ using Xunit;
 
 namespace AspectCore.Extensions.Reflection.Test
 {
-    public class ConstructorReflectorTest
+    public class ConstructorReflectorTests
     {
         [Fact]
-        public void NonparametricTest()
+        public void Nonparametric_Test()
         {
             var constructor = typeof(ConstructorFakes).GetTypeInfo().GetConstructor(new Type[0]);
             var reflector = constructor.AsReflector();
             var fakes = (ConstructorFakes)reflector.Invoke();
-            Assert.IsType(typeof(ConstructorFakes), fakes);
+            Assert.IsType<ConstructorFakes>(fakes);
             Assert.Equal("Nonparametric constructor", fakes.Name);
         }
 
         [Fact]
-        public void ParametricTest()
+        public void Parametric_Test()
         {
             var constructor = typeof(ConstructorFakes).GetTypeInfo().GetConstructor(new Type[] { typeof(string) });
             var reflector = constructor.AsReflector();
             var fakes = (ConstructorFakes)reflector.Invoke("test");
-            Assert.IsType(typeof(ConstructorFakes), fakes);
+            Assert.IsType<ConstructorFakes>(fakes);
             Assert.Equal("Parametric constructor. param : test", fakes.Name);
         }
 
         [Fact]
-        public void ParametricByRefTest()
+        public void Parametric_ByRef_Test()
         {
             var constructor = typeof(ConstructorFakes).GetTypeInfo().GetConstructor(new Type[] { typeof(string).MakeByRefType(), typeof(ConstructorFakes).MakeByRefType() });
             var reflector = constructor.AsReflector();
             var args = new object[] { "test", new ConstructorFakes("test") };
             var fakes = (ConstructorFakes)reflector.Invoke(args);
-            Assert.IsType(typeof(ConstructorFakes), fakes);
+            Assert.IsType<ConstructorFakes>(fakes);
             Assert.Equal("Parametric constructor with ref param.", fakes.Name);
             Assert.Equal(fakes.Name, args[0]);
             Assert.Equal("Nonparametric constructor", ((ConstructorFakes)args[1]).Name);

@@ -12,11 +12,7 @@ namespace AspectCore.Extensions.Reflection
 
         protected MemberReflector(TMemberInfo reflectionInfo)
         {
-            if (reflectionInfo == null)
-            {
-                throw new ArgumentNullException(nameof(reflectionInfo));
-            }
-            _reflectionInfo = reflectionInfo;
+            _reflectionInfo = reflectionInfo ?? throw new ArgumentNullException(nameof(reflectionInfo));
         }
 
         /// <summary>

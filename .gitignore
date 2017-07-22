@@ -256,6 +256,7 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
-/src/AspectCore.Lite.Generators
 *.snk
 publish.*.bat
+
+BenchmarkDotNet.Artifacts/

@@ -6,41 +6,46 @@ using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Extensions.Reflection
 {
-    public sealed class FieldReflector : MemberReflector<FieldInfo>
+    public partial class FieldReflector : MemberReflector<FieldInfo>
     {
-        private readonly Func<object, object> _getter;
-        private readonly Action<object, object> _setter;
+        protected readonly Func<object, object> _getter;
+        protected readonly Action<object, object> _setter;
 
-        private FieldReflector(FieldInfo reflectionInfo) : base(reflectionInfo)
+        protected FieldReflector(FieldInfo reflectionInfo) : base(reflectionInfo)
         {
             _getter = CreateGetter();
             _setter = CreateSetter();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Func<object, object> CreateGetter()
+        protected virtual Func<object, object> CreateGetter()
         {
             var dynamicMethod = new DynamicMethod($"getter-{Guid.NewGuid()}", typeof(object), new Type[] { typeof(object) }, _reflectionInfo.Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
-            if (_reflectionInfo.IsStatic)
-            {
-
-            }
+            ilGen.EmitLoadArg(0);
+            ilGen.EmitConvertFromObject(_reflectionInfo.DeclaringType);
+            ilGen.Emit(OpCodes.Ldfld, _reflectionInfo);
             ilGen.EmitConvertToObject(_reflectionInfo.FieldType);
             ilGen.Emit(OpCodes.Ret);
             return (Func<object, object>)dynamicMethod.CreateDelegate(typeof(Func<object, object>));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Action<object, object> CreateSetter()
+        protected virtual Action<object, object> CreateSetter()
         {
-            return null;
+            var dynamicMethod = new DynamicMethod($"setter-{Guid.NewGuid()}", typeof(void), new Type[] { typeof(object), typeof(object) }, _reflectionInfo.Module, true);
+            var ilGen = dynamicMethod.GetILGenerator();
+            ilGen.EmitLoadArg(0);
+            ilGen.EmitConvertFromObject(_reflectionInfo.DeclaringType);
+            ilGen.EmitLoadArg(1);
+            ilGen.EmitConvertFromObject(_reflectionInfo.FieldType);
+            ilGen.Emit(OpCodes.Stfld, _reflectionInfo);
+            ilGen.Emit(OpCodes.Ret);
+            return (Action<object, object>)dynamicMethod.CreateDelegate(typeof(Action<object, object>));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object GetValue(object instance)
+        public virtual object GetValue(object instance)
         {
-            if (_reflectionInfo.IsStatic && instance == null)
+            if (instance == null)
             {
                 throw new ArgumentNullException(nameof(instance));
             }
@@ -48,21 +53,27 @@ namespace AspectCore.Extensions.Reflection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetValue(object instance, object value)
+        public virtual void SetValue(object instance, object value)
         {
-
-        }
-
-        #region internal
-        internal static FieldReflector Create(FieldInfo reflectionInfo)
-        {
-            if (reflectionInfo == null)
+            if (instance == null)
             {
-                throw new ArgumentNullException(nameof(reflectionInfo));
+                throw new ArgumentNullException(nameof(instance));
             }
-            return ReflectorCache<FieldInfo, FieldReflector>.GetOrAdd(reflectionInfo, info => new FieldReflector(reflectionInfo));
+            _setter(instance, value);
         }
-        #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual object GetStaticValue()
+        {
+            throw new NotImplementedException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'GetValue'.");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void SetStaticValue(object value)
+        {
+
+            throw new NotImplementedException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'SetValue'.");
+        }
 
         public FieldInfo AsFieldInfo()
         {

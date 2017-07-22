@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection.Emit
 {
@@ -51,7 +52,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             else ilGenerator.Emit(OpCodes.Ldarga, index);
         }
 
-        public static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked)
+        public static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked = true)
         {
             if (ilGenerator == null)
             {
@@ -78,7 +79,28 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
             else
             {
-                ilGenerator.EmitConvertToType(typeFrom, typeof(object), false);
+                ilGenerator.EmitConvertToType(typeFrom, typeof(object), true);
+            }
+        }
+
+        public static void EmitConvertFromObject(this ILGenerator ilGenerator, Type typeTo)
+        {
+            if (ilGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(ilGenerator));
+            }
+            if (typeTo == null)
+            {
+                throw new ArgumentNullException(nameof(typeTo));
+            }
+
+            if (typeTo.GetTypeInfo().IsGenericParameter)
+            {
+                ilGenerator.Emit(OpCodes.Unbox_Any, typeTo);
+            }
+            else
+            {
+                ilGenerator.EmitConvertToType(typeof(object), typeTo, true);
             }
         }
 
@@ -137,7 +159,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Ldtoken, method);
             ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);
             ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetMethodFromHandle);
-            ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo), false);
+            ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo));
         }
 
         public static void EmitLoadInt(this ILGenerator ilGenerator, int value)

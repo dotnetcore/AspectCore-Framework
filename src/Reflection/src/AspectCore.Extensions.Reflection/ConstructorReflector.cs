@@ -4,10 +4,11 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using AspectCore.Extensions.Reflection.Emit;
+using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
-    public sealed class ConstructorReflector : MemberReflector<ConstructorInfo>
+    public sealed partial class ConstructorReflector : MemberReflector<ConstructorInfo>
     {
         private readonly Func<object[], object> _invoker;
         private ConstructorReflector(ConstructorInfo constructorInfo) : base(constructorInfo)
@@ -15,29 +16,17 @@ namespace AspectCore.Extensions.Reflection
             _invoker = CreateInvoker();
         }
 
-        #region private
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Func<object[], object> CreateInvoker()
         {
-            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", TypeConstants.ObjectType, TypeConstants.ConstructorInvokerParameter, _reflectionInfo.Module, true);
-
+            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(object), new Type[] { typeof(object[]) }, _reflectionInfo.Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
 
             var parameterTypes = _reflectionInfo.GetParameterTypes();
-
             if (parameterTypes.Length == 0)
             {
-                return CreateDelegate(dynamicMethod, ilGen);
+                return CreateDelegate();
             }
-
-            //var lable = ilGen.DefineLabel();
-            //ilGen.EmitLoadArg(0);
-            //ilGen.Emit(OpCodes.Brtrue_S, lable);
-            //ilGen.Emit(OpCodes.Ldstr, "parameters");
-            //ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.ArgumentNullExceptionCtor);
-            //ilGen.Emit(OpCodes.Throw);
-            //ilGen.MarkLabel(lable);
-
             var refParameterCount = parameterTypes.Count(x => x.IsByRef);
             if (refParameterCount == 0)
             {
@@ -46,10 +35,10 @@ namespace AspectCore.Extensions.Reflection
                     ilGen.EmitLoadArg(0);
                     ilGen.EmitLoadInt(i);
                     ilGen.Emit(OpCodes.Ldelem_Ref);
-                    ilGen.EmitConvertToType(typeof(object), parameterTypes[i], true);
+                    ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
 
-                return CreateDelegate(dynamicMethod, ilGen);
+                return CreateDelegate();
             }
             var indexedLocals = new IndexedLocalBuilder[refParameterCount];
             var index = 0;
@@ -62,43 +51,36 @@ namespace AspectCore.Extensions.Reflection
                     indexedLocals[index++] = indexedLocal;
                     ilGen.EmitLoadArg(0);
                     ilGen.EmitLoadInt(i); ilGen.Emit(OpCodes.Ldelem_Ref);
-                    ilGen.EmitConvertToType(typeof(object), defType, true);
+                    ilGen.EmitConvertFromObject(defType);
                     ilGen.Emit(OpCodes.Stloc, indexedLocal.LocalBuilder);
                     ilGen.Emit(OpCodes.Ldloca, indexedLocal.LocalBuilder);
                 }
                 else
                 {
                     ilGen.Emit(OpCodes.Ldelem_Ref);
-                    ilGen.EmitConvertToType(typeof(object), parameterTypes[i], true);
+                    ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
             }
-
             ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
-
             for (var i = 0; i < indexedLocals.Length; i++)
             {
                 ilGen.EmitLoadArg(0);
                 ilGen.EmitLoadInt(indexedLocals[i].Index);
                 ilGen.Emit(OpCodes.Ldloc, indexedLocals[i].LocalBuilder);
-                ilGen.EmitConvertToType(indexedLocals[i].LocalType, typeof(object), true);
+                ilGen.EmitConvertToObject(indexedLocals[i].LocalType);
                 ilGen.Emit(OpCodes.Stelem_Ref);
             }
-
             ilGen.Emit(OpCodes.Ret);
-            return (Func<object[], object>)dynamicMethod.CreateDelegate(TypeConstants.ConstructorInvokerType);
+            return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
+
+            Func<object[], object> CreateDelegate()
+            {
+                ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
+                ilGen.Emit(OpCodes.Ret);
+                return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
+            }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Func<object[], object> CreateDelegate(DynamicMethod dynamicMethod, ILGenerator ilGen)
-        {
-            ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
-            ilGen.Emit(OpCodes.Ret);
-            return (Func<object[], object>)dynamicMethod.CreateDelegate(TypeConstants.ConstructorInvokerType);
-        }
-
-        #endregion
-
-        #region internal
         internal static ConstructorReflector Create(ConstructorInfo constructorInfo)
         {
             if (constructorInfo == null)
@@ -107,7 +89,6 @@ namespace AspectCore.Extensions.Reflection
             }
             return ReflectorCache<ConstructorInfo, ConstructorReflector>.GetOrAdd(constructorInfo, info => new ConstructorReflector(constructorInfo));
         }
-        #endregion
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Invoke(params object[] args)

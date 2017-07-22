@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 
-namespace AspectCore.Extensions.Reflection
+namespace AspectCore.Extensions.Reflection.Internals
 {
     internal struct IndexedLocalBuilder
     {
