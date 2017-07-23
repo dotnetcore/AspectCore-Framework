@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 using AspectCore.Extensions.Reflection.Emit;
 using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
-    public partial class MethodReflector : MemberReflector<MethodInfo>
+    public partial class MethodReflector
     {
-        private class CallMethodReflector : MethodReflector
+        private class StaticMethodReflector : MethodReflector
         {
-            public CallMethodReflector(MethodInfo reflectionInfo)
+            public StaticMethodReflector(MethodInfo reflectionInfo)
                : base(reflectionInfo)
             {
             }
@@ -19,13 +21,10 @@ namespace AspectCore.Extensions.Reflection
             protected override Func<object, object[], object> CreateInvoker()
             {
                 DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{Guid.NewGuid()}",
-                typeof(object), new Type[] { typeof(object), typeof(object[]) }, _reflectionInfo.Module, true);
+               typeof(object), new Type[] { typeof(object), typeof(object[]) }, _reflectionInfo.Module, true);
 
                 ILGenerator ilGen = dynamicMethod.GetILGenerator();
                 var parameterTypes = _reflectionInfo.GetParameterTypes();
-
-                ilGen.EmitLoadArg(0);
-                ilGen.EmitConvertFromObject(_reflectionInfo.DeclaringType);
 
                 if (parameterTypes.Length == 0)
                 {
@@ -88,6 +87,16 @@ namespace AspectCore.Extensions.Reflection
                     return (Func<object, object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object, object[], object>));
                 }
             }
-        }  
+
+            public override object Invoke(object instance, params object[] parameters)
+            {
+                return _invoker(null, parameters);
+            }
+
+            public override object StaticInvoke(params object[] parameters)
+            {
+                return _invoker(null, parameters);
+            }
+        }
     }
 }

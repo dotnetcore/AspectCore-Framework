@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AspectCore.Extensions.Reflection;
+﻿using AspectCore.Extensions.Reflection;
 
 namespace System.Reflection
 {
     public static class ReflectorExtensions
     {
+        #region Reflection
         public static TypeReflector AsReflector(this Type type)
         {
             if (type == null)
@@ -43,5 +40,26 @@ namespace System.Reflection
             }
             return FieldReflector.Create(field);
         }
+
+        public static MethodReflector AsReflector(this MethodInfo method)
+        {
+            return AsReflector(method, CallOptions.Callvirt);
+        }
+
+        public static MethodReflector AsReflector(this MethodInfo method, CallOptions callOption)
+        {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+            return MethodReflector.Create(method, callOption);
+        }
+        #endregion
+
+        #region Reflectr
+
+        public static FieldInfo AsFieldInfo(this FieldReflector reflector) => reflector?.AsMemberInfo();
+
+        #endregion
     }
 }

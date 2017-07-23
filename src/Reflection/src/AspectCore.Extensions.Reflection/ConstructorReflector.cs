@@ -44,20 +44,19 @@ namespace AspectCore.Extensions.Reflection
             var index = 0;
             for (var i = 0; i < parameterTypes.Length; i++)
             {
+                ilGen.EmitLoadArg(0);
+                ilGen.EmitLoadInt(i);
+                ilGen.Emit(OpCodes.Ldelem_Ref);
                 if (parameterTypes[i].IsByRef)
                 {
                     var defType = parameterTypes[i].GetTypeInfo().MakeDefType();
                     var indexedLocal = new IndexedLocalBuilder(ilGen.DeclareLocal(defType), i);
-                    indexedLocals[index++] = indexedLocal;
-                    ilGen.EmitLoadArg(0);
-                    ilGen.EmitLoadInt(i); ilGen.Emit(OpCodes.Ldelem_Ref);
-                    ilGen.EmitConvertFromObject(defType);
+                    indexedLocals[index++] = indexedLocal;            
                     ilGen.Emit(OpCodes.Stloc, indexedLocal.LocalBuilder);
                     ilGen.Emit(OpCodes.Ldloca, indexedLocal.LocalBuilder);
                 }
                 else
                 {
-                    ilGen.Emit(OpCodes.Ldelem_Ref);
                     ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
             }

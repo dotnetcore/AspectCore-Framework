@@ -29,14 +29,16 @@ namespace AspectCore.Extensions.Reflection.Test
         [Fact]
         public void Parametric_ByRef_Test()
         {
-            var constructor = typeof(ConstructorFakes).GetTypeInfo().GetConstructor(new Type[] { typeof(string).MakeByRefType(), typeof(ConstructorFakes).MakeByRefType() });
+            var constructor = typeof(ConstructorFakes).GetTypeInfo().GetConstructor(new Type[] { typeof(string).MakeByRefType(), typeof(ConstructorFakes).MakeByRefType(), typeof(string) });
             var reflector = constructor.AsReflector();
-            var args = new object[] { "test", new ConstructorFakes("test") };
+            var args = new object[] { "test", new ConstructorFakes("test"), "t" };
             var fakes = (ConstructorFakes)reflector.Invoke(args);
             Assert.IsType<ConstructorFakes>(fakes);
             Assert.Equal("Parametric constructor with ref param.", fakes.Name);
             Assert.Equal(fakes.Name, args[0]);
             Assert.Equal("Nonparametric constructor", ((ConstructorFakes)args[1]).Name);
+            Assert.NotEqual(fakes.Name, args[2]);
+            Assert.Equal("t", args[2]);
         }
     }
 
@@ -53,9 +55,9 @@ namespace AspectCore.Extensions.Reflection.Test
             Name = "Parametric constructor. param : " + name;
         }
 
-        public ConstructorFakes(ref string name, ref ConstructorFakes fakes)
+        public ConstructorFakes(ref string name, ref ConstructorFakes fakes, string lastName)
         {
-            name = Name = "Parametric constructor with ref param.";
+            lastName = name = Name = "Parametric constructor with ref param.";
             fakes = new ConstructorFakes();
         }
     }

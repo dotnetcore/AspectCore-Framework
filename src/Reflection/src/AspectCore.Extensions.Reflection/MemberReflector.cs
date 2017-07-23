@@ -10,10 +10,7 @@ namespace AspectCore.Extensions.Reflection
 
         public virtual string Name => _reflectionInfo.Name;
 
-        protected MemberReflector(TMemberInfo reflectionInfo)
-        {
-            _reflectionInfo = reflectionInfo ?? throw new ArgumentNullException(nameof(reflectionInfo));
-        }
+        protected MemberReflector(TMemberInfo reflectionInfo) => _reflectionInfo = reflectionInfo ?? throw new ArgumentNullException(nameof(reflectionInfo));
 
         /// <summary>
         /// find member using binary search
@@ -65,5 +62,9 @@ namespace AspectCore.Extensions.Reflection
             }
             return null;
         }
+
+        public override string ToString() => $"{_reflectionInfo.MemberType} : {_reflectionInfo}  DeclaringType : {_reflectionInfo.DeclaringType}";
+
+        public TMemberInfo AsMemberInfo() => _reflectionInfo;
     }
 }

@@ -65,14 +65,13 @@ namespace AspectCore.Extensions.Reflection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object GetStaticValue()
         {
-            throw new NotImplementedException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'GetValue'.");
+            throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'GetValue'.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SetStaticValue(object value)
         {
-
-            throw new NotImplementedException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'SetValue'.");
+            throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'SetValue'.");
         }
 
         public FieldInfo AsFieldInfo()
