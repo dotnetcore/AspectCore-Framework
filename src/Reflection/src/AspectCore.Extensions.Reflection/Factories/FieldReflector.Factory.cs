@@ -11,7 +11,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(reflectionInfo));
             }
-            return ReflectorCache<FieldInfo, FieldReflector>.GetOrAdd(reflectionInfo, CreateInternal);
+            return ReflectorCacheUtils<FieldInfo, FieldReflector>.GetOrAdd(reflectionInfo, CreateInternal);
 
             FieldReflector CreateInternal(FieldInfo field)
             {

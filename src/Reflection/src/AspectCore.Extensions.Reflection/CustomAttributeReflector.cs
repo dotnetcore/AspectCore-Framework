@@ -19,7 +19,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(reflectionInfo));
             }
-            return ReflectorCache<CustomAttributeData, CustomAttributeReflector>.GetOrAdd(reflectionInfo, info => new CustomAttributeReflector(reflectionInfo));
+            return ReflectorCacheUtils<CustomAttributeData, CustomAttributeReflector>.GetOrAdd(reflectionInfo, info => new CustomAttributeReflector(reflectionInfo));
         }
         #endregion
     }

@@ -11,7 +11,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(reflectionInfo));
             }
-            return ReflectorCache<Tuple<MethodInfo, CallOptions>, MethodReflector>.GetOrAdd(Tuple.Create(reflectionInfo, callOption), CreateInternal);
+            return ReflectorCacheUtils<Tuple<MethodInfo, CallOptions>, MethodReflector>.GetOrAdd(Tuple.Create(reflectionInfo, callOption), CreateInternal);
 
             MethodReflector CreateInternal(Tuple<MethodInfo, CallOptions> item)
             {

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace AspectCore.Extensions.Reflection
 {
-    internal static class ReflectorCache<TMemberInfo, TReflector>
+    internal static class ReflectorCacheUtils<TMemberInfo, TReflector>
     {
         private readonly static Dictionary<TMemberInfo, TReflector> dictionary = new Dictionary<TMemberInfo, TReflector>();
         private readonly static object lockObj = new object();

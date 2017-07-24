@@ -86,7 +86,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(constructorInfo));
             }
-            return ReflectorCache<ConstructorInfo, ConstructorReflector>.GetOrAdd(constructorInfo, info => new ConstructorReflector(constructorInfo));
+            return ReflectorCacheUtils<ConstructorInfo, ConstructorReflector>.GetOrAdd(constructorInfo, info => new ConstructorReflector(constructorInfo));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
