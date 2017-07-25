@@ -88,11 +88,6 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
-        public MethodInfo AsMethodInfo()
-        {
-            return _reflectionInfo;
-        }
-
         public virtual object Invoke(object instance, params object[] parameters)
         {
             if (instance == null)
@@ -104,12 +99,7 @@ namespace AspectCore.Extensions.Reflection
 
         public virtual object StaticInvoke(params object[] parameters)
         {
-            throw new InvalidOperationException($"Method {_reflectionInfo.Name} must be static. For invoke instance method, call 'Invoke'.");
+            throw new InvalidOperationException($"Method {_reflectionInfo.Name} must be static to call this method. For invoke instance method, call 'Invoke'.");
         }
-
-        //public override string ToString()
-        //{
-        //    return $"Method : {_reflectionInfo}  DeclaringType : {_reflectionInfo.DeclaringType}";
-        //}
     }
 }

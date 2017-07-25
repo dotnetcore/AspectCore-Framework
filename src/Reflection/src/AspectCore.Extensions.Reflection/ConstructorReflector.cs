@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using AspectCore.Extensions.Reflection.Emit;
 using AspectCore.Extensions.Reflection.Internals;
 
@@ -16,7 +15,6 @@ namespace AspectCore.Extensions.Reflection
             _invoker = CreateInvoker();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Func<object[], object> CreateInvoker()
         {
             var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(object), new Type[] { typeof(object[]) }, _reflectionInfo.Module, true);
@@ -79,17 +77,7 @@ namespace AspectCore.Extensions.Reflection
                 return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
             }
         }
-
-        internal static ConstructorReflector Create(ConstructorInfo constructorInfo)
-        {
-            if (constructorInfo == null)
-            {
-                throw new ArgumentNullException(nameof(constructorInfo));
-            }
-            return ReflectorCacheUtils<ConstructorInfo, ConstructorReflector>.GetOrAdd(constructorInfo, info => new ConstructorReflector(constructorInfo));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  
         public object Invoke(params object[] args)
         {
             if (args == null)
@@ -97,11 +85,6 @@ namespace AspectCore.Extensions.Reflection
                 throw new ArgumentNullException(nameof(args));
             }
             return _invoker(args);
-        }
-
-        public ConstructorInfo AsConstructorInfo()
-        {
-            return _reflectionInfo;
         }
     }
 }
