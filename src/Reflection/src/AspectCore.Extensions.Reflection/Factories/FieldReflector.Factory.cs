@@ -15,6 +15,10 @@ namespace AspectCore.Extensions.Reflection
 
             FieldReflector CreateInternal(FieldInfo field)
             {
+                if (field.DeclaringType.GetTypeInfo().ContainsGenericParameters)
+                {
+                    return new OpenGenericFieldReflector(field);
+                }
                 if (field.IsStatic)
                 {
                     return new StaticFieldReflector(field);

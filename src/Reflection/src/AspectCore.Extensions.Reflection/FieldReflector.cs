@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Extensions.Reflection
@@ -42,7 +41,6 @@ namespace AspectCore.Extensions.Reflection
             return (Action<object, object>)dynamicMethod.CreateDelegate(typeof(Action<object, object>));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object GetValue(object instance)
         {
             if (instance == null)
@@ -52,7 +50,6 @@ namespace AspectCore.Extensions.Reflection
             return _getter(instance);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SetValue(object instance, object value)
         {
             if (instance == null)
@@ -62,21 +59,14 @@ namespace AspectCore.Extensions.Reflection
             _setter(instance, value);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual object GetStaticValue()
         {
-            throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'GetValue'.");
+            throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static to call this method. For get instance field value, call 'GetValue'.");
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SetStaticValue(object value)
         {
-            throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static. For get instance field value, call 'SetValue'.");
-        }
-
-        public FieldInfo AsFieldInfo()
-        {
-            return _reflectionInfo;
+            throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static to call this method. For set instance field value, call 'SetValue'.");
         }
     }
 }

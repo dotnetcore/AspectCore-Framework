@@ -60,6 +60,10 @@ namespace System.Reflection
 
         public static FieldInfo AsFieldInfo(this FieldReflector reflector) => reflector?.AsMemberInfo();
 
+        public static MethodInfo AsMethodInfo(this MethodReflector reflector)=> reflector?.AsMemberInfo();
+
+        public static ConstructorInfo AsConstructorInfo(this ConstructorReflector reflector) => reflector?.AsMemberInfo();
+
         #endregion
     }
 }
