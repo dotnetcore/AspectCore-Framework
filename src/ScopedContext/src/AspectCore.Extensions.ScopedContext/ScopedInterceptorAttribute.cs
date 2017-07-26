@@ -7,6 +7,6 @@ namespace AspectCore.Extensions.ScopedContext
     [NonAspect]
     public abstract class ScopedInterceptorAttribute : InterceptorAttribute, IScopedInterceptor
     {
-        public ScopedOptions ScopedOption { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public virtual ScopedOptions ScopedOption { get; set; } = ScopedOptions.None;
     }
 }
