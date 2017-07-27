@@ -10,6 +10,8 @@ namespace AspectCore.Extensions.Configuration
 
         public bool AllowMultiple => true;
 
+        public bool Inherited { get; set; } = false;
+
         public int Order { get; set; }
 
         public DelegateInterceptor(Func<AspectDelegate, AspectDelegate> aspectDelegate, int order = 0)

@@ -9,6 +9,8 @@ namespace AspectCore.Abstractions
     {
         public virtual bool AllowMultiple { get; } = false;
 
+        public virtual bool Inherited { get; set; } = false;
+
         public virtual int Order { get; set; } = 0;
 
         public virtual Task Invoke(AspectContext context, AspectDelegate next) => next(context);
