@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.DependencyInjection
             }
 
             options.InternalServices.AddTransient<IServiceScopeFactory, AspectCoreServiceScopeFactory>();
-            options.InternalServices.AddScoped<AspectCoreServiceProvider, AspectCoreServiceProvider>();
+            options.InternalServices.AddScoped<IAspectCoreServiceProvider, AspectCoreServiceProvider>();
             options.InternalServices.AddSingleton(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
             options.InternalServices.AddSingleton(typeof(IScopedServiceAccessor<>), typeof(ScopedServiceAccessor<>));
             options.InternalServices.AddSingleton<IServiceScopeAccessor, ServiceScopeAccessor>();
