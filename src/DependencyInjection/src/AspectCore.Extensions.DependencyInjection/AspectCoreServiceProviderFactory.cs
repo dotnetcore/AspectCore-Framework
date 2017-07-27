@@ -69,7 +69,13 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
-            return CreateBuilder(containerBuilder).BuildServiceProvider().GetRequiredService<IServiceProvider>();
+            var services = CreateBuilder(containerBuilder);
+            var serviceProider = services.BuildServiceProvider();
+            if (services.Any(x => x.ServiceType == typeof(IAspectCoreServiceProvider)))
+            {
+                return serviceProider.GetRequiredService<IAspectCoreServiceProvider>();
+            }
+            return serviceProider;
         }
 
         private static bool Validate(ServiceDescriptor descriptor, IAspectValidator aspectValidator, out Type implementationType)

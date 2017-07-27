@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection.Internals
 {
-    internal sealed class AspectCoreServiceProvider : IServiceProvider, IDisposable
+    internal sealed class AspectCoreServiceProvider : IAspectCoreServiceProvider, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
 

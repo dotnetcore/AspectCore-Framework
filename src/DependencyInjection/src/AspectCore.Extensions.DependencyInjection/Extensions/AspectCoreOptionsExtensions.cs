@@ -14,12 +14,11 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(options));
             }
 
-            options.InternalServices.AddTransient(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
-            options.InternalServices.AddScoped(typeof(IScopedServiceAccessor<>), typeof(ScopedServiceAccessor<>));
             options.InternalServices.AddTransient<IServiceScopeFactory, AspectCoreServiceScopeFactory>();
-            options.InternalServices.AddScoped<IServiceScopeAccessor, ServiceScopeAccessor>();
-            options.InternalServices.AddScoped<IServiceProvider, AspectCoreServiceProvider>();
-
+            options.InternalServices.AddScoped<AspectCoreServiceProvider, AspectCoreServiceProvider>();
+            options.InternalServices.AddSingleton(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
+            options.InternalServices.AddSingleton(typeof(IScopedServiceAccessor<>), typeof(ScopedServiceAccessor<>));
+            options.InternalServices.AddSingleton<IServiceScopeAccessor, ServiceScopeAccessor>();
             return options;
         }
     }
