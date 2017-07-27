@@ -12,9 +12,9 @@ namespace AspectCore.Extensions.DependencyInjection
     public class AspectCoreServiceProviderFactory : IServiceProviderFactory<IServiceCollection>
     {
 
-        private readonly static MethodInfo GetImplementationType = typeof(ServiceDescriptor).GetTypeInfo().GetMethod("GetImplementationType", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly MethodInfo GetImplementationType = typeof(ServiceDescriptor).GetTypeInfo().GetMethod("GetImplementationType", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private readonly static MethodReflector GetImplementationTypeAccessor = new MethodReflector(GetImplementationType);
+        private static readonly MethodReflector GetImplementationTypeAccessor = new MethodReflector(GetImplementationType);
 
         public IServiceCollection CreateBuilder(IServiceCollection services)
         {
@@ -100,12 +100,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 return false;
             }
 
-            if (implementationType.GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)))
-            {
-                return false;
-            }
-
-            return true;
+            return !implementationType.GetTypeInfo().IsDefined(typeof(DynamicallyAttribute));
         }
     }
 }

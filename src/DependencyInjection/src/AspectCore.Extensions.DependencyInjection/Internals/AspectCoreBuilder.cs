@@ -9,10 +9,6 @@ namespace AspectCore.Extensions.DependencyInjection.Internals
 
         public AspectCoreBuilder(IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
             Services = services;
         }
     }

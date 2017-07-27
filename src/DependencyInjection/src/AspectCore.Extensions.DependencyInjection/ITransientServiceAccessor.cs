@@ -1,6 +1,6 @@
 ﻿namespace AspectCore.Extensions.DependencyInjection
 {
-    public interface ITransientServiceAccessor<T>
+    public interface ITransientServiceAccessor<out T>
     {
         T Value { get; }
 
