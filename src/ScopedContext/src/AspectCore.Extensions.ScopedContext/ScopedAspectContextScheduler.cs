@@ -89,7 +89,7 @@ namespace AspectCore.Extensions.ScopedContext
 
         public void Release(AspectContext context)
         {
-            if (_scopedContexts.TryRemove(context as ScopedAspectContext, out object value))
+            if (_scopedContexts.TryRemove(context as ScopedAspectContext, out _))
             {
                 Interlocked.Decrement(ref _idx);
             }

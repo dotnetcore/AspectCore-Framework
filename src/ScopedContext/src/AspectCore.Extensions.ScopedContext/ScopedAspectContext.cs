@@ -7,7 +7,7 @@ namespace AspectCore.Extensions.ScopedContext
 {
     internal sealed class ScopedAspectContext : AspectContext
     {
-        private readonly static AsyncLocal<AspectContext> CurrentContextLocal = new AsyncLocal<AspectContext>();
+        private static readonly AsyncLocal<AspectContext> CurrentContextLocal = new AsyncLocal<AspectContext>();
         private readonly IAspectContextScheduler _aspectContextScheduler;
         private readonly AspectContext _rtContext;
 
@@ -15,14 +15,8 @@ namespace AspectCore.Extensions.ScopedContext
 
         internal AspectContext RtContext
         {
-            get
-            {
-                return CurrentContextLocal.Value;
-            }
-            private set
-            {
-                CurrentContextLocal.Value = value;
-            }
+            get => CurrentContextLocal.Value;
+            private set => CurrentContextLocal.Value = value;
         }
 
         public override IServiceProvider ServiceProvider => _rtContext.ServiceProvider;
