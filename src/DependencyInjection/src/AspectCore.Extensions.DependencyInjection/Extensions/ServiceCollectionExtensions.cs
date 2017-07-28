@@ -32,7 +32,7 @@ namespace AspectCore.Extensions.DependencyInjection
             builder.AddInterceptorInjector();
             builder.AddInterceptorProvider();
             builder.AddAspectConfigure(options);
-          
+
             return builder;
         }
 
