@@ -20,12 +20,29 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        protected void CheckGetReflector()
+        {
+            if (_getMethodReflector == null)
+            {
+                throw new InvalidOperationException($"Property {_reflectionInfo.Name} does not define get accessor.");
+            }
+        }
+
+        protected void CheckSetReflector()
+        {
+            if (_setMethodReflector == null)
+            {
+                throw new InvalidOperationException($"Property {_reflectionInfo.Name} does not define set accessor.");
+            }
+        }
+
         public virtual object GetValue(object instance)
         {
             if (instance == null)
             {
                 throw new ArgumentNullException(nameof(instance));
             }
+            CheckGetReflector();
             return _getMethodReflector.Invoke(instance);
         }
 
@@ -35,6 +52,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(instance));
             }
+            CheckSetReflector();
             _setMethodReflector.Invoke(instance, value);
         }
 

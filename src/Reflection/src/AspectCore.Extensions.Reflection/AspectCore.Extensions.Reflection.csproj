@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Factories\PropertyReflector.Factory.cs" />
     <None Include="MethodReflector.Static.cs" />
   </ItemGroup>
 

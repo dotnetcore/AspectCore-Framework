@@ -54,6 +54,24 @@ namespace System.Reflection
             }
             return MethodReflector.Create(method, callOption);
         }
+
+        public static PropertyReflector AsReflector(this PropertyInfo property)
+        {
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+            return AsReflector(property, CallOptions.Callvirt);
+        }
+
+        public static PropertyReflector AsReflector(this PropertyInfo property, CallOptions callOption)
+        {
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+            return PropertyReflector.Create(property, callOption);
+        }
         #endregion
 
         #region Reflectr
@@ -63,6 +81,8 @@ namespace System.Reflection
         public static MethodInfo AsMethodInfo(this MethodReflector reflector)=> reflector?.AsMemberInfo();
 
         public static ConstructorInfo AsConstructorInfo(this ConstructorReflector reflector) => reflector?.AsMemberInfo();
+
+        public static PropertyInfo AsPropertyInfo(this PropertyReflector reflector) => reflector?.AsMemberInfo();
 
         #endregion
     }

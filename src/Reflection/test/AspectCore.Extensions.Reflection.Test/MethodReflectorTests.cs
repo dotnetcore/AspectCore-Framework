@@ -16,6 +16,8 @@ namespace AspectCore.Extensions.Reflection.Test
             var result = reflector.Invoke(new MethodFakes(), "lemon");
             Assert.Equal("lemon", result);
         }
+
+
     }
 
     public class MethodFakes
