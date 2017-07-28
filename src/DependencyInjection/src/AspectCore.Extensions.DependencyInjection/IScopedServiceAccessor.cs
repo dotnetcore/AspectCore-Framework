@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
-    public interface IScopedServiceAccessor<out T>
+    public interface IScopedServiceAccessor<T>
     {
         T Value { get; }
 
