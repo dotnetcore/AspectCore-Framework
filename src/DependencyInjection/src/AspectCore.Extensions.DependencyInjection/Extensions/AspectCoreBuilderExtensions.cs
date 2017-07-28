@@ -56,7 +56,7 @@ namespace AspectCore.Extensions.DependencyInjection
             builder.Services.AddSingleton<IAspectConfigureProvider>(new AspectConfigureProvider
                 (aspectCoreOptions.InterceptorFactories, aspectCoreOptions.NonAspectPredicates));
 
-            if (builder.Services != aspectCoreOptions.InternalServices)
+            if (!builder.Services.Equals(aspectCoreOptions.InternalServices))
             {
                 foreach (var descriptor in aspectCoreOptions.InternalServices)
                 {

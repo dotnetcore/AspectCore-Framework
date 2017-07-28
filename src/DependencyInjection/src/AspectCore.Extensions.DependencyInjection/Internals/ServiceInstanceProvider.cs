@@ -9,13 +9,11 @@ namespace AspectCore.Extensions.DependencyInjection.Internals
 {
     internal sealed class ServiceInstanceProvider : IServiceInstanceProvider, IDisposable
     {
-        private readonly static ConcurrentDictionary<Type, IList<ServiceDescriptor>> ServiceDescriptorCache = new ConcurrentDictionary<Type, IList<ServiceDescriptor>>();
+        private static readonly ConcurrentDictionary<Type, IList<ServiceDescriptor>> ServiceDescriptorCache = new ConcurrentDictionary<Type, IList<ServiceDescriptor>>();
 
-        private readonly static ConcurrentDictionary<IServiceProvider, ConcurrentDictionary<Type, object>> ScopedResolvedServiceCache = new ConcurrentDictionary<IServiceProvider, ConcurrentDictionary<Type, object>>();
+        private static readonly ConcurrentDictionary<IServiceProvider, ConcurrentDictionary<Type, object>> ScopedResolvedServiceCache = new ConcurrentDictionary<IServiceProvider, ConcurrentDictionary<Type, object>>();
 
         private readonly IServiceProvider _serviceProvider;
-
-        private readonly object _resolveLock = new object();
 
         public ServiceInstanceProvider(IServiceProvider serviceProvider)
         {

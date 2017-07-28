@@ -6,7 +6,7 @@ namespace AspectCore.Extensions.DependencyInjection.Internals
 {
     internal sealed class ServiceScopeAccessor : IServiceScopeAccessor
     {
-        private readonly static AsyncLocal<IServiceScope> ServiceScopeLocal = new AsyncLocal<IServiceScope>();
+        private static readonly AsyncLocal<IServiceScope> ServiceScopeLocal = new AsyncLocal<IServiceScope>();
 
         public IServiceScope CurrentServiceScope
         {

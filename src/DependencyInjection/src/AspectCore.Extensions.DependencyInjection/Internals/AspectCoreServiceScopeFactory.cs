@@ -1,6 +1,6 @@
-﻿using AspectCore.Abstractions;
+﻿using System;
+using AspectCore.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace AspectCore.Extensions.DependencyInjection.Internals
 {
