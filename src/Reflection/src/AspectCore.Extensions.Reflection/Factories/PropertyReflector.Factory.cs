@@ -16,10 +16,10 @@ namespace AspectCore.Extensions.Reflection
             PropertyReflector CreateInternal(Tuple<PropertyInfo, CallOptions> item)
             {
                 var property = item.Item1;
-                //if (methodInfo.ContainsGenericParameters)
-                //{
-                //    return new OpenGenericMethodReflector(item.Item1);
-                //}
+                if (property.DeclaringType.GetTypeInfo().ContainsGenericParameters)
+                {
+                    return new OpenGenericPropertyReflector(item.Item1);
+                }
                 if ((property.CanRead && property.GetMethod.IsStatic) || (property.CanWrite && property.SetMethod.IsStatic))
                 {
                     return new StaticPropertyReflector(property);

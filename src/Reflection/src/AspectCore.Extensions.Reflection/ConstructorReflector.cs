@@ -7,7 +7,7 @@ using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
-    public sealed partial class ConstructorReflector : MemberReflector<ConstructorInfo>
+    public partial class ConstructorReflector : MemberReflector<ConstructorInfo>
     {
         private readonly Func<object[], object> _invoker;
         private ConstructorReflector(ConstructorInfo constructorInfo) : base(constructorInfo)
@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.Reflection
             _invoker = CreateInvoker();
         }
 
-        private Func<object[], object> CreateInvoker()
+        protected virtual Func<object[], object> CreateInvoker()
         {
             var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(object), new Type[] { typeof(object[]) }, _reflectionInfo.Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
@@ -49,7 +49,7 @@ namespace AspectCore.Extensions.Reflection
                 {
                     var defType = parameterTypes[i].GetTypeInfo().MakeDefType();
                     var indexedLocal = new IndexedLocalBuilder(ilGen.DeclareLocal(defType), i);
-                    indexedLocals[index++] = indexedLocal;            
+                    indexedLocals[index++] = indexedLocal;
                     ilGen.Emit(OpCodes.Stloc, indexedLocal.LocalBuilder);
                     ilGen.Emit(OpCodes.Ldloca, indexedLocal.LocalBuilder);
                 }
@@ -77,8 +77,8 @@ namespace AspectCore.Extensions.Reflection
                 return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
             }
         }
-  
-        public object Invoke(params object[] args)
+
+        public virtual object Invoke(params object[] args)
         {
             if (args == null)
             {

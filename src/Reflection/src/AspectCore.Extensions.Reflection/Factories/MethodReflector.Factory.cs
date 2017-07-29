@@ -24,7 +24,7 @@ namespace AspectCore.Extensions.Reflection
                 {
                     return new StaticMethodReflector(methodInfo);
                 }
-                if (callOption == CallOptions.Call)
+                if (methodInfo.DeclaringType.GetTypeInfo().IsValueType || callOption == CallOptions.Call)
                 {
                     return new CallMethodReflector(methodInfo);
                 }
