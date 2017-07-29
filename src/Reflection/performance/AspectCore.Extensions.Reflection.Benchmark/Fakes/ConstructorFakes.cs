@@ -10,7 +10,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Fakes
         public string Name { get; set; }
         public ConstructorFakes()
         {
-            Name = "Nonparametric constructor";
+            //Name = "Nonparametric constructor";
         }
 
         public ConstructorFakes(string name)
