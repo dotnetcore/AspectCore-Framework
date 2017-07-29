@@ -11,7 +11,14 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(constructorInfo));
             }
-            return ReflectorCacheUtils<ConstructorInfo, ConstructorReflector>.GetOrAdd(constructorInfo, info => new ConstructorReflector(info));
+            return ReflectorCacheUtils<ConstructorInfo, ConstructorReflector>.GetOrAdd(constructorInfo, info =>
+            {
+                if (info.DeclaringType.GetTypeInfo().ContainsGenericParameters)
+                {
+                    return new OpenGenericConstructorReflector(info);
+                }
+                return new ConstructorReflector(info);
+            });
         }
     }
 }
