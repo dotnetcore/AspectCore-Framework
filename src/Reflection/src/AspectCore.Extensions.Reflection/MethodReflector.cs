@@ -11,6 +11,8 @@ namespace AspectCore.Extensions.Reflection
     {
         protected readonly Func<object, object[], object> _invoker;
 
+        public Func<object, object[], object> Invoker => _invoker;
+
         private MethodReflector(MethodInfo reflectionInfo) : base(reflectionInfo)
         {
             _invoker = CreateInvoker();
