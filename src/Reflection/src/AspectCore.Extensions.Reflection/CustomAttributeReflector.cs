@@ -8,19 +8,19 @@ namespace AspectCore.Extensions.Reflection
 {
     public sealed class CustomAttributeReflector
     {
+        private readonly CustomAttributeData _customAttributeData;
+
+        public Type AttributeType { get; set; }
+
+
         private CustomAttributeReflector(CustomAttributeData reflectionInfo)
         {
+            _customAttributeData = reflectionInfo;
         }
 
-        #region internal
-        internal static CustomAttributeReflector Create(CustomAttributeData reflectionInfo)
-        {
-            if (reflectionInfo == null)
-            {
-                throw new ArgumentNullException(nameof(reflectionInfo));
-            }
-            return ReflectorCacheUtils<CustomAttributeData, CustomAttributeReflector>.GetOrAdd(reflectionInfo, info => new CustomAttributeReflector(reflectionInfo));
-        }
-        #endregion
+        //public object Invoke()
+        //{
+
+        //}
     }
 }
