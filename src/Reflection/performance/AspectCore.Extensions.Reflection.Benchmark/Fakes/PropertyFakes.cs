@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 namespace AspectCore.Extensions.Reflection.Benchmark.Fakes
 {
     public class PropertyFakes
     {
-        public static string StaticProperty { get; set; }
+        public static string StaticProperty { [MethodImpl(MethodImplOptions.NoInlining)]get; [MethodImpl(MethodImplOptions.NoInlining)]set; }
 
-        public string InstanceProperty { get; set; }
+        public string InstanceProperty { [MethodImpl(MethodImplOptions.NoInlining)]get; [MethodImpl(MethodImplOptions.NoInlining)]set; }
     }
 }

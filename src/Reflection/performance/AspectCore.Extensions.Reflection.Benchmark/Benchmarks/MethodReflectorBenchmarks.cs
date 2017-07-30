@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection.Benchmark.Fakes;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
+using BenchmarkDotNet.Attributes.Jobs;
 
 namespace AspectCore.Extensions.Reflection.Benchmark
 {
+    [CoreJob]
     [AllStatisticsColumn]
-    [MemoryDiagnoser]
     public class MethodReflectorBenchmarks
     {
         private readonly MethodInfo _method;
@@ -23,11 +24,6 @@ namespace AspectCore.Extensions.Reflection.Benchmark
         private readonly MethodReflector _callReflectorWithCallVirtOp;
         private readonly MethodReflector _virtualReflectorWithCallOp;
         private readonly MethodReflector _virtualReflectorWithCallVirtOp;
-
-        private readonly Func<object, object[], object> _staticInvoker;
-        private readonly Func<object, object[], object> _callInvoker;
-        private readonly Func<object, object[], object> _callVirtualInvoker;
-
         private readonly MethodFakes _instance;
 
         public MethodReflectorBenchmarks()
@@ -41,11 +37,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark
             _callReflectorWithCallVirtOp = _method.AsReflector(CallOptions.Callvirt);
             _virtualReflectorWithCallOp = _virtualMethod.AsReflector(CallOptions.Call);
             _virtualReflectorWithCallVirtOp = _virtualMethod.AsReflector(CallOptions.Callvirt);
-
             _instance = new MethodFakes();
-            _staticInvoker = _staticReflector.Invoker;
-            _callInvoker = _callReflectorWithCallVirtOp.Invoke;
-            _callVirtualInvoker = _virtualReflectorWithCallVirtOp.Invoke;
         }
 
         [Benchmark]
@@ -66,17 +58,10 @@ namespace AspectCore.Extensions.Reflection.Benchmark
             _callReflectorWithCallOp.Invoke(_instance);
         }
 
-
         [Benchmark]
         public void Reflector_CallWithCallVirtOp()
         {
             _callReflectorWithCallVirtOp.Invoke(_instance);
-        }
-
-        [Benchmark]
-        public void Reflector_Invoker_CallWithCallVirtOp()
-        {
-            _callInvoker(_instance, null);
         }
 
         [Benchmark]
@@ -97,7 +82,6 @@ namespace AspectCore.Extensions.Reflection.Benchmark
             _virtualReflectorWithCallOp.Invoke(_instance);
         }
 
-
         [Benchmark]
         public void Reflector_CallVirtWithCallVirtOp()
         {
@@ -105,16 +89,9 @@ namespace AspectCore.Extensions.Reflection.Benchmark
         }
 
         [Benchmark]
-        public void Reflector_Invoker_CallVirtWithCallVirtOp()
-        {
-            _callVirtualInvoker(_instance, null);
-        }
-
-        [Benchmark]
         public object Native_StaticCall()
         {
-            MethodFakes.StaticCall();
-            return _instance;
+            return MethodFakes.StaticCall();
         }
 
         [Benchmark]
@@ -122,17 +99,11 @@ namespace AspectCore.Extensions.Reflection.Benchmark
         {
             return _staticMethod.Invoke(null, null);
         }
-   
+
         [Benchmark]
         public object Reflector_StaticCall()
         {
             return _staticReflector.StaticInvoke();
-        }
-
-        [Benchmark]
-        public object Reflector_Invoker_StaticCall()
-        {
-            return _staticInvoker(null, null);
         }
     }
 }
