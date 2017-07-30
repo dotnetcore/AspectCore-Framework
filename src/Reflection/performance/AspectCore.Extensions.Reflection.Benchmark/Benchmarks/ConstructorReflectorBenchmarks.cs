@@ -18,7 +18,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
         public ConstructorReflectorBenchmarks()
         {
             _constructorInfo = typeof(ConstructorFakes).GetTypeInfo().GetConstructor(new Type[0]);
-            _reflector = _constructorInfo.AsReflector();
+            _reflector = _constructorInfo.GetReflector();
         }
 
         [Benchmark]

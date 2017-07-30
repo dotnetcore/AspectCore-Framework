@@ -14,6 +14,6 @@ namespace AspectCore.Extensions.Reflection
 
         public override string ToString() => $"{_reflectionInfo.MemberType} : {_reflectionInfo}  DeclaringType : {_reflectionInfo.DeclaringType}";
 
-        public TMemberInfo AsMemberInfo() => _reflectionInfo;
+        public TMemberInfo GetMemberInfo() => _reflectionInfo;
     }
 }

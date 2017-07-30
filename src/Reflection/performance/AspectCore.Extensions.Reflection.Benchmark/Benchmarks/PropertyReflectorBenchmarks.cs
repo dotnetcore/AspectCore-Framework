@@ -20,11 +20,11 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
         {
             PropertyFakes.StaticProperty = "StaticProperty";
             _staticField = typeof(PropertyFakes).GetTypeInfo().GetProperty("StaticProperty");
-            _staticFieldReflector = _staticField.AsReflector();
+            _staticFieldReflector = _staticField.GetReflector();
             _instance = new PropertyFakes();
             _instance.InstanceProperty = "InstanceProperty";
             _field = typeof(PropertyFakes).GetTypeInfo().GetProperty("InstanceProperty");
-            _fieldReflector = _field.AsReflector();
+            _fieldReflector = _field.GetReflector();
         }
 
         [Benchmark]

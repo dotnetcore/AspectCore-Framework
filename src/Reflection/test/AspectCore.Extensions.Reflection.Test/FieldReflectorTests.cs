@@ -11,7 +11,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var fakes = new FieldFakes();
             fakes.InstanceField = "InstanceField";
             var field = typeof(FieldFakes).GetTypeInfo().GetField("InstanceField");
-            var fieldReflector = field.AsReflector();
+            var fieldReflector = field.GetReflector();
             var fieldValue = fieldReflector.GetValue(fakes);
             Assert.Equal("InstanceField", fieldValue);
         }
@@ -21,7 +21,7 @@ namespace AspectCore.Extensions.Reflection.Test
         {
             var fakes = new FieldFakes();
             var field = typeof(FieldFakes).GetTypeInfo().GetField("InstanceField");
-            var fieldReflector = field.AsReflector();
+            var fieldReflector = field.GetReflector();
             fieldReflector.SetValue(fakes, "InstanceField");
             Assert.Equal("InstanceField", fakes.InstanceField);
         }
@@ -31,7 +31,7 @@ namespace AspectCore.Extensions.Reflection.Test
         {
             FieldFakes.StaticFiled = "StaticFiled";
             var field = typeof(FieldFakes).GetTypeInfo().GetField("StaticFiled");
-            var fieldReflector = field.AsReflector();
+            var fieldReflector = field.GetReflector();
             var fieldValue = fieldReflector.GetStaticValue();
             Assert.Equal("StaticFiled", fieldValue);
         }
@@ -40,7 +40,7 @@ namespace AspectCore.Extensions.Reflection.Test
         public void StaticField_Set_Test()
         {
             var field = typeof(FieldFakes).GetTypeInfo().GetField("StaticFiled");
-            var fieldReflector = field.AsReflector();
+            var fieldReflector = field.GetReflector();
             fieldReflector.SetStaticValue("StaticFiled");
             Assert.Equal("StaticFiled", FieldFakes.StaticFiled);
         }
@@ -49,7 +49,7 @@ namespace AspectCore.Extensions.Reflection.Test
         public void StaticField_OfT_Test()
         {
             var field = typeof(FieldFakes<string>).GetTypeInfo().GetField("StaticFiled");
-            var fieldReflector = field.AsReflector();
+            var fieldReflector = field.GetReflector();
             fieldReflector.SetStaticValue("StaticFiled");
             Assert.Equal("StaticFiled", fieldReflector.GetStaticValue());
         }

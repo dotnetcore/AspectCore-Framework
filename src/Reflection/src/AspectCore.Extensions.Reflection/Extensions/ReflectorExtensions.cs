@@ -5,16 +5,16 @@ namespace System.Reflection
     public static class ReflectorExtensions
     {
         #region Reflection
-        public static TypeReflector AsReflector(this Type type)
+        public static TypeReflector GetReflector(this Type type)
         {
             if (type == null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
-            return type.GetTypeInfo().AsReflector();
+            return type.GetTypeInfo().GetReflector();
         }
 
-        public static TypeReflector AsReflector(this TypeInfo typeInfo)
+        public static TypeReflector GetReflector(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
@@ -23,7 +23,7 @@ namespace System.Reflection
             return TypeReflector.Create(typeInfo);
         }
 
-        public static ConstructorReflector AsReflector(this ConstructorInfo constructor)
+        public static ConstructorReflector GetReflector(this ConstructorInfo constructor)
         {
             if (constructor == null)
             {
@@ -32,7 +32,7 @@ namespace System.Reflection
             return ConstructorReflector.Create(constructor);
         }
 
-        public static FieldReflector AsReflector(this FieldInfo field)
+        public static FieldReflector GetReflector(this FieldInfo field)
         {
             if (field == null)
             {
@@ -41,12 +41,12 @@ namespace System.Reflection
             return FieldReflector.Create(field);
         }
 
-        public static MethodReflector AsReflector(this MethodInfo method)
+        public static MethodReflector GetReflector(this MethodInfo method)
         {
-            return AsReflector(method, CallOptions.Callvirt);
+            return GetReflector(method, CallOptions.Callvirt);
         }
 
-        public static MethodReflector AsReflector(this MethodInfo method, CallOptions callOption)
+        public static MethodReflector GetReflector(this MethodInfo method, CallOptions callOption)
         {
             if (method == null)
             {
@@ -55,16 +55,16 @@ namespace System.Reflection
             return MethodReflector.Create(method, callOption);
         }
 
-        public static PropertyReflector AsReflector(this PropertyInfo property)
+        public static PropertyReflector GetReflector(this PropertyInfo property)
         {
             if (property == null)
             {
                 throw new ArgumentNullException(nameof(property));
             }
-            return AsReflector(property, CallOptions.Callvirt);
+            return GetReflector(property, CallOptions.Callvirt);
         }
 
-        public static PropertyReflector AsReflector(this PropertyInfo property, CallOptions callOption)
+        public static PropertyReflector GetReflector(this PropertyInfo property, CallOptions callOption)
         {
             if (property == null)
             {
@@ -76,13 +76,13 @@ namespace System.Reflection
 
         #region Reflectr
 
-        public static FieldInfo AsFieldInfo(this FieldReflector reflector) => reflector?.AsMemberInfo();
+        public static FieldInfo GetFieldInfo(this FieldReflector reflector) => reflector?.GetMemberInfo();
 
-        public static MethodInfo AsMethodInfo(this MethodReflector reflector)=> reflector?.AsMemberInfo();
+        public static MethodInfo GetMethodInfo(this MethodReflector reflector)=> reflector?.GetMemberInfo();
 
-        public static ConstructorInfo AsConstructorInfo(this ConstructorReflector reflector) => reflector?.AsMemberInfo();
+        public static ConstructorInfo GetConstructorInfo(this ConstructorReflector reflector) => reflector?.GetMemberInfo();
 
-        public static PropertyInfo AsPropertyInfo(this PropertyReflector reflector) => reflector?.AsMemberInfo();
+        public static PropertyInfo GetPropertyInfo(this PropertyReflector reflector) => reflector?.GetMemberInfo();
 
         #endregion
     }
