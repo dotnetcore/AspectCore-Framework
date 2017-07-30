@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AspectCore.Extensions.Reflection
 {
@@ -7,9 +8,11 @@ namespace AspectCore.Extensions.Reflection
     {
         protected readonly MethodReflector _getMethodReflector;
         protected readonly MethodReflector _setMethodReflector;
+        protected readonly bool _canRead;
 
         private PropertyReflector(PropertyInfo reflectionInfo, CallOptions callOption) : base(reflectionInfo)
         {
+            _canRead = reflectionInfo.CanRead;
             if (reflectionInfo.CanRead)
             {
                 _getMethodReflector = MethodReflector.Create(reflectionInfo.GetMethod, callOption);
@@ -20,6 +23,7 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void CheckGetReflector()
         {
             if (_getMethodReflector == null)
@@ -42,7 +46,10 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(instance));
             }
-            CheckGetReflector();
+            if (!_canRead)
+            {
+                throw new InvalidOperationException($"Property {_reflectionInfo.Name} does not define get accessor.");
+            }
             return _getMethodReflector.Invoke(instance);
         }
 
