@@ -12,7 +12,7 @@ namespace AspectCore.Extensions.Reflection.Test
         public void Invoker_Instance_Test()
         {
             var method = typeof(MethodFakes).GetMethod("GetString");
-            var reflector = method.AsReflector();
+            var reflector = method.GetReflector();
             var result = reflector.Invoke(new MethodFakes(), "lemon");
             Assert.Equal("lemon", result);
         }
@@ -21,7 +21,7 @@ namespace AspectCore.Extensions.Reflection.Test
         public void Invoker_Static_Test()
         {
             var method = typeof(MethodFakes).GetMethod("GetStringStatic");
-            var reflector = method.AsReflector();
+            var reflector = method.GetReflector();
             var result = reflector.Invoke(null, "lemon");
             Assert.Equal("lemon", result);
             result = reflector.StaticInvoke("lemon");
@@ -33,11 +33,11 @@ namespace AspectCore.Extensions.Reflection.Test
         {
             var method = typeof(MethodFakes).GetMethod("GetString");
 
-            var reflector = method.AsReflector(CallOptions.Callvirt);
+            var reflector = method.GetReflector(CallOptions.Callvirt);
             var result = reflector.Invoke(new SubMethodFakes(), "lemon");
             Assert.Equal(typeof(string).Name, result);
 
-            reflector = method.AsReflector(CallOptions.Call);
+            reflector = method.GetReflector(CallOptions.Call);
             result = reflector.Invoke(new SubMethodFakes(), "lemon");
             Assert.Equal("lemon", result);
         }
@@ -47,7 +47,7 @@ namespace AspectCore.Extensions.Reflection.Test
         {
             var method = typeof(MethodFakes).GetMethod("GetStringByRef");
             var args = new object[] { "lemon", null };
-            var reflector = method.AsReflector();
+            var reflector = method.GetReflector();
             var result = reflector.Invoke(new MethodFakes(), args);
             Assert.Equal("lemon", args[1]);
         }

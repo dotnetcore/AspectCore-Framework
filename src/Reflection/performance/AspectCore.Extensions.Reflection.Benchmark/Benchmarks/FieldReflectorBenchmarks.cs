@@ -25,11 +25,11 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
         {
             FieldFakes.StaticFiled = "StaticFiled";
             _staticField = typeof(FieldFakes).GetTypeInfo().GetField("StaticFiled");
-            _staticFieldReflector = _staticField.AsReflector();
+            _staticFieldReflector = _staticField.GetReflector();
             _instance = new FieldFakes();
             _instance.InstanceField = "InstanceField";
             _field = typeof(FieldFakes).GetTypeInfo().GetField("InstanceField");
-            _fieldReflector = _field.AsReflector();
+            _fieldReflector = _field.GetReflector();
         }
 
         [Benchmark]

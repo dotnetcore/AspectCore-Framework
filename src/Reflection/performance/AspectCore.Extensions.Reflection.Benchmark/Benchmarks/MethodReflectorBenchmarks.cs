@@ -32,11 +32,11 @@ namespace AspectCore.Extensions.Reflection.Benchmark
             _method = typeInfo.GetMethod("Call");
             _staticMethod = typeInfo.GetMethod("StaticCall");
             _virtualMethod = typeInfo.GetMethod("CallVirt");
-            _staticReflector = _staticMethod.AsReflector();
-            _callReflectorWithCallOp = _method.AsReflector(CallOptions.Call);
-            _callReflectorWithCallVirtOp = _method.AsReflector(CallOptions.Callvirt);
-            _virtualReflectorWithCallOp = _virtualMethod.AsReflector(CallOptions.Call);
-            _virtualReflectorWithCallVirtOp = _virtualMethod.AsReflector(CallOptions.Callvirt);
+            _staticReflector = _staticMethod.GetReflector();
+            _callReflectorWithCallOp = _method.GetReflector(CallOptions.Call);
+            _callReflectorWithCallVirtOp = _method.GetReflector(CallOptions.Callvirt);
+            _virtualReflectorWithCallOp = _virtualMethod.GetReflector(CallOptions.Call);
+            _virtualReflectorWithCallVirtOp = _virtualMethod.GetReflector(CallOptions.Callvirt);
             _instance = new MethodFakes();
         }
 
