@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Extensions.Reflection.Emit;
@@ -10,10 +12,10 @@ namespace AspectCore.Extensions.Reflection
         private readonly CustomAttributeData _customAttributeData;
         private readonly Func<object> _invoker;
 
-        public Type AttributeType { get;}
+        public Type AttributeType { get; }
 
         private CustomAttributeReflector(CustomAttributeData customAttributeData)
-        {  
+        {
             _customAttributeData = customAttributeData ?? throw new ArgumentNullException(nameof(customAttributeData));
             AttributeType = _customAttributeData.AttributeType;
             _invoker = CreateInvoker();
@@ -26,7 +28,16 @@ namespace AspectCore.Extensions.Reflection
 
             foreach (var constructorParameter in _customAttributeData.ConstructorArguments)
             {
-                ilGen.EmitConstant(constructorParameter.Value, constructorParameter.ArgumentType);
+                if (constructorParameter.ArgumentType.IsArray)
+                {
+                    ilGen.EmitArray(((IEnumerable<CustomAttributeTypedArgument>)constructorParameter.Value).
+                        Select(x => x.Value).ToArray(),
+                        constructorParameter.ArgumentType.GetTypeInfo().UnWrapArrayType());
+                }
+                else
+                {
+                    ilGen.EmitConstant(constructorParameter.Value, constructorParameter.ArgumentType);
+                }
             }
 
             var attributeLocal = ilGen.DeclareLocal(AttributeType);
@@ -42,7 +53,9 @@ namespace AspectCore.Extensions.Reflection
                 ilGen.Emit(OpCodes.Ldloc, attributeLocal);
                 if (namedArgument.TypedValue.ArgumentType.IsArray)
                 {
-                    ilGen.EmitArray((Array)namedArgument.TypedValue.Value, namedArgument.TypedValue.ArgumentType.GetTypeInfo().UnWrapArrayType());
+                    ilGen.EmitArray(((IEnumerable<CustomAttributeTypedArgument>)namedArgument.TypedValue.Value).
+                        Select(x => x.Value).ToArray(),
+                        namedArgument.TypedValue.ArgumentType.GetTypeInfo().UnWrapArrayType());
                 }
                 else
                 {
@@ -61,7 +74,7 @@ namespace AspectCore.Extensions.Reflection
             }
             ilGen.Emit(OpCodes.Ldloc, attributeLocal);
             ilGen.Emit(OpCodes.Ret);
-            return (Func<object>)dynamicMethod.CreateDelegate(typeof(Func<object>));   
+            return (Func<object>)dynamicMethod.CreateDelegate(typeof(Func<object>));
         }
 
         public object Invoke()
