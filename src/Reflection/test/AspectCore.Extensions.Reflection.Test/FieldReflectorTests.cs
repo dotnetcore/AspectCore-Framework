@@ -57,6 +57,7 @@ namespace AspectCore.Extensions.Reflection.Test
 
     public class FieldFakes
     {
+        [AttributeFakes]
         public static string StaticFiled;
 
         public string InstanceField;

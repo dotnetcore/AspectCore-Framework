@@ -1,89 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Linq.Expressions;
+﻿using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Extensions.Reflection
+namespace System.Reflection
 {
-    internal static class ReflectionExtensions
+    public static class ReflectionExtensions
     {
-        internal static Type MakeDefType(this TypeInfo byRefTypeInfo)
+        #region Reflection
+        public static TypeReflector GetReflector(this Type type)
         {
-            if (byRefTypeInfo == null)
+            if (type == null)
             {
-                throw new ArgumentNullException(nameof(byRefTypeInfo));
+                throw new ArgumentNullException(nameof(type));
             }
-            if (!byRefTypeInfo.IsByRef)
+            return type.GetTypeInfo().GetReflector();
+        }
+
+        public static TypeReflector GetReflector(this TypeInfo typeInfo)
+        {
+            if (typeInfo == null)
             {
-                throw new ArgumentException($"Type {byRefTypeInfo} is not passed by reference.");
+                throw new ArgumentNullException(nameof(typeInfo));
             }
-
-            var assemblyQualifiedName = byRefTypeInfo.AssemblyQualifiedName;
-            var index = assemblyQualifiedName.IndexOf('&');
-            assemblyQualifiedName = assemblyQualifiedName.Remove(index, 1);
-
-            return byRefTypeInfo.Assembly.DefinedTypes.Single(x => x.AssemblyQualifiedName == assemblyQualifiedName).AsType();
+            return TypeReflector.Create(typeInfo);
         }
 
-        internal static MethodInfo GetMethodBySign(this TypeInfo typeInfo, MethodInfo method)
+        public static ConstructorReflector GetReflector(this ConstructorInfo constructor)
         {
-            return typeInfo.DeclaredMethods.FirstOrDefault(m => m.ToString() == method.ToString());
-        }
-
-        internal static MethodInfo GetMethod<T>(Expression<T> expression)
-        {
-            if (expression == null)
+            if (constructor == null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(constructor));
             }
-            var methodCallExpression = expression.Body as MethodCallExpression;
-            if (methodCallExpression == null)
+            return ConstructorReflector.Create(constructor);
+        }
+
+        public static FieldReflector GetReflector(this FieldInfo field)
+        {
+            if (field == null)
             {
-                throw new InvalidCastException("Cannot be converted to MethodCallExpression");
+                throw new ArgumentNullException(nameof(field));
             }
-            return methodCallExpression.Method;
+            return FieldReflector.Create(field);
         }
 
-        internal static MethodInfo GetMethod<T>(string name)
+        public static MethodReflector GetReflector(this MethodInfo method)
         {
-            if (name == null)
+            return GetReflector(method, CallOptions.Callvirt);
+        }
+
+        public static MethodReflector GetReflector(this MethodInfo method, CallOptions callOption)
+        {
+            if (method == null)
             {
-                throw new ArgumentNullException(nameof(name));
+                throw new ArgumentNullException(nameof(method));
             }
-
-            return typeof(T).GetTypeInfo().GetMethod(name);
+            return MethodReflector.Create(method, callOption);
         }
 
-        internal static bool IsCallvirt(this MethodInfo methodInfo)
+        public static PropertyReflector GetReflector(this PropertyInfo property)
         {
-            var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
-            if (typeInfo.IsClass)
+            if (property == null)
             {
-                return false;
+                throw new ArgumentNullException(nameof(property));
             }
-            return true;
+            return GetReflector(property, CallOptions.Callvirt);
         }
 
-        internal static string GetFullName(this MemberInfo member)
+        public static PropertyReflector GetReflector(this PropertyInfo property, CallOptions callOption)
         {
-            var declaringType = member.DeclaringType.GetTypeInfo();
-            if (declaringType.IsInterface)
+            if (property == null)
             {
-                return $"{declaringType.Name}.{member.Name}".Replace('+', '.');
+                throw new ArgumentNullException(nameof(property));
             }
-            return member.Name;
+            return PropertyReflector.Create(property, callOption);
         }
+        #endregion
 
-        internal static bool IsReturnTask(this MethodInfo methodInfo)
-        {
-            return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
-        }
+        #region Reflectr
 
-        internal static Type[] GetParameterTypes(this MethodBase method)
-        {
-            return method.GetParameters().Select(x => x.ParameterType).ToArray();
-        }
+        public static FieldInfo GetFieldInfo(this FieldReflector reflector) => reflector?.GetMemberInfo();
+
+        public static MethodInfo GetMethodInfo(this MethodReflector reflector)=> reflector?.GetMemberInfo();
+
+        public static ConstructorInfo GetConstructorInfo(this ConstructorReflector reflector) => reflector?.GetMemberInfo();
+
+        public static PropertyInfo GetPropertyInfo(this PropertyReflector reflector) => reflector?.GetMemberInfo();
+
+        #endregion
     }
 }

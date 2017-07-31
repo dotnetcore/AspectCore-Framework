@@ -37,7 +37,7 @@ namespace AspectCore.Extensions.Reflection
                     for (var i = 0; i < parameterTypes.Length; i++)
                     {
                         ilGen.EmitLoadArg(1);
-                        ilGen.EmitLoadInt(i);
+                        ilGen.EmitInt(i);
                         ilGen.Emit(OpCodes.Ldelem_Ref);
                         ilGen.EmitConvertFromObject(parameterTypes[i]);
                     }
@@ -49,7 +49,7 @@ namespace AspectCore.Extensions.Reflection
                 for (var i = 0; i < parameterTypes.Length; i++)
                 {
                     ilGen.EmitLoadArg(1);
-                    ilGen.EmitLoadInt(i);
+                    ilGen.EmitInt(i);
                     ilGen.Emit(OpCodes.Ldelem_Ref);
                     if (parameterTypes[i].IsByRef)
                     {
@@ -71,7 +71,7 @@ namespace AspectCore.Extensions.Reflection
                     for (var i = 0; i < indexedLocals.Length; i++)
                     {
                         ilGen.EmitLoadArg(1);
-                        ilGen.EmitLoadInt(indexedLocals[i].Index);
+                        ilGen.EmitInt(indexedLocals[i].Index);
                         ilGen.Emit(OpCodes.Ldloc, indexedLocals[i].LocalBuilder);
                         ilGen.EmitConvertToObject(indexedLocals[i].LocalType);
                         ilGen.Emit(OpCodes.Stelem_Ref);
