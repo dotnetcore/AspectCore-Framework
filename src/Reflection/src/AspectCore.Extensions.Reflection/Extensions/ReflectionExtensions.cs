@@ -1,10 +1,21 @@
-﻿using AspectCore.Extensions.Reflection;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 
-namespace System.Reflection
+namespace AspectCore.Extensions.Reflection
 {
     public static class ReflectionExtensions
     {
         #region Reflection
+        public static TypeReflector GetReflector(this object instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+            return instance.GetType().GetReflector();
+        }
+
         public static TypeReflector GetReflector(this Type type)
         {
             if (type == null)
@@ -78,7 +89,7 @@ namespace System.Reflection
 
         public static FieldInfo GetFieldInfo(this FieldReflector reflector) => reflector?.GetMemberInfo();
 
-        public static MethodInfo GetMethodInfo(this MethodReflector reflector)=> reflector?.GetMemberInfo();
+        public static MethodInfo GetMethodInfo(this MethodReflector reflector) => reflector?.GetMemberInfo();
 
         public static ConstructorInfo GetConstructorInfo(this ConstructorReflector reflector) => reflector?.GetMemberInfo();
 

@@ -60,13 +60,16 @@ namespace AspectCore.Extensions.Reflection.Test
         [AttributeFakes]
         public static string StaticFiled;
 
+        [AttributeFakes1(100)]
         public string InstanceField;
     }
 
     public class FieldFakes<T>
     {
+        [AttributeFakes2(typeof(FieldFakes<>), Name = "Lemon", Obj = null)]
         public static T StaticFiled;
 
+        [AttributeFakes3(typeof(int), typeof(long), Ids = new int[] { 1, 2, 3 })]
         public T InstanceField;
     }
 }

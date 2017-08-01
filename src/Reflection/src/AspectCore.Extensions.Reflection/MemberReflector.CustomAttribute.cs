@@ -9,6 +9,6 @@ namespace AspectCore.Extensions.Reflection
     {
         private readonly CustomAttributeReflector[] _customAttributeReflectors;
 
-        public IEnumerable<CustomAttributeReflector> CustomAttributeReflectors => _customAttributeReflectors;
+        public CustomAttributeReflector[] CustomAttributeReflectors => _customAttributeReflectors;
     }
 }
