@@ -10,7 +10,7 @@ namespace AspectCore.Extensions.Reflection
     public partial class CustomAttributeReflector
     {
         private readonly CustomAttributeData _customAttributeData;
-        private readonly Func<object> _invoker;
+        private readonly Func<Attribute> _invoker;
 
         public Type AttributeType { get; }
 
@@ -21,9 +21,9 @@ namespace AspectCore.Extensions.Reflection
             _invoker = CreateInvoker();
         }
 
-        private Func<object> CreateInvoker()
+        private Func<Attribute> CreateInvoker()
         {
-            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(object), null, AttributeType.GetTypeInfo().Module, true);
+            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(Attribute), null, AttributeType.GetTypeInfo().Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
 
             foreach (var constructorParameter in _customAttributeData.ConstructorArguments)
@@ -74,10 +74,10 @@ namespace AspectCore.Extensions.Reflection
             }
             ilGen.Emit(OpCodes.Ldloc, attributeLocal);
             ilGen.Emit(OpCodes.Ret);
-            return (Func<object>)dynamicMethod.CreateDelegate(typeof(Func<object>));
+            return (Func<Attribute>)dynamicMethod.CreateDelegate(typeof(Func<Attribute>));
         }
 
-        public object Invoke()
+        public Attribute Invoke()
         {
             return _invoker();
         }

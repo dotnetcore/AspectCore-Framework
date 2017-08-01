@@ -17,7 +17,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
 
         public CustomAttributeReflectorBenchmarks()
         {
-            _method = typeof(CustomAttributeReflectorBenchmarks).GetMethod("Reflection_GetCustomAttribute");
+            _method = typeof(CustomAttributeReflectorBenchmarks).GetMethod(nameof(Reflection_GetCustomAttribute));
             _reflector = _method.GetReflector();
         }
 
@@ -29,13 +29,13 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
             return _method.GetCustomAttribute(typeof(Attribute1));
         }
 
-        //[Benchmark]
+        [Benchmark]
         public Attribute AspectCore_Reflector_GetCustomAttribute()
         {
             return _reflector.GetCustomAttribute(typeof(Attribute1));
         }
 
-        //[Benchmark]
+        [Benchmark]
         public Attribute[] Reflection_GetCustomAttributes()
         {
             return _method.GetCustomAttributes().ToArray();

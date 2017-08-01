@@ -17,11 +17,9 @@ namespace AspectCore.Extensions.Reflection
             var attributes = new Attribute[customAttributeLength];
             for (var i = 0; i < customAttributeLength; i++)
             {
-                attributes[i] = customAttributeReflectors[i].Invoke() as Attribute;
+                attributes[i] = customAttributeReflectors[i].Invoke();
             }
             return attributes;
-            //return customAttributeReflectorProvider.CustomAttributeReflectors.
-            //    Select(reflector => (Attribute)reflector.Invoke());
         }
 
         public static IEnumerable<Attribute> GetCustomAttributes(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
@@ -47,7 +45,20 @@ namespace AspectCore.Extensions.Reflection
 
         public static Attribute GetCustomAttribute(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
         {
-            return GetCustomAttributes(customAttributeReflectorProvider, attributeType).FirstOrDefault();
+            if (customAttributeReflectorProvider == null)
+            {
+                throw new ArgumentNullException(nameof(customAttributeReflectorProvider));
+            }
+            var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
+            var customAttributeLength = customAttributeReflectors.Length;
+            for (var i = 0; i < customAttributeLength; i++)
+            {
+                if (customAttributeReflectors[i].AttributeType == attributeType)
+                {
+                    return customAttributeReflectors[i].Invoke();
+                }
+            }
+            return null;
         }
 
         public static TAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeReflectorProvider customAttributeReflectorProvider)
