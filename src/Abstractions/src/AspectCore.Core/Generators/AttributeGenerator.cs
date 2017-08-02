@@ -7,6 +7,7 @@ namespace AspectCore.Core.Generator
 {
     [NonAspect]
     public abstract class AttributeGenerator<TDeclaringMember> : AbstractGenerator<TDeclaringMember, CustomAttributeBuilder>
+        where TDeclaringMember : class
     {
         public abstract CustomAttributeData CustomAttributeData { get; }
 

@@ -34,6 +34,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspectCore.Extensions.Reflection" Version="0.2.0-preview1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
   </ItemGroup>
 

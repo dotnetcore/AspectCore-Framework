@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Core.Internal
 {
@@ -79,7 +80,7 @@ namespace AspectCore.Core.Internal
             for (var i = 0; i < parameterTypes.Length; i++)
             {
                 ilGen.EmitLoadArg(1);
-                ilGen.EmitLoadInt(i);
+                ilGen.EmitInt(i);
                 if (parameterTypes[i].IsByRef)
                 {
                     var defType = parameterTypes[i].GetTypeInfo().MakeDefType();
@@ -104,7 +105,7 @@ namespace AspectCore.Core.Internal
                 if (parameterTypes[i].IsByRef)
                 {
                     ilGen.EmitLoadArg(1);
-                    ilGen.EmitLoadInt(i);
+                    ilGen.EmitInt(i);
                     ilGen.Emit(OpCodes.Ldloc, locals[i]);
                     ilGen.EmitConvertToType(parameterTypes[i].GetTypeInfo().MakeDefType(), typeof(object), true);
                     ilGen.Emit(OpCodes.Stelem_Ref);
