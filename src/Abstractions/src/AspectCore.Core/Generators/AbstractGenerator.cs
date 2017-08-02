@@ -4,7 +4,7 @@ using AspectCore.Abstractions;
 namespace AspectCore.Core.Generator
 {
     [NonAspect]
-    public abstract class AbstractGenerator<TDeclaringMember, TBuilder>
+    public abstract class AbstractGenerator<TDeclaringMember, TBuilder> where TDeclaringMember : class where TBuilder : class
     {
         private readonly object _buildLock = new object();
         private TBuilder _builder;
@@ -17,7 +17,6 @@ namespace AspectCore.Core.Generator
             {
                 throw new ArgumentNullException(nameof(declaringMember));
             }
-
             DeclaringMember = declaringMember;
         }
 
@@ -28,7 +27,7 @@ namespace AspectCore.Core.Generator
             {
                 if (_builder == null)
                 {
-                  _builder = ExecuteBuild();
+                    _builder = ExecuteBuild();
                 }
             }
             return _builder;

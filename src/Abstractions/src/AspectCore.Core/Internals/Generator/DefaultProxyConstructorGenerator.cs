@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Abstractions;
+using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Core.Internal.Generator
 {
@@ -29,11 +30,11 @@ namespace AspectCore.Core.Internal.Generator
             ilGenerator.EmitLoadArg(2);
             if (_serviceType.GetTypeInfo().IsGenericTypeDefinition)
             {
-                ilGenerator.EmitTypeof(_serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitType(_serviceType.GetTypeInfo().MakeGenericType(DeclaringMember.GetGenericArguments()));
             }
             else
             {
-                ilGenerator.EmitTypeof(_serviceType);
+                ilGenerator.EmitType(_serviceType);
             }
             ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.ServiceInstanceProviderGetInstance);
             ilGenerator.EmitConvertToType(typeof(object), _serviceType, false);

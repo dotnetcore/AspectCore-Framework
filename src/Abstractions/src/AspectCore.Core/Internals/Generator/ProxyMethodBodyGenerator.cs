@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using AspectCore.Core.Generator;
+using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Core.Internal.Generator
 {
@@ -50,24 +51,24 @@ namespace AspectCore.Core.Internal.Generator
             if (_serviceType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var serviceTypeOfGeneric = _serviceType.GetTypeInfo().MakeGenericType(_declaringBuilder.GetGenericArguments());
-                ilGenerator.EmitTypeof(serviceTypeOfGeneric);
+                ilGenerator.EmitType(serviceTypeOfGeneric);
             }
             else
             {
-                ilGenerator.EmitTypeof(_serviceType);
+                ilGenerator.EmitType(_serviceType);
             }
 
             if (_serviceMethod.IsGenericMethodDefinition)
             {
-                ilGenerator.EmitMethodof(_serviceMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
-                ilGenerator.EmitMethodof(_parentMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
-                ilGenerator.EmitMethodof(DeclaringMember.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethod(_serviceMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethod(_parentMethod.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
+                ilGenerator.EmitMethod(DeclaringMember.MakeGenericMethod(DeclaringMember.GetGenericArguments()));
             }
             else
             {
-                ilGenerator.EmitMethodof(_serviceMethod);
-                ilGenerator.EmitMethodof(_parentMethod);
-                ilGenerator.EmitMethodof(DeclaringMember);
+                ilGenerator.EmitMethod(_serviceMethod);
+                ilGenerator.EmitMethod(_parentMethod);
+                ilGenerator.EmitMethod(DeclaringMember);
             }
 
             var parameters = _serviceMethod.GetParameterTypes();
@@ -75,12 +76,12 @@ namespace AspectCore.Core.Internal.Generator
             ilGenerator.EmitThis();
             ilGenerator.Emit(OpCodes.Ldfld, _serviceInstanceFieldBuilder);
             ilGenerator.EmitThis();
-            ilGenerator.EmitLoadInt(parameters.Length);
+            ilGenerator.EmitInt(parameters.Length);
             ilGenerator.Emit(OpCodes.Newarr, typeof(object));
             for (var i = 0; i < parameters.Length; i++)
             {
                 ilGenerator.Emit(OpCodes.Dup);
-                ilGenerator.EmitLoadInt(i);
+                ilGenerator.EmitInt(i);
                 ilGenerator.EmitLoadArg(i + 1);
                 ilGenerator.EmitConvertToObject(parameters[i]);
                 ilGenerator.Emit(OpCodes.Stelem_Ref);
