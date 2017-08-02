@@ -11,19 +11,23 @@ namespace AspectCore.Extensions.Reflection
     {
         private readonly CustomAttributeData _customAttributeData;
         private readonly Func<Attribute> _invoker;
+        private readonly Type _attributeType;
 
-        public Type AttributeType { get; }
+        internal readonly int[] _tokens;
+
+        public Type AttributeType => _attributeType;
 
         private CustomAttributeReflector(CustomAttributeData customAttributeData)
         {
             _customAttributeData = customAttributeData ?? throw new ArgumentNullException(nameof(customAttributeData));
-            AttributeType = _customAttributeData.AttributeType;
+            _attributeType = _customAttributeData.AttributeType;
             _invoker = CreateInvoker();
+            _tokens = GetAttrTokens(_attributeType);
         }
 
         private Func<Attribute> CreateInvoker()
         {
-            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(Attribute), null, AttributeType.GetTypeInfo().Module, true);
+            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(Attribute), null, _attributeType.GetTypeInfo().Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
 
             foreach (var constructorParameter in _customAttributeData.ConstructorArguments)
@@ -40,13 +44,13 @@ namespace AspectCore.Extensions.Reflection
                 }
             }
 
-            var attributeLocal = ilGen.DeclareLocal(AttributeType);
+            var attributeLocal = ilGen.DeclareLocal(_attributeType);
 
             ilGen.EmitNew(_customAttributeData.Constructor);
 
             ilGen.Emit(OpCodes.Stloc, attributeLocal);
 
-            var attributeTypeInfo = AttributeType.GetTypeInfo();
+            var attributeTypeInfo = _attributeType.GetTypeInfo();
 
             foreach (var namedArgument in _customAttributeData.NamedArguments)
             {
@@ -75,6 +79,19 @@ namespace AspectCore.Extensions.Reflection
             ilGen.Emit(OpCodes.Ldloc, attributeLocal);
             ilGen.Emit(OpCodes.Ret);
             return (Func<Attribute>)dynamicMethod.CreateDelegate(typeof(Func<Attribute>));
+        }
+
+        private int[] GetAttrTokens(Type attributeType)
+        {
+            var tokenList = new List<int>();
+            for (var attr = attributeType; attr != typeof(object); attr = attr.GetTypeInfo().BaseType)
+            {
+                tokenList.Add(attr.GetTypeInfo().MetadataToken);
+            }
+            var tokens = new int[tokenList.Count];
+            tokenList.CopyTo(tokens);
+            Array.Sort(tokens);
+            return tokens;
         }
 
         public Attribute Invoke()
