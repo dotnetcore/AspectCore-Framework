@@ -62,10 +62,13 @@ namespace AspectCore.Extensions.Reflection.Test
         }
     }
 
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class AttributeFakes : Attribute
     {
     }
-    public class AttributeFakes1 : Attribute
+
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+    public class AttributeFakes1 : AttributeFakes
     {
         public int Id { get; }
         public AttributeFakes1(int id) { Id = id; }
@@ -82,7 +85,6 @@ namespace AspectCore.Extensions.Reflection.Test
 
         public AttributeFakes2(Type type) { Type = type; }
     }
-
     public class AttributeFakes3 : Attribute
     {
         public int[] Ids { get; set; }

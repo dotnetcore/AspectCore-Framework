@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace AspectCore.Extensions.Reflection
 {
@@ -14,15 +15,19 @@ namespace AspectCore.Extensions.Reflection
             }
             var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
             var customAttributeLength = customAttributeReflectors.Length;
-            var attributes = new Attribute[customAttributeLength];
+            if (customAttributeLength == 0)
+            {
+                return new Attribute[0];
+            }
+            var attrs = new Attribute[customAttributeLength];
             for (var i = 0; i < customAttributeLength; i++)
             {
-                attributes[i] = customAttributeReflectors[i].Invoke();
+                attrs[i] = customAttributeReflectors[i].Invoke();
             }
-            return attributes;
+            return attrs;
         }
 
-        public static IEnumerable<Attribute> GetCustomAttributes(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
+        public static Attribute[] GetCustomAttributes(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
         {
             if (customAttributeReflectorProvider == null)
             {
@@ -32,15 +37,51 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(attributeType));
             }
-            return customAttributeReflectorProvider.CustomAttributeReflectors.
-                Where(reflector => reflector.AttributeType == attributeType).
-                Select(reflector => (Attribute)reflector.Invoke());
+            var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
+            var customAttributeLength = customAttributeReflectors.Length;
+            if (customAttributeLength == 0)
+            {
+                return new Attribute[0];
+            }
+            var checkedAttrs = new Attribute[customAttributeLength];
+            var @checked = 0;
+            var attrToken = new AttributeToken(attributeType.GetTypeInfo().MetadataToken);
+            for (var i = 0; i < customAttributeLength; i++)
+            {
+                var reflector = customAttributeReflectors[i];
+                if (reflector._tokens.Contains(attrToken))
+                    checkedAttrs[@checked++] = reflector.Invoke();
+            }
+            var attrs = new Attribute[@checked];
+            Array.Copy(checkedAttrs, attrs, @checked);
+            return attrs;
         }
 
-        public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this ICustomAttributeReflectorProvider customAttributeReflectorProvider)
+        public static TAttribute[] GetCustomAttributes<TAttribute>(this ICustomAttributeReflectorProvider customAttributeReflectorProvider)
             where TAttribute : Attribute
         {
-            return GetCustomAttributes(customAttributeReflectorProvider, typeof(TAttribute)).OfType<TAttribute>();
+            if (customAttributeReflectorProvider == null)
+            {
+                throw new ArgumentNullException(nameof(customAttributeReflectorProvider));
+            }
+            var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
+            var customAttributeLength = customAttributeReflectors.Length;
+            if (customAttributeLength == 0)
+            {
+                return new TAttribute[0];
+            }
+            var checkedAttrs = new TAttribute[customAttributeLength];
+            var @checked = 0;
+            var attrToken = new AttributeToken(typeof(TAttribute).GetTypeInfo().MetadataToken);
+            for (var i = 0; i < customAttributeLength; i++)
+            {
+                var reflector = customAttributeReflectors[i];
+                if (reflector._tokens.Contains(attrToken))
+                    checkedAttrs[@checked++] = (TAttribute)reflector.Invoke();
+            }
+            var attrs = new TAttribute[@checked];
+            Array.Copy(checkedAttrs, attrs, @checked);
+            return attrs;
         }
 
         public static Attribute GetCustomAttribute(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
@@ -51,9 +92,15 @@ namespace AspectCore.Extensions.Reflection
             }
             var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
             var customAttributeLength = customAttributeReflectors.Length;
+            if (customAttributeLength == 0)
+            {
+                return null;
+            }
+            var attrToken = new AttributeToken(attributeType.GetTypeInfo().MetadataToken);
             for (var i = 0; i < customAttributeLength; i++)
             {
-                if (customAttributeReflectors[i].AttributeType == attributeType)
+                var reflector = customAttributeReflectors[i];
+                if (reflector._tokens.Contains(attrToken))
                 {
                     return customAttributeReflectors[i].Invoke();
                 }
@@ -64,7 +111,7 @@ namespace AspectCore.Extensions.Reflection
         public static TAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeReflectorProvider customAttributeReflectorProvider)
            where TAttribute : Attribute
         {
-            return GetCustomAttributes<TAttribute>(customAttributeReflectorProvider).FirstOrDefault();
+            return (TAttribute)GetCustomAttribute(customAttributeReflectorProvider, typeof(TAttribute));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,19 +12,29 @@ namespace AspectCore.Extensions.Reflection
     {
         private readonly CustomAttributeData _customAttributeData;
         private readonly Func<Attribute> _invoker;
+        private readonly Type _attributeType;
 
-        public Type AttributeType { get; }
+        internal readonly HashSet<AttributeToken> _tokens;
+
+        public Type AttributeType => _attributeType;
 
         private CustomAttributeReflector(CustomAttributeData customAttributeData)
         {
             _customAttributeData = customAttributeData ?? throw new ArgumentNullException(nameof(customAttributeData));
-            AttributeType = _customAttributeData.AttributeType;
+            _attributeType = _customAttributeData.AttributeType;
             _invoker = CreateInvoker();
+
+            _tokens = new HashSet<AttributeToken>();
+
+            for (var attrType = _attributeType; attrType != typeof(object); attrType = attrType.GetTypeInfo().BaseType)
+            {
+                _tokens.Add(new AttributeToken(attrType.GetTypeInfo().MetadataToken));
+            }
         }
 
         private Func<Attribute> CreateInvoker()
         {
-            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(Attribute), null, AttributeType.GetTypeInfo().Module, true);
+            var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(Attribute), null, _attributeType.GetTypeInfo().Module, true);
             var ilGen = dynamicMethod.GetILGenerator();
 
             foreach (var constructorParameter in _customAttributeData.ConstructorArguments)
@@ -40,13 +51,13 @@ namespace AspectCore.Extensions.Reflection
                 }
             }
 
-            var attributeLocal = ilGen.DeclareLocal(AttributeType);
+            var attributeLocal = ilGen.DeclareLocal(_attributeType);
 
             ilGen.EmitNew(_customAttributeData.Constructor);
 
             ilGen.Emit(OpCodes.Stloc, attributeLocal);
 
-            var attributeTypeInfo = AttributeType.GetTypeInfo();
+            var attributeTypeInfo = _attributeType.GetTypeInfo();
 
             foreach (var namedArgument in _customAttributeData.NamedArguments)
             {

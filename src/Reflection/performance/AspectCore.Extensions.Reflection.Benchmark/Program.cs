@@ -11,7 +11,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark
             BenchmarkRunner.Run<ConstructorReflectorBenchmarks>();
             BenchmarkRunner.Run<FieldReflectorBenchmarks>();
             BenchmarkRunner.Run<MethodReflectorBenchmarks>();
-            BenchmarkRunner.Run<PropertyReflectorBenchmarks>();    
+            BenchmarkRunner.Run<PropertyReflectorBenchmarks>();
             BenchmarkRunner.Run<CustomAttributeReflectorBenchmarks>();
         }
     }

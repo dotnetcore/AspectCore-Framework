@@ -24,25 +24,40 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
         [Attribute1]
         [Attribute2("benchmark", Id = 10000)]
         [Benchmark]
+        [Attribute3]
+        [Attribute3]
+        [Attribute3]
         public Attribute Reflection_GetCustomAttribute()
         {
-            return _method.GetCustomAttribute(typeof(Attribute1));
+            return _method.GetCustomAttribute(typeof(Attribute2));
         }
 
         [Benchmark]
         public Attribute AspectCore_Reflector_GetCustomAttribute()
         {
-            return _reflector.GetCustomAttribute(typeof(Attribute1));
+            return _reflector.GetCustomAttribute(typeof(Attribute2));
         }
 
         [Benchmark]
-        public Attribute[] Reflection_GetCustomAttributes()
+        public IEnumerable<Attribute> Reflection_GetCustomAttributes_WithAttrType()
         {
-            return _method.GetCustomAttributes().ToArray();
+            return _method.GetCustomAttributes(typeof(Attribute1));
         }
 
         [Benchmark]
-        public Attribute[] AspectCore_Reflector_GetCustomAttributes()
+        public IEnumerable<Attribute> AspectCore_Reflector_GetCustomAttributes_WithAttrType()
+        {
+            return _reflector.GetCustomAttributes(typeof(Attribute1));
+        }
+
+        [Benchmark]
+        public IEnumerable<Attribute> Reflection_GetCustomAttributes_All()
+        {
+            return _method.GetCustomAttributes();
+        }
+
+        [Benchmark]
+        public IEnumerable<Attribute> AspectCore_Reflector_GetCustomAttributes_All()
         {
             return _reflector.GetCustomAttributes();
         }
@@ -61,5 +76,10 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
         {
             Title = title;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+    public class Attribute3 : Attribute1
+    {
     }
 }
