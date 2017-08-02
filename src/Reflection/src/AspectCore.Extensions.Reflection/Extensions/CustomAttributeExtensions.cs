@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AspectCore.Extensions.Reflection
 {
     public static class CustomAttributeExtensions
     {
+        private static readonly Attribute[] empty = new Attribute[0];
+
         public static Attribute[] GetCustomAttributes(this ICustomAttributeReflectorProvider customAttributeReflectorProvider)
         {
             if (customAttributeReflectorProvider == null)
@@ -17,7 +18,7 @@ namespace AspectCore.Extensions.Reflection
             var customAttributeLength = customAttributeReflectors.Length;
             if (customAttributeLength == 0)
             {
-                return new Attribute[0];
+                return empty;
             }
             var attrs = new Attribute[customAttributeLength];
             for (var i = 0; i < customAttributeLength; i++)
@@ -41,16 +42,20 @@ namespace AspectCore.Extensions.Reflection
             var customAttributeLength = customAttributeReflectors.Length;
             if (customAttributeLength == 0)
             {
-                return new Attribute[0];
+                return empty;
             }
             var checkedAttrs = new Attribute[customAttributeLength];
             var @checked = 0;
-            var attrToken = new AttributeToken(attributeType.GetTypeInfo().MetadataToken);
+            var attrToken = attributeType.GetTypeInfo().MetadataToken;
             for (var i = 0; i < customAttributeLength; i++)
             {
                 var reflector = customAttributeReflectors[i];
-                if (reflector._tokens.Contains(attrToken))
+                if (ContainsToken(reflector._tokens, attrToken))
                     checkedAttrs[@checked++] = reflector.Invoke();
+            }
+            if (customAttributeLength == @checked)
+            {
+                return checkedAttrs;
             }
             var attrs = new Attribute[@checked];
             Array.Copy(checkedAttrs, attrs, @checked);
@@ -72,12 +77,16 @@ namespace AspectCore.Extensions.Reflection
             }
             var checkedAttrs = new TAttribute[customAttributeLength];
             var @checked = 0;
-            var attrToken = new AttributeToken(typeof(TAttribute).GetTypeInfo().MetadataToken);
+            var attrToken = typeof(TAttribute).GetTypeInfo().MetadataToken;
             for (var i = 0; i < customAttributeLength; i++)
             {
                 var reflector = customAttributeReflectors[i];
-                if (reflector._tokens.Contains(attrToken))
+                if (ContainsToken(reflector._tokens, attrToken))
                     checkedAttrs[@checked++] = (TAttribute)reflector.Invoke();
+            }
+            if (customAttributeLength == @checked)
+            {
+                return checkedAttrs;
             }
             var attrs = new TAttribute[@checked];
             Array.Copy(checkedAttrs, attrs, @checked);
@@ -90,17 +99,21 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(customAttributeReflectorProvider));
             }
+            if (attributeType == null)
+            {
+                throw new ArgumentNullException(nameof(attributeType));
+            }
             var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
             var customAttributeLength = customAttributeReflectors.Length;
             if (customAttributeLength == 0)
             {
                 return null;
             }
-            var attrToken = new AttributeToken(attributeType.GetTypeInfo().MetadataToken);
+            var attrToken = attributeType.GetTypeInfo().MetadataToken;
             for (var i = 0; i < customAttributeLength; i++)
             {
                 var reflector = customAttributeReflectors[i];
-                if (reflector._tokens.Contains(attrToken))
+                if (ContainsToken(reflector._tokens, attrToken))
                 {
                     return customAttributeReflectors[i].Invoke();
                 }
@@ -112,6 +125,67 @@ namespace AspectCore.Extensions.Reflection
            where TAttribute : Attribute
         {
             return (TAttribute)GetCustomAttribute(customAttributeReflectorProvider, typeof(TAttribute));
+        }
+
+        public static bool IsDefined(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
+        {
+            if (customAttributeReflectorProvider == null)
+            {
+                throw new ArgumentNullException(nameof(customAttributeReflectorProvider));
+            }
+            if (attributeType == null)
+            {
+                throw new ArgumentNullException(nameof(attributeType));
+            }
+            var customAttributeReflectors = customAttributeReflectorProvider.CustomAttributeReflectors;
+            var customAttributeLength = customAttributeReflectors.Length;
+            if (customAttributeLength == 0)
+            {
+                return false;
+            }
+            var attrToken = attributeType.GetTypeInfo().MetadataToken;
+            for (var i = 0; i < customAttributeLength; i++)
+            {
+                if (ContainsToken(customAttributeReflectors[i]._tokens, attrToken))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsDefined<TAttribute>(this ICustomAttributeReflectorProvider customAttributeReflectorProvider) where TAttribute : Attribute
+        {
+            return IsDefined(customAttributeReflectorProvider, typeof(TAttribute));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool ContainsToken(int[] tokens, int token)
+        {
+            var length = tokens.Length;
+            if (length == 1)
+            {
+                return tokens[0] == token;
+            }
+            var first = 0;
+            while (first <= length)
+            {
+                var middle = (first + length) / 2;
+                var entry = tokens[middle];
+                if (entry == token)
+                {
+                    return true;
+                }
+                else if (entry < token)
+                {
+                    first = middle + 1;
+                }
+                else
+                {
+                    length = middle - 1;
+                }
+            }
+            return false;
         }
     }
 }

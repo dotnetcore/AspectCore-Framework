@@ -43,5 +43,14 @@ namespace AspectCore.Extensions.Reflection.Test
             var attr2 = (AttributeFakes2)reflector.GetCustomAttribute(typeof(AttributeFakes2));
             Assert.Equal(typeof(object), attr2.Type);
         }
+
+        [Fact]
+        public void IsDefined_Test()
+        {
+            var reflector = typeof(CustomAttributeExtensionsTests).GetReflector();
+            Assert.True(reflector.IsDefined<AttributeFakes>());
+            Assert.True(reflector.IsDefined<AttributeFakes2>());
+            Assert.True(reflector.IsDefined<Attribute>());
+        }
     }
 }

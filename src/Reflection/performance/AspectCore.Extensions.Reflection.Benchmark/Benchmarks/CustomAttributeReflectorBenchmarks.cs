@@ -61,6 +61,18 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
         {
             return _reflector.GetCustomAttributes();
         }
+
+        [Benchmark]
+        public bool Reflection_IsDefined()
+        {
+            return _method.IsDefined(typeof(Attribute3));
+        }
+
+        [Benchmark]
+        public bool AspectCore_Reflector_IsDefined()
+        {
+            return _reflector.IsDefined(typeof(Attribute3));
+        }
     }
 
     public class Attribute1 : Attribute

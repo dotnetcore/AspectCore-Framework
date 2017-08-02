@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -14,7 +13,7 @@ namespace AspectCore.Extensions.Reflection
         private readonly Func<Attribute> _invoker;
         private readonly Type _attributeType;
 
-        internal readonly HashSet<AttributeToken> _tokens;
+        internal readonly int[] _tokens;
 
         public Type AttributeType => _attributeType;
 
@@ -23,13 +22,7 @@ namespace AspectCore.Extensions.Reflection
             _customAttributeData = customAttributeData ?? throw new ArgumentNullException(nameof(customAttributeData));
             _attributeType = _customAttributeData.AttributeType;
             _invoker = CreateInvoker();
-
-            _tokens = new HashSet<AttributeToken>();
-
-            for (var attrType = _attributeType; attrType != typeof(object); attrType = attrType.GetTypeInfo().BaseType)
-            {
-                _tokens.Add(new AttributeToken(attrType.GetTypeInfo().MetadataToken));
-            }
+            _tokens = GetAttrTokens(_attributeType);
         }
 
         private Func<Attribute> CreateInvoker()
@@ -86,6 +79,19 @@ namespace AspectCore.Extensions.Reflection
             ilGen.Emit(OpCodes.Ldloc, attributeLocal);
             ilGen.Emit(OpCodes.Ret);
             return (Func<Attribute>)dynamicMethod.CreateDelegate(typeof(Func<Attribute>));
+        }
+
+        private int[] GetAttrTokens(Type attributeType)
+        {
+            var tokenList = new List<int>();
+            for (var attr = attributeType; attr != typeof(object); attr = attr.GetTypeInfo().BaseType)
+            {
+                tokenList.Add(attr.GetTypeInfo().MetadataToken);
+            }
+            var tokens = new int[tokenList.Count];
+            tokenList.CopyTo(tokens);
+            Array.Sort(tokens);
+            return tokens;
         }
 
         public Attribute Invoke()

@@ -72,6 +72,7 @@ namespace AspectCore.Extensions.Reflection.Internals
             }
             return true;
         }
+
         private static bool IsDelegate(TypeInfo t)
         {
             return t.IsSubclassOf(typeof(System.MulticastDelegate));
