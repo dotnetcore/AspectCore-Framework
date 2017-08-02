@@ -6,20 +6,26 @@
     <VersionPrefix>0.0.1.0</VersionPrefix>
     <Authors>Lemon</Authors>
     <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Extensions.Reflection</AssemblyName>
     <PackageId>AspectCore.Extensions.Reflection</PackageId>
     <PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
     <PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/AspectCore/Reflection</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore-Framework</PackageProjectUrl>
     <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/AspectCore/Reflection</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dotnetcore/AspectCore-Framework</RepositoryUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <FileVersion>0.2.0.0</FileVersion>
+    <Version>0.2.0-preview1</Version>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">

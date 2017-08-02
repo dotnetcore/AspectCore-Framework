@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>AspectCore.Extensions.Reflection.Test</AssemblyName>
     <PackageId>AspectCore.Extensions.Reflection.Test</PackageId>
