@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AspectCore.Extensions.IoC
 {
-    public class ServiceDefinition
+    public abstract class ServiceDefinition
     {
     }
 }
