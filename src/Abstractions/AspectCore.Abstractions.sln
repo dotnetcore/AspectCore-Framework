@@ -11,11 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Abstractions", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Core", "src\AspectCore.Core\AspectCore.Core.csproj", "{54FFB88E-6E90-4E57-886D-A8430039DA23}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{DFD09A00-24EA-41C3-BDD6-C8935F52D01C}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\build\common.props = ..\..\build\common.props
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
