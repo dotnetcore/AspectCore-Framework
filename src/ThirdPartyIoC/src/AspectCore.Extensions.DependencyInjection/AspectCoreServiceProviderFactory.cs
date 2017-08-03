@@ -70,10 +70,10 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
             var services = CreateBuilder(containerBuilder);
-            var serviceProider = services.BuildServiceProvider();
+            var serviceProider = services.BuildServiceProvider(false);
             if (services.Any(x => x.ServiceType == typeof(IAspectCoreServiceProvider)))
             {
-                return serviceProider.GetRequiredService<IAspectCoreServiceProvider>();
+                return serviceProider.GetService<IAspectCoreServiceProvider>();
             }
             return serviceProider;
         }
