@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73F38B6C-1A05-41C8-8029-D1F2F41D3279}"
 EndProject
@@ -10,6 +10,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Abstractions", "src\AspectCore.Abstractions\AspectCore.Abstractions.csproj", "{F85D3075-97C2-4AC1-9B36-DB752C0EDBEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Core", "src\AspectCore.Core\AspectCore.Core.csproj", "{54FFB88E-6E90-4E57-886D-A8430039DA23}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{DFD09A00-24EA-41C3-BDD6-C8935F52D01C}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\build\common.props = ..\..\build\common.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
