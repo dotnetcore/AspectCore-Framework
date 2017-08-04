@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <SignAssembly>False</SignAssembly>
+  </PropertyGroup>
+</Project>
