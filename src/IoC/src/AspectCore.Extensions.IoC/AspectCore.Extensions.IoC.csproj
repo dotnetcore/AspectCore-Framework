@@ -1,42 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
+  <Import Project="..\..\..\..\build\common.props" />
+  <Import Project="..\..\..\..\build\net45.props" />
+  
   <PropertyGroup>
     <Description>IoC Container for AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.IoC</AssemblyTitle>
-    <VersionPrefix>0.2.0</VersionPrefix>
-    <Authors>Lemon</Authors>
     <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.IoC</AssemblyName>
     <PackageId>AspectCore.Extensions.IoC</PackageId>
     <PackageTags>DynamicProxy;Aop;IoC;Aspect;AspectCore</PackageTags>
     <PackageReleaseNotes>IoC Container for AspectCore Framework.</PackageReleaseNotes>
-    <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore-Framework</PackageProjectUrl>
-    <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/dotnetcore/AspectCore-Framework</RepositoryUrl>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.2.0-preview1</Version>
-    <DelaySign>False</DelaySign>
-    <AssemblyVersion>0.2.0.0</AssemblyVersion>
-    <FileVersion>0.2.0.0</FileVersion>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
+  
   <ItemGroup>
+    <PackageReference Include="AspectCore.Abstractions" Version="0.2.0-preview1" />
     <PackageReference Include="AspectCore.Extensions.Reflection" Version="0.2.0-preview1" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
   </ItemGroup>
