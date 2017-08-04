@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <Import Project="..\..\..\..\build\common.props" />
+  <Import Project="..\..\..\..\build\net45.props" />
+  
+  <PropertyGroup>
+    <Description>IoC Container for AspectCore Framework.</Description>
+    <AssemblyTitle>AspectCore.Extensions.IoC</AssemblyTitle>
+    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <AssemblyName>AspectCore.Extensions.IoC</AssemblyName>
+    <PackageId>AspectCore.Extensions.IoC</PackageId>
+    <PackageTags>DynamicProxy;Aop;IoC;Aspect;AspectCore</PackageTags>
+    <PackageReleaseNotes>IoC Container for AspectCore Framework.</PackageReleaseNotes>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="AspectCore.Abstractions" Version="0.2.0-preview1" />
+    <PackageReference Include="AspectCore.Extensions.Reflection" Version="0.2.0-preview1" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

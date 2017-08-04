@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.IoC", "src\AspectCore.Extensions.IoC\AspectCore.Extensions.IoC.csproj", "{ECD18976-CAD8-43B6-B90D-6DD8E7BF7082}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3AF5E2C2-E2C5-4913-85E6-BB3A7BE6CE5F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECD18976-CAD8-43B6-B90D-6DD8E7BF7082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECD18976-CAD8-43B6-B90D-6DD8E7BF7082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECD18976-CAD8-43B6-B90D-6DD8E7BF7082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECD18976-CAD8-43B6-B90D-6DD8E7BF7082}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ECD18976-CAD8-43B6-B90D-6DD8E7BF7082} = {3AF5E2C2-E2C5-4913-85E6-BB3A7BE6CE5F}
+	EndGlobalSection
+EndGlobal
