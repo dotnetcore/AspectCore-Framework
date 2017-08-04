@@ -1,0 +1,20 @@
+<Project>
+  <Import Project="sign.props" />
+  <Import Project="version.props" />
+  <PropertyGroup>
+    <Authors>Lemon</Authors>
+    <Product>AspectCore Framework</Product>
+    <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore-Framework</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/dotnetcore/AspectCore-Framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/dotnetcore/AspectCore-Framework</RepositoryUrl>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>  
+    <NETStandardImplicitPackageVersion>1.6.1</NETStandardImplicitPackageVersion>
+    <NETStandardLibraryNETFrameworkVersion>1.6.1</NETStandardLibraryNETFrameworkVersion>
+  </PropertyGroup>
+</Project>
