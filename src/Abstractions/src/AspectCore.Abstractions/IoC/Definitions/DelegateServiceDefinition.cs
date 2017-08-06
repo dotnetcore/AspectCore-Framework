@@ -1,7 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Extensions.IoC.Definitions
+namespace AspectCore.Abstractions
 {
     public sealed class DelegateServiceDefinition : ServiceDefinition
     {
