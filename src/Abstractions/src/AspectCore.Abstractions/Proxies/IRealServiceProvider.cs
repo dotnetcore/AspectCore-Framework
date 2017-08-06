@@ -2,6 +2,7 @@
 
 namespace AspectCore.Abstractions
 {
+    [Obsolete("Use IOriginalServiceResolver to replace IRealServiceProvider.")]
     [NonAspect]
     public interface IRealServiceProvider : IServiceProvider
     {
@@ -9,6 +10,7 @@ namespace AspectCore.Abstractions
 
     public static class ServiceProviderExtensions
     {
+        [Obsolete("Use IOriginalServiceResolver.GetService to replace GetRealService.")]
         public static object GetRealService(this IServiceProvider serviceProvider, Type serviceType)
         {
             if (serviceProvider == null)
@@ -23,6 +25,7 @@ namespace AspectCore.Abstractions
             return readServiceProvider?.GetService(serviceType);
         }
 
+        [Obsolete("Use IOriginalServiceResolver.GetService to replace GetRealService.")]
         public static T GetRealService<T>(this IServiceProvider serviceProvider)
         {
             return (T)serviceProvider.GetRealService(typeof(T));
