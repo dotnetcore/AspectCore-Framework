@@ -13,20 +13,20 @@ namespace AspectCore.Core
         private static readonly IDictionary<MethodInfo, IEnumerable<IInterceptor>> interceptorCache = new Dictionary<MethodInfo, IEnumerable<IInterceptor>>();
 
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
-        private readonly IInterceptorInjectorProvider _interceptorInjectorProvider;
+        private readonly IPropertyInjectorFactory _propertyInjectorFactory;
 
-        public InterceptorProvider(IEnumerable<IInterceptorSelector> interceptorSelectors, IInterceptorInjectorProvider interceptorInjectorProvider)
+        public InterceptorProvider(IEnumerable<IInterceptorSelector> interceptorSelectors, IPropertyInjectorFactory propertyInjectorFactory)
         {
             if (interceptorSelectors == null)
             {
                 throw new ArgumentNullException(nameof(interceptorSelectors));
             }
-            if (interceptorInjectorProvider == null)
+            if (propertyInjectorFactory == null)
             {
-                throw new ArgumentNullException(nameof(interceptorInjectorProvider));
+                throw new ArgumentNullException(nameof(propertyInjectorFactory));
             }
             _interceptorSelectors = interceptorSelectors;
-            _interceptorInjectorProvider = interceptorInjectorProvider;
+            _propertyInjectorFactory = propertyInjectorFactory;
         }
 
         public IEnumerable<IInterceptor> GetInterceptors(MethodInfo method)
@@ -44,7 +44,7 @@ namespace AspectCore.Core
             {
                 foreach (var interceptor in selector.Select(method, method.DeclaringType.GetTypeInfo()))
                 {
-                    _interceptorInjectorProvider.GetInjector(interceptor.GetType()).Inject(interceptor);
+                    _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
                     yield return interceptor;
                 }
             }

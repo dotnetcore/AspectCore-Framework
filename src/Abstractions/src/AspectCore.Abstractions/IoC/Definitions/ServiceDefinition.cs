@@ -1,9 +1,8 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Extensions.IoC.Definitions
+namespace AspectCore.Abstractions
 {
-    public abstract class ServiceDefinition : IServiceDefinition
+    public abstract class ServiceDefinition
     {
         public object Key { get; }
 

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Extensions.IoC.Definitions
+namespace AspectCore.Abstractions
 {
     public sealed class TypeServiceDefinition : ServiceDefinition
     {
@@ -11,7 +10,7 @@ namespace AspectCore.Extensions.IoC.Definitions
             ImplementationType = implementationType ?? throw new ArgumentNullException(nameof(implementationType));
             if (!serviceType.GetTypeInfo().IsAssignableFrom(implementationType))
             {
-                throw new ArgumentException($"{implementationType} is not a subclass or implementation type of {serviceType}.", nameof(implementationType));
+                throw new ArgumentException($"Type '{implementationType}' is not a subclass or implementation type of type '{serviceType}'.", nameof(implementationType));
             }
         }
 
