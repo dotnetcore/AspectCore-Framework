@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public interface IServiceContainer : IEnumerable<IServiceDefinition>
+    public interface IServiceContainer : IEnumerable<ServiceDefinition>
     {
         ILifetimeServiceContainer Singletons { get; }
 
@@ -14,7 +14,7 @@ namespace AspectCore.Abstractions
 
         int Count { get; }
 
-        void Add(IServiceDefinition item);
+        void Add(ServiceDefinition item);
 
         bool Contains(Type serviceType);
     }
