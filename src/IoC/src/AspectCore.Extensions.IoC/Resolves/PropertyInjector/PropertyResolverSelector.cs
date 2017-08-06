@@ -27,11 +27,14 @@ namespace AspectCore.Extensions.IoC.Resolves
         {
             foreach (var property in type.GetTypeInfo().GetProperties())
             {
-                if (property.CanWrite && property.IsDefined(typeof(InjectAttribute)))
+                if (property.CanWrite)
                 {
-                    yield return new PropertyResolver(
-                        resolver => resolver.Resolve(property.PropertyType),
-                        property.GetReflector());
+                    var reflector = property.GetReflector();
+                    if (reflector.IsDefined(typeof(InjectAttribute)))
+                    {
+                        var key = reflector.GetCustomAttribute<KeydAttribute>()?.Key;
+                        yield return new PropertyResolver(resolver => resolver.Resolve(property.PropertyType, key), reflector);
+                    }
                 }
             }
         }
