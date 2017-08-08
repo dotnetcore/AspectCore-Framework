@@ -37,6 +37,14 @@ namespace AspectCore.Extensions.IoC.Resolves
 
         public IServiceFactory Resolve(ServiceKey key)
         {
+            if (_enableProxy)
+            {
+
+            }
+            else
+            {
+
+            }
             return null;
         }
 

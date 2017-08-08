@@ -63,7 +63,7 @@ namespace AspectCore.Extensions.IoC.Resolves
                 //get key
                 var parameter = parameters[i];
                 var serviceType = parameter.ParameterType;
-                var key = parameter.GetCustomAttribute<KeydAttribute>()?.Key;
+                var key = parameter.GetCustomAttribute<InjectAttribute>()?.Key;
                 if (!_services.Contains(new ServiceKey(serviceType, key)))
                 {
                     if (!parameter.HasDefaultValue)

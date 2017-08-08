@@ -29,7 +29,7 @@ namespace AspectCore.Extensions.IoC
 
         public object GetService(Type serviceType) => Resolve(serviceType, null);
 
-        public object Resolve(Type serviceType, object key)
+        public object Resolve(Type serviceType, string key)
         {
             if (serviceType == null)
             {

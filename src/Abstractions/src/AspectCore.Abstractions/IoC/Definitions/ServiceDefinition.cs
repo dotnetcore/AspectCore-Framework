@@ -4,13 +4,13 @@ namespace AspectCore.Abstractions
 {
     public abstract class ServiceDefinition
     {
-        public object Key { get; }
+        public string Key { get; }
 
         public Type ServiceType { get; }
 
         public Lifetime Lifetime { get; }
 
-        public ServiceDefinition(Type serviceType, Lifetime lifetime, object key)
+        public ServiceDefinition(Type serviceType, Lifetime lifetime, string key)
         {
             Key = key;
             Lifetime = lifetime;

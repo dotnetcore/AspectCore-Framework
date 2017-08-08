@@ -32,7 +32,7 @@ namespace AspectCore.Extensions.IoC.Resolves
                     var reflector = property.GetReflector();
                     if (reflector.IsDefined(typeof(InjectAttribute)))
                     {
-                        var key = reflector.GetCustomAttribute<KeydAttribute>()?.Key;
+                        var key = reflector.GetCustomAttribute<InjectAttribute>()?.Key;
                         yield return new PropertyResolver(resolver => resolver.Resolve(property.PropertyType, key), reflector);
                     }
                 }
