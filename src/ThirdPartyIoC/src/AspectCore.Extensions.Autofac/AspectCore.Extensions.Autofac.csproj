@@ -1,40 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\..\..\build\common.props" />
+  <Import Project="..\..\..\..\build\net45.props" />
+
   <PropertyGroup>
     <Description>Interceptor and dynamicProxy support for Autofac via AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.Autofac</AssemblyTitle>
-    <VersionPrefix>0.2.0</VersionPrefix>
-    <Authors>Lemon</Authors>
     <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.Autofac</AssemblyName>
     <PackageId>AspectCore.Extensions.Autofac</PackageId>
     <PackageTags>DynamicProxy;Aop;Autofac;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for Autofac via AspectCore Framework.</PackageReleaseNotes>
-    <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore-Framework</PackageProjectUrl>
-    <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/dotnetcore/AspectCore-Framework</RepositoryUrl>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <SignAssembly>True</SignAssembly>
-    <DelaySign>False</DelaySign>
-    <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Version>0.2.0-preview1</Version>
-    <AssemblyVersion>0.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AspectCore.Core" Version="0.2.0-preview1" />
     <PackageReference Include="AspectCore.Extensions.Configuration" Version="0.2.0-preview1" />
     <PackageReference Include="Autofac" Version="4.0.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
 </Project>

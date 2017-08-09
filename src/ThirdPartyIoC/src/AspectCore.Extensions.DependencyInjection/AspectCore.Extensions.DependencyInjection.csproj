@@ -2,13 +2,12 @@
 
   <Import Project="..\..\..\..\build\common.props" />
   <Import Project="..\..\..\..\build\net46.props" />
+  <Import Project="..\..\..\..\build\netstandard20.props" />
   
   <PropertyGroup>
     <Description>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.DependencyInjection</AssemblyTitle>
-    <VersionPrefix>0.2.0</VersionPrefix>
-    <Authors>Lemon</Authors>
-    <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;netstandard2.0;net46</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.DependencyInjection</AssemblyName>
     <PackageId>AspectCore.Extensions.DependencyInjection</PackageId>
     <PackageTags>DynamicProxy;Aop;DependencyInjection;AspectCore</PackageTags>
@@ -18,7 +17,14 @@
   <ItemGroup>
     <PackageReference Include="AspectCore.Core" Version="0.2.0-preview1" />
     <PackageReference Include="AspectCore.Extensions.Configuration" Version="0.2.0-preview1" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
   </ItemGroup>
-
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0-*" />
+  </ItemGroup>
 </Project>
