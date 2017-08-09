@@ -9,10 +9,13 @@ namespace AspectCore.Extensions.IoC.Resolves
 
         public Type ImplementationType { get; }
 
+        public ServiceDefinition ServiceDefinition { get; }
+
         public TypeServiceFactory(TypeServiceDefinition serviceDefinition)
         {
             ServiceKey = new ServiceKey(serviceDefinition.ServiceType, serviceDefinition.Key);
             ImplementationType = serviceDefinition.ImplementationType;
+            ServiceDefinition = serviceDefinition;
         }
 
         public object Invoke(IServiceResolver serviceResolver)

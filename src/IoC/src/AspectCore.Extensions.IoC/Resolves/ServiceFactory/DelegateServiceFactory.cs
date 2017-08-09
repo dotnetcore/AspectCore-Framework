@@ -9,15 +9,18 @@ namespace AspectCore.Extensions.IoC.Resolves
 
         public ServiceKey ServiceKey { get; }
 
-        public DelegateServiceFactory(ServiceKey serviceKey, Func<IServiceResolver, object> implementationDelegate)
+        public ServiceDefinition ServiceDefinition { get; }
+
+        public DelegateServiceFactory(DelegateServiceDefinition serviceDefinition)
         {
-            ServiceKey = serviceKey;
-            _implementationDelegate = implementationDelegate;
+            ServiceDefinition = serviceDefinition;
+            ServiceKey = new ServiceKey(serviceDefinition.ServiceType, serviceDefinition.Key);
+            _implementationDelegate = serviceDefinition.ImplementationDelegate;
         }
 
-        public object Invoke(IServiceResolver resolver)
+        public object Invoke(IServiceResolver serviceResolver)
         {
-            return _implementationDelegate(resolver);
+            return _implementationDelegate(serviceResolver);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace AspectCore.Extensions.IoC
         internal readonly ServiceFactoryResolver _serviceFactoryResolver;
 
         internal ServiceResolver(IEnumerable<ServiceDefinition> services)
-            : this(new ServiceFactoryResolver(services, true))
+            : this(new ServiceFactoryResolver(services))
         {
         }
 

@@ -16,6 +16,9 @@ namespace AspectCore.Extensions.IoC.Resolves
         public ConstructorSelector(IEnumerable<ServiceDefinition> services)
         {
             _services = new HashSet<ServiceKey>(services.Select(x => new ServiceKey(x.ServiceType, x.Key)));
+            _services.Add(new ServiceKey(typeof(IServiceResolver), null));
+            _services.Add(new ServiceKey(typeof(ConstructorSelector), null));
+            _services.Add(new ServiceKey(typeof(IPropertyInjectorFactory), null));
         }
 
         public ConstructorResolver Select(Type implementationType)
