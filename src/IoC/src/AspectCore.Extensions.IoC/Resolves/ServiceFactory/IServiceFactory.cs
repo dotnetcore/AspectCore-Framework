@@ -6,6 +6,8 @@ namespace AspectCore.Extensions.IoC.Resolves
     {
         ServiceKey ServiceKey { get; }
 
-        object Invoke(IServiceResolver resolver);
+        ServiceDefinition ServiceDefinition { get; }
+
+        object Invoke(IServiceResolver serviceResolver);
     }
 }

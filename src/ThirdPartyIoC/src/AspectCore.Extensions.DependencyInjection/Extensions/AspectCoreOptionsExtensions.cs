@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
-    public static class AspectCoreOptionsExtensions
+    internal static class AspectCoreOptionsExtensions
     {
         public static AspectCoreOptions AddScopedServiceAccessor(this AspectCoreOptions options)
         {

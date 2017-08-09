@@ -38,8 +38,8 @@ namespace AspectCore.Extensions.IoC
         {
             if (!_collection.Any(x => x.ServiceType == typeof(IServiceProvider) && x.Key == null))
                 Scopeds.AddDelegate<IServiceProvider>(resolver => resolver.Resolve<IServiceResolver>());
-            if (!_collection.Any(x => x.ServiceType == typeof(IPropertyInjectorFactory) && x.Key == null))
-                Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>();
+            //if (!_collection.Any(x => x.ServiceType == typeof(IPropertyInjectorFactory) && x.Key == null))
+            //    Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>();
         }
 
         public int Count => _collection.Count;

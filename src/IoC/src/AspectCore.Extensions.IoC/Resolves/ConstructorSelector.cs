@@ -16,6 +16,9 @@ namespace AspectCore.Extensions.IoC.Resolves
         public ConstructorSelector(IEnumerable<ServiceDefinition> services)
         {
             _services = new HashSet<ServiceKey>(services.Select(x => new ServiceKey(x.ServiceType, x.Key)));
+            _services.Add(new ServiceKey(typeof(IServiceResolver), null));
+            _services.Add(new ServiceKey(typeof(ConstructorSelector), null));
+            _services.Add(new ServiceKey(typeof(IPropertyInjectorFactory), null));
         }
 
         public ConstructorResolver Select(Type implementationType)
@@ -63,7 +66,7 @@ namespace AspectCore.Extensions.IoC.Resolves
                 //get key
                 var parameter = parameters[i];
                 var serviceType = parameter.ParameterType;
-                var key = parameter.GetCustomAttribute<KeydAttribute>()?.Key;
+                var key = parameter.GetCustomAttribute<InjectAttribute>()?.Key;
                 if (!_services.Contains(new ServiceKey(serviceType, key)))
                 {
                     if (!parameter.HasDefaultValue)

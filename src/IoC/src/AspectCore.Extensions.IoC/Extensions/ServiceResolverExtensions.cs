@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.IoC
             return (T)serviceResolver?.Resolve(typeof(T), null);
         }
 
-        public static T Resolve<T>(this IServiceResolver serviceResolver, object key)
+        public static T Resolve<T>(this IServiceResolver serviceResolver, string key)
         {
             return (T)serviceResolver?.Resolve(typeof(T), key);
         }

@@ -18,7 +18,7 @@ namespace AspectCore.Extensions.DependencyInjection.Test
             var proxyServices = aspectCoreServiceProviderFactory.CreateBuilder(services);
             var descriptor = Assert.Single(proxyServices, d => d.ServiceType == typeof(IService));
             Assert.NotNull(descriptor.ImplementationType);
-            Assert.Equal(descriptor.Lifetime, ServiceLifetime.Transient);
+            Assert.Equal(ServiceLifetime.Transient, descriptor.Lifetime);
             Assert.IsNotType<Service>(descriptor.ImplementationType);
             Assert.True(descriptor.ImplementationType.GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
         }

@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using AspectCore.Abstractions;
 using AspectCore.Extensions.IoC.Resolves;
 
@@ -10,21 +9,44 @@ namespace AspectCore.Extensions.IoC
     {
         public static IServiceFactory CreateServiceFactory(this ServiceDefinition serviceDefinition)
         {
+            return new PropertyInjectServiceFactory(GetDefinitionServiceFactory());
 
-            if(serviceDefinition is InstanceServiceDefinition instanceServiceDefinition)
+            IServiceFactory GetDefinitionServiceFactory()
             {
-                return new InstanceServiceFactory(instanceServiceDefinition);
+                if (serviceDefinition is InstanceServiceDefinition instanceServiceDefinition)
+                {
+                    return new InstanceServiceFactory(instanceServiceDefinition);
+                }
+                else if (serviceDefinition is DelegateServiceDefinition delegaetServiceDefinition)
+                {
+                    return new DelegateServiceFactory(delegaetServiceDefinition);
+                }
+                else if (serviceDefinition is TypeServiceDefinition typeServiceDefinition)
+                {
+                    return new TypeServiceFactory(typeServiceDefinition);
+                }
+                throw new InvalidOperationException("Unsupported service definition.");
             }
-            else if(serviceDefinition is DelegateServiceDefinition delegaetServiceDefinition)
+        }
+
+        public static Type GetImplementationType(this ServiceDefinition serviceDefinition)
+        {
+            if (serviceDefinition is TypeServiceDefinition typeServiceDefinition)
             {
-                return /*new DelegateServiceFactory(delegaetServiceDefinition);*/ null;
+                return typeServiceDefinition.ImplementationType;
             }
-            else if(serviceDefinition is TypeServiceDefinition typeServiceDefinition)
+            else if (serviceDefinition is InstanceServiceDefinition instanceServiceDefinition)
             {
-                return null;
+                return instanceServiceDefinition.ImplementationInstance.GetType();
+            }
+            else if (serviceDefinition is DelegateServiceDefinition delegaetServiceDefinition)
+            {
+                var typeArguments = delegaetServiceDefinition.ImplementationDelegate.GetType().GenericTypeArguments;
+
+                return typeArguments[1];
             }
 
-
+            Debug.Assert(false, "ImplementationType, ImplementationInstance or ImplementationFactory must be non null");
             return null;
         }
     }
