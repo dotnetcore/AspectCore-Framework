@@ -12,6 +12,7 @@
     <PackageId>AspectCore.Extensions.DependencyInjection</PackageId>
     <PackageTags>DynamicProxy;Aop;DependencyInjection;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

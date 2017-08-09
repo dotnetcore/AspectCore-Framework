@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\..\..\build\common.props" />
+  <Import Project="..\..\..\..\build\net45.props" />
+    
   <PropertyGroup>
     <Description>Configuration extension system for AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.Configuration</AssemblyTitle>
-    <VersionPrefix>0.1.1.0</VersionPrefix>
     <Authors>Lemon</Authors>
     <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -11,27 +13,7 @@
     <PackageId>AspectCore.Extensions.Configuration</PackageId>
     <PackageTags>Configuration;Aop;DynamicProxy</PackageTags>
     <PackageReleaseNotes>Configuration extension system for AspectCore Framework.</PackageReleaseNotes>
-    <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/dotnetcore/AspectCore-Framework</PackageProjectUrl>
-    <PackageLicenseUrl>https://mit-license.org/</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/dotnetcore/AspectCore-Framework</RepositoryUrl>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <SignAssembly>True</SignAssembly>
-    <DelaySign>False</DelaySign>
-    <AssemblyOriginatorKeyFile>aspectcore.snk</AssemblyOriginatorKeyFile>
-    <Version>0.2.0-preview1</Version>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>0.2.1.0</AssemblyVersion>
-    <FileVersion>0.2.1.0</FileVersion>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspectCore.Abstractions" Version="0.2.0-preview1" />
