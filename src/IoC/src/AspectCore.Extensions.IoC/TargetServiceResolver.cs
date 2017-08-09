@@ -3,7 +3,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Extensions.IoC.Resolves
 {
-    internal class OriginalServiceResolver : IOriginalServiceResolver
+    internal class TargetServiceResolver : ITargetServiceResolver
     {
         public void Dispose()
         {
@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.IoC.Resolves
             throw new NotImplementedException();
         }
 
-        public object Resolve(Type serviceType, object key)
+        public object Resolve(Type serviceType, string key)
         {
             throw new NotImplementedException();
         }

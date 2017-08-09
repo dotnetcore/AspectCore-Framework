@@ -6,9 +6,9 @@ namespace AspectCore.Extensions.IoC.Resolves
     {
         public Type ServiceType { get; }
 
-        public object Key { get; }
+        public string Key { get; }
 
-        internal ServiceKey(Type serviceType, object key)
+        internal ServiceKey(Type serviceType, string key)
         {
             ServiceType = serviceType;
             Key = key;

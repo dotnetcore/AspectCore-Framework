@@ -5,7 +5,7 @@ namespace AspectCore.Abstractions
 {
     public sealed class TypeServiceDefinition : ServiceDefinition
     {
-        public TypeServiceDefinition(Type serviceType, Type implementationType, Lifetime lifetime, object key) : base(serviceType, lifetime, key)
+        public TypeServiceDefinition(Type serviceType, Type implementationType, Lifetime lifetime, string key) : base(serviceType, lifetime, key)
         {
             ImplementationType = implementationType ?? throw new ArgumentNullException(nameof(implementationType));
             if (!serviceType.GetTypeInfo().IsAssignableFrom(implementationType))

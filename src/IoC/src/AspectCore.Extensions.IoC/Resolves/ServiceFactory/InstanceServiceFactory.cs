@@ -1,4 +1,5 @@
-﻿using AspectCore.Abstractions;
+﻿using System;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Extensions.IoC.Resolves
 {
@@ -8,8 +9,11 @@ namespace AspectCore.Extensions.IoC.Resolves
 
         public object ImplementationInstance { get; }
 
+        public ServiceDefinition ServiceDefinition { get; }
+
         public InstanceServiceFactory(InstanceServiceDefinition serviceDefinition)
         {
+            ServiceDefinition = serviceDefinition;
             ServiceKey = new ServiceKey(serviceDefinition.ServiceType, serviceDefinition.Key);
             ImplementationInstance = serviceDefinition.ImplementationInstance;
         }
@@ -20,7 +24,7 @@ namespace AspectCore.Extensions.IoC.Resolves
             ImplementationInstance = implementationInstance;
         }
 
-        public object Invoke(IServiceResolver resolver)
+        public object Invoke(IServiceResolver serviceResolver)
         {
             return ImplementationInstance;
         }
