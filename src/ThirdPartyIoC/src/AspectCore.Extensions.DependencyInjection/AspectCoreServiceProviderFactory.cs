@@ -71,10 +71,10 @@ namespace AspectCore.Extensions.DependencyInjection
             }
             var services = CreateBuilder(containerBuilder);
             var serviceProider = services.BuildServiceProvider(false);
-            if (services.Any(x => x.ServiceType == typeof(IAspectCoreServiceProvider)))
-            {
-                return serviceProider.GetService<IAspectCoreServiceProvider>();
-            }
+            //if (services.Any(x => x.ServiceType == typeof(IAspectCoreServiceProvider)))
+            //{
+            //    return serviceProider.GetService<IAspectCoreServiceProvider>();
+            //}
             return serviceProider;
         }
 
