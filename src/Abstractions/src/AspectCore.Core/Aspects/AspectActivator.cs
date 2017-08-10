@@ -45,14 +45,18 @@ namespace AspectCore.Core
 
             async Task<TReturn> Unwrap(object value)
             {
-                if (value is Task<TReturn>)
+                if (value is Task<TReturn> resultTask)
                 {
-                    return await (Task<TReturn>)value;
+                    return await resultTask;
                 }
-                else if (value is Task)
+                else if (value is Task task)
                 {
-                    await (Task)value;
+                    await task;
                     return default(TReturn);
+                }
+                else if(value is ValueTask<TReturn> valueTask)
+                {
+                    return await valueTask;
                 }
                 else
                 {
