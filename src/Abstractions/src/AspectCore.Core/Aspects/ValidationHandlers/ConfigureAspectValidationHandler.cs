@@ -15,7 +15,7 @@ namespace AspectCore.Core
             _aspectConfigureProvider = aspectConfigureProvider;
         }
 
-        public int Order { get; } = 13;
+        public int Order { get; } = 11;
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
@@ -24,6 +24,10 @@ namespace AspectCore.Core
                 if (_aspectConfigureProvider.AspectConfigure.InterceptorFactories.Any(x => x.CanCreated(method)))
                 {
                     return true;
+                }
+                if (_aspectConfigureProvider.AspectConfigure.NonAspectPredicates.Any(x => x(method)))
+                {
+                    return false;
                 }
             }
 

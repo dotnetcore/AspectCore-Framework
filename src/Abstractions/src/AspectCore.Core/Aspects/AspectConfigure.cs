@@ -12,7 +12,9 @@ namespace AspectCore.Core
 
         public IEnumerable<Func<MethodInfo, bool>> NonAspectPredicates { get; }
 
-        public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates)
+        public IEnumerable<IAspectValidationHandler> AspectValidationHandlers { get; }
+
+        public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates, IEnumerable<IAspectValidationHandler> aspectValidationHandlers)
         {
             if (interceptorFactories == null)
             {
@@ -22,9 +24,14 @@ namespace AspectCore.Core
             {
                 throw new ArgumentNullException(nameof(nonAspectPredicates));
             }
+            if (aspectValidationHandlers == null)
+            {
+                throw new ArgumentNullException(nameof(aspectValidationHandlers));
+            }
 
             InterceptorFactories = interceptorFactories;
             NonAspectPredicates = nonAspectPredicates;
+            AspectValidationHandlers = aspectValidationHandlers;
         }
     }
 }

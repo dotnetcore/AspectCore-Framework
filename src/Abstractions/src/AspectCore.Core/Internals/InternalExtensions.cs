@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core.Internal
 {
@@ -140,7 +141,7 @@ namespace AspectCore.Core.Internal
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
-            return typeInfo.IsDefined(typeof(DynamicallyAttribute), false);
+            return typeInfo.GetReflector().IsDefined(typeof(DynamicallyAttribute));
         }
 
         public static bool CanInherited(this TypeInfo typeInfo)
@@ -155,7 +156,7 @@ namespace AspectCore.Core.Internal
                 return false;
             }
 
-            if (typeInfo.IsDefined(typeof(NonAspectAttribute)) || typeInfo.IsProxyType())
+            if (typeInfo.IsNonAspect()|| typeInfo.IsProxyType())
             {
                 return false;
             }
@@ -265,7 +266,7 @@ namespace AspectCore.Core.Internal
             {
                 throw new ArgumentNullException(nameof(member));
             }
-            return member.IsDefined(typeof(NonAspectAttribute), true);
+            return member.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
         internal static MethodInfo GetMethodBySign(this TypeInfo typeInfo, MethodInfo method)

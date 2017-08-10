@@ -31,8 +31,17 @@ namespace AspectCore.Core
         {
             get
             {
-                return _data ??
-                    (_data = new Dictionary<string, object>());
+                if (_data == null)
+                {
+                    lock (this)
+                    {
+                        if (_data == null)
+                        {
+                            _data = new Dictionary<string, object>();
+                        }
+                    }
+                }
+                return _data;
             }
         }
 

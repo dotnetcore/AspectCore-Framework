@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Core
+namespace AspectCore.Abstractions
 {
     public delegate bool AspectValidationDelegate(MethodInfo method);
 }

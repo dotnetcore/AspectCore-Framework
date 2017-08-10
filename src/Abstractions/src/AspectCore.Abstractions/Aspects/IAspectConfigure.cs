@@ -10,5 +10,7 @@ namespace AspectCore.Abstractions
         IEnumerable<IInterceptorFactory> InterceptorFactories { get; }
 
         IEnumerable<Func<MethodInfo, bool>> NonAspectPredicates { get; }
+
+        IEnumerable<IAspectValidationHandler> AspectValidationHandlers { get; }
     }
 }

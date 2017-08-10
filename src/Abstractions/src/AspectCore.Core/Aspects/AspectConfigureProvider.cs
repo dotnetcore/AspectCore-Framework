@@ -9,9 +9,11 @@ namespace AspectCore.Core
     [NonAspect]
     public sealed class AspectConfigureProvider : IAspectConfigureProvider
     {
+        public static IAspectConfigureProvider Current { get; set; }
+
         public IAspectConfigure AspectConfigure { get; }
 
-        public AspectConfigureProvider(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates)
+        public AspectConfigureProvider(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates, IEnumerable<IAspectValidationHandler> aspectValidationHandlers)
         {
             if (interceptorFactories == null)
             {
@@ -21,7 +23,7 @@ namespace AspectCore.Core
             {
                 throw new ArgumentNullException(nameof(nonAspectPredicates));
             }
-            AspectConfigure = new AspectConfigure(interceptorFactories, nonAspectPredicates);
+            AspectConfigure = new AspectConfigure(interceptorFactories, nonAspectPredicates, aspectValidationHandlers);
         }
     }
 }
