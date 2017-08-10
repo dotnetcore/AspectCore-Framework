@@ -20,7 +20,7 @@ namespace AspectCore.Extensions.Reflection
                 {
                     return new OpenGenericPropertyReflector(item.Item1);
                 }
-                if ((property.CanRead && property.GetMethod.IsStatic) || (property.CanWrite && property.SetMethod.IsStatic))
+                if ((property.CanRead && property.GetMethod.IsStatic) || (property.CanWrite && property.SetMethod.IsStatic) || property.DeclaringType.GetTypeInfo().IsValueType)
                 {
                     return new StaticPropertyReflector(property);
                 }
