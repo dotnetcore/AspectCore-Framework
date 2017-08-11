@@ -73,11 +73,6 @@ namespace AspectCore.Core.Internal
     {
         public static IAspectActivator GetAspectActivator(this IServiceProvider provider)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
             return (IAspectActivator)provider.GetService(typeof(IAspectActivator));
         }
     }
@@ -317,7 +312,7 @@ namespace AspectCore.Core.Internal
                 return methodInfo;
             }
 
-            return closedGenericType.GetTypeInfo().GetMethod(methodInfo.Name, methodInfo.GetParameterTypes());
+            return closedGenericType.GetTypeInfo().GetMethod(new MethodSignature(methodInfo));
         }
 
         internal static bool IsCallvirt(this MethodInfo methodInfo)

@@ -18,7 +18,7 @@ namespace AspectCore.Core
               activatorContext.ServiceMethod,
               activatorContext.ServiceType,
               activatorContext.TargetMethod,
-              activatorContext.TargetInstance?.GetType() ?? activatorContext.TargetMethod.DeclaringType);
+              activatorContext.TargetMethod.DeclaringType);
 
             var proxy = new ProxyDescriptor(activatorContext.ProxyInstance,
                 activatorContext.ProxyMethod,
