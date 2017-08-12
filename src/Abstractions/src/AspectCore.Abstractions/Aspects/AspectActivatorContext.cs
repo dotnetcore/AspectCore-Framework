@@ -4,20 +4,25 @@ using System.Reflection;
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public abstract class AspectActivatorContext
+    public struct AspectActivatorContext
     {
-        public abstract Type ServiceType { get; }
+        public Type ServiceType { get; }
 
-        public abstract MethodInfo ServiceMethod { get; }
+        public MethodInfo ServiceMethod { get; }
 
-        public abstract MethodInfo TargetMethod { get; }
+        public MethodInfo ProxyMethod { get; }
 
-        public abstract MethodInfo ProxyMethod { get; }
+        public object ProxyInstance { get; }
 
-        public abstract object TargetInstance { get; }
+        public object[] Parameters { get; }
 
-        public abstract object ProxyInstance { get; }
-
-        public abstract object[] Parameters { get; }
+        public AspectActivatorContext(Type serviceType, MethodInfo serviceMethod, MethodInfo proxyMethod, object proxyInstance, object[] parameters)
+        {
+            ServiceType = serviceType;
+            ServiceMethod = serviceMethod;
+            ProxyMethod = proxyMethod;
+            ProxyInstance = proxyMethod;
+            Parameters = parameters;
+        }
     }
 }
