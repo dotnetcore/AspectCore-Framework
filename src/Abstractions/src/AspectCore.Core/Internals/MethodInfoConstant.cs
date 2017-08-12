@@ -12,7 +12,7 @@ namespace AspectCore.Core.Internal
 
         internal static readonly MethodInfo AspectActivatorInvoke = ReflectionExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.Invoke));
 
-        internal static readonly MethodInfo AspectActivatorInvokeAsync = ReflectionExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeAsync));
+        internal static readonly MethodInfo AspectActivatorInvokeAsync = ReflectionExtensions.GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeTask));
 
         internal static readonly MethodInfo ServiceInstanceProviderGetInstance = ReflectionExtensions.GetMethod<Func<IServiceInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
 

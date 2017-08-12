@@ -9,7 +9,7 @@ namespace AspectCore.Core
 {
     internal class ParameterCollection : IParameterCollection
     {
-        private readonly IDictionary<string, IParameterDescriptor> _parameterEntries;
+        private readonly Lazy<Dictionary<string, IParameterDescriptor>> _parameterEntries;
 
         public ParameterCollection(object[] parameters, ParameterInfo[] parameterInfos)
         {
@@ -26,12 +26,15 @@ namespace AspectCore.Core
                 throw new ArgumentException("The number of parameters must equal the number of parameterInfos.");
             }
 
-            _parameterEntries = new Dictionary<string, IParameterDescriptor>(parameterInfos.Length);
-
-            for (int index = 0; index < parameterInfos.Length; index++)
+            _parameterEntries = new Lazy<Dictionary<string, IParameterDescriptor>>(() =>
             {
-                _parameterEntries.Add(parameterInfos[index].Name, new ParameterDescriptor(parameters[index], parameterInfos[index]));
-            }
+                var dic = new Dictionary<string, IParameterDescriptor>(parameterInfos.Length);
+                for (int index = 0; index < parameterInfos.Length; index++)
+                {
+                    dic.Add(parameterInfos[index].Name, new ParameterDescriptor(parameters[index], parameterInfos[index]));
+                }
+                return dic;
+            });
         }
 
         public IParameterDescriptor this[int index]
@@ -42,7 +45,7 @@ namespace AspectCore.Core
                 {
                     throw new ArgumentOutOfRangeException(nameof(index), "index value out of range.");
                 }
-                var descriptors = _parameterEntries.Select(pair => pair.Value).ToArray();
+                var descriptors = _parameterEntries.Value.Select(pair => pair.Value).ToArray();
                 return descriptors[index];
             }
         }
@@ -55,7 +58,7 @@ namespace AspectCore.Core
                 {
                     throw new ArgumentNullException(nameof(name));
                 }
-                if (!_parameterEntries.TryGetValue(name, out IParameterDescriptor descriptor))
+                if (!_parameterEntries.Value.TryGetValue(name, out IParameterDescriptor descriptor))
                 {
                     throw new KeyNotFoundException($"Does not exist the parameter nameof \"{name}\".");
                 }
@@ -67,13 +70,13 @@ namespace AspectCore.Core
         {
             get
             {
-                return _parameterEntries.Count;
+                return _parameterEntries.Value.Count;
             }
         }
 
         public IEnumerator<IParameterDescriptor> GetEnumerator()
         {
-            return _parameterEntries.Values.ToList().GetEnumerator();
+            return _parameterEntries.Value.Values.ToList().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

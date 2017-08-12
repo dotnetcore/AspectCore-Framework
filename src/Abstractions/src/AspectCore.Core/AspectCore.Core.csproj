@@ -30,4 +30,8 @@
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

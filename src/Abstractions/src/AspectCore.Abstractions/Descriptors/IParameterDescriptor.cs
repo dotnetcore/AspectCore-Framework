@@ -4,7 +4,7 @@ using System.Reflection;
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public interface IParameterDescriptor : ICustomAttributeProvider
+    public interface IParameterDescriptor
     {
         string Name { get; }
 

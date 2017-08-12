@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 
@@ -12,11 +11,7 @@ namespace AspectCore.Core
 
         public ParameterDescriptor(object value, ParameterInfo parameterInfo)
         {
-            if (parameterInfo == null)
-            {
-                throw new ArgumentNullException(nameof(parameterInfo));
-            }
-            _parameterInfo = parameterInfo;
+            _parameterInfo = parameterInfo ?? throw new ArgumentNullException(nameof(parameterInfo));
             _value = value;
         }
 
@@ -68,21 +63,6 @@ namespace AspectCore.Core
             {
                 return _parameterInfo;
             }
-        }
-
-        public object[] GetCustomAttributes(bool inherit)
-        {
-            return _parameterInfo.GetCustomAttributes(inherit).ToArray();
-        }
-
-        public object[] GetCustomAttributes(Type attributeType, bool inherit)
-        {
-            return _parameterInfo.GetCustomAttributes(attributeType, inherit).ToArray();
-        }
-
-        public bool IsDefined(Type attributeType, bool inherit)
-        {
-            return _parameterInfo.IsDefined(attributeType, inherit);
         }
     }
 }

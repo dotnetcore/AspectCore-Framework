@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
+using AspectCore.Core.Internal;
 
 namespace AspectCore.Core
 {
@@ -9,59 +10,111 @@ namespace AspectCore.Core
     {
         private readonly IAspectContextFactory _aspectContextFactory;
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
-       
 
         public AspectActivator(IAspectContextFactory aspectContextFactory, IAspectBuilderFactory aspectBuilderFactory)
         {
             _aspectContextFactory = aspectContextFactory ?? throw new ArgumentNullException(nameof(aspectContextFactory));
-            _aspectBuilderFactory = aspectBuilderFactory ?? throw new ArgumentNullException(nameof(aspectBuilderFactory));   
+            _aspectBuilderFactory = aspectBuilderFactory ?? throw new ArgumentNullException(nameof(aspectBuilderFactory));
         }
 
-        public TReturn Invoke<TReturn>(AspectActivatorContext activatorContext)
+        public TResult Invoke<TResult>(AspectActivatorContext activatorContext)
         {
-            var invokeAsync = InvokeAsync<TReturn>(activatorContext);
-
-            if (invokeAsync.IsFaulted)
-            {
-                throw invokeAsync.Exception?.InnerException;
-            }
-
-            if (invokeAsync.IsCompleted)
-            {
-                return invokeAsync.Result;
-            }
-
-            return invokeAsync.GetAwaiter().GetResult();
+            return (TResult)InternalInvoke<TResult>(activatorContext);
         }
 
-        public async Task<TReturn> InvokeAsync<TReturn>(AspectActivatorContext activatorContext)
+        public Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TReturn>(activatorContext))
+            var result = InternalInvoke<TResult>(activatorContext);
+            if (result is Task<TResult> resultTask)
+            {
+                return resultTask;
+            }
+            else if (result is Task task)
+            {
+                if (!task.IsCompleted)
+                {
+                    task.GetAwaiter().GetResult();
+                }
+                return TaskCache<TResult>.CompletedTask;
+            }
+            else
+            {
+                throw new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'.");
+            }
+        }
+
+        public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
+        {
+            return (ValueTask<TResult>)InternalInvoke<TResult>(activatorContext);
+        }
+
+        private object InternalInvoke<TResult>(AspectActivatorContext activatorContext)
+        {
+            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                await aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
-                return await Unwrap(context.ReturnParameter.Value);
+                var invoke = aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
+                if (invoke.IsFaulted)
+                {
+                    throw invoke.Exception?.InnerException;
+                }
+                if (!invoke.IsCompleted)
+                {
+                    invoke.GetAwaiter().GetResult();
+                }
+                return context.ReturnParameter.Value;
             }
+        }
 
-            async Task<TReturn> Unwrap(object value)
+        private TResult Unwrap<TResult>(object value)
+        {
+            if (value is Task<TResult> resultTask)
             {
-                if (value is Task<TReturn> resultTask)
+                if (resultTask.IsCompleted)
                 {
-                    return await resultTask;
+                    return resultTask.Result;
                 }
-                else if (value is Task task)
+                return resultTask.GetAwaiter().GetResult();
+            }
+            else if (value is Task task)
+            {
+                if (!task.IsCompleted)
                 {
-                    await task;
-                    return default(TReturn);
+                    task.GetAwaiter().GetResult();
                 }
-                else if(value is ValueTask<TReturn> valueTask)
+                return default(TResult);
+            }
+            else if (value is ValueTask<TResult> valueTask)
+            {
+                return valueTask.Result;
+            }
+            else
+            {
+                return (TResult)value;
+            }
+        }
+
+        private Task<TResult> UnwrapAsync<TResult>(object value)
+        {
+            if (value is Task<TResult> resultTask)
+            {
+                return resultTask;
+            }
+            else if (value is Task task)
+            {
+                if (!task.IsCompleted)
                 {
-                    return await valueTask;
+                    task.GetAwaiter().GetResult();
                 }
-                else
-                {
-                    return (TReturn)value;
-                }
+                return TaskCache<TResult>.CompletedTask;
+            }
+            else if (value is ValueTask<TResult> valueTask)
+            {
+                return valueTask.AsTask();
+            }
+            else
+            {
+                return Task.FromResult((TResult)value);
             }
         }
     }
