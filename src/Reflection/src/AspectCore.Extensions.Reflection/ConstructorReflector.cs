@@ -72,8 +72,9 @@ namespace AspectCore.Extensions.Reflection
             return CreateDelegate();
 
             Func<object[], object> CreateDelegate()
-            {        
-                ilGen.EmitConvertToObject(_reflectionInfo.DeclaringType);
+            {
+                if (_reflectionInfo.DeclaringType.GetTypeInfo().IsValueType)
+                    ilGen.EmitConvertToObject(_reflectionInfo.DeclaringType);
                 ilGen.Emit(OpCodes.Ret);
                 return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
             }
