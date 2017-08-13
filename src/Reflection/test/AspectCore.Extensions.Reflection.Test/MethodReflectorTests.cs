@@ -60,6 +60,15 @@ namespace AspectCore.Extensions.Reflection.Test
             var result = reflector.Invoke(new StructMethodFakes(), "lemon");
             Assert.Equal("lemon", result);
         }
+
+        [Fact]
+        public void _Return_Struct_Invoker_Test()
+        {
+            var method = typeof(MethodFakes).GetMethod("GetValue");
+            var reflector = method.GetReflector();
+            var result = reflector.Invoke(new MethodFakes());
+            Assert.Equal(1, result);
+        }
     }
 
     public class MethodFakes
@@ -77,6 +86,11 @@ namespace AspectCore.Extensions.Reflection.Test
         public void GetStringByRef(object value, out string @string)
         {
             @string = value.ToString();
+        }
+
+        public int GetValue()
+        {
+            return 1;
         }
     }
 
