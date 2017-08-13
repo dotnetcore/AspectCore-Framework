@@ -23,6 +23,7 @@ namespace AspectCore.Extensions.Reflection
             var parameterTypes = _reflectionInfo.GetParameterTypes();
             if (parameterTypes.Length == 0)
             {
+                ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
                 return CreateDelegate();
             }
             var refParameterCount = parameterTypes.Count(x => x.IsByRef);
@@ -35,7 +36,7 @@ namespace AspectCore.Extensions.Reflection
                     ilGen.Emit(OpCodes.Ldelem_Ref);
                     ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
-
+                ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
                 return CreateDelegate();
             }
             var indexedLocals = new IndexedLocalBuilder[refParameterCount];
@@ -50,6 +51,7 @@ namespace AspectCore.Extensions.Reflection
                     var defType = parameterTypes[i].GetTypeInfo().MakeDefType();
                     var indexedLocal = new IndexedLocalBuilder(ilGen.DeclareLocal(defType), i);
                     indexedLocals[index++] = indexedLocal;
+                    ilGen.EmitConvertFromObject(defType);
                     ilGen.Emit(OpCodes.Stloc, indexedLocal.LocalBuilder);
                     ilGen.Emit(OpCodes.Ldloca, indexedLocal.LocalBuilder);
                 }
@@ -58,7 +60,7 @@ namespace AspectCore.Extensions.Reflection
                     ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
             }
-            ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
+            ilGen.Emit(OpCodes.Newobj, _reflectionInfo);        
             for (var i = 0; i < indexedLocals.Length; i++)
             {
                 ilGen.EmitLoadArg(0);
@@ -67,12 +69,11 @@ namespace AspectCore.Extensions.Reflection
                 ilGen.EmitConvertToObject(indexedLocals[i].LocalType);
                 ilGen.Emit(OpCodes.Stelem_Ref);
             }
-            ilGen.Emit(OpCodes.Ret);
-            return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
+            return CreateDelegate();
 
             Func<object[], object> CreateDelegate()
-            {
-                ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
+            {        
+                ilGen.EmitConvertToObject(_reflectionInfo.DeclaringType);
                 ilGen.Emit(OpCodes.Ret);
                 return (Func<object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object[], object>));
             }
