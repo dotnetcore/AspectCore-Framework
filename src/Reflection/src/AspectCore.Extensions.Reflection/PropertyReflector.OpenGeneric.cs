@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace AspectCore.Extensions.Reflection
 {
@@ -9,7 +7,7 @@ namespace AspectCore.Extensions.Reflection
     {
         private class OpenGenericPropertyReflector : PropertyReflector
         {
-            public OpenGenericPropertyReflector(PropertyInfo reflectionInfo) : base(reflectionInfo, CallOptions.Callvirt)
+            public OpenGenericPropertyReflector(PropertyInfo reflectionInfo) : base(reflectionInfo)
             {
             }
 

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using AspectCore.Extensions.Reflection.Benchmark.Fakes;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
@@ -33,7 +34,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
             return _instance.InstanceProperty;
         }
 
-        [Benchmark]
+        //[Benchmark]
         public object Reflection_Get_Property()
         {
             return _field.GetValue(_instance);
@@ -45,17 +46,18 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
             return _fieldReflector.GetValue(_instance);
         }
 
-        [Benchmark]
-        public object Native_Get_Static_Property()
-        {
-            return PropertyFakes.StaticProperty;
-        }
 
-        [Benchmark]
-        public object Reflection_Get_Static_Property()
-        {
-            return _staticField.GetValue(null);
-        }
+        //[Benchmark]
+        //public object Native_Get_Static_Property()
+        //{
+        //    return PropertyFakes.StaticProperty;
+        //}
+
+        //[Benchmark]
+        //public object Reflection_Get_Static_Property()
+        //{
+        //    return _staticField.GetValue(null);
+        //}
 
         [Benchmark]
         public object AspectCore_Reflector_Get_Static_Property()
