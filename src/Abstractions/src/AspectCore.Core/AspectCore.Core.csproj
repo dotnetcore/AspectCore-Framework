@@ -19,7 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspectCore.Abstractions" Version="0.2.0-preview1" />
     <PackageReference Include="AspectCore.Extensions.Reflection" Version="0.2.0-preview1" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
