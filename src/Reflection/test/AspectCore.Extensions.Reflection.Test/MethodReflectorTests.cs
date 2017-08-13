@@ -29,7 +29,7 @@ namespace AspectCore.Extensions.Reflection.Test
         }
 
         [Fact]
-        public  void Invoker_Call_Test()
+        public void Invoker_Call_Test()
         {
             var method = typeof(MethodFakes).GetMethod("GetString");
 
@@ -50,6 +50,15 @@ namespace AspectCore.Extensions.Reflection.Test
             var reflector = method.GetReflector();
             var result = reflector.Invoke(new MethodFakes(), args);
             Assert.Equal("lemon", args[1]);
+        }
+
+        [Fact]
+        public void Struct_Invoker_Test()
+        {
+            var method = typeof(StructMethodFakes).GetMethod("GetString");
+            var reflector = method.GetReflector();
+            var result = reflector.Invoke(new StructMethodFakes(), "lemon");
+            Assert.Equal("lemon", result);
         }
     }
 
@@ -82,6 +91,14 @@ namespace AspectCore.Extensions.Reflection.Test
     public class MethodFakes<T>
     {
         public virtual string GetString(T value)
+        {
+            return value.ToString();
+        }
+    }
+
+    public struct StructMethodFakes
+    {
+        public string GetString(object value)
         {
             return value.ToString();
         }

@@ -26,6 +26,12 @@ namespace AspectCore.Extensions.Reflection
 
                 ilGen.EmitLoadArg(0);
                 ilGen.EmitConvertFromObject(_reflectionInfo.DeclaringType);
+                if (_reflectionInfo.DeclaringType.GetTypeInfo().IsValueType)
+                {
+                    var local = ilGen.DeclareLocal(_reflectionInfo.DeclaringType);
+                    ilGen.Emit(OpCodes.Stloc, local);
+                    ilGen.Emit(OpCodes.Ldloca, local);
+                }
 
                 if (parameterTypes.Length == 0)
                 {
