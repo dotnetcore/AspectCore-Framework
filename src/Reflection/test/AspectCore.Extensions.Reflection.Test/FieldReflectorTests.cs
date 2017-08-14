@@ -53,6 +53,40 @@ namespace AspectCore.Extensions.Reflection.Test
             fieldReflector.SetStaticValue("StaticFiled");
             Assert.Equal("StaticFiled", fieldReflector.GetStaticValue());
         }
+
+        [Fact]
+        public void Instance_StructField_Get_Test()
+        {
+            var fakes = new FieldFakes();
+            fakes.StructField = 100;
+            var field = typeof(FieldFakes).GetTypeInfo().GetField("StructField");
+            var fieldReflector = field.GetReflector();
+            var fieldValue = fieldReflector.GetValue(fakes);
+            Assert.Equal(100, fieldValue);
+        }
+
+        [Fact]
+        public void StructInstance_Field_Get_Test()
+        {
+            var fakes = new StructFieldFakes();
+            fakes.ClassField = "Lemon";
+            var field = typeof(StructFieldFakes).GetTypeInfo().GetField("ClassField");
+            var fieldReflector = field.GetReflector();
+            var fieldValue = fieldReflector.GetValue(fakes);
+            Assert.Equal("Lemon", fieldValue);
+        }
+
+
+        [Fact]
+        public void StructInstance_StructField_Get_Test()
+        {
+            var fakes = new StructFieldFakes();
+            fakes.StructField = 100;
+            var field = typeof(StructFieldFakes).GetTypeInfo().GetField("StructField");
+            var fieldReflector = field.GetReflector();
+            var fieldValue = fieldReflector.GetValue(fakes);
+            Assert.Equal(100, fieldValue);
+        }
     }
 
     public class FieldFakes
@@ -62,6 +96,8 @@ namespace AspectCore.Extensions.Reflection.Test
 
         [AttributeFakes1(100)]
         public string InstanceField;
+
+        public int StructField;
     }
 
     public class FieldFakes<T>
@@ -71,5 +107,12 @@ namespace AspectCore.Extensions.Reflection.Test
 
         [AttributeFakes3(typeof(int), typeof(long), Ids = new int[] { 1, 2, 3 })]
         public T InstanceField;
+    }
+
+    public struct StructFieldFakes
+    {
+        public string ClassField;
+
+        public int StructField;
     }
 }

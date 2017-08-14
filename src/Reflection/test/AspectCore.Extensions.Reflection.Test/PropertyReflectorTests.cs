@@ -55,7 +55,52 @@ namespace AspectCore.Extensions.Reflection.Test
             var PropertyReflector = Property.GetReflector();
             PropertyReflector.SetStaticValue("StaticProperty");
             Assert.Equal("StaticProperty", PropertyReflector.GetStaticValue());
-        }     
+        }
+
+        [Fact]
+        public void Struct_InstanceProperty_Get_Test()
+        {
+            var fakes = new StructPropertyFakes();
+            fakes.InstanceProperty = "InstanceProperty";
+            var Property = typeof(StructPropertyFakes).GetTypeInfo().GetProperty("InstanceProperty");
+            var PropertyReflector = Property.GetReflector();
+            var PropertyValue = PropertyReflector.GetValue(fakes);
+            Assert.Equal("InstanceProperty", PropertyValue);
+        }
+
+        [Fact]
+        public void Struct_InstanceProperty_Set_Test()
+        {
+            var fakes = new StructPropertyFakes();
+            var Property = typeof(StructPropertyFakes).GetTypeInfo().GetProperty("InstanceProperty");
+            var PropertyReflector = Property.GetReflector();
+            PropertyReflector.SetValue(fakes, "InstanceProperty");
+            Assert.Null(fakes.InstanceProperty);
+
+            object obj = fakes;
+            PropertyReflector.SetValue(obj, "InstanceProperty");
+            Assert.Equal("InstanceProperty", ((StructPropertyFakes)obj).InstanceProperty);
+        }
+
+        [Fact]
+        public void Struct_StaticProperty_Get_Test()
+        {
+            StructPropertyFakes.StaticProperty = "StaticProperty";
+            var Property = typeof(StructPropertyFakes).GetTypeInfo().GetProperty("StaticProperty");
+            var PropertyReflector = Property.GetReflector();
+            var PropertyValue = PropertyReflector.GetStaticValue();
+            Assert.Equal("StaticProperty", PropertyValue);
+        }
+
+
+        [Fact]
+        public void Struct_StaticProperty_Set_Test()
+        {
+            var Property = typeof(StructPropertyFakes).GetTypeInfo().GetProperty("StaticProperty");
+            var PropertyReflector = Property.GetReflector();
+            PropertyReflector.SetStaticValue("StaticProperty");
+            Assert.Equal("StaticProperty", StructPropertyFakes.StaticProperty);
+        }
     }
 
     public class PropertyFakes
@@ -70,5 +115,12 @@ namespace AspectCore.Extensions.Reflection.Test
         public static T StaticProperty { get; set; }
 
         public T InstanceProperty { get; set; }
+    }
+
+    public struct StructPropertyFakes
+    {
+        public static string StaticProperty { get; set; }
+
+        public string InstanceProperty { get; set; }
     }
 }

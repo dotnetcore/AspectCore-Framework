@@ -24,8 +24,12 @@ namespace AspectCore.Extensions.Reflection
                 {
                     return new StaticPropertyReflector(property);
                 }
+                if (property.DeclaringType.GetTypeInfo().IsValueType || item.Item2 == CallOptions.Call)
+                {
+                    return new CallPropertyReflector(property);
+                }
 
-                return new PropertyReflector(property, item.Item2);
+                return new PropertyReflector(property);
             }
         }
     }
