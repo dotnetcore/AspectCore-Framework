@@ -65,57 +65,5 @@ namespace AspectCore.Core
                 return context.ReturnParameter.Value;
             }
         }
-
-        private TResult Unwrap<TResult>(object value)
-        {
-            if (value is Task<TResult> resultTask)
-            {
-                if (resultTask.IsCompleted)
-                {
-                    return resultTask.Result;
-                }
-                return resultTask.GetAwaiter().GetResult();
-            }
-            else if (value is Task task)
-            {
-                if (!task.IsCompleted)
-                {
-                    task.GetAwaiter().GetResult();
-                }
-                return default(TResult);
-            }
-            else if (value is ValueTask<TResult> valueTask)
-            {
-                return valueTask.Result;
-            }
-            else
-            {
-                return (TResult)value;
-            }
-        }
-
-        private Task<TResult> UnwrapAsync<TResult>(object value)
-        {
-            if (value is Task<TResult> resultTask)
-            {
-                return resultTask;
-            }
-            else if (value is Task task)
-            {
-                if (!task.IsCompleted)
-                {
-                    task.GetAwaiter().GetResult();
-                }
-                return TaskCache<TResult>.CompletedTask;
-            }
-            else if (value is ValueTask<TResult> valueTask)
-            {
-                return valueTask.AsTask();
-            }
-            else
-            {
-                return Task.FromResult((TResult)value);
-            }
-        }
     }
 }

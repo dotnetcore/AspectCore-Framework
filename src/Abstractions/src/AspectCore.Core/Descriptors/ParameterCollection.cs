@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 
@@ -9,7 +8,8 @@ namespace AspectCore.Core
 {
     internal class ParameterCollection : IParameterCollection
     {
-        private readonly Lazy<Dictionary<string, IParameterDescriptor>> _parameterEntries;
+        private readonly int _count;
+        private readonly IParameterDescriptor[] _parameterEntries;
 
         public ParameterCollection(object[] parameters, ParameterInfo[] parameterInfos)
         {
@@ -25,28 +25,23 @@ namespace AspectCore.Core
             {
                 throw new ArgumentException("The number of parameters must equal the number of parameterInfos.");
             }
-
-            _parameterEntries = new Lazy<Dictionary<string, IParameterDescriptor>>(() =>
+            _count = parameters.Length;
+            _parameterEntries = new ParameterDescriptor[_count];
+            for (var i = 0; i < _count; i++)
             {
-                var dic = new Dictionary<string, IParameterDescriptor>(parameterInfos.Length);
-                for (int index = 0; index < parameterInfos.Length; index++)
-                {
-                    dic.Add(parameterInfos[index].Name, new ParameterDescriptor(parameters[index], parameterInfos[index]));
-                }
-                return dic;
-            });
+                _parameterEntries[i] = new ParameterDescriptor(parameters[i], parameterInfos[i]);
+            }
         }
 
         public IParameterDescriptor this[int index]
         {
             get
             {
-                if (index < 0 || index >= Count)
+                if (index < 0 || index >= _count)
                 {
                     throw new ArgumentOutOfRangeException(nameof(index), "index value out of range.");
                 }
-                var descriptors = _parameterEntries.Value.Select(pair => pair.Value).ToArray();
-                return descriptors[index];
+                return _parameterEntries[index];
             }
         }
 
@@ -54,29 +49,47 @@ namespace AspectCore.Core
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(name))
+                if (name == null)
                 {
                     throw new ArgumentNullException(nameof(name));
                 }
-                if (!_parameterEntries.Value.TryGetValue(name, out IParameterDescriptor descriptor))
+                var count = _count;
+                var parameters = _parameterEntries;
+                if (count == 1)
                 {
-                    throw new KeyNotFoundException($"Does not exist the parameter nameof \"{name}\".");
+                    var descriptor = parameters[0];
+                    if (descriptor.Name == name)
+                    {
+                        return descriptor;
+                    }
+                    throw ThrowNotFound();
                 }
-                return descriptor;
+                IParameterDescriptor parameter;
+                for (var i = 0; i < count; i++)
+                {
+                    parameter = parameters[i];
+                    if (parameters[i].Name == name)
+                        return parameter;
+                }
+                throw ThrowNotFound();
+                InvalidOperationException ThrowNotFound()
+                {
+                    return new InvalidOperationException($"Not found the parameter named \"{name}\".");
+                }
             }
         }
 
         public int Count
         {
-            get
-            {
-                return _parameterEntries.Value.Count;
-            }
+            get { return _count; }
         }
 
         public IEnumerator<IParameterDescriptor> GetEnumerator()
         {
-            return _parameterEntries.Value.Values.ToList().GetEnumerator();
+            for (var i = 0; i < _count; i++)
+            {
+                yield return _parameterEntries[i];
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

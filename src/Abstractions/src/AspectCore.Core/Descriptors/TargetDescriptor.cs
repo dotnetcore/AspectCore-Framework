@@ -1,57 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
 {
     internal class TargetDescriptor: ITargetDescriptor
     {
-        public virtual object ImplementationInstance { get; }
+        private static readonly ConcurrentDictionary<MethodInfo, MethodReflector> dictionary = new ConcurrentDictionary<MethodInfo, MethodReflector>();
+        private readonly object _implementationInstance;
+        private readonly MethodInfo _implementationMethod;
+
         public virtual MethodInfo ServiceMethod { get; }
-        public virtual MethodInfo ImplementationMethod { get; }
+
         public virtual Type ServiceType { get; }
-        public virtual Type ImplementationType { get; }
 
         public TargetDescriptor(object implementationInstance,
-            MethodInfo serviceMethod, Type serviceType, MethodInfo implementationMethod, Type implementationType)
-        {
-            if (serviceMethod == null)
-            {
-                throw new ArgumentNullException(nameof(serviceMethod));
-            }
-            if (serviceType == null)
-            {
-                throw new ArgumentNullException(nameof(serviceType));
-            }
-            if (implementationMethod == null)
-            {
-                throw new ArgumentNullException(nameof(implementationMethod));
-            }
-            if (implementationType == null)
-            {
-                throw new ArgumentNullException(nameof(implementationType));
-            }
-
+            MethodInfo serviceMethod, Type serviceType, MethodInfo implementationMethod)
+        { 
             ServiceType = serviceType;
-            ImplementationType = implementationType;
-            ImplementationInstance = implementationInstance;
-            ServiceMethod = serviceMethod.ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(serviceType);
-            ImplementationMethod = implementationMethod.ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(implementationType);
+            ServiceMethod = serviceMethod;      
+            _implementationInstance = implementationInstance;  
+            _implementationMethod = implementationMethod;
         }
 
-        public virtual object Invoke(IEnumerable<IParameterDescriptor> parameterDescriptors)
+        public virtual object Invoke(IParameterCollection parameterCollection)
         {
             try
             {
-                if (ImplementationInstance == null)
+                var reflector = dictionary.GetOrAdd(_implementationMethod, method => method.GetReflector(CallOptions.Call));
+                if (parameterCollection.Count == 0)
                 {
-                    return null;
+                    return reflector.Invoke(_implementationInstance);
                 }
-                var parameters = parameterDescriptors?.Select(descriptor => descriptor.Value)?.ToArray();
-                return new MethodReflector(ImplementationMethod, ImplementationMethod.IsCallvirt()).CreateMethodInvoker()(ImplementationInstance, parameters ?? EmptyArray<object>.Value);
+                return reflector.Invoke(_implementationInstance, parameterCollection.Select(x => x.Value).ToArray());
             }
             catch (TargetInvocationException exception)
             {

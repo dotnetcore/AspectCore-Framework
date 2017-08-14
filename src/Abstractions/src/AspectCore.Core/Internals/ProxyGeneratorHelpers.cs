@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Linq;
+using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Extensions.Reflection.Emit;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Core.Internal
 {
     internal class ProxyGeneratorHelpers
     {
-        private const string ProxyNameSpace = "AspectCore.Core.ProxyBuilder";
+        private const string ProxyNameSpace = "AspectCore.ProxyBuilder";
         private static readonly ModuleBuilder _moduleBuilder;
         private static readonly Dictionary<string, Type> _definedTypes;
 
@@ -53,20 +54,22 @@ namespace AspectCore.Core.Internal
         {
             var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
 
-            var (typeBuilder, fieldTable) = TypeBuilderHelpers.DefineType(name, interfaceType, typeof(object), interfaces);
+            var typeDesc = TypeBuilderHelpers.DefineType(name, interfaceType, typeof(object), interfaces);
+
+            typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 
             //define constructor
-            ConstructorBuilderHelpers.DefineInterfaceProxyConstructor(interfaceType, typeBuilder, fieldTable);
+            ConstructorBuilderHelpers.DefineInterfaceProxyConstructor(interfaceType, typeDesc);
 
             //define methods
-            MethodBuilderHelpers.DefineInterfaceProxyMethods(interfaceType, implType, additionalInterfaces, aspectValidator, typeBuilder, fieldTable);
+            MethodBuilderHelpers.DefineInterfaceProxyMethods(interfaceType, implType, additionalInterfaces, typeDesc);
 
-            return typeBuilder.CreateTypeInfo().AsType();
+            return typeDesc.Compile();
         }
 
         private static class TypeBuilderHelpers
         {
-            public static (TypeBuilder, FieldTable) DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
+            public static TypeDesc DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
             {
                 //define proxy type for interface service
                 var typeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Class | TypeAttributes.Public, parentType, interfaces);
@@ -79,17 +82,17 @@ namespace AspectCore.Core.Internal
                 typeBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //define private field
-                var fieldTable = FieldBuilderHelpers.DefineInterfaceProxyField(serviceType, typeBuilder);
+                var fieldTable = FieldBuilderHelpers.DefineFields(serviceType, typeBuilder);
 
-                return (typeBuilder, fieldTable);
+                return new TypeDesc(typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
             }
         }
 
         private static class ConstructorBuilderHelpers
         {
-            public static void DefineInterfaceProxyConstructor(Type interfaceType, TypeBuilder typeBuilder, FieldTable fieldTable)
+            public static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
             {
-                var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, MethodInfoConstant.ObjectCtor.CallingConvention, new Type[] { typeof(IServiceProvider), interfaceType });
+                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodInfoConstant.ObjectCtor.CallingConvention, new Type[] { typeof(IServiceProvider), interfaceType });
 
                 constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderHelpers.ServiceProvider);
                 constructorBuilder.DefineParameter(2, ParameterAttributes.None, FieldBuilderHelpers.Target);
@@ -100,11 +103,11 @@ namespace AspectCore.Core.Internal
 
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(1);
-                ilGen.Emit(OpCodes.Stfld, fieldTable[FieldBuilderHelpers.ServiceProvider]);
+                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.ServiceProvider]);
 
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(2);
-                ilGen.Emit(OpCodes.Stfld, fieldTable[FieldBuilderHelpers.Target]);
+                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
 
                 ilGen.Emit(OpCodes.Ret);
             }
@@ -115,16 +118,22 @@ namespace AspectCore.Core.Internal
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
-            public static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces,
-                IAspectValidator aspectValidator, TypeBuilder typeBuilder, FieldTable fieldTable)
+            public static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-
+                var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct();
+                foreach (var item in interfaces)
+                {
+                    foreach (var method in item.GetTypeInfo().DeclaredMethods)
+                    {
+                        var methodBuilder = DefineMethod(method, ExplicitMethodAttributes, targetType, typeDesc);
+                        typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
+                    }
+                }
             }
 
-            private static MethodBuilder DefineMethod(MethodInfo method, MethodAttributes attributes, Type targetType, IAspectValidator aspectValidator,
-                TypeBuilder typeBuilder, FieldTable fieldTable)
+            private static MethodBuilder DefineMethod(MethodInfo method, MethodAttributes attributes, Type targetType, TypeDesc typeDesc)
             {
-                var methodBuilder = typeBuilder.DefineMethod(method.GetFullName(), attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
+                var methodBuilder = typeDesc.Builder.DefineMethod(method.GetFullName(), attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
 
                 GenericParameterHelpers.DefineGenericParameter(method, methodBuilder);
 
@@ -140,9 +149,7 @@ namespace AspectCore.Core.Internal
                 //define paramters
                 ParameterBuilderHelpers.DefineParameters(method, methodBuilder);
 
-                var implMethod = targetType.GetTypeInfo().GetMethod(new MethodSignature(method));
-
-                if (aspectValidator.Validate(method))
+                if (typeDesc.GetProperty<IAspectValidator>().Validate(method))
                 {
                     EmitProxyMethodBody();
                 }
@@ -157,7 +164,7 @@ namespace AspectCore.Core.Internal
                     var ilGen = methodBuilder.GetILGenerator();
                     var parameters = method.GetParameterTypes();
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, fieldTable[FieldBuilderHelpers.Target]);
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
                     for (int i = 1; i <= parameters.Length; i++)
                     {
                         ilGen.EmitLoadArg(i);
@@ -170,24 +177,105 @@ namespace AspectCore.Core.Internal
                 {
                     var ilGen = methodBuilder.GetILGenerator();
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, fieldTable[FieldBuilderHelpers.ServiceProvider]);
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.ServiceProvider]);
                     ilGen.Emit(OpCodes.Call, MethodInfoConstant.GetAspectActivator);
-
                     EmitInitializeMetaData(ilGen);
-
+                    EmitReturnVaule(ilGen);
                     ilGen.Emit(OpCodes.Ret);
                 }
 
                 void EmitInitializeMetaData(ILGenerator ilGen)
                 {
+                    var serviceMethod = method;
+                    if (serviceMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
+                    {
+                        var serviceTypeOfGeneric = serviceMethod.DeclaringType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments());
+                        serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
+                        ilGen.EmitType(serviceTypeOfGeneric);
+                    }
+                    else
+                    {
+                        ilGen.EmitType(method.DeclaringType);
+                    }
 
+                    var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ? 
+                        targetType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) : 
+                        targetType;
+
+                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
+
+                    var methodConstants = typeDesc.MethodConstants;
+
+                    if (method.IsGenericMethodDefinition)
+                    {
+                        methodConstants.AddMethod($"service{serviceMethod.Name}", serviceMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        methodConstants.AddMethod($"imp{implMethod.Name}", implMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        methodConstants.AddMethod($"proxy{methodBuilder.Name}", methodBuilder.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                    }
+                    else
+                    {
+                        methodConstants.AddMethod($"service{serviceMethod.Name}", serviceMethod);
+                        methodConstants.AddMethod($"imp{implMethod.Name}", implMethod);
+                        methodConstants.AddMethod($"proxy{methodBuilder.Name}", methodBuilder);
+                    }
+
+                    methodConstants.LoadMethod(ilGen, $"service{serviceMethod.Name}");
+                    methodConstants.LoadMethod(ilGen, $"imp{implMethod.Name}");
+                    methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.Name}");
+
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
+                    ilGen.EmitThis();
+                    var parameters = method.GetParameterTypes();
+                    if (parameters.Length == 0)
+                    {
+                        ilGen.Emit(OpCodes.Ldnull);
+                        return;
+                    }
+                    ilGen.EmitInt(parameters.Length);
+                    ilGen.Emit(OpCodes.Newarr, typeof(object));
+                    for (var i = 0; i < parameters.Length; i++)
+                    {
+                        ilGen.Emit(OpCodes.Dup);
+                        ilGen.EmitInt(i);
+                        ilGen.EmitLoadArg(i + 1);
+                        ilGen.EmitConvertToObject(parameters[i]);
+                        ilGen.Emit(OpCodes.Stelem_Ref);
+                    }
+                    ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.AspectActivatorContexCtor);
+                }
+
+                void EmitReturnVaule(ILGenerator ilGen)
+                {
+                    if (method.ReturnType == typeof(void))
+                    {
+                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(typeof(object)));
+                        ilGen.Emit(OpCodes.Pop);
+                    }
+                    else if (method.ReturnType == typeof(Task))
+                    {
+                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeTask.MakeGenericMethod(typeof(object)));
+                    }
+                    else if (method.IsReturnTask())
+                    {
+                        var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeTask.MakeGenericMethod(returnType));
+                    }
+                    else if (method.IsReturnValueTask())
+                    {
+                        var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeValueTask.MakeGenericMethod(returnType));
+                    }
+                    else
+                    {
+                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(method.ReturnType));
+                    }     
                 }
             }
         }
 
         private static class ParameterBuilderHelpers
         {
-            public static void DefineParameters(MethodInfo targetMethod,MethodBuilder methodBuilder)
+            public static void DefineParameters(MethodInfo targetMethod, MethodBuilder methodBuilder)
             {
                 var parameters = targetMethod.GetParameters();
                 if (parameters.Length > 0)
@@ -305,7 +393,7 @@ namespace AspectCore.Core.Internal
             public const string ServiceProvider = "__serviceProvider";
             public const string Target = "__targetInstance";
 
-            public static FieldTable DefineInterfaceProxyField(Type targetType, TypeBuilder typeBuilder)
+            public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
                 var fieldTable = new FieldTable();
                 fieldTable[ServiceProvider] = typeBuilder.DefineField(ServiceProvider, typeof(IServiceProvider), FieldAttributes.Private);
@@ -328,6 +416,79 @@ namespace AspectCore.Core.Internal
                 {
                     _table[value.Name] = value;
                 }
+            }
+        }
+
+        private class MethodConstantTable
+        {
+            private readonly TypeBuilder _nestedTypeBuilder;
+            private readonly ConstructorBuilder _constructorBuilder;
+            private readonly ILGenerator _ilGen;
+            private readonly Dictionary<string, FieldBuilder> _fields;
+
+            public MethodConstantTable(TypeBuilder typeBuilder)
+            {
+                _fields = new Dictionary<string, FieldBuilder>();
+                _nestedTypeBuilder = typeBuilder.DefineNestedType("MethodConstant", TypeAttributes.NestedPrivate);
+                _constructorBuilder = _nestedTypeBuilder.DefineTypeInitializer();
+                _ilGen = _constructorBuilder.GetILGenerator();
+            }
+
+            public void AddMethod(string name, MethodInfo method)
+            {
+                var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
+                _fields.Add(name, field);
+                if (method != null)
+                {
+                    _ilGen.EmitMethod(method);
+                    _ilGen.Emit(OpCodes.Stsfld, field);
+                }
+            }
+
+            public void LoadMethod(ILGenerator ilGen, string name)
+            {
+                if (_fields.TryGetValue(name, out FieldBuilder field))
+                {
+                    ilGen.Emit(OpCodes.Ldsfld, field);
+                    return;
+                }
+                throw new InvalidOperationException($"Failed to find the method associated with the specified key {name}.");
+            }
+
+            public void Compile()
+            {
+                _ilGen.Emit(OpCodes.Ret);
+                _nestedTypeBuilder.CreateTypeInfo();
+            }
+        }
+
+        private class TypeDesc
+        {
+            public TypeBuilder Builder { get; }
+
+            public FieldTable Fields { get; }
+
+            public MethodConstantTable MethodConstants { get; }
+
+            public Dictionary<string, object> Properties { get; }
+
+            public TypeDesc(TypeBuilder typeBuilder, FieldTable fields, MethodConstantTable methodConstants)
+            {
+                Builder = typeBuilder;
+                Fields = fields;
+                MethodConstants = methodConstants;
+                Properties = new Dictionary<string, object>();
+            }
+
+            public Type Compile()
+            {
+                MethodConstants.Compile();
+                return Builder.CreateTypeInfo().AsType();
+            }
+
+            public T GetProperty<T>()
+            {
+                return (T)Properties[typeof(T).Name];
             }
         }
     }

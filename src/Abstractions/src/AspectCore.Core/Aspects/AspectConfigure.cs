@@ -16,19 +16,6 @@ namespace AspectCore.Core
 
         public AspectConfigure(IEnumerable<IInterceptorFactory> interceptorFactories, IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates, IEnumerable<IAspectValidationHandler> aspectValidationHandlers)
         {
-            if (interceptorFactories == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorFactories));
-            }
-            if (nonAspectPredicates == null)
-            {
-                throw new ArgumentNullException(nameof(nonAspectPredicates));
-            }
-            if (aspectValidationHandlers == null)
-            {
-                throw new ArgumentNullException(nameof(aspectValidationHandlers));
-            }
-
             InterceptorFactories = interceptorFactories;
             NonAspectPredicates = nonAspectPredicates;
             AspectValidationHandlers = aspectValidationHandlers;

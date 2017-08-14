@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace AspectCore.Abstractions
@@ -11,6 +10,6 @@ namespace AspectCore.Abstractions
 
         Type ServiceType { get; }
 
-        object Invoke(IEnumerable<IParameterDescriptor> parameterDescriptors);
+        object Invoke(IParameterCollection parameterCollection);
     }
 }
