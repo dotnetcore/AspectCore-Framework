@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.0
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{73F38B6C-1A05-41C8-8029-D1F2F41D3279}"
 EndProject
@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "performance", "performance"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Benchmark", "performance\AspectCore.Benchmark\AspectCore.Benchmark.csproj", "{E295F15D-E44B-4B26-9A19-D278E781ACF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Tests", "test\AspectCore.Tests\AspectCore.Tests.csproj", "{726CA767-41EF-4E8F-BF01-D40CEDCF0684}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Tests", "test\AspectCore.Tests\AspectCore.Tests.csproj", "{726CA767-41EF-4E8F-BF01-D40CEDCF0684}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Reflection", "..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj", "{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{726CA767-41EF-4E8F-BF01-D40CEDCF0684}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{726CA767-41EF-4E8F-BF01-D40CEDCF0684}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{726CA767-41EF-4E8F-BF01-D40CEDCF0684}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{54FFB88E-6E90-4E57-886D-A8430039DA23} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
 		{E295F15D-E44B-4B26-9A19-D278E781ACF0} = {8C18049D-D905-4567-8CEC-AE07A32EFB71}
 		{726CA767-41EF-4E8F-BF01-D40CEDCF0684} = {2DFB45E4-F9D9-472C-93E4-224E3C210FCB}
+		{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A} = {73F38B6C-1A05-41C8-8029-D1F2F41D3279}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {71EABBEC-431F-413C-B6CB-CFE9145BCAD4}

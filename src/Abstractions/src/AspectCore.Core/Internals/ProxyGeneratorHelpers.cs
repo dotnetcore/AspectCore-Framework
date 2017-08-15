@@ -92,9 +92,9 @@ namespace AspectCore.Core.Internal
         {
             public static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
             {
-                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodInfoConstant.ObjectCtor.CallingConvention, new Type[] { typeof(IServiceProvider), interfaceType });
+                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodInfoConstant.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory), interfaceType });
 
-                constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderHelpers.ServiceProvider);
+                constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderHelpers.ActivatorFactory);
                 constructorBuilder.DefineParameter(2, ParameterAttributes.None, FieldBuilderHelpers.Target);
 
                 var ilGen = constructorBuilder.GetILGenerator();
@@ -103,7 +103,7 @@ namespace AspectCore.Core.Internal
 
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(1);
-                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.ServiceProvider]);
+                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.ActivatorFactory]);
 
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(2);
@@ -169,7 +169,14 @@ namespace AspectCore.Core.Internal
                     {
                         ilGen.EmitLoadArg(i);
                     }
-                    ilGen.Emit(method.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, method);
+
+                    var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ?
+                       targetType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
+                       targetType;
+
+                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method));
+
+                    ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, method);
                     ilGen.Emit(OpCodes.Ret);
                 }
 
@@ -177,8 +184,8 @@ namespace AspectCore.Core.Internal
                 {
                     var ilGen = methodBuilder.GetILGenerator();
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.ServiceProvider]);
-                    ilGen.Emit(OpCodes.Call, MethodInfoConstant.GetAspectActivator);
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.ActivatorFactory]);
+                    ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.CreateAspectActivator);
                     EmitInitializeMetaData(ilGen);
                     EmitReturnVaule(ilGen);
                     ilGen.Emit(OpCodes.Ret);
@@ -223,6 +230,7 @@ namespace AspectCore.Core.Internal
                     methodConstants.LoadMethod(ilGen, $"imp{implMethod.Name}");
                     methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.Name}");
 
+                    ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
                     ilGen.EmitThis();
                     var parameters = method.GetParameterTypes();
@@ -241,11 +249,12 @@ namespace AspectCore.Core.Internal
                         ilGen.EmitConvertToObject(parameters[i]);
                         ilGen.Emit(OpCodes.Stelem_Ref);
                     }
-                    ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.AspectActivatorContexCtor);
                 }
 
                 void EmitReturnVaule(ILGenerator ilGen)
                 {
+                    ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.AspectActivatorContexCtor);
+
                     if (method.ReturnType == typeof(void))
                     {
                         ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(typeof(object)));
@@ -390,13 +399,13 @@ namespace AspectCore.Core.Internal
 
         private static class FieldBuilderHelpers
         {
-            public const string ServiceProvider = "__serviceProvider";
+            public const string ActivatorFactory = "__activatorFactory";
             public const string Target = "__targetInstance";
 
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
                 var fieldTable = new FieldTable();
-                fieldTable[ServiceProvider] = typeBuilder.DefineField(ServiceProvider, typeof(IServiceProvider), FieldAttributes.Private);
+                fieldTable[ActivatorFactory] = typeBuilder.DefineField(ActivatorFactory, typeof(IAspectActivatorFactory), FieldAttributes.Private);
                 fieldTable[Target] = typeBuilder.DefineField(Target, targetType, FieldAttributes.Private);
                 return fieldTable;
             }
@@ -436,7 +445,7 @@ namespace AspectCore.Core.Internal
 
             public void AddMethod(string name, MethodInfo method)
             {
-                var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.Assembly);
+                var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.InitOnly | FieldAttributes.Assembly);
                 _fields.Add(name, field);
                 if (method != null)
                 {

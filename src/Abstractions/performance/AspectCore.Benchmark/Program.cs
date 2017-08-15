@@ -1,4 +1,5 @@
 ﻿using System;
+using BenchmarkDotNet.Running;
 
 namespace AspectCore.Benchmark
 {
@@ -6,7 +7,7 @@ namespace AspectCore.Benchmark
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            BenchmarkRunner.Run<SyncVoidBenchmarks>();
         }
     }
 }

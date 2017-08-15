@@ -29,23 +29,23 @@ namespace AspectCore.Core
 
         public virtual object Invoke(IParameterCollection parameterCollection)
         {
-            try
-            {
+            //try
+            //{
                 var reflector = dictionary.GetOrAdd(_implementationMethod, method => method.GetReflector(CallOptions.Call));
                 if (parameterCollection.Count == 0)
                 {
                     return reflector.Invoke(_implementationInstance);
                 }
                 return reflector.Invoke(_implementationInstance, parameterCollection.Select(x => x.Value).ToArray());
-            }
-            catch (TargetInvocationException exception)
-            {
-                throw exception.InnerException;
-            }
-            catch (Exception exception)
-            {
-                throw exception;
-            }
+            //}
+            //catch (TargetInvocationException exception)
+            //{
+            //    throw exception.InnerException;
+            //}
+            //catch (Exception exception)
+            //{
+            //    throw exception;
+            //}
         }
     }
 }

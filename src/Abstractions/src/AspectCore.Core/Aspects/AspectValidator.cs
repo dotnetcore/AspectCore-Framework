@@ -4,7 +4,7 @@ using AspectCore.Abstractions;
 namespace AspectCore.Core
 {
     [NonAspect]
-    internal sealed class AspectValidator : IAspectValidator
+    public sealed class AspectValidator : IAspectValidator
     {
         private readonly AspectValidationDelegate _aspectValidationDelegate;
 

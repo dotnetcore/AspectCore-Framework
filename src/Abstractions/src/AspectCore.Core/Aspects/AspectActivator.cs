@@ -6,15 +6,15 @@ using AspectCore.Core.Internal;
 namespace AspectCore.Core
 {
     [NonAspect]
-    public sealed class AspectActivator : IAspectActivator
+    internal sealed class AspectActivator : IAspectActivator
     {
         private readonly IAspectContextFactory _aspectContextFactory;
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
 
         public AspectActivator(IAspectContextFactory aspectContextFactory, IAspectBuilderFactory aspectBuilderFactory)
         {
-            _aspectContextFactory = aspectContextFactory ?? throw new ArgumentNullException(nameof(aspectContextFactory));
-            _aspectBuilderFactory = aspectBuilderFactory ?? throw new ArgumentNullException(nameof(aspectBuilderFactory));
+            _aspectContextFactory = aspectContextFactory;
+            _aspectBuilderFactory = aspectBuilderFactory;
         }
 
         public TResult Invoke<TResult>(AspectActivatorContext activatorContext)

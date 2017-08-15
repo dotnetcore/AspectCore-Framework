@@ -7,7 +7,7 @@ using AspectCore.Core;
 
 namespace AspectCore.Tests.Fakes
 {
-    public class AspectValidatorFactory
+    public class AspectValidatorBuilderFactory
     {
         public static IAspectValidatorBuilder Create()
         {

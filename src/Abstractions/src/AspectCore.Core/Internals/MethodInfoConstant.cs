@@ -11,6 +11,8 @@ namespace AspectCore.Core.Internal
     {
         internal static readonly MethodInfo GetAspectActivator = GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetAspectActivator());
 
+        internal static readonly MethodInfo CreateAspectActivator = GetMethod<IAspectActivatorFactory>(nameof(IAspectActivatorFactory.Create));
+
         internal static readonly MethodInfo AspectActivatorInvoke = GetMethod<IAspectActivator>(nameof(IAspectActivator.Invoke));
 
         internal static readonly MethodInfo AspectActivatorInvokeTask = GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeTask));
