@@ -10,6 +10,7 @@ namespace AspectCore.Core
     public sealed class AspectBuilder : IAspectBuilder
     {
         private readonly IList<Func<AspectDelegate, AspectDelegate>> _delegates;
+        private AspectDelegate _aspectDelegate;
 
         public AspectBuilder()
         {
@@ -25,20 +26,15 @@ namespace AspectCore.Core
             _delegates.Add(next => context => interceptorInvoke(context, next));
         }
 
-        public Func<Func<object>, AspectDelegate> Build()
+        public AspectDelegate Build()
         {
-            return targetInvoke => Build(targetInvoke);
-        }
-
-        public AspectDelegate Build(Func<object> targetInvoke)
-        {
-            if (targetInvoke == null)
+            if (_aspectDelegate != null)
             {
-                throw new ArgumentNullException(nameof(targetInvoke));
+                return _aspectDelegate;
             }
             AspectDelegate invoke = context =>
             {
-                context.ReturnParameter.Value = targetInvoke();
+                context.ReturnParameter.Value = context.Target.Invoke(context.Parameters);
                 return TaskCache.CompletedTask;
             };
             var count = _delegates.Count;
@@ -46,7 +42,7 @@ namespace AspectCore.Core
             {
                 invoke = _delegates[i](invoke);
             }
-            return invoke;
+            return (_aspectDelegate = invoke);
         }
     }
 }

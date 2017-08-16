@@ -29,6 +29,8 @@ namespace AspectCore.Core
             foreach (var interceptor in _interceptorProvider.GetInterceptors(method))
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
 
+
+
             return aspectBuilder;
         }
     }

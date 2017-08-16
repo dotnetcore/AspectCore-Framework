@@ -20,13 +20,14 @@ namespace AspectCore.Benchmark
             handlers.Add(new NonAspectValidationHandler());
             AspectConfigureProvider.AddValidationHandlers(handlers);
         }
+
         private static IAspectValidatorBuilder CreateValidatorBuilder()
         {
             var builder = new AspectValidatorBuilder(AspectConfigureProvider.Instance);
             return builder;
         }
 
-        private static IAspectActivatorFactory CreateActivatorFactory()
+        public static IAspectActivatorFactory CreateActivatorFactory()
         {
             var serviceProvider = new ServiceProvider();
             var interceptorSelectors = new List<IInterceptorSelector>();
@@ -34,6 +35,16 @@ namespace AspectCore.Benchmark
             interceptorSelectors.Add(new MethodInterceptorSelector());
             interceptorSelectors.Add(new TypeInterceptorSelector());
             return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorProvider(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+        }
+
+        public static IAspectBuilderFactory CreateAspectBuilderFactory()
+        {
+            var serviceProvider = new ServiceProvider();
+            var interceptorSelectors = new List<IInterceptorSelector>();
+            interceptorSelectors.Add(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, serviceProvider));
+            interceptorSelectors.Add(new MethodInterceptorSelector());
+            interceptorSelectors.Add(new TypeInterceptorSelector());
+            return new AspectBuilderFactory(new InterceptorProvider(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector())));
         }
 
         public static T CreateProxy<T>(T target)
