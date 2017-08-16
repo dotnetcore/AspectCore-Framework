@@ -53,7 +53,7 @@ namespace AspectCore.Core
             using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                var invoke = aspectBuilder.Build()(() => context.Target.Invoke(context.Parameters))(context);
+                var invoke = aspectBuilder.Build()(context);
                 if (invoke.IsFaulted)
                 {
                     throw invoke.Exception?.InnerException;
