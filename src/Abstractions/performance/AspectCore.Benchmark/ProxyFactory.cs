@@ -11,13 +11,15 @@ namespace AspectCore.Benchmark
         static ProxyFactory()
         {
             var aspectConfigureProvider = AspectConfigureProvider.Instance;
-            var handlers = new List<IAspectValidationHandler>();
-            handlers.Add(new AccessibleAspectValidationHandler());
-            handlers.Add(new AttributeAspectValidationHandler());
-            handlers.Add(new CacheAspectValidationHandler());
-            handlers.Add(new ConfigureAspectValidationHandler(aspectConfigureProvider));
-            handlers.Add(new DynamicallyAspectValidationHandler());
-            handlers.Add(new NonAspectValidationHandler());
+            var handlers = new List<IAspectValidationHandler>
+            {
+                new AccessibleAspectValidationHandler(),
+                new AttributeAspectValidationHandler(),
+                new CacheAspectValidationHandler(),
+                new ConfigureAspectValidationHandler(aspectConfigureProvider),
+                new DynamicallyAspectValidationHandler(),
+                new NonAspectValidationHandler()
+            };
             AspectConfigureProvider.AddValidationHandlers(handlers);
         }
         private static IAspectValidatorBuilder CreateValidatorBuilder()

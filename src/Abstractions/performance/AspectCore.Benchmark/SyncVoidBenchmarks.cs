@@ -15,19 +15,19 @@ namespace AspectCore.Benchmark
         [Benchmark]
         public void Call()
         {
-            service.Foo();
+            service.Foo(0);
         }
     }
 
     [MyInterceptor]
     public interface IService
     {
-        void Foo();
+        void Foo(int v);
     }
 
     public class Service : IService
     {
-        public void Foo()
+        public void Foo(int v)
         {
         }
     }

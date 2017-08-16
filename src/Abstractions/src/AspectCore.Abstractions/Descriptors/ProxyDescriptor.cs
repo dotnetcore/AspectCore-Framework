@@ -4,7 +4,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    internal class ProxyDescriptor : IProxyDescriptor
+    public class ProxyDescriptor : IProxyDescriptor
     {
         public virtual object ProxyInstance { get; }
 

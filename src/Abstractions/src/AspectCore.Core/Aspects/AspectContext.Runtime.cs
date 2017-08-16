@@ -55,7 +55,7 @@ namespace AspectCore.Core
             get;
         }
 
-        public override ITargetDescriptor Target
+        public override TargetDescriptor Target
         {
             get;
         }
@@ -65,10 +65,10 @@ namespace AspectCore.Core
             get;
         }
 
-        public RuntimeAspectContext(IServiceProvider serviceProvider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
+        public RuntimeAspectContext(IServiceProvider serviceProvider, TargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
         {
             _serviceProvider = serviceProvider;
-            Target = target ?? throw new ArgumentNullException(nameof(target));
+            Target = target;
             Proxy = proxy ?? throw new ArgumentNullException(nameof(proxy));
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             ReturnParameter = returnParameter ?? throw new ArgumentNullException(nameof(returnParameter));

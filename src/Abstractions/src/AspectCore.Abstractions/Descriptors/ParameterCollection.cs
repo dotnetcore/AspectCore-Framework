@@ -6,7 +6,7 @@ using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    internal class ParameterCollection : IParameterCollection
+    public class ParameterCollection : IParameterCollection
     {
         private readonly int _count;
         private readonly IParameterDescriptor[] _parameterEntries;

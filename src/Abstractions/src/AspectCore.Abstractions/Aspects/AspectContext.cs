@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AspectCore.Core;
 
 namespace AspectCore.Abstractions
 {
@@ -8,7 +9,7 @@ namespace AspectCore.Abstractions
     {
         public abstract IServiceProvider ServiceProvider { get; }
 
-        public abstract ITargetDescriptor Target { get; }
+        public abstract TargetDescriptor Target { get; }
 
         public abstract IProxyDescriptor Proxy { get; }
 

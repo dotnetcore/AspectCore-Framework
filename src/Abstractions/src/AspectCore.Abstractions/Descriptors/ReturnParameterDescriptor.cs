@@ -2,7 +2,7 @@
 
 namespace AspectCore.Core
 {
-    internal class ReturnParameterDescriptor : ParameterDescriptor
+    public class ReturnParameterDescriptor : ParameterDescriptor
     {
         public ReturnParameterDescriptor(object value, ParameterInfo parameterInfo) : base(value, parameterInfo)
         {

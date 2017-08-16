@@ -20,5 +20,9 @@
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
+  </ItemGroup>
   
 </Project>
