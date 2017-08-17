@@ -19,36 +19,23 @@ namespace AspectCore.Core
 
         public TResult Invoke<TResult>(AspectActivatorContext activatorContext)
         {
-            return (TResult)InternalInvoke<TResult>(activatorContext);
+            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            {
+                var aspectBuilder = _aspectBuilderFactory.Create(context);
+                var invoke = aspectBuilder.Build()(context);
+                if (invoke.IsFaulted)
+                {
+                    throw invoke.Exception?.InnerException;
+                }
+                if (!invoke.IsCompleted)
+                {
+                    invoke.GetAwaiter().GetResult();
+                }
+                return (TResult)context.ReturnValue;
+            }
         }
 
         public Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
-        {
-            var result = InternalInvoke<TResult>(activatorContext);
-            if (result is Task<TResult> resultTask)
-            {
-                return resultTask;
-            }
-            else if (result is Task task)
-            {
-                if (!task.IsCompleted)
-                {
-                    task.GetAwaiter().GetResult();
-                }
-                return TaskCache<TResult>.CompletedTask;
-            }
-            else
-            {
-                throw new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'.");
-            }
-        }
-
-        public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
-        {
-            return (ValueTask<TResult>)InternalInvoke<TResult>(activatorContext);
-        }
-
-        private object InternalInvoke<TResult>(AspectActivatorContext activatorContext)
         {
             using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
             {
@@ -62,7 +49,41 @@ namespace AspectCore.Core
                 {
                     invoke.GetAwaiter().GetResult();
                 }
-                return context.ReturnParameter.Value;
+                var result = context.ReturnValue;
+                if (result is Task<TResult> resultTask)
+                {
+                    return resultTask;
+                }
+                else if (result is Task task)
+                {
+                    if (!task.IsCompleted)
+                    {
+                        task.GetAwaiter().GetResult();
+                    }
+                    return TaskCache<TResult>.CompletedTask;
+                }
+                else
+                {
+                    throw new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'.");
+                }
+            }   
+        }
+
+        public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
+        {
+            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            {
+                var aspectBuilder = _aspectBuilderFactory.Create(context);
+                var invoke = aspectBuilder.Build()(context);
+                if (invoke.IsFaulted)
+                {
+                    throw invoke.Exception?.InnerException;
+                }
+                if (!invoke.IsCompleted)
+                {
+                    invoke.GetAwaiter().GetResult();
+                }
+                return (ValueTask<TResult>)context.ReturnValue;
             }
         }
     }

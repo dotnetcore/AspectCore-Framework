@@ -166,19 +166,19 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
-        {
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-            return new MethodReflector(method).CreateMethodInvoker()(instance, parameters);
-        }
+        //public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
+        //{
+        //    if (method == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(method));
+        //    }
+        //    return new MethodReflector(method).CreateMethodInvoker()(instance, parameters);
+        //}
 
-        public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
-        {
-            return (TResult)FastInvoke(method, instance, parameters);
-        }
+        //public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
+        //{
+        //    return (TResult)FastInvoke(method, instance, parameters);
+        //}
 
         public static Type[] GetParameterTypes(this MethodInfo method)
         {

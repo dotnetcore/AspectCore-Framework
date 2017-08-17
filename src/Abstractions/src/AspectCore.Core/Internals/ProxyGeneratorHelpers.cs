@@ -197,12 +197,7 @@ namespace AspectCore.Core.Internal
                     if (serviceMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
                     {
                         var serviceTypeOfGeneric = serviceMethod.DeclaringType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments());
-                        serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
-                        ilGen.EmitType(serviceTypeOfGeneric);
-                    }
-                    else
-                    {
-                        ilGen.EmitType(method.DeclaringType);
+                        serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));   
                     }
 
                     var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ? 

@@ -3,9 +3,10 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using AspectCore.Core.Internal;
 using AspectCore.Extensions.Reflection.Emit;
 
-namespace AspectCore.Core.Internal
+namespace AspectCore.Core.Internals
 {
     public sealed class MethodReflector
     {

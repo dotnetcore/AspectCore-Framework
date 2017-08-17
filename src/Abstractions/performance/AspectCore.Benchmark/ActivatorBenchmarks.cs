@@ -27,20 +27,29 @@ namespace AspectCore.Benchmark
         [Benchmark]
         public AspectActivatorContext Create_AspectActivatorContext()
         {
-            return new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            return new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
         }
 
         [Benchmark]
         public AspectContext Create_AspectContext()
         {
-            var context = new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            var context = new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
             return contextFactory.CreateContext<object>(context);
+        }
+
+        //[Benchmark]
+        public void Create_AspectContextThenDispose()
+        {
+            var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            using (var aspectContext = contextFactory.CreateContext<object>(context))
+            {
+            }
         }
 
         [Benchmark]
         public IAspectBuilder Create_AspectBuilder()
         {
-            var context = new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
             var aspectContext = contextFactory.CreateContext<object>(context);
             return aspectBuilderFactory.Create(aspectContext);
         }
@@ -48,7 +57,7 @@ namespace AspectCore.Benchmark
         [Benchmark]
         public AspectDelegate AspectBuilder_Build_Delegate()
         {
-            var context = new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            var context = new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
             var aspectContext = contextFactory.CreateContext<object>(context);
             var aspectBuilder = aspectBuilderFactory.Create(aspectContext);
             return aspectBuilder.Build();
@@ -57,7 +66,7 @@ namespace AspectCore.Benchmark
         [Benchmark]
         public Task Invoke_WithoutReturn()
         {
-            var context = new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
             var aspectContext = contextFactory.CreateContext<object>(context);
             var aspectBuilder = aspectBuilderFactory.Create(aspectContext);
             return aspectBuilder.Build()(aspectContext);
@@ -66,7 +75,7 @@ namespace AspectCore.Benchmark
         [Benchmark]
         public object Invoke_WithReturn()
         {
-            var context = new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            var context = new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
             var aspectContext = contextFactory.CreateContext<object>(context);
             var aspectBuilder = aspectBuilderFactory.Create(aspectContext);
             var invoke = aspectBuilder.Build()(aspectContext);
@@ -78,7 +87,7 @@ namespace AspectCore.Benchmark
             {
                 invoke.GetAwaiter().GetResult();
             }
-            return aspectContext.ReturnParameter.Value;
+            return aspectContext.ReturnValue;
         }
 
         [Benchmark]
@@ -90,7 +99,7 @@ namespace AspectCore.Benchmark
         [Benchmark]
         public object AspectActivator_Invoke()
         {
-            var context = new AspectActivatorContext(typeof(IService), MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
+            var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
             return aspectActivatorFactory.Create().Invoke<object>(context);
         }
     }

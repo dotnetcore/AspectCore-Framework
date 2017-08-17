@@ -7,7 +7,7 @@ namespace AspectCore.Benchmark
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<ActivatorBenchmarks>();
+            BenchmarkRunner.Run<SyncVoidBenchmarks>();
         }
     }
 }

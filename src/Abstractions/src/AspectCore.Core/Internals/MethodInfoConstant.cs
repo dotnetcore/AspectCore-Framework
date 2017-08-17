@@ -27,7 +27,7 @@ namespace AspectCore.Core.Internal
 
         internal static readonly ConstructorInfo ArgumentNullExceptionCtor = typeof(ArgumentNullException).GetTypeInfo().GetConstructor(new Type[] { typeof(string) });
 
-        internal static readonly ConstructorInfo AspectActivatorContexCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First(x => x.GetParameters().Length == 7);
+        internal static readonly ConstructorInfo AspectActivatorContexCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First();
 
         internal static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
 

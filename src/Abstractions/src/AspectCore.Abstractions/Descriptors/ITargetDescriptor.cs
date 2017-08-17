@@ -9,7 +9,5 @@ namespace AspectCore.Abstractions
         MethodInfo ServiceMethod { get; }
 
         Type ServiceType { get; }
-
-        object Invoke(IParameterCollection parameterCollection);
     }
 }

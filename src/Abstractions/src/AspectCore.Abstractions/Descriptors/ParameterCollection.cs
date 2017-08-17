@@ -1,39 +1,26 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Abstractions
 {
-    public class ParameterCollection : IParameterCollection
+    public sealed class ParameterCollection : IEnumerable<Parameter>, IReadOnlyList<Parameter>
     {
+        private static readonly object[] emptyValues = new object[0];
         private readonly int _count;
-        private readonly IParameterDescriptor[] _parameterEntries;
+        private readonly Parameter[] _parameterEntries;
 
-        public ParameterCollection(object[] parameters, ParameterInfo[] parameterInfos)
+        public ParameterCollection(object[] values, string[] names)
         {
-            if (parameters == null)
-            {
-                throw new ArgumentNullException(nameof(parameters));
-            }
-            if (parameterInfos == null)
-            {
-                throw new ArgumentNullException(nameof(parameterInfos));
-            }
-            if (parameters.Length != parameterInfos.Length)
-            {
-                throw new ArgumentException("The number of parameters must equal the number of parameterInfos.");
-            }
-            _count = parameters.Length;
-            _parameterEntries = new ParameterDescriptor[_count];
+            _count = values.Length;
+            _parameterEntries = new Parameter[_count];
             for (var i = 0; i < _count; i++)
             {
-                _parameterEntries[i] = new ParameterDescriptor(parameters[i], parameterInfos[i]);
+                _parameterEntries[i] = new Parameter(values[i], names[i]);
             }
         }
 
-        public IParameterDescriptor this[int index]
+        public Parameter this[int index]
         {
             get
             {
@@ -45,7 +32,7 @@ namespace AspectCore.Core
             }
         }
 
-        public IParameterDescriptor this[string name]
+        public Parameter this[string name]
         {
             get
             {
@@ -64,7 +51,7 @@ namespace AspectCore.Core
                     }
                     throw ThrowNotFound();
                 }
-                IParameterDescriptor parameter;
+                Parameter parameter;
                 for (var i = 0; i < count; i++)
                 {
                     parameter = parameters[i];
@@ -84,12 +71,26 @@ namespace AspectCore.Core
             get { return _count; }
         }
 
-        public IEnumerator<IParameterDescriptor> GetEnumerator()
+        public IEnumerator<Parameter> GetEnumerator()
         {
             for (var i = 0; i < _count; i++)
             {
                 yield return _parameterEntries[i];
             }
+        }
+
+        public object[] GetValues()
+        {
+            if (_count == 0)
+            {
+                return emptyValues;
+            }
+            var values = new object[_count];
+            for (var i = 0; i < _count; i++)
+            {
+                values[i] = _parameterEntries[i].Value;
+            }
+            return values;
         }
 
         IEnumerator IEnumerable.GetEnumerator()

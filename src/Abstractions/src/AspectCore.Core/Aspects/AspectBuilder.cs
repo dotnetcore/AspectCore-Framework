@@ -32,11 +32,7 @@ namespace AspectCore.Core
             {
                 return _aspectDelegate;
             }
-            AspectDelegate invoke = context =>
-            {
-                context.ReturnParameter.Value = context.Target.Invoke(context.Parameters);
-                return TaskCache.CompletedTask;
-            };
+            AspectDelegate invoke = context => context.Complete();
             var count = _delegates.Count;
             for (var i = count - 1; i > -1; i--)
             {

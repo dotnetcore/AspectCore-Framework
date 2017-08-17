@@ -19,7 +19,7 @@ namespace AspectCore.Core
 
         public IAspectBuilder Create(AspectContext context)
         {
-            return _builders.GetOrAdd(context.Target.ServiceMethod, Create);
+            return _builders.GetOrAdd(context.ServiceMethod, Create);
         }
 
         private IAspectBuilder Create(MethodInfo method)
@@ -28,8 +28,6 @@ namespace AspectCore.Core
 
             foreach (var interceptor in _interceptorProvider.GetInterceptors(method))
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
-
-
 
             return aspectBuilder;
         }

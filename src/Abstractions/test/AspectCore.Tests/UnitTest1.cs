@@ -29,7 +29,6 @@ namespace AspectCore.Tests
     {
         public void Foo()
         {
-            throw new NotImplementedException();
         }
     }
 
@@ -51,7 +50,7 @@ namespace AspectCore.Tests
 
         public void Foo()
         {
-            _activatorFactory.Create().Invoke<object>(new AspectActivatorContext(typeof(IService), Methods.serviceFoo, Methods.impFoo, Methods.targetFoo, _service, this, null));
+            _activatorFactory.Create().Invoke<object>(new AspectActivatorContext( Methods.serviceFoo, Methods.impFoo, Methods.targetFoo, _service, this, null));
         }
 
         internal class Methods
