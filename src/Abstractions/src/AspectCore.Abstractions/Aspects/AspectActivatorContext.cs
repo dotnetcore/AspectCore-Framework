@@ -1,15 +1,11 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace AspectCore.Abstractions
 {
     [NonAspect]
     public struct AspectActivatorContext
     {
-        private static readonly object[] emptyParameters = new object[0];
-
-        public Type ServiceType { get; }
-
+        //private static readonly object[] emptyParameters = new object[0];
         public MethodInfo ServiceMethod { get; }
 
         public MethodInfo TargetMethod { get; }
@@ -22,9 +18,8 @@ namespace AspectCore.Abstractions
 
         public object[] Parameters { get; }
 
-        public AspectActivatorContext(Type serviceType, MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod, object serviceInstance, object proxyInstance, object[] parameters)
+        public AspectActivatorContext(MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod, object serviceInstance, object proxyInstance, object[] parameters)
         {
-            ServiceType = serviceType;
             ServiceMethod = serviceMethod;
             TargetMethod = targetMethod;
             ProxyMethod = proxyMethod;
