@@ -8,7 +8,7 @@ namespace AspectCore.Core
     [NonAspect]
     public sealed class AttributeAspectValidationHandler : IAspectValidationHandler
     {
-        public int Order { get; } = 11;
+        public int Order { get; } = 13;
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {

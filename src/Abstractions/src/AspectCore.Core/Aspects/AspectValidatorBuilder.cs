@@ -10,11 +10,11 @@ namespace AspectCore.Core
     {
         private readonly IList<Func<AspectValidationDelegate, AspectValidationDelegate>> _collections;
 
-        public AspectValidatorBuilder(IEnumerable<IAspectValidationHandler> aspectValidationHandlers)
+        public AspectValidatorBuilder(IAspectConfigureProvider aspectConfigureProvider)
         {
             _collections = new List<Func<AspectValidationDelegate, AspectValidationDelegate>>();
 
-            foreach (var handler in aspectValidationHandlers.OrderBy(x => x.Order))
+            foreach (var handler in aspectConfigureProvider.AspectConfigure.AspectValidationHandlers.OrderBy(x => x.Order))
             {
                 _collections.Add(next => method => handler.Invoke(method, next));
             }

@@ -98,12 +98,12 @@ namespace AspectCore.Core.Internal.Generator
             }
             else if (_serviceMethod.ReturnType == typeof(Task))
             {
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeAsync.MakeGenericMethod(typeof(object)));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeTask.MakeGenericMethod(typeof(object)));
             }
             else if (_serviceMethod.IsReturnTask())
             {
                 var returnType = _serviceMethod.ReturnType.GetTypeInfo().GetGenericArguments().Single();
-                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeAsync.MakeGenericMethod(returnType));
+                ilGenerator.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeTask.MakeGenericMethod(returnType));
             }
             else
             {

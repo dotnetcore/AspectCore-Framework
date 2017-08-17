@@ -13,9 +13,9 @@ namespace AspectCore.Core
         private static readonly IDictionary<MethodInfo, IEnumerable<IInterceptor>> interceptorCache = new Dictionary<MethodInfo, IEnumerable<IInterceptor>>();
 
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
-        private readonly IPropertyInjectorFactory _propertyInjectorFactory;
+        private readonly IInterceptorInjectorProvider _propertyInjectorFactory;
 
-        public InterceptorProvider(IEnumerable<IInterceptorSelector> interceptorSelectors, IPropertyInjectorFactory propertyInjectorFactory)
+        public InterceptorProvider(IEnumerable<IInterceptorSelector> interceptorSelectors, IInterceptorInjectorProvider propertyInjectorFactory)
         {
             if (interceptorSelectors == null)
             {
@@ -44,7 +44,7 @@ namespace AspectCore.Core
             {
                 foreach (var interceptor in selector.Select(method, method.DeclaringType.GetTypeInfo()))
                 {
-                    _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
+                    _propertyInjectorFactory.GetInjector(interceptor.GetType()).Inject(interceptor);
                     yield return interceptor;
                 }
             }

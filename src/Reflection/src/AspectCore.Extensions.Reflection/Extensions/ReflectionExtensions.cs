@@ -83,6 +83,15 @@ namespace AspectCore.Extensions.Reflection
             }
             return PropertyReflector.Create(property, callOption);
         }
+
+        public static MethodInfo GetMethod(this TypeInfo typeInfo, MethodSignature signature)
+        {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
+            return typeInfo.GetMethods().FirstOrDefault(m => new MethodSignature(m) == signature);
+        }
         #endregion
 
         #region Reflectr

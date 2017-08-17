@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core.Internal
 {
@@ -72,11 +73,6 @@ namespace AspectCore.Core.Internal
     {
         public static IAspectActivator GetAspectActivator(this IServiceProvider provider)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
             return (IAspectActivator)provider.GetService(typeof(IAspectActivator));
         }
     }
@@ -140,7 +136,7 @@ namespace AspectCore.Core.Internal
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
-            return typeInfo.IsDefined(typeof(DynamicallyAttribute), false);
+            return typeInfo.GetReflector().IsDefined(typeof(DynamicallyAttribute));
         }
 
         public static bool CanInherited(this TypeInfo typeInfo)
@@ -155,7 +151,7 @@ namespace AspectCore.Core.Internal
                 return false;
             }
 
-            if (typeInfo.IsDefined(typeof(NonAspectAttribute)) || typeInfo.IsProxyType())
+            if (typeInfo.IsNonAspect()|| typeInfo.IsProxyType())
             {
                 return false;
             }
@@ -170,19 +166,19 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
-        {
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-            return new MethodReflector(method).CreateMethodInvoker()(instance, parameters);
-        }
+        //public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
+        //{
+        //    if (method == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(method));
+        //    }
+        //    return new MethodReflector(method).CreateMethodInvoker()(instance, parameters);
+        //}
 
-        public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
-        {
-            return (TResult)FastInvoke(method, instance, parameters);
-        }
+        //public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
+        //{
+        //    return (TResult)FastInvoke(method, instance, parameters);
+        //}
 
         public static Type[] GetParameterTypes(this MethodInfo method)
         {
@@ -265,7 +261,7 @@ namespace AspectCore.Core.Internal
             {
                 throw new ArgumentNullException(nameof(member));
             }
-            return member.IsDefined(typeof(NonAspectAttribute), true);
+            return member.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
         internal static MethodInfo GetMethodBySign(this TypeInfo typeInfo, MethodInfo method)
@@ -285,29 +281,7 @@ namespace AspectCore.Core.Internal
             //return typeInfo.GetMethod(method.Name, method.GetParameterTypes());
         }
 
-        internal static MethodInfo GetMethod<T>(Expression<T> expression)
-        {
-            if (expression == null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-            var methodCallExpression = expression.Body as MethodCallExpression;
-            if (methodCallExpression == null)
-            {
-                throw new InvalidCastException("Cannot be converted to MethodCallExpression");
-            }
-            return methodCallExpression.Method;
-        }
-
-        internal static MethodInfo GetMethod<T>(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            return typeof(T).GetTypeInfo().GetMethod(name);
-        }
+       
 
         internal static MethodInfo ReacquisitionIfDeclaringTypeIsGenericTypeDefinition(this MethodInfo methodInfo, Type closedGenericType)
         {
@@ -316,7 +290,7 @@ namespace AspectCore.Core.Internal
                 return methodInfo;
             }
 
-            return closedGenericType.GetTypeInfo().GetMethod(methodInfo.Name, methodInfo.GetParameterTypes());
+            return closedGenericType.GetTypeInfo().GetMethod(new MethodSignature(methodInfo));
         }
 
         internal static bool IsCallvirt(this MethodInfo methodInfo)
@@ -342,6 +316,12 @@ namespace AspectCore.Core.Internal
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
+        }
+
+        internal static bool IsReturnValueTask(this MethodInfo methodInfo)
+        {
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>);
         }
 
         internal static bool IsAccessibility(this PropertyInfo property)

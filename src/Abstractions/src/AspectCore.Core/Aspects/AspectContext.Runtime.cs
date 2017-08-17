@@ -1,18 +1,25 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using AspectCore.Abstractions;
+using AspectCore.Core.Internal;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
 {
     [NonAspect]
     internal sealed class RuntimeAspectContext : AspectContext
     {
+        private static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
+
         private IServiceProvider _serviceProvider;
         private IDictionary<string, object> _data;
         private bool _disposedValue = false;
-
-        internal Action<AspectContext> Disposing { get; set; }
+        private MethodInfo _implMethod;
+        private object _implInstance;
 
         public override IServiceProvider ServiceProvider
         {
@@ -27,42 +34,44 @@ namespace AspectCore.Core
             }
         }
 
-        public override IDictionary<string, object> Items
+        public override IDictionary<string, object> AdditionalData
         {
+
             get
             {
-                return _data ??
-                    (_data = new Dictionary<string, object>());
+                if (_data == null)
+                {
+                    lock (this)
+                    {
+                        if (_data == null)
+                        {
+                            _data = new Dictionary<string, object>();
+                        }
+                    }
+                }
+                return _data;
             }
         }
 
-        public override IParameterCollection Parameters
-        {
-            get;
-        }
+        public override object ReturnValue { get; set; }
 
-        public override IParameterDescriptor ReturnParameter
-        {
-            get;
-        }
+        public override MethodInfo ServiceMethod { get; }
 
-        public override ITargetDescriptor Target
-        {
-            get;
-        }
+        public override object[] Parameters { get; }
 
-        public override IProxyDescriptor Proxy
-        {
-            get;
-        }
+        public override MethodInfo ProxyMethod { get; }
 
-        public RuntimeAspectContext(IServiceProvider serviceProvider, ITargetDescriptor target, IProxyDescriptor proxy, IParameterCollection parameters, IParameterDescriptor returnParameter)
+        public override object ProxyInstance { get; }
+
+        public RuntimeAspectContext(IServiceProvider serviceProvider, MethodInfo serviceMethod, MethodInfo implMethod, MethodInfo proxyMethod, object implInstance, object proxyInstance, object[] parameters)
         {
             _serviceProvider = serviceProvider;
-            Target = target ?? throw new ArgumentNullException(nameof(target));
-            Proxy = proxy ?? throw new ArgumentNullException(nameof(proxy));
-            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
-            ReturnParameter = returnParameter ?? throw new ArgumentNullException(nameof(returnParameter));
+            _implMethod = implMethod;
+            _implInstance = implInstance;
+            ServiceMethod = serviceMethod;
+            ProxyMethod = proxyMethod;
+            ProxyInstance = proxyInstance;
+            Parameters = parameters;
         }
 
         protected override void Dispose(bool disposing)
@@ -94,6 +103,18 @@ namespace AspectCore.Core
             }
 
             _disposedValue = true;
+        }
+
+        public override Task Complete()
+        {
+            var reflector = reflectorTable.GetOrAdd(_implMethod, method => method.GetReflector(CallOptions.Call));
+            ReturnValue = reflector.Invoke(_implInstance, Parameters);
+            return TaskCache.CompletedTask;
+        }
+
+        public override Task Break()
+        {
+            return TaskCache.CompletedTask;
         }
     }
 }
