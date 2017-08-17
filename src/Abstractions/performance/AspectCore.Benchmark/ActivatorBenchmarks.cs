@@ -112,9 +112,9 @@ namespace AspectCore.Benchmark
 
         static MethodConstants()
         {
-            serviceMethod = typeof(IService).GetMethod(nameof(IService.Foo));
-            targetMethod = typeof(Service).GetMethod(nameof(Service.Foo));
-            proxyMethod = typeof(Service).GetMethod(nameof(Service.Foo));
+            serviceMethod = typeof(IService).GetMethod(nameof(IService.GetMessage));
+            targetMethod = typeof(Service).GetMethod(nameof(Service.GetMessage));
+            proxyMethod = typeof(Service).GetMethod(nameof(Service.GetMessage));
         }
     }
 }
