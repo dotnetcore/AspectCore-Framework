@@ -64,10 +64,12 @@ namespace AspectCore.Core.Internal
             //define methods
             MethodBuilderHelpers.DefineInterfaceProxyMethods(interfaceType, implType, additionalInterfaces, typeDesc);
 
+
+
             return typeDesc.Compile();
         }
 
-        private static class TypeBuilderHelpers
+        private class TypeBuilderHelpers
         {
             public static TypeDesc DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
             {
@@ -88,7 +90,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private static class ConstructorBuilderHelpers
+        private class ConstructorBuilderHelpers
         {
             public static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
             {
@@ -113,7 +115,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private static class MethodBuilderHelpers
+        private class MethodBuilderHelpers
         {
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
@@ -125,10 +127,16 @@ namespace AspectCore.Core.Internal
                 {
                     foreach (var method in item.GetTypeInfo().DeclaredMethods)
                     {
-                        var methodBuilder = DefineMethod(method, ExplicitMethodAttributes, targetType, typeDesc);
-                        typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
+                        DefineExplicitMethod(method, targetType, typeDesc);
                     }
                 }
+            }
+
+            public static MethodBuilder DefineExplicitMethod(MethodInfo method, Type targetType, TypeDesc typeDesc)
+            {
+                var methodBuilder = DefineMethod(method, ExplicitMethodAttributes, targetType, typeDesc);
+                typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
+                return methodBuilder;
             }
 
             private static MethodBuilder DefineMethod(MethodInfo method, MethodAttributes attributes, Type targetType, TypeDesc typeDesc)
@@ -197,11 +205,11 @@ namespace AspectCore.Core.Internal
                     if (serviceMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
                     {
                         var serviceTypeOfGeneric = serviceMethod.DeclaringType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments());
-                        serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));   
+                        serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
                     }
 
-                    var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ? 
-                        targetType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) : 
+                    var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ?
+                        targetType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
                         targetType;
 
                     var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
@@ -272,12 +280,51 @@ namespace AspectCore.Core.Internal
                     else
                     {
                         ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(method.ReturnType));
-                    }     
+                    }
                 }
             }
         }
 
-        private static class ParameterBuilderHelpers
+        private class PropertyBuilderHelpers
+        {
+            public static void DefineInterfaceProxyProperties(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
+            {
+                var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct();
+                foreach (var item in interfaces)
+                {
+                    foreach (var property in item.GetTypeInfo().DeclaredProperties)
+                    {
+                        DefineInterfaceProxyProperty(property, targetType, typeDesc);
+                    }
+                }
+            }
+
+            private static void DefineInterfaceProxyProperty(PropertyInfo property, Type targetType, TypeDesc typeDesc)
+            {
+                var propertyBuilder = typeDesc.Builder.DefineProperty(property.GetFullName(), property.Attributes, property.PropertyType, Type.EmptyTypes);
+
+                propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+
+                //inherit targetMethod's attribute
+                foreach (var customAttributeData in property.CustomAttributes)
+                {
+                    propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                }
+
+                if (property.CanRead)
+                {
+                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.GetMethod, targetType, typeDesc);
+                    propertyBuilder.SetGetMethod(method);
+                }
+                if (property.CanWrite)
+                {
+                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.SetMethod, targetType, typeDesc);
+                    propertyBuilder.SetSetMethod(method);
+                }
+            }
+        }
+
+        private class ParameterBuilderHelpers
         {
             public static void DefineParameters(MethodInfo targetMethod, MethodBuilder methodBuilder)
             {
@@ -311,7 +358,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private static class GenericParameterHelpers
+        private class GenericParameterHelpers
         {
             internal static void DefineGenericParameter(Type targetType, TypeBuilder typeBuilder)
             {
@@ -352,7 +399,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private static class CustomAttributeBuilderHelpers
+        private class CustomAttributeBuilderHelpers
         {
             public static CustomAttributeBuilder DefineCustomAttribute(Type attributeType)
             {
@@ -392,7 +439,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private static class FieldBuilderHelpers
+        private class FieldBuilderHelpers
         {
             public const string ActivatorFactory = "__activatorFactory";
             public const string Target = "__targetInstance";

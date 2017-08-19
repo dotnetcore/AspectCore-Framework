@@ -80,7 +80,8 @@ namespace AspectCore.Core
             {
                 foreach (var interceptor in selector.Select(method))
                 {
-                    yield return interceptor;
+                    if (interceptor != null)
+                        yield return interceptor;
                 }
             }
         }
