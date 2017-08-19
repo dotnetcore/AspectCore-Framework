@@ -4,8 +4,8 @@ using System.Reflection;
 namespace AspectCore.Abstractions
 {
     [NonAspect]
-    public interface IInterceptorProvider
+    public interface IInterceptorCollector
     {
-        IEnumerable<IInterceptor> GetInterceptors(MethodInfo method);
+        IEnumerable<IInterceptor> Collect(MethodInfo method);
     }
 }

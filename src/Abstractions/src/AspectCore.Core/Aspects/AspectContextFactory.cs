@@ -16,7 +16,7 @@ namespace AspectCore.Core
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public virtual AspectContext CreateContext<TReturn>(AspectActivatorContext activatorContext)
+        public virtual AspectContext CreateContext(AspectActivatorContext activatorContext)
         {  
             return new RuntimeAspectContext(_serviceProvider,
                 activatorContext.ServiceMethod, activatorContext.TargetMethod, activatorContext.ProxyMethod,

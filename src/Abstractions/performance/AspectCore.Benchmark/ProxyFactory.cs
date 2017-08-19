@@ -36,7 +36,7 @@ namespace AspectCore.Benchmark
             interceptorSelectors.Add(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, serviceProvider));
             interceptorSelectors.Add(new MethodInterceptorSelector());
             interceptorSelectors.Add(new TypeInterceptorSelector());
-            return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorProvider(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+            return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorCollector(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
         }
 
         public static IAspectBuilderFactory CreateAspectBuilderFactory()
@@ -46,7 +46,7 @@ namespace AspectCore.Benchmark
             interceptorSelectors.Add(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, serviceProvider));
             interceptorSelectors.Add(new MethodInterceptorSelector());
             interceptorSelectors.Add(new TypeInterceptorSelector());
-            return new AspectBuilderFactory(new InterceptorProvider(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector())));
+            return new AspectBuilderFactory(new InterceptorCollector(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector())));
         }
 
         public static T CreateProxy<T>(T target)

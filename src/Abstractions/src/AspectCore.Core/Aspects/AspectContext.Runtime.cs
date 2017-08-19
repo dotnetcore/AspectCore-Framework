@@ -88,6 +88,7 @@ namespace AspectCore.Core
 
             if (_data == null)
             {
+                _disposedValue = true;
                 return;
             }
 
@@ -114,6 +115,11 @@ namespace AspectCore.Core
 
         public override Task Break()
         {
+            if (ReturnValue == null)
+            {
+                //todo
+                //ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
+            }
             return TaskCache.CompletedTask;
         }
     }

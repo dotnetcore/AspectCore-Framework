@@ -92,6 +92,15 @@ namespace AspectCore.Extensions.Reflection
             }
             return typeInfo.GetMethods().FirstOrDefault(m => new MethodSignature(m) == signature);
         }
+
+        public static MethodInfo GetDeclaredMethod(this TypeInfo typeInfo, MethodSignature signature)
+        {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
+            return typeInfo.DeclaredMethods.FirstOrDefault(m => new MethodSignature(m) == signature);
+        }
         #endregion
 
         #region Reflectr

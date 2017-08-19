@@ -19,7 +19,7 @@ namespace AspectCore.Core
 
         public TResult Invoke<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            using (var context = _aspectContextFactory.CreateContext(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -37,7 +37,7 @@ namespace AspectCore.Core
 
         public Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            using (var context = _aspectContextFactory.CreateContext(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -71,7 +71,7 @@ namespace AspectCore.Core
 
         public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            using (var context = _aspectContextFactory.CreateContext(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);

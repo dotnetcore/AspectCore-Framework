@@ -10,11 +10,11 @@ namespace AspectCore.Core
     {
         private static readonly ConcurrentDictionary<MethodInfo, IAspectBuilder> _builders = new ConcurrentDictionary<MethodInfo, IAspectBuilder>();
 
-        private readonly IInterceptorProvider _interceptorProvider;
+        private readonly IInterceptorCollector _interceptorCollector;
 
-        public AspectBuilderFactory(IInterceptorProvider interceptorProvider)
+        public AspectBuilderFactory(IInterceptorCollector interceptorCollector)
         {
-            _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
+            _interceptorCollector = interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
         }
 
         public IAspectBuilder Create(AspectContext context)
@@ -26,7 +26,7 @@ namespace AspectCore.Core
         {
             var aspectBuilder = new AspectBuilder();
 
-            foreach (var interceptor in _interceptorProvider.GetInterceptors(method))
+            foreach (var interceptor in _interceptorCollector.Collect(method))
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
 
             return aspectBuilder;
