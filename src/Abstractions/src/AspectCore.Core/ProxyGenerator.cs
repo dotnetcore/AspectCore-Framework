@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
@@ -44,8 +46,18 @@ namespace AspectCore.Core
             {
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
             }
-            return ProxyGeneratorHelpers.CreateInterfaceProxy(serviceType, implementationType, implementationType.GetTypeInfo().GetInterfaces(), _aspectValidator);
+            return ProxyGeneratorHelpers.CreateInterfaceProxy(serviceType, implementationType, GetInterfaces(implementationType, serviceType).ToArray(), _aspectValidator);
             //return new InterfaceProxyTypeGenerator(serviceType, implementationType, serviceType.GetTypeInfo().GetInterfaces(), _aspectValidator).CreateTypeInfo().AsType();
+        }
+
+        private IEnumerable<Type> GetInterfaces(Type type, params Type[] exceptInterfaces)
+        {
+            var hashSet = new HashSet<Type>(exceptInterfaces);
+            foreach (var interfaceType in type.GetTypeInfo().GetInterfaces())
+            {
+                if (!hashSet.Contains(interfaceType))
+                    yield return interfaceType;
+            }
         }
     }
 }

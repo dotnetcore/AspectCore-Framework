@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using AspectCore.Core;
 using AspectCore.Tests.Fakes;
@@ -16,17 +17,22 @@ namespace AspectCore.Tests
             var proxyType = generator.CreateInterfaceProxyType(typeof(IService), typeof(Service));
             var instance = (IService)Activator.CreateInstance(proxyType, AspectActivatorFactoryFactory.Create(), new Service());
             instance.Foo();
+            instance.Name = "lemon";
+            Assert.Equal("lemon", instance.Name);
         }
     }
 
     [MyInterceptor]
     public interface IService
     {
+        string Name { get; set; }
         void Foo();
     }
 
     public class Service : IService
     {
+        public string Name { get; set; }
+
         public void Foo()
         {
         }
@@ -34,7 +40,10 @@ namespace AspectCore.Tests
 
     public class MyInterceptor : AspectCore.Abstractions.InterceptorAttribute
     {
-
+        public override Task Invoke(AspectContext context, AspectDelegate next)
+        {
+            return base.Invoke(context, next);
+        }
     }
 
     public class ServiceProxy : IService
@@ -47,6 +56,8 @@ namespace AspectCore.Tests
             _activatorFactory = activatorFactory;
             _service = service;
         }
+
+        public string Name { get; set; }
 
         public void Foo()
         {

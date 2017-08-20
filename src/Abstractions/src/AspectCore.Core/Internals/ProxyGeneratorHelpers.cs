@@ -64,7 +64,7 @@ namespace AspectCore.Core.Internal
             //define methods
             MethodBuilderHelpers.DefineInterfaceProxyMethods(interfaceType, implType, additionalInterfaces, typeDesc);
 
-
+            PropertyBuilderHelpers.DefineInterfaceProxyProperties(interfaceType, implType, additionalInterfaces, typeDesc);
 
             return typeDesc.Compile();
         }
@@ -118,30 +118,42 @@ namespace AspectCore.Core.Internal
         private class MethodBuilderHelpers
         {
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+            const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
             public static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct();
-                foreach (var item in interfaces)
+                //var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct();
+                foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
-                    foreach (var method in item.GetTypeInfo().DeclaredMethods)
+                    DefineInterfaceMethod(method, targetType, typeDesc);
+                }
+                foreach (var item in additionalInterfaces)
+                {
+                    foreach (var method in item.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                     {
                         DefineExplicitMethod(method, targetType, typeDesc);
                     }
                 }
             }
 
-            public static MethodBuilder DefineExplicitMethod(MethodInfo method, Type targetType, TypeDesc typeDesc)
+            public static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type targetType, TypeDesc typeDesc)
             {
-                var methodBuilder = DefineMethod(method, ExplicitMethodAttributes, targetType, typeDesc);
+                var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, targetType, typeDesc);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
 
-            private static MethodBuilder DefineMethod(MethodInfo method, MethodAttributes attributes, Type targetType, TypeDesc typeDesc)
+            public static MethodBuilder DefineExplicitMethod(MethodInfo method, Type targetType, TypeDesc typeDesc)
             {
-                var methodBuilder = typeDesc.Builder.DefineMethod(method.GetFullName(), attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
+                var methodBuilder = DefineMethod(method, method.GetFullName(), ExplicitMethodAttributes, targetType, typeDesc);
+                typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
+                return methodBuilder;
+            }
+
+            private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type targetType, TypeDesc typeDesc)
+            {
+                var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
 
                 GenericParameterHelpers.DefineGenericParameter(method, methodBuilder);
 
@@ -289,28 +301,37 @@ namespace AspectCore.Core.Internal
         {
             public static void DefineInterfaceProxyProperties(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct();
-                foreach (var item in interfaces)
+                foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
+                {
+                    var builder = DefineInterfaceProxyProperty(property, property.Name, targetType, typeDesc);
+                    DefineInterfacePropertyMethod(builder, property, targetType, typeDesc);
+                }
+                foreach (var item in additionalInterfaces)
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
                     {
-                        DefineInterfaceProxyProperty(property, targetType, typeDesc);
+                        var builder = DefineInterfaceProxyProperty(property, property.GetFullName(), targetType, typeDesc);
+                        DefineExplicitPropertyMethod(builder, property, targetType, typeDesc);
                     }
                 }
             }
 
-            private static void DefineInterfaceProxyProperty(PropertyInfo property, Type targetType, TypeDesc typeDesc)
+            private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type targetType, TypeDesc typeDesc)
             {
-                var propertyBuilder = typeDesc.Builder.DefineProperty(property.GetFullName(), property.Attributes, property.PropertyType, Type.EmptyTypes);
-
-                propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
-
-                //inherit targetMethod's attribute
-                foreach (var customAttributeData in property.CustomAttributes)
+                if (property.CanRead)
                 {
-                    propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.GetMethod, targetType, typeDesc);
+                    propertyBuilder.SetGetMethod(method);
                 }
+                if (property.CanWrite)
+                {
+                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.SetMethod, targetType, typeDesc);
+                    propertyBuilder.SetSetMethod(method);
+                }
+            }
 
+            private static void DefineExplicitPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type targetType, TypeDesc typeDesc)
+            {
                 if (property.CanRead)
                 {
                     var method = MethodBuilderHelpers.DefineExplicitMethod(property.GetMethod, targetType, typeDesc);
@@ -321,6 +342,21 @@ namespace AspectCore.Core.Internal
                     var method = MethodBuilderHelpers.DefineExplicitMethod(property.SetMethod, targetType, typeDesc);
                     propertyBuilder.SetSetMethod(method);
                 }
+            }
+
+            private static PropertyBuilder DefineInterfaceProxyProperty(PropertyInfo property, string name, Type targetType, TypeDesc typeDesc)
+            {
+                var propertyBuilder = typeDesc.Builder.DefineProperty(name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+
+                propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+
+                //inherit targetMethod's attribute
+                foreach (var customAttributeData in property.CustomAttributes)
+                {
+                    propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                }
+
+                return propertyBuilder;
             }
         }
 
