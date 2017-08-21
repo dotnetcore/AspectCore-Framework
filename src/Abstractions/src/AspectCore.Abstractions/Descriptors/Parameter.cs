@@ -1,5 +1,4 @@
-﻿namespace AspectCore.Abstractions
-{
+﻿{
     public sealed class Parameter
     {
         public string Name { get; }

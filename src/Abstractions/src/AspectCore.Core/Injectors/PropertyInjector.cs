@@ -1,5 +1,6 @@
 ﻿using System;
 using AspectCore.Abstractions;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
 {
@@ -7,21 +8,21 @@ namespace AspectCore.Core
     internal sealed class PropertyInjector : IPropertyInjector
     {
         private readonly Func<IServiceProvider, object> _propertyFactory;
-        private readonly Action<object, object> _setter;
+        private readonly PropertyReflector _propertyReflector;
 
-        public PropertyInjector(Func<IServiceProvider, object> propertyFactory, Action<object, object> setter)
+        public PropertyInjector(Func<IServiceProvider, object> propertyFactory, PropertyReflector propertyReflector)
         {
             if (propertyFactory == null)
             {
                 throw new ArgumentNullException(nameof(propertyFactory));
             }
-            if (setter == null)
+            if (propertyReflector == null)
             {
-                throw new ArgumentNullException(nameof(setter));
+                throw new ArgumentNullException(nameof(propertyReflector));
             }
 
             _propertyFactory = propertyFactory;
-            _setter = setter;
+            _propertyReflector = propertyReflector;
         }
 
         public void Invoke(IServiceProvider serviceProvider, IInterceptor interceptor)
@@ -35,7 +36,7 @@ namespace AspectCore.Core
                 throw new ArgumentNullException(nameof(interceptor));
             }
 
-            _setter(interceptor, _propertyFactory(serviceProvider));
+            _propertyReflector.SetValue(interceptor, _propertyFactory(serviceProvider));
         }
     }
 }

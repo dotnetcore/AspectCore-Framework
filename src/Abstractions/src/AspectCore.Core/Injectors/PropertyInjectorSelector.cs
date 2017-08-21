@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
 {
@@ -30,7 +30,7 @@ namespace AspectCore.Core
                 {
                     yield return new PropertyInjector(
                         provider => provider.GetService(property.PropertyType),
-                        new PropertyReflector(property).CreatePropertySetter());
+                        property.GetReflector());
                 }
             }
         }

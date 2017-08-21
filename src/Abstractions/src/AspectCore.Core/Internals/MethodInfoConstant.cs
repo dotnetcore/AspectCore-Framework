@@ -8,7 +8,6 @@ namespace AspectCore.Core.Internal
 {
     internal static class MethodInfoConstant
     {
-        internal static readonly MethodInfo GetAspectActivator = GetMethod<Func<IServiceProvider, IAspectActivator>>(provider => provider.GetAspectActivator());
 
         internal static readonly MethodInfo CreateAspectActivator = GetMethod<IAspectActivatorFactory>(nameof(IAspectActivatorFactory.Create));
 
@@ -17,14 +16,6 @@ namespace AspectCore.Core.Internal
         internal static readonly MethodInfo AspectActivatorInvokeTask = GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeTask));
 
         internal static readonly MethodInfo AspectActivatorInvokeValueTask = GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeValueTask));
-
-        internal static readonly MethodInfo ServiceInstanceProviderGetInstance = GetMethod<Func<IServiceInstanceProvider, Type, object>>((p, type) => p.GetInstance(type));
-
-        internal static readonly MethodInfo GetTypeFromHandle = GetMethod<Func<RuntimeTypeHandle, Type>>(handle => Type.GetTypeFromHandle(handle));
-
-        internal static readonly MethodInfo GetMethodFromHandle = GetMethod<Func<RuntimeMethodHandle, RuntimeTypeHandle, MethodBase>>((h1, h2) => MethodBase.GetMethodFromHandle(h1, h2));
-
-        internal static readonly ConstructorInfo ArgumentNullExceptionCtor = typeof(ArgumentNullException).GetTypeInfo().GetConstructor(new Type[] { typeof(string) });
 
         internal static readonly ConstructorInfo AspectActivatorContexCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First();
 
