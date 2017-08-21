@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
 using AspectCore.Core.Internal;
-using AspectCore.Core.Internal.Generator;
 
 namespace AspectCore.Core
 {
@@ -32,7 +31,7 @@ namespace AspectCore.Core
             {
                 throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
             }
-            return new ClassProxyTypeGenerator(serviceType, implementationType, implementationType.GetTypeInfo().GetInterfaces(), _aspectValidator).CreateTypeInfo().AsType();
+            return ProxyGeneratorHelpers.CreateClassProxy(serviceType, implementationType, GetInterfaces(implementationType).ToArray(), _aspectValidator);
         }
 
         public Type CreateInterfaceProxyType(Type serviceType, Type implementationType)
@@ -47,7 +46,6 @@ namespace AspectCore.Core
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
             }
             return ProxyGeneratorHelpers.CreateInterfaceProxy(serviceType, implementationType, GetInterfaces(implementationType, serviceType).ToArray(), _aspectValidator);
-            //return new InterfaceProxyTypeGenerator(serviceType, implementationType, serviceType.GetTypeInfo().GetInterfaces(), _aspectValidator).CreateTypeInfo().AsType();
         }
 
         private IEnumerable<Type> GetInterfaces(Type type, params Type[] exceptInterfaces)

@@ -20,6 +20,17 @@ namespace AspectCore.Tests
             instance.Name = "lemon";
             Assert.Equal("lemon", instance.Name);
         }
+
+        [Fact]
+        public void Test2()
+        {
+            ProxyGenerator generator = new ProxyGenerator(AspectValidatorBuilderFactory.Create());
+            var proxyType = generator.CreateClassProxyType(typeof(AbsService), typeof(AbsService));
+            var instance = (AbsService)Activator.CreateInstance(proxyType, AspectActivatorFactoryFactory.Create());
+            instance.Foo();
+            instance.Name = "lemon";
+            Assert.Equal("lemon", instance.Name);
+        }
     }
 
     [MyInterceptor]
@@ -70,5 +81,14 @@ namespace AspectCore.Tests
             internal static MethodInfo impFoo;
             internal static MethodInfo targetFoo;
         }
+    }
+
+    public class AbsService
+    {
+        public virtual String Name { get; set; }
+
+        public int Age { get; set; }
+
+        public virtual void Foo() { }
     }
 }

@@ -166,20 +166,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        //public static object FastInvoke(this MethodInfo method, object instance, params object[] parameters)
-        //{
-        //    if (method == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(method));
-        //    }
-        //    return new MethodReflector(method).CreateMethodInvoker()(instance, parameters);
-        //}
-
-        //public static TResult FastInvoke<TResult>(this MethodInfo method, object instance, params object[] parameters)
-        //{
-        //    return (TResult)FastInvoke(method, instance, parameters);
-        //}
-
+      
         public static Type[] GetParameterTypes(this MethodInfo method)
         {
             if (method == null)
@@ -189,38 +176,7 @@ namespace AspectCore.Core.Internal
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
         }
 
-        public static bool IsPropertyBinding(this MethodInfo method)
-        {
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            return method.GetBindingProperty() != null;
-        }
-
-        public static PropertyInfo GetBindingProperty(this MethodInfo method)
-        {
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
-
-            foreach (var property in method.DeclaringType.GetTypeInfo().DeclaredProperties)
-            {
-                if (property.CanRead && property.GetMethod == method)
-                {
-                    return property;
-                }
-
-                if (property.CanWrite && property.SetMethod == method)
-                {
-                    return property;
-                }
-            }
-
-            return null;
-        }
+      
 
         public static object FastGetValue(this PropertyInfo property, object instance)
         {

@@ -117,8 +117,7 @@ namespace AspectCore.Core
         {
             if (ReturnValue == null)
             {
-                //todo
-                //ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
+                ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
             }
             return TaskCache.CompletedTask;
         }

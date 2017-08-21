@@ -25,6 +25,11 @@ namespace AspectCore.Core.Internal
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
+            if (!interfaceType.GetTypeInfo().IsAccessibility())
+            {
+                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+            }
+
             var name = GetProxyTypeName();
 
             Type proxyType;
@@ -50,6 +55,41 @@ namespace AspectCore.Core.Internal
             }
         }
 
+        internal static Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        {
+            if (!serviceType.GetTypeInfo().IsAccessibility())
+            {
+                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+            }
+            if (!implType.GetTypeInfo().CanInherited())
+            {
+                throw new InvalidOperationException($"Validate '{implType}' failed because the type does not satisfy the condition to be inherited.");
+            }
+            var name = GetProxyTypeName();
+
+            Type proxyType;
+            if (_definedTypes.TryGetValue(name, out proxyType))
+            {
+                return proxyType;
+            }
+
+            lock (_moduleBuilder)
+            {
+                if (_definedTypes.TryGetValue(name, out proxyType))
+                {
+                    return proxyType;
+                }
+                proxyType = CreateClassProxyInternal(name, serviceType, implType, additionalInterfaces, aspectValidator);
+                _definedTypes.Add(name, proxyType);
+                return proxyType;
+            }
+
+            string GetProxyTypeName()
+            {
+                return $"{ProxyNameSpace}.{implType.Name}Proxy";
+            }
+        }
+
         private static Type CreateInterfaceProxyInternal(string name, Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
@@ -69,12 +109,31 @@ namespace AspectCore.Core.Internal
             return typeDesc.Compile();
         }
 
+        private static Type CreateClassProxyInternal(string name, Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        {
+            var interfaces = additionalInterfaces.Distinct().ToArray();
+
+            var typeDesc = TypeBuilderHelpers.DefineType(name, serviceType, implType, interfaces);
+
+            typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
+
+            //define constructor
+            ConstructorBuilderHelpers.DefineClassProxyConstructors(serviceType, implType, typeDesc);
+
+            //define methods
+            MethodBuilderHelpers.DefineClassProxyMethods(serviceType, implType, additionalInterfaces, typeDesc);
+
+            PropertyBuilderHelpers.DefineClassProxyProperties(serviceType, implType, additionalInterfaces, typeDesc);
+
+            return typeDesc.Compile();
+        }
+
         private class TypeBuilderHelpers
         {
             public static TypeDesc DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
             {
                 //define proxy type for interface service
-                var typeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Class | TypeAttributes.Public, parentType, interfaces);
+                var typeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, parentType, interfaces);
 
                 //define genericParameter
                 GenericParameterHelpers.DefineGenericParameter(serviceType, typeBuilder);
@@ -92,7 +151,7 @@ namespace AspectCore.Core.Internal
 
         private class ConstructorBuilderHelpers
         {
-            public static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
+            internal static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
             {
                 var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodInfoConstant.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory), interfaceType });
 
@@ -113,6 +172,51 @@ namespace AspectCore.Core.Internal
 
                 ilGen.Emit(OpCodes.Ret);
             }
+
+            internal static void DefineClassProxyConstructors(Type serviceType, Type implType, TypeDesc typeDesc)
+            {
+
+                var constructors = implType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
+                if (constructors.Length == 0)
+                {
+                    throw new InvalidOperationException(
+                        $"A suitable constructor for type {serviceType.FullName} could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor.");
+                }
+                foreach (var constructor in constructors)
+                {
+                    var parameterTypes = constructor.GetParameters().Select(p => p.ParameterType).ToArray();
+                    var parameters = new Type[] { typeof(IServiceProvider) }.Concat(parameterTypes).ToArray();
+                    var constructorBuilder = typeDesc.Builder.DefineConstructor(constructor.Attributes, constructor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory) });
+
+                    constructorBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+
+                    //inherit constructor's attribute
+                    foreach (var customAttributeData in constructor.CustomAttributes)
+                    {
+                        constructorBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                    }
+
+                    ParameterBuilderHelpers.DefineParameters(constructor, constructorBuilder);
+
+                    var ilGen = constructorBuilder.GetILGenerator();
+                    ilGen.EmitThis();
+                    for (var i = 2; i <= parameters.Length; i++)
+                    {
+                        ilGen.EmitLoadArg(i);
+                    }
+                    ilGen.Emit(OpCodes.Call, constructor);
+
+                    ilGen.EmitThis();
+                    ilGen.EmitLoadArg(1);
+                    ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.ActivatorFactory]);
+
+                    ilGen.EmitThis();
+                    ilGen.EmitThis();
+                    ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
+
+                    ilGen.Emit(OpCodes.Ret);
+                }
+            }
         }
 
         private class MethodBuilderHelpers
@@ -121,9 +225,8 @@ namespace AspectCore.Core.Internal
             const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
-            public static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
-            {
-                //var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct();
+            internal static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
+            {     
                 foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
                     DefineInterfaceMethod(method, targetType, typeDesc);
@@ -137,21 +240,60 @@ namespace AspectCore.Core.Internal
                 }
             }
 
-            public static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type targetType, TypeDesc typeDesc)
+            internal static void DefineClassProxyMethods(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, targetType, typeDesc);
+                foreach (var method in serviceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
+                {
+                    if (method.IsAccessibility())
+                        DefineClassMethod(method, implType, typeDesc);
+                }
+                foreach (var item in additionalInterfaces)
+                {
+                    foreach (var method in item.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
+                    {
+                        DefineExplicitMethod(method, implType, typeDesc);
+                    }
+                }
+            }
+
+            internal static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
+            {
+                var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, implType, typeDesc);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
 
-            public static MethodBuilder DefineExplicitMethod(MethodInfo method, Type targetType, TypeDesc typeDesc)
+            internal static MethodBuilder DefineExplicitMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
-                var methodBuilder = DefineMethod(method, method.GetFullName(), ExplicitMethodAttributes, targetType, typeDesc);
+                var methodBuilder = DefineMethod(method, method.GetFullName(), ExplicitMethodAttributes, implType, typeDesc);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
 
-            private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type targetType, TypeDesc typeDesc)
+            internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
+            {
+                var attributes = OverrideMethodAttributes;
+
+                if (method.Attributes.HasFlag(MethodAttributes.Public))
+                {
+                    attributes = attributes | MethodAttributes.Public;
+                }
+
+                if (method.Attributes.HasFlag(MethodAttributes.Family))
+                {
+                    attributes = attributes | MethodAttributes.Family;
+                }
+
+                if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
+                {
+                    attributes = attributes | MethodAttributes.FamORAssem;
+                }
+
+                var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc);
+                return methodBuilder;
+            }
+
+            private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc)
             {
                 var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
 
@@ -190,11 +332,11 @@ namespace AspectCore.Core.Internal
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ?
-                       targetType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
-                       targetType;
+                    var implTypeIfGenericTypeDefinition = implType.GetTypeInfo().IsGenericTypeDefinition ?
+                       implType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
+                       implType;
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method));
+                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(method));
 
                     ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, method);
                     ilGen.Emit(OpCodes.Ret);
@@ -220,11 +362,11 @@ namespace AspectCore.Core.Internal
                         serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
                     }
 
-                    var implType = targetType.GetTypeInfo().IsGenericTypeDefinition ?
-                        targetType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
-                        targetType;
+                    var implTypeIfGenericTypeDefinition = implType.GetTypeInfo().IsGenericTypeDefinition ?
+                        implType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
+                        implType;
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
+                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
 
                     var methodConstants = typeDesc.MethodConstants;
 
@@ -294,57 +436,91 @@ namespace AspectCore.Core.Internal
                         ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(method.ReturnType));
                     }
                 }
-            }
+            }   
         }
 
         private class PropertyBuilderHelpers
         {
-            public static void DefineInterfaceProxyProperties(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
+            public static void DefineInterfaceProxyProperties(Type interfaceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
                 foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
                 {
-                    var builder = DefineInterfaceProxyProperty(property, property.Name, targetType, typeDesc);
-                    DefineInterfacePropertyMethod(builder, property, targetType, typeDesc);
+                    var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
+                    DefineInterfacePropertyMethod(builder, property, implType, typeDesc);
                 }
                 foreach (var item in additionalInterfaces)
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
                     {
-                        var builder = DefineInterfaceProxyProperty(property, property.GetFullName(), targetType, typeDesc);
-                        DefineExplicitPropertyMethod(builder, property, targetType, typeDesc);
+                        var builder = DefineInterfaceProxyProperty(property, property.GetFullName(), implType, typeDesc);
+                        DefineExplicitPropertyMethod(builder, property, implType, typeDesc);
                     }
                 }
             }
 
-            private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type targetType, TypeDesc typeDesc)
+            internal static void DefineClassProxyProperties(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
+            {
+                foreach (var property in serviceType.GetTypeInfo().DeclaredProperties)
+                {
+                    if (property.IsAccessibility())
+                    {
+                        var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
+                        DefineClassPropertyMethod(builder, property, implType, typeDesc);
+                    }
+                }
+                foreach (var item in additionalInterfaces)
+                {
+                    foreach (var property in item.GetTypeInfo().DeclaredProperties)
+                    {
+                        var builder = DefineInterfaceProxyProperty(property, property.GetFullName(), implType, typeDesc);
+                        DefineExplicitPropertyMethod(builder, property, implType, typeDesc);
+                    }
+                }
+            }
+
+            private static void DefineClassPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.GetMethod, targetType, typeDesc);
+                    var method = MethodBuilderHelpers.DefineClassMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
                 {
-                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.SetMethod, targetType, typeDesc);
+                    var method = MethodBuilderHelpers.DefineClassMethod(property.SetMethod, implType, typeDesc);
                     propertyBuilder.SetSetMethod(method);
                 }
             }
 
-            private static void DefineExplicitPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type targetType, TypeDesc typeDesc)
+            private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.GetMethod, targetType, typeDesc);
+                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
                 {
-                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.SetMethod, targetType, typeDesc);
+                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.SetMethod, implType, typeDesc);
                     propertyBuilder.SetSetMethod(method);
                 }
             }
 
-            private static PropertyBuilder DefineInterfaceProxyProperty(PropertyInfo property, string name, Type targetType, TypeDesc typeDesc)
+            private static void DefineExplicitPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
+            {
+                if (property.CanRead)
+                {
+                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.GetMethod, implType, typeDesc);
+                    propertyBuilder.SetGetMethod(method);
+                }
+                if (property.CanWrite)
+                {
+                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.SetMethod, implType, typeDesc);
+                    propertyBuilder.SetSetMethod(method);
+                }
+            }
+
+            private static PropertyBuilder DefineInterfaceProxyProperty(PropertyInfo property, string name, Type implType, TypeDesc typeDesc)
             {
                 var propertyBuilder = typeDesc.Builder.DefineProperty(name, property.Attributes, property.PropertyType, Type.EmptyTypes);
 
@@ -357,7 +533,7 @@ namespace AspectCore.Core.Internal
                 }
 
                 return propertyBuilder;
-            }
+            }        
         }
 
         private class ParameterBuilderHelpers
@@ -390,6 +566,30 @@ namespace AspectCore.Core.Internal
                 foreach (var attribute in returnParamter.CustomAttributes)
                 {
                     returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(attribute));
+                }
+            }
+
+            internal static void DefineParameters(ConstructorInfo constructor, ConstructorBuilder constructorBuilder)
+            {
+                constructorBuilder.DefineParameter(1, ParameterAttributes.None, "aspectContextFactory");
+                var parameters = constructor.GetParameters();
+                if (parameters.Length > 0)
+                {
+                    var paramOffset = 2;    //ParameterTypes.Length - parameters.Length + 1
+                    for (var i = 0; i < parameters.Length; i++)
+                    {
+                        var parameter = parameters[i];
+                        var parameterBuilder = constructorBuilder.DefineParameter(i + paramOffset, parameter.Attributes, parameter.Name);
+                        if (parameter.HasDefaultValue)
+                        {
+                            parameterBuilder.SetConstant(parameter.DefaultValue);
+                        }
+                        parameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                        foreach (var attribute in parameter.CustomAttributes)
+                        {
+                            parameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(attribute));
+                        }
+                    }
                 }
             }
         }
