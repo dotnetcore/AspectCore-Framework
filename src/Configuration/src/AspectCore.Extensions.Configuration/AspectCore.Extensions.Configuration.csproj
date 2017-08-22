@@ -14,10 +14,9 @@
     <PackageTags>Configuration;Aop;DynamicProxy</PackageTags>
     <PackageReleaseNotes>Configuration extension system for AspectCore Framework.</PackageReleaseNotes>
   </PropertyGroup>
-
+    
   <ItemGroup>
-    <PackageReference Include="AspectCore.Abstractions" Version="0.2.0-preview1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.0" />
+    <ProjectReference Include="..\..\..\Abstractions\src\AspectCore.Core\AspectCore.Core.csproj" />
   </ItemGroup>
 
 </Project>

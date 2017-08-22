@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Extensions.IoC
+namespace AspectCore.Core
 {
     public class ServiceContainer : IServiceContainer
     {
@@ -36,9 +36,7 @@ namespace AspectCore.Extensions.IoC
         private void AddInternalServices()
         {
             if (!_collection.Any(x => x.ServiceType == typeof(IServiceProvider) && x.Key == null))
-                Scopeds.AddDelegate<IServiceProvider>(resolver => resolver.Resolve<IServiceResolver>());
-            //if (!_collection.Any(x => x.ServiceType == typeof(IPropertyInjectorFactory) && x.Key == null))
-            //    Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>();
+                Scopeds.AddDelegate<IServiceProvider>(resolver => resolver.Resolve<IServiceResolver>());   
         }
 
         public int Count => _collection.Count;
@@ -55,6 +53,6 @@ namespace AspectCore.Extensions.IoC
 
         public IEnumerator<ServiceDefinition> GetEnumerator() => _collection.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => _collection.GetEnumerator(); 
+        IEnumerator IEnumerable.GetEnumerator() => _collection.GetEnumerator();
     }
 }

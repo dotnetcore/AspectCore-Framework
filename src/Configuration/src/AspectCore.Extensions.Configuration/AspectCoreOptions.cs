@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using AspectCore.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
+using AspectCore.Core;
 
 namespace AspectCore.Extensions.Configuration
 {
@@ -10,22 +10,20 @@ namespace AspectCore.Extensions.Configuration
     {
         public ICollection<IInterceptorFactory> InterceptorFactories { get; } 
 
-        public ICollection<Func<MethodInfo, bool>> NonAspectPredicates { get; } = new List<Func<MethodInfo, bool>>();
+        public ICollection<Func<MethodInfo, bool>> NonAspectPredicates { get; } 
 
-        public IServiceCollection InternalServices { get; }
+        public ICollection<IAspectValidationHandler> AspectValidationHandlers { get; }
 
-        public AspectCoreOptions(IServiceCollection services)
+        public IServiceContainer InternalServices { get; }
+
+        public AspectCoreOptions(IServiceContainer services)
         {
-            InternalServices = services ?? new ServiceCollection();
+            InternalServices = services ?? new ServiceContainer();
+            AspectValidationHandlers = new List<IAspectValidationHandler>();
             InterceptorFactories = new List<IInterceptorFactory>();
             NonAspectPredicates= new List<Func<MethodInfo, bool>>();
-            NonAspectPredicates.
-                AddObjectVMethod().
-                AddSystem().
-                AddAspNetCore().
-                AddEntityFramework().
-                AddOwin().
-                AddPageGenerator();
+            AspectValidationHandlers.AddDefault();
+            NonAspectPredicates.AddDefault();
         }
     }
 }
