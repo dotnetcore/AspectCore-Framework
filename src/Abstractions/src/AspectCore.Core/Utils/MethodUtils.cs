@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Internal
+namespace AspectCore.Core.Utils
 {
-    internal static class MethodInfoConstant
+    internal static class MethodUtils
     {
 
         internal static readonly MethodInfo CreateAspectActivator = GetMethod<IAspectActivatorFactory>(nameof(IAspectActivatorFactory.Create));

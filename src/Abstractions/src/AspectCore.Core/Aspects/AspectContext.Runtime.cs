@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Core.Utils;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
@@ -110,7 +110,7 @@ namespace AspectCore.Core
         {
             var reflector = reflectorTable.GetOrAdd(_implMethod, method => method.GetReflector(CallOptions.Call));
             ReturnValue = reflector.Invoke(_implInstance, Parameters);
-            return TaskCache.CompletedTask;
+            return TaskUtils.CompletedTask;
         }
 
         public override Task Break()
@@ -119,7 +119,7 @@ namespace AspectCore.Core
             {
                 ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
             }
-            return TaskCache.CompletedTask;
+            return TaskUtils.CompletedTask;
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Core.Utils;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
@@ -14,7 +14,7 @@ namespace AspectCore.Core
         {
             if (method.IsPropertyBinding())
             {
-                return EmptyArray<IInterceptor>.Value;
+                return ArrayUtils.Empty<IInterceptor>();
             }
             return method.GetReflector().GetCustomAttributes().OfType<IInterceptor>();
         }

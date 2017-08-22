@@ -8,15 +8,15 @@ using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Extensions.Reflection.Emit;
 
-namespace AspectCore.Core.Internal
+namespace AspectCore.Core.Utils
 {
-    internal class ProxyGeneratorHelpers
+    internal class ProxyGeneratorUtils
     {
         private const string ProxyNameSpace = "AspectCore.ProxyBuilder";
         private static readonly ModuleBuilder _moduleBuilder;
         private static readonly Dictionary<string, Type> _definedTypes;
 
-        static ProxyGeneratorHelpers()
+        static ProxyGeneratorUtils()
         {
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(ProxyNameSpace), AssemblyBuilderAccess.RunAndCollect);
             _moduleBuilder = asmBuilder.DefineDynamicModule("core");
@@ -94,17 +94,17 @@ namespace AspectCore.Core.Internal
         {
             var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
 
-            var typeDesc = TypeBuilderHelpers.DefineType(name, interfaceType, typeof(object), interfaces);
+            var typeDesc = TypeBuilderUtils.DefineType(name, interfaceType, typeof(object), interfaces);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 
             //define constructor
-            ConstructorBuilderHelpers.DefineInterfaceProxyConstructor(interfaceType, typeDesc);
+            ConstructorBuilderUtils.DefineInterfaceProxyConstructor(interfaceType, typeDesc);
 
             //define methods
-            MethodBuilderHelpers.DefineInterfaceProxyMethods(interfaceType, implType, additionalInterfaces, typeDesc);
+            MethodBuilderUtils.DefineInterfaceProxyMethods(interfaceType, implType, additionalInterfaces, typeDesc);
 
-            PropertyBuilderHelpers.DefineInterfaceProxyProperties(interfaceType, implType, additionalInterfaces, typeDesc);
+            PropertyBuilderUtils.DefineInterfaceProxyProperties(interfaceType, implType, additionalInterfaces, typeDesc);
 
             return typeDesc.Compile();
         }
@@ -113,22 +113,22 @@ namespace AspectCore.Core.Internal
         {
             var interfaces = additionalInterfaces.Distinct().ToArray();
 
-            var typeDesc = TypeBuilderHelpers.DefineType(name, serviceType, implType, interfaces);
+            var typeDesc = TypeBuilderUtils.DefineType(name, serviceType, implType, interfaces);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 
             //define constructor
-            ConstructorBuilderHelpers.DefineClassProxyConstructors(serviceType, implType, typeDesc);
+            ConstructorBuilderUtils.DefineClassProxyConstructors(serviceType, implType, typeDesc);
 
             //define methods
-            MethodBuilderHelpers.DefineClassProxyMethods(serviceType, implType, additionalInterfaces, typeDesc);
+            MethodBuilderUtils.DefineClassProxyMethods(serviceType, implType, additionalInterfaces, typeDesc);
 
-            PropertyBuilderHelpers.DefineClassProxyProperties(serviceType, implType, additionalInterfaces, typeDesc);
+            PropertyBuilderUtils.DefineClassProxyProperties(serviceType, implType, additionalInterfaces, typeDesc);
 
             return typeDesc.Compile();
         }
 
-        private class TypeBuilderHelpers
+        private class TypeBuilderUtils
         {
             public static TypeDesc DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
             {
@@ -136,39 +136,39 @@ namespace AspectCore.Core.Internal
                 var typeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, parentType, interfaces);
 
                 //define genericParameter
-                GenericParameterHelpers.DefineGenericParameter(serviceType, typeBuilder);
+                GenericParameterUtils.DefineGenericParameter(serviceType, typeBuilder);
 
                 //define default attribute
-                typeBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(NonAspectAttribute)));
-                typeBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                typeBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(NonAspectAttribute)));
+                typeBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //define private field
-                var fieldTable = FieldBuilderHelpers.DefineFields(serviceType, typeBuilder);
+                var fieldTable = FieldBuilderUtils.DefineFields(serviceType, typeBuilder);
 
                 return new TypeDesc(typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
             }
         }
 
-        private class ConstructorBuilderHelpers
+        private class ConstructorBuilderUtils
         {
             internal static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
             {
-                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodInfoConstant.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory), interfaceType });
+                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory), interfaceType });
 
-                constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderHelpers.ActivatorFactory);
-                constructorBuilder.DefineParameter(2, ParameterAttributes.None, FieldBuilderHelpers.Target);
+                constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderUtils.ActivatorFactory);
+                constructorBuilder.DefineParameter(2, ParameterAttributes.None, FieldBuilderUtils.Target);
 
                 var ilGen = constructorBuilder.GetILGenerator();
                 ilGen.EmitThis();
-                ilGen.Emit(OpCodes.Call, MethodInfoConstant.ObjectCtor);
+                ilGen.Emit(OpCodes.Call, MethodUtils.ObjectCtor);
 
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(1);
-                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.ActivatorFactory]);
+                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
 
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(2);
-                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
+                ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.Target]);
 
                 ilGen.Emit(OpCodes.Ret);
             }
@@ -188,15 +188,15 @@ namespace AspectCore.Core.Internal
                     var parameters = new Type[] { typeof(IServiceProvider) }.Concat(parameterTypes).ToArray();
                     var constructorBuilder = typeDesc.Builder.DefineConstructor(constructor.Attributes, constructor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory) });
 
-                    constructorBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                    constructorBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                     //inherit constructor's attribute
                     foreach (var customAttributeData in constructor.CustomAttributes)
                     {
-                        constructorBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                        constructorBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
                     }
 
-                    ParameterBuilderHelpers.DefineParameters(constructor, constructorBuilder);
+                    ParameterBuilderUtils.DefineParameters(constructor, constructorBuilder);
 
                     var ilGen = constructorBuilder.GetILGenerator();
                     ilGen.EmitThis();
@@ -208,18 +208,18 @@ namespace AspectCore.Core.Internal
 
                     ilGen.EmitThis();
                     ilGen.EmitLoadArg(1);
-                    ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.ActivatorFactory]);
+                    ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
 
                     ilGen.EmitThis();
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
+                    ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.Target]);
 
                     ilGen.Emit(OpCodes.Ret);
                 }
             }
         }
 
-        private class MethodBuilderHelpers
+        private class MethodBuilderUtils
         {
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
@@ -297,19 +297,19 @@ namespace AspectCore.Core.Internal
             {
                 var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
 
-                GenericParameterHelpers.DefineGenericParameter(method, methodBuilder);
+                GenericParameterUtils.DefineGenericParameter(method, methodBuilder);
 
                 //define method attributes
-                methodBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                methodBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in method.CustomAttributes)
                 {
-                    methodBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                    methodBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
                 }
 
                 //define paramters
-                ParameterBuilderHelpers.DefineParameters(method, methodBuilder);
+                ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
                 if (typeDesc.GetProperty<IAspectValidator>().Validate(method))
                 {
@@ -326,7 +326,7 @@ namespace AspectCore.Core.Internal
                     var ilGen = methodBuilder.GetILGenerator();
                     var parameters = method.GetParameterTypes();
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
                     for (int i = 1; i <= parameters.Length; i++)
                     {
                         ilGen.EmitLoadArg(i);
@@ -346,8 +346,8 @@ namespace AspectCore.Core.Internal
                 {
                     var ilGen = methodBuilder.GetILGenerator();
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.ActivatorFactory]);
-                    ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.CreateAspectActivator);
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
+                    ilGen.Emit(OpCodes.Callvirt, MethodUtils.CreateAspectActivator);
                     EmitInitializeMetaData(ilGen);
                     EmitReturnVaule(ilGen);
                     ilGen.Emit(OpCodes.Ret);
@@ -388,7 +388,7 @@ namespace AspectCore.Core.Internal
                     methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.Name}");
 
                     ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderHelpers.Target]);
+                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
                     ilGen.EmitThis();
                     var parameters = method.GetParameterTypes();
                     if (parameters.Length == 0)
@@ -410,36 +410,36 @@ namespace AspectCore.Core.Internal
 
                 void EmitReturnVaule(ILGenerator ilGen)
                 {
-                    ilGen.Emit(OpCodes.Newobj, MethodInfoConstant.AspectActivatorContexCtor);
+                    ilGen.Emit(OpCodes.Newobj, MethodUtils.AspectActivatorContexCtor);
 
                     if (method.ReturnType == typeof(void))
                     {
-                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(typeof(object)));
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(typeof(object)));
                         ilGen.Emit(OpCodes.Pop);
                     }
                     else if (method.ReturnType == typeof(Task))
                     {
-                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeTask.MakeGenericMethod(typeof(object)));
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeTask.MakeGenericMethod(typeof(object)));
                     }
                     else if (method.IsReturnTask())
                     {
                         var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
-                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeTask.MakeGenericMethod(returnType));
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeTask.MakeGenericMethod(returnType));
                     }
                     else if (method.IsReturnValueTask())
                     {
                         var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
-                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvokeValueTask.MakeGenericMethod(returnType));
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeValueTask.MakeGenericMethod(returnType));
                     }
                     else
                     {
-                        ilGen.Emit(OpCodes.Callvirt, MethodInfoConstant.AspectActivatorInvoke.MakeGenericMethod(method.ReturnType));
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(method.ReturnType));
                     }
                 }
             }   
         }
 
-        private class PropertyBuilderHelpers
+        private class PropertyBuilderUtils
         {
             public static void DefineInterfaceProxyProperties(Type interfaceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
@@ -482,12 +482,12 @@ namespace AspectCore.Core.Internal
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderHelpers.DefineClassMethod(property.GetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineClassMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
                 {
-                    var method = MethodBuilderHelpers.DefineClassMethod(property.SetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineClassMethod(property.SetMethod, implType, typeDesc);
                     propertyBuilder.SetSetMethod(method);
                 }
             }
@@ -496,12 +496,12 @@ namespace AspectCore.Core.Internal
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.GetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineInterfaceMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
                 {
-                    var method = MethodBuilderHelpers.DefineInterfaceMethod(property.SetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineInterfaceMethod(property.SetMethod, implType, typeDesc);
                     propertyBuilder.SetSetMethod(method);
                 }
             }
@@ -510,12 +510,12 @@ namespace AspectCore.Core.Internal
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.GetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineExplicitMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
                 {
-                    var method = MethodBuilderHelpers.DefineExplicitMethod(property.SetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineExplicitMethod(property.SetMethod, implType, typeDesc);
                     propertyBuilder.SetSetMethod(method);
                 }
             }
@@ -524,19 +524,19 @@ namespace AspectCore.Core.Internal
             {
                 var propertyBuilder = typeDesc.Builder.DefineProperty(name, property.Attributes, property.PropertyType, Type.EmptyTypes);
 
-                propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                propertyBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in property.CustomAttributes)
                 {
-                    propertyBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(customAttributeData));
+                    propertyBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
                 }
 
                 return propertyBuilder;
             }        
         }
 
-        private class ParameterBuilderHelpers
+        private class ParameterBuilderUtils
         {
             public static void DefineParameters(MethodInfo targetMethod, MethodBuilder methodBuilder)
             {
@@ -552,20 +552,20 @@ namespace AspectCore.Core.Internal
                         {
                             parameterBuilder.SetConstant(parameter.DefaultValue);
                         }
-                        parameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                        parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                         foreach (var attribute in parameter.CustomAttributes)
                         {
-                            parameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(attribute));
+                            parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
                         }
                     }
                 }
 
                 var returnParamter = targetMethod.ReturnParameter;
                 var returnParameterBuilder = methodBuilder.DefineParameter(0, returnParamter.Attributes, returnParamter.Name);
-                returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                returnParameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                 foreach (var attribute in returnParamter.CustomAttributes)
                 {
-                    returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(attribute));
+                    returnParameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
                 }
             }
 
@@ -584,17 +584,17 @@ namespace AspectCore.Core.Internal
                         {
                             parameterBuilder.SetConstant(parameter.DefaultValue);
                         }
-                        parameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                        parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                         foreach (var attribute in parameter.CustomAttributes)
                         {
-                            parameterBuilder.SetCustomAttribute(CustomAttributeBuilderHelpers.DefineCustomAttribute(attribute));
+                            parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
                         }
                     }
                 }
             }
         }
 
-        private class GenericParameterHelpers
+        private class GenericParameterUtils
         {
             internal static void DefineGenericParameter(Type targetType, TypeBuilder typeBuilder)
             {
@@ -635,11 +635,11 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private class CustomAttributeBuilderHelpers
+        private class CustomAttributeBuildeUtils
         {
             public static CustomAttributeBuilder DefineCustomAttribute(Type attributeType)
             {
-                return new CustomAttributeBuilder(attributeType.GetTypeInfo().GetConstructor(Type.EmptyTypes), EmptyArray<object>.Value);
+                return new CustomAttributeBuilder(attributeType.GetTypeInfo().GetConstructor(Type.EmptyTypes), ArrayUtils.Empty<object>());
             }
 
             public static CustomAttributeBuilder DefineCustomAttribute(CustomAttributeData customAttributeData)
@@ -675,7 +675,7 @@ namespace AspectCore.Core.Internal
             }
         }
 
-        private class FieldBuilderHelpers
+        private class FieldBuilderUtils
         {
             public const string ActivatorFactory = "__activatorFactory";
             public const string Target = "__targetInstance";

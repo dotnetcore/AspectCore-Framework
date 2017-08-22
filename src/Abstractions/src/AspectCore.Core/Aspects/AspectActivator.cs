@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Core.Utils;
 
 namespace AspectCore.Core
 {
@@ -60,7 +60,7 @@ namespace AspectCore.Core
                     {
                         task.GetAwaiter().GetResult();
                     }
-                    return TaskCache<TResult>.CompletedTask;
+                    return TaskUtils<TResult>.CompletedTask;
                 }
                 else
                 {

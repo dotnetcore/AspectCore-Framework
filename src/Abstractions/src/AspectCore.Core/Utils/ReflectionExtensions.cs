@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.Internal
+namespace AspectCore.Core.Utils
 {
     public static class ReflectionExtensions
     {
