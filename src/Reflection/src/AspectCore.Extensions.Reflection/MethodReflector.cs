@@ -7,13 +7,17 @@ using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
-    public partial class MethodReflector : MemberReflector<MethodInfo>
+    public partial class MethodReflector : MemberReflector<MethodInfo>, IParameterReflectorProvider
     {
         protected readonly Func<object, object[], object> _invoker;
+        private readonly ParameterReflector[] _parameterReflectors;
+
+        public ParameterReflector[] ParameterReflectors => _parameterReflectors;
 
         private MethodReflector(MethodInfo reflectionInfo) : base(reflectionInfo)
         {
             _invoker = CreateInvoker();
+            _parameterReflectors = reflectionInfo.GetParameters().Select(x => ParameterReflector.Create(x)).ToArray();
         }
 
         protected virtual Func<object, object[], object> CreateInvoker()
