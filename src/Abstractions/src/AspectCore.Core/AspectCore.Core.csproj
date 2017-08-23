@@ -16,6 +16,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6</DefineConstants>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
