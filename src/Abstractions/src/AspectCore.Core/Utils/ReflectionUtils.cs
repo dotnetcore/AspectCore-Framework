@@ -7,7 +7,7 @@ using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core.Utils
 {
-    public static class ReflectionExtensions
+    public static class ReflectionUtils
     {
         public static Type MakeDefType(this TypeInfo byRefTypeInfo)
         {
@@ -62,8 +62,7 @@ namespace AspectCore.Core.Utils
                 return typeInfo.IsPublic;
             }
         }
-
-      
+     
         public static Type[] GetParameterTypes(this MethodInfo method)
         {
             if (method == null)
@@ -72,7 +71,6 @@ namespace AspectCore.Core.Utils
             }
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
         }
-
 
         public static bool IsNonAspect(this MemberInfo member)
         {
@@ -83,7 +81,6 @@ namespace AspectCore.Core.Utils
             return member.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
        
-
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
             var typeInfo = methodInfo.DeclaringType.GetTypeInfo();

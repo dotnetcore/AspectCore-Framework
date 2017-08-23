@@ -57,32 +57,6 @@ namespace AspectCore.Tests
         }
     }
 
-    public class ServiceProxy : IService
-    {
-        private readonly IAspectActivatorFactory _activatorFactory;
-        private readonly IService _service;
-
-        public ServiceProxy(IAspectActivatorFactory activatorFactory, IService service)
-        {
-            _activatorFactory = activatorFactory;
-            _service = service;
-        }
-
-        public string Name { get; set; }
-
-        public void Foo()
-        {
-            _activatorFactory.Create().Invoke<object>(new AspectActivatorContext( Methods.serviceFoo, Methods.impFoo, Methods.targetFoo, _service, this, null));
-        }
-
-        internal class Methods
-        {
-            internal static MethodInfo serviceFoo;
-            internal static MethodInfo impFoo;
-            internal static MethodInfo targetFoo;
-        }
-    }
-
     public class AbsService
     {
         public virtual String Name { get; set; }

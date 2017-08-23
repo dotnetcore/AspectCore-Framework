@@ -1,42 +1,33 @@
-﻿using System;
-using AspectCore.Abstractions;
-using AspectCore.Extensions.Reflection;
+﻿using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    [NonAspect]
     internal sealed class PropertyInjector : IPropertyInjector
     {
-        private readonly Func<IServiceProvider, object> _propertyFactory;
-        private readonly PropertyReflector _propertyReflector;
+        private readonly IServiceResolver _serviceResolver;
+        private readonly PropertyResolver[] _propertyResolvers;
 
-        public PropertyInjector(Func<IServiceProvider, object> propertyFactory, PropertyReflector propertyReflector)
+        public PropertyInjector(IServiceResolver serviceResolver, PropertyResolver[] propertyResolvers)
         {
-            if (propertyFactory == null)
-            {
-                throw new ArgumentNullException(nameof(propertyFactory));
-            }
-            if (propertyReflector == null)
-            {
-                throw new ArgumentNullException(nameof(propertyReflector));
-            }
-
-            _propertyFactory = propertyFactory;
-            _propertyReflector = propertyReflector;
+            _serviceResolver = serviceResolver;
+            _propertyResolvers = propertyResolvers;
         }
 
-        public void Invoke(IServiceProvider serviceProvider, IInterceptor interceptor)
+        public void Invoke(object implementation)
         {
-            if (serviceProvider == null)
+            if (implementation == null)
             {
-                throw new ArgumentNullException(nameof(serviceProvider));
+                return;
             }
-            if (interceptor == null)
+            var resolverLength = _propertyResolvers.Length;
+            if (resolverLength == 0)
             {
-                throw new ArgumentNullException(nameof(interceptor));
+                return;
             }
-
-            _propertyReflector.SetValue(interceptor, _propertyFactory(serviceProvider));
+            for (var i = 0; i < resolverLength; i++)
+            {
+                _propertyResolvers[i].Resolve(_serviceResolver, implementation);
+            }
         }
     }
 }

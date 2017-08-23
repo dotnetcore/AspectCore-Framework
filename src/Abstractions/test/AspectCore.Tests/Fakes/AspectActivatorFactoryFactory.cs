@@ -15,7 +15,7 @@ namespace AspectCore.Tests.Fakes
             interceptorSelectors.Add(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, serviceProvider));
             interceptorSelectors.Add(new MethodInterceptorSelector());
             interceptorSelectors.Add(new TypeInterceptorSelector());
-            return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorCollector(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+            return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorCollector(interceptorSelectors, new PropertyInjectorFactory(serviceProvider))));
         }
     }
 }

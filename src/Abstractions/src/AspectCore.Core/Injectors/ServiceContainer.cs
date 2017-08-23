@@ -35,8 +35,9 @@ namespace AspectCore.Core
 
         private void AddInternalServices()
         {
-            if (!_collection.Any(x => x.ServiceType == typeof(IServiceProvider) && x.Key == null))
+            if (!_collection.Any(x => x.ServiceType == typeof(IServiceProvider)))
                 Scopeds.AddDelegate<IServiceProvider>(resolver => resolver.Resolve<IServiceResolver>());   
+
         }
 
         public int Count => _collection.Count;

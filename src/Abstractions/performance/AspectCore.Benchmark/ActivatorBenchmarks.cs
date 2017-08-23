@@ -14,7 +14,7 @@ namespace AspectCore.Benchmark
     [AllStatisticsColumn]
     public class ActivatorBenchmarks
     {
-        private readonly static IAspectContextFactory contextFactory = new AspectContextFactory(new ServiceProvider());
+        private readonly static IAspectContextFactory contextFactory = new AspectContextFactory(new ServiceResolver());
         private readonly static IAspectBuilderFactory aspectBuilderFactory = ProxyFactory.CreateAspectBuilderFactory();
         private readonly static IAspectActivatorFactory aspectActivatorFactory = ProxyFactory.CreateActivatorFactory();
 
