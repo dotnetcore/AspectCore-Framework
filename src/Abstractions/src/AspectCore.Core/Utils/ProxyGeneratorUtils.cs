@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
@@ -14,13 +16,13 @@ namespace AspectCore.Core.Utils
     {
         private const string ProxyNameSpace = "AspectCore.ProxyBuilder";
         private static readonly ModuleBuilder _moduleBuilder;
-        private static readonly Dictionary<string, Type> _definedTypes;
+        private static ConcurrentDictionary<string, Lazy<Type>> _definedTypes;
 
         static ProxyGeneratorUtils()
         {
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(ProxyNameSpace), AssemblyBuilderAccess.RunAndCollect);
             _moduleBuilder = asmBuilder.DefineDynamicModule("core");
-            _definedTypes = new Dictionary<string, Type>();
+            _definedTypes = new ConcurrentDictionary<string, Lazy<Type>>();
         }
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
@@ -31,23 +33,10 @@ namespace AspectCore.Core.Utils
             }
 
             var name = GetProxyTypeName();
-
-            Type proxyType;
-            if (_definedTypes.TryGetValue(name, out proxyType))
-            {
-                return proxyType;
-            }
-
-            lock (_moduleBuilder)
-            {
-                if (_definedTypes.TryGetValue(name, out proxyType))
-                {
-                    return proxyType;
-                }
-                proxyType = CreateInterfaceProxyInternal(name, interfaceType, implType, additionalInterfaces, aspectValidator);
-                _definedTypes.Add(name, proxyType);
-                return proxyType;
-            }
+            var lazy = _definedTypes.GetOrAdd(name, key =>
+                new Lazy<Type>(() => CreateInterfaceProxyInternal(key, interfaceType, implType, additionalInterfaces, aspectValidator),
+                LazyThreadSafetyMode.ExecutionAndPublication));
+            return lazy.Value;
 
             string GetProxyTypeName()
             {
@@ -66,23 +55,10 @@ namespace AspectCore.Core.Utils
                 throw new InvalidOperationException($"Validate '{implType}' failed because the type does not satisfy the condition to be inherited.");
             }
             var name = GetProxyTypeName();
-
-            Type proxyType;
-            if (_definedTypes.TryGetValue(name, out proxyType))
-            {
-                return proxyType;
-            }
-
-            lock (_moduleBuilder)
-            {
-                if (_definedTypes.TryGetValue(name, out proxyType))
-                {
-                    return proxyType;
-                }
-                proxyType = CreateClassProxyInternal(name, serviceType, implType, additionalInterfaces, aspectValidator);
-                _definedTypes.Add(name, proxyType);
-                return proxyType;
-            }
+            var lazy = _definedTypes.GetOrAdd(name, key =>
+                new Lazy<Type>(() => CreateClassProxyInternal(name, serviceType, implType, additionalInterfaces, aspectValidator),
+                LazyThreadSafetyMode.ExecutionAndPublication));
+            return lazy.Value;
 
             string GetProxyTypeName()
             {

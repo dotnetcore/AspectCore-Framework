@@ -15,11 +15,11 @@ namespace AspectCore.Core
     {
         private static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
+        private volatile IDictionary<string, object> _data;
         private IServiceProvider _serviceProvider;
-        private IDictionary<string, object> _data;
-        private bool _disposedValue = false;
         private MethodInfo _implMethod;
         private object _implInstance;
+        private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
         {
@@ -41,13 +41,7 @@ namespace AspectCore.Core
             {
                 if (_data == null)
                 {
-                    lock (this)
-                    {
-                        if (_data == null)
-                        {
-                            _data = new Dictionary<string, object>();
-                        }
-                    }
+                    _data = new Dictionary<string, object>();
                 }
                 return _data;
             }
