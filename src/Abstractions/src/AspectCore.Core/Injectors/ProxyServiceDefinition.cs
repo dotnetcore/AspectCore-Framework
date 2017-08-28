@@ -12,5 +12,9 @@ namespace AspectCore.Core.Injectors
         public ProxyServiceDefinition(ServiceDefinition serviceDefinition) : base(serviceDefinition.ServiceType, serviceDefinition.Lifetime)
         {
         }
+
+        public Type ProxyType { get; }
+
+        public Func<IServiceResolver, object> ProxyFactory { get; }
     }
 }
