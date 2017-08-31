@@ -6,6 +6,6 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public interface IInterceptorSelector
     {
-        IEnumerable<IInterceptor> Select(MethodInfo method, TypeInfo typeInfo);
+        IEnumerable<IInterceptor> Select(MethodInfo method);
     }
 }

@@ -1,41 +1,33 @@
-﻿using System;
-using AspectCore.Abstractions;
+﻿using AspectCore.Abstractions;
 
 namespace AspectCore.Core
 {
-    [NonAspect]
     internal sealed class PropertyInjector : IPropertyInjector
     {
-        private readonly Func<IServiceProvider, object> _propertyFactory;
-        private readonly Action<object, object> _setter;
+        private readonly IServiceResolver _serviceResolver;
+        private readonly PropertyResolver[] _propertyResolvers;
 
-        public PropertyInjector(Func<IServiceProvider, object> propertyFactory, Action<object, object> setter)
+        public PropertyInjector(IServiceResolver serviceResolver, PropertyResolver[] propertyResolvers)
         {
-            if (propertyFactory == null)
-            {
-                throw new ArgumentNullException(nameof(propertyFactory));
-            }
-            if (setter == null)
-            {
-                throw new ArgumentNullException(nameof(setter));
-            }
-
-            _propertyFactory = propertyFactory;
-            _setter = setter;
+            _serviceResolver = serviceResolver;
+            _propertyResolvers = propertyResolvers;
         }
 
-        public void Invoke(IServiceProvider serviceProvider, IInterceptor interceptor)
+        public void Invoke(object implementation)
         {
-            if (serviceProvider == null)
+            if (implementation == null)
             {
-                throw new ArgumentNullException(nameof(serviceProvider));
+                return;
             }
-            if (interceptor == null)
+            var resolverLength = _propertyResolvers.Length;
+            if (resolverLength == 0)
             {
-                throw new ArgumentNullException(nameof(interceptor));
+                return;
             }
-
-            _setter(interceptor, _propertyFactory(serviceProvider));
+            for (var i = 0; i < resolverLength; i++)
+            {
+                _propertyResolvers[i].Resolve(_serviceResolver, implementation);
+            }
         }
     }
 }

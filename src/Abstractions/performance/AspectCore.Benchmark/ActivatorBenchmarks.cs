@@ -14,7 +14,7 @@ namespace AspectCore.Benchmark
     [AllStatisticsColumn]
     public class ActivatorBenchmarks
     {
-        private readonly static IAspectContextFactory contextFactory = new AspectContextFactory(new ServiceProvider());
+        private readonly static IAspectContextFactory contextFactory = new AspectContextFactory(new ServiceResolver());
         private readonly static IAspectBuilderFactory aspectBuilderFactory = ProxyFactory.CreateAspectBuilderFactory();
         private readonly static IAspectActivatorFactory aspectActivatorFactory = ProxyFactory.CreateActivatorFactory();
 
@@ -34,14 +34,14 @@ namespace AspectCore.Benchmark
         public AspectContext Create_AspectContext()
         {
             var context = new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
-            return contextFactory.CreateContext<object>(context);
+            return contextFactory.CreateContext(context);
         }
 
         //[Benchmark]
         public void Create_AspectContextThenDispose()
         {
             var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
-            using (var aspectContext = contextFactory.CreateContext<object>(context))
+            using (var aspectContext = contextFactory.CreateContext(context))
             {
             }
         }
@@ -50,7 +50,7 @@ namespace AspectCore.Benchmark
         public IAspectBuilder Create_AspectBuilder()
         {
             var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
-            var aspectContext = contextFactory.CreateContext<object>(context);
+            var aspectContext = contextFactory.CreateContext(context);
             return aspectBuilderFactory.Create(aspectContext);
         }
 
@@ -58,7 +58,7 @@ namespace AspectCore.Benchmark
         public AspectDelegate AspectBuilder_Build_Delegate()
         {
             var context = new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
-            var aspectContext = contextFactory.CreateContext<object>(context);
+            var aspectContext = contextFactory.CreateContext(context);
             var aspectBuilder = aspectBuilderFactory.Create(aspectContext);
             return aspectBuilder.Build();
         }
@@ -67,7 +67,7 @@ namespace AspectCore.Benchmark
         public Task Invoke_WithoutReturn()
         {
             var context = new AspectActivatorContext(MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
-            var aspectContext = contextFactory.CreateContext<object>(context);
+            var aspectContext = contextFactory.CreateContext(context);
             var aspectBuilder = aspectBuilderFactory.Create(aspectContext);
             return aspectBuilder.Build()(aspectContext);
         }
@@ -76,7 +76,7 @@ namespace AspectCore.Benchmark
         public object Invoke_WithReturn()
         {
             var context = new AspectActivatorContext( MethodConstants.serviceMethod, MethodConstants.targetMethod, MethodConstants.proxyMethod, service, this, null);
-            var aspectContext = contextFactory.CreateContext<object>(context);
+            var aspectContext = contextFactory.CreateContext(context);
             var aspectBuilder = aspectBuilderFactory.Create(aspectContext);
             var invoke = aspectBuilder.Build()(aspectContext);
             if (invoke.IsFaulted)
@@ -112,9 +112,9 @@ namespace AspectCore.Benchmark
 
         static MethodConstants()
         {
-            serviceMethod = typeof(IService).GetMethod(nameof(IService.Foo));
-            targetMethod = typeof(Service).GetMethod(nameof(Service.Foo));
-            proxyMethod = typeof(Service).GetMethod(nameof(Service.Foo));
+            serviceMethod = typeof(IService).GetMethod(nameof(IService.GetMessage));
+            targetMethod = typeof(Service).GetMethod(nameof(Service.GetMessage));
+            proxyMethod = typeof(Service).GetMethod(nameof(Service.GetMessage));
         }
     }
 }

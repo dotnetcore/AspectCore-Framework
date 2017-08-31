@@ -7,6 +7,6 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public interface IAspectContextFactory
     {
-        AspectContext CreateContext<TReturn>(AspectActivatorContext activatorContext);
+        AspectContext CreateContext(AspectActivatorContext activatorContext);
     }
 }

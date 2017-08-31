@@ -31,22 +31,22 @@ namespace AspectCore.Benchmark
 
         public static IAspectActivatorFactory CreateActivatorFactory()
         {
-            var serviceProvider = new ServiceProvider();
+            var serviceProvider = new ServiceResolver();
             var interceptorSelectors = new List<IInterceptorSelector>();
             interceptorSelectors.Add(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, serviceProvider));
             interceptorSelectors.Add(new MethodInterceptorSelector());
             interceptorSelectors.Add(new TypeInterceptorSelector());
-            return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorProvider(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector()))));
+            return new AspectActivatorFactory(new AspectContextFactory(serviceProvider), new AspectBuilderFactory(new InterceptorCollector(interceptorSelectors, new PropertyInjectorFactory(serviceProvider))));
         }
 
         public static IAspectBuilderFactory CreateAspectBuilderFactory()
         {
-            var serviceProvider = new ServiceProvider();
+            var serviceProvider = new ServiceResolver();
             var interceptorSelectors = new List<IInterceptorSelector>();
             interceptorSelectors.Add(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, serviceProvider));
             interceptorSelectors.Add(new MethodInterceptorSelector());
             interceptorSelectors.Add(new TypeInterceptorSelector());
-            return new AspectBuilderFactory(new InterceptorProvider(interceptorSelectors, new InterceptorInjectorProvider(serviceProvider, new PropertyInjectorSelector())));
+            return new AspectBuilderFactory(new InterceptorCollector(interceptorSelectors, new PropertyInjectorFactory(serviceProvider)));
         }
 
         public static T CreateProxy<T>(T target)
@@ -58,11 +58,21 @@ namespace AspectCore.Benchmark
 
     }
 
-    class ServiceProvider:IServiceProvider
+    class ServiceResolver : IServiceProvider, IServiceResolver
     {
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
         public object GetService(Type serviceType)
         {
             return null;
+        }
+
+        public object Resolve(Type serviceType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

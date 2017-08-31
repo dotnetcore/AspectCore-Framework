@@ -27,8 +27,7 @@ namespace AspectCore.Extensions.Configuration.InterceptorFactories
 
         public override IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
-            var activator = (IInterceptorActivator)serviceProvider.GetService(typeof(IInterceptorActivator));
-            return activator.CreateInstance(_interceptorType, _args);
+            return (IInterceptor)Activator.CreateInstance(_interceptorType, _args);
         }
     }
 }

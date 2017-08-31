@@ -54,7 +54,7 @@ namespace AspectCore.Extensions.Configuration
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddAspNetCore(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static ICollection<Func<MethodInfo, bool>> AddAspNetCore(this ICollection<Func<MethodInfo, bool>> collection)
         {
             collection.AddNamespace("Microsoft.AspNetCore.*");
             collection.AddNamespace("Microsoft.AspNet.*");
@@ -65,7 +65,7 @@ namespace AspectCore.Extensions.Configuration
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddEntityFramework(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static ICollection<Func<MethodInfo, bool>> AddEntityFramework(this ICollection<Func<MethodInfo, bool>> collection)
         {
             collection.AddNamespace("Microsoft.Data.*");
             collection.AddNamespace("Microsoft.EntityFrameworkCore");
@@ -73,33 +73,44 @@ namespace AspectCore.Extensions.Configuration
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddOwin(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static ICollection<Func<MethodInfo, bool>> AddOwin(this ICollection<Func<MethodInfo, bool>> collection)
         {
             collection.AddNamespace("Microsoft.Owin.*");
             collection.AddNamespace("Owin");
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddPageGenerator(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static ICollection<Func<MethodInfo, bool>> AddPageGenerator(this ICollection<Func<MethodInfo, bool>> collection)
         {
             collection.AddNamespace("PageGenerator");
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddSystem(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static ICollection<Func<MethodInfo, bool>> AddSystem(this ICollection<Func<MethodInfo, bool>> collection)
         {
             collection.AddNamespace("System");
             collection.AddNamespace("System.*");
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddObjectVMethod(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static ICollection<Func<MethodInfo, bool>> AddObjectVMethod(this ICollection<Func<MethodInfo, bool>> collection)
         {
             collection.AddMethod("Equals");
             collection.AddMethod("GetHashCode");
             collection.AddMethod("ToString");
             collection.AddMethod("GetType");
             return collection;
+        }
+
+        internal static ICollection<Func<MethodInfo, bool>> AddDefault(this ICollection<Func<MethodInfo, bool>> collection)
+        {
+            return collection.
+                AddObjectVMethod().
+                AddSystem().
+                AddAspNetCore().
+                AddEntityFramework().
+                AddOwin().
+                AddPageGenerator();
         }
     }
 }

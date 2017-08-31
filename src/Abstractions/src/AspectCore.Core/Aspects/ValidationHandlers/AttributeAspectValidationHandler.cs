@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
 {

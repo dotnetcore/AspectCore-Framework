@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Core.Utils;
 
 namespace AspectCore.Core
 {
@@ -19,7 +19,7 @@ namespace AspectCore.Core
 
         public TResult Invoke<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            using (var context = _aspectContextFactory.CreateContext(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -37,7 +37,7 @@ namespace AspectCore.Core
 
         public Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            using (var context = _aspectContextFactory.CreateContext(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -60,7 +60,7 @@ namespace AspectCore.Core
                     {
                         task.GetAwaiter().GetResult();
                     }
-                    return TaskCache<TResult>.CompletedTask;
+                    return TaskUtils<TResult>.CompletedTask;
                 }
                 else
                 {
@@ -71,7 +71,7 @@ namespace AspectCore.Core
 
         public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext<TResult>(activatorContext))
+            using (var context = _aspectContextFactory.CreateContext(activatorContext))
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);

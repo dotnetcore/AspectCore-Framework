@@ -5,7 +5,6 @@ namespace AspectCore.Abstractions
     [NonAspect]
     public struct AspectActivatorContext
     {
-        //private static readonly object[] emptyParameters = new object[0];
         public MethodInfo ServiceMethod { get; }
 
         public MethodInfo TargetMethod { get; }

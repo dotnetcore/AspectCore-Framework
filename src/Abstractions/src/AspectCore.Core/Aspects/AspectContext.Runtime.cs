@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
+using AspectCore.Core.Utils;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core
@@ -15,11 +15,11 @@ namespace AspectCore.Core
     {
         private static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
+        private volatile IDictionary<string, object> _data;
         private IServiceProvider _serviceProvider;
-        private IDictionary<string, object> _data;
-        private bool _disposedValue = false;
         private MethodInfo _implMethod;
         private object _implInstance;
+        private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
         {
@@ -41,13 +41,7 @@ namespace AspectCore.Core
             {
                 if (_data == null)
                 {
-                    lock (this)
-                    {
-                        if (_data == null)
-                        {
-                            _data = new Dictionary<string, object>();
-                        }
-                    }
+                    _data = new Dictionary<string, object>();
                 }
                 return _data;
             }
@@ -88,6 +82,7 @@ namespace AspectCore.Core
 
             if (_data == null)
             {
+                _disposedValue = true;
                 return;
             }
 
@@ -109,12 +104,16 @@ namespace AspectCore.Core
         {
             var reflector = reflectorTable.GetOrAdd(_implMethod, method => method.GetReflector(CallOptions.Call));
             ReturnValue = reflector.Invoke(_implInstance, Parameters);
-            return TaskCache.CompletedTask;
+            return TaskUtils.CompletedTask;
         }
 
         public override Task Break()
         {
-            return TaskCache.CompletedTask;
+            if (ReturnValue == null)
+            {
+                ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
+            }
+            return TaskUtils.CompletedTask;
         }
     }
 }

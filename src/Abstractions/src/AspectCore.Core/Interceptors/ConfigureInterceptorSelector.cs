@@ -18,7 +18,7 @@ namespace AspectCore.Core
             _serviceProvider = serviceProvider;
         }
 
-        public IEnumerable<IInterceptor> Select(MethodInfo method, TypeInfo typeInfo)
+        public IEnumerable<IInterceptor> Select(MethodInfo method)
         {
             return _aspectConfigureProvider.AspectConfigure.InterceptorFactories
                 .Where(x => x.CanCreated(method))

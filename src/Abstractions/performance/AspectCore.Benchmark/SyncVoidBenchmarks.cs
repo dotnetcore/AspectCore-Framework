@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
+using Castle.DynamicProxy;
 
 namespace AspectCore.Benchmark
 {
@@ -12,42 +13,63 @@ namespace AspectCore.Benchmark
     [AllStatisticsColumn]
     public class SyncVoidBenchmarks
     {
-        private readonly static IService service = ProxyFactory.CreateProxy<IService>(new Service());
+        private readonly static IService aspectCoreService = ProxyFactory.CreateProxy<IService>(new Service());
         private readonly static IService realService = new Service();
+        private readonly static IService castleService = CreateProxtFromCastle();
 
-        [Benchmark]
-        public Task Call()
+
+        static IService CreateProxtFromCastle()
         {
-            return realService.Foo();
+            Castle.DynamicProxy.ProxyGenerator proxyGenerator = new ProxyGenerator();
+            return proxyGenerator.CreateInterfaceProxyWithTarget<IService>(realService, new MyCastleInterceptor());
         }
 
         [Benchmark]
-        public Task AspectCore_Proxy()
+        public string DirectCall()
         {
-            return service.Foo();
+            return realService.GetMessage("DirectCall");
+        }
+
+        [Benchmark]
+        public string Castle_Proxy()
+        {
+            return castleService.GetMessage("Castle");
+        }
+
+        [Benchmark]
+        public string AspectCore_Proxy()
+        {
+            return aspectCoreService.GetMessage("AspectCore");
         }
     }
 
-    [MyInterceptor]
+    [MyAspectCoreInterceptor]
     public interface IService
     {
-        Task<int> Foo();
+        string GetMessage(string libName);
     }
 
     public class Service : IService
     {
-        public Task<int> Foo()
+        public string GetMessage(string libName)
         {
-            return Task.FromResult(1);
+            return string.Format("{0}'s aop benchmark {1}.", libName, DateTime.Now);
         }
     }
 
-    public class MyInterceptor : InterceptorAttribute
+    public class MyAspectCoreInterceptor : InterceptorAttribute
     {
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            //短路后续拦截器 并直接返回结果
-            return context.Break();
+            return next(context);
+        }
+    }
+
+    public class MyCastleInterceptor : Castle.DynamicProxy.IInterceptor
+    {
+        public void Intercept(IInvocation invocation)
+        {
+            invocation.Proceed();
         }
     }
 }
