@@ -1,22 +1,22 @@
 ﻿using System;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Core.Injector
 {
     public sealed class PropertyInjectorFactory : IPropertyInjectorFactory
     {
-        private readonly IServiceResolver _serviceResolver;
+        private readonly IServiceProvider _servicePorvider;
         private readonly PropertyResolverSelector _propertyResolverSelector;
 
-        public PropertyInjectorFactory(IServiceResolver serviceResolver)
+        public PropertyInjectorFactory(IServiceProvider servicePorvider)
         {
-            _serviceResolver = serviceResolver;
+            _servicePorvider = servicePorvider;
             _propertyResolverSelector = PropertyResolverSelector.Default;
         }
 
         public IPropertyInjector Create(Type implementationType)
         {
-            return new PropertyInjector(_serviceResolver, _propertyResolverSelector.SelectPropertyResolver(implementationType));
+            return new PropertyInjector(_servicePorvider, _propertyResolverSelector.SelectPropertyResolver(implementationType));
         }
     }
 }

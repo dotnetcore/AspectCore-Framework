@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections.Concurrent;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injectors
+namespace AspectCore.Core.Injector
 {
     internal sealed class InitialServiceResolver
     {

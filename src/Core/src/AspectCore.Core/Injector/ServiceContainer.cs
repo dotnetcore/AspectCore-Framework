@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Core.Injector
 {
     public class ServiceContainer : IServiceContainer
     {

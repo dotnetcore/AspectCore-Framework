@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Core.Injector
 {
     internal sealed class ServiceFactory
     {

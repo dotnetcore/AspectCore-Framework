@@ -4,6 +4,7 @@ using System.Text;
 using AspectCore.Abstractions;
 using AspectCore.Core;
 using AspectCore.Core.DynamicProxy;
+using AspectCore.Core.Injector;
 
 namespace AspectCore.Benchmark
 {
@@ -52,7 +53,7 @@ namespace AspectCore.Benchmark
 
         public static T CreateProxy<T>(T target)
         {
-            var generator = new ProxyGenerator(CreateValidatorBuilder());
+            var generator = new ProxyTypeGenerator(CreateValidatorBuilder());
             var proxyType = generator.CreateInterfaceProxyType(typeof(T), target.GetType());
             return (T)Activator.CreateInstance(proxyType, CreateActivatorFactory(), target);
         }

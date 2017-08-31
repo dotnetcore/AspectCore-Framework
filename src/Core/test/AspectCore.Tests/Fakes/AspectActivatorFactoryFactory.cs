@@ -4,6 +4,7 @@ using System.Text;
 using AspectCore.Abstractions;
 using AspectCore.Core;
 using AspectCore.Core.DynamicProxy;
+using AspectCore.Core.Injector;
 
 namespace AspectCore.Tests.Fakes
 {

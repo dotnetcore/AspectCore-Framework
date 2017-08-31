@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injectors
+namespace AspectCore.Core.Injector
 {
     internal class ProxyServiceDefinition : ServiceDefinition
     {

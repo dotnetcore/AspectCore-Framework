@@ -12,14 +12,11 @@ namespace AspectCore.Core.DynamicProxy
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
-            if (!method.IsPropertyBinding())
-            {
-                var declaringType = method.DeclaringType.GetTypeInfo();
+            var declaringType = method.DeclaringType.GetTypeInfo();
 
-                if (IsAttributeAspect(declaringType) || IsAttributeAspect(method))
-                {
-                    return true;
-                }
+            if (IsAttributeAspect(declaringType) || IsAttributeAspect(method))
+            {
+                return true;
             }
 
             return next(method);

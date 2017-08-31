@@ -2,13 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using AspectCore.Core.Configuration;
 
 namespace AspectCore.Core.DynamicProxy
 {
     [NonAspect]
     public sealed class AspectConfigureProvider : IAspectConfigureProvider
     {
-        private readonly static AspectConfigureProvider instance = new AspectConfigureProvider();
+        private readonly static AspectConfigureProvider instance;
         public static IAspectConfigureProvider Instance
         {
             get { return instance; }
@@ -21,6 +22,13 @@ namespace AspectCore.Core.DynamicProxy
 
         public IAspectConfigure AspectConfigure { get { return _aspectConfigure; } }
 
+        static AspectConfigureProvider()
+        {
+            instance = new AspectConfigureProvider();
+            instance._nonAspectPredicates.AddDefault();
+            instance._aspectValidationHandlers.AddDefault();
+        }
+
         private AspectConfigureProvider()
         {
             _interceptorFactories = new List<IInterceptorFactory>();
@@ -31,17 +39,35 @@ namespace AspectCore.Core.DynamicProxy
 
         public static void AddInterceptorFactories(IEnumerable<IInterceptorFactory> interceptorFactories)
         {
-            instance._interceptorFactories.AddRange(interceptorFactories);
+            foreach(var item in interceptorFactories)
+            {
+                if (!instance._interceptorFactories.Contains(item))
+                {
+                    instance._interceptorFactories.Add(item);
+                }
+            }
         }
 
         public static void AddNonAspectPredicates(IEnumerable<Func<MethodInfo, bool>> nonAspectPredicates)
         {
-            instance._nonAspectPredicates.AddRange(nonAspectPredicates);
+            foreach (var item in nonAspectPredicates)
+            {
+                if (!instance._nonAspectPredicates.Contains(item))
+                {
+                    instance._nonAspectPredicates.Add(item);
+                }
+            }
         }
 
         public static void AddValidationHandlers(IEnumerable<IAspectValidationHandler> aspectValidationHandlers)
         {
-            instance._aspectValidationHandlers.AddRange(aspectValidationHandlers);
+            foreach (var item in aspectValidationHandlers)
+            {
+                if (!instance._aspectValidationHandlers.Contains(item))
+                {
+                    instance._aspectValidationHandlers.Add(item);
+                }
+            }
         }
     }
 }

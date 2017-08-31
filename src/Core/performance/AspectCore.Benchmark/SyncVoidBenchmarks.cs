@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AspectCore.Abstractions;
 using BenchmarkDotNet.Attributes;
@@ -20,8 +18,8 @@ namespace AspectCore.Benchmark
 
         static IService CreateProxtFromCastle()
         {
-            Castle.DynamicProxy.ProxyGenerator proxyGenerator = new ProxyGenerator();
-            return proxyGenerator.CreateInterfaceProxyWithTarget<IService>(realService, new MyCastleInterceptor());
+            Castle.DynamicProxy.ProxyGenerator proxyGenerator = new Castle.DynamicProxy.ProxyGenerator();
+            return proxyGenerator.CreateInterfaceProxyWithTarget(realService, new MyCastleInterceptor());
         }
 
         [Benchmark]

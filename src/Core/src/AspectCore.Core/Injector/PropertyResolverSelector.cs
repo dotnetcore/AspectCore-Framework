@@ -6,7 +6,7 @@ using System.Reflection;
 using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core
+namespace AspectCore.Core.Injector
 {
     internal sealed class PropertyResolverSelector
     {
@@ -32,7 +32,7 @@ namespace AspectCore.Core
                     var reflector = property.GetReflector();
                     if (reflector.IsDefined(typeof(InjectAttribute)))
                     {
-                        yield return new PropertyResolver(resolver => resolver.Resolve(property.PropertyType), reflector);
+                        yield return new PropertyResolver(provider => provider.GetService(property.PropertyType), reflector);
                     }
                 }
             }

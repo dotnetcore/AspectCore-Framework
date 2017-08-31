@@ -1,61 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using AspectCore.Abstractions;
-using AspectCore.Core.Utils;
 
 namespace AspectCore.Core.DynamicProxy
 {
-    [NonAspect]
     public sealed class ProxyGenerator : IProxyGenerator
     {
-        private readonly IAspectValidator _aspectValidator;
+        private readonly IProxyTypeGenerator _proxyTypeGenerator;
+        private readonly IAspectActivatorFactory _aspectActivatorFactory;
 
-        public ProxyGenerator(IAspectValidatorBuilder aspectValidatorBuilder)
+        public ProxyGenerator(IProxyTypeGenerator proxyTypeGenerator, IAspectActivatorFactory aspectActivatorFactory)
         {
-            if (aspectValidatorBuilder == null)
-            {
-                throw new ArgumentNullException(nameof(aspectValidatorBuilder));
-            }
-            _aspectValidator = aspectValidatorBuilder.Build();
+            _proxyTypeGenerator = proxyTypeGenerator ?? throw new ArgumentNullException(nameof(proxyTypeGenerator));
+            _aspectActivatorFactory= aspectActivatorFactory ?? throw new ArgumentNullException(nameof(aspectActivatorFactory));
         }
 
-        public Type CreateClassProxyType(Type serviceType, Type implementationType)
+        public object CreateClassProxy(Type serviceType, object implementationInstance)
         {
             if (serviceType == null)
             {
                 throw new ArgumentNullException(nameof(serviceType));
             }
-            if (!serviceType.GetTypeInfo().IsClass)
+            if (implementationInstance == null)
             {
-                throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
+                throw new ArgumentNullException(nameof(implementationInstance));
             }
-            return ProxyGeneratorUtils.CreateClassProxy(serviceType, implementationType, GetInterfaces(implementationType).ToArray(), _aspectValidator);
+            var proxyType = _proxyTypeGenerator.CreateClassProxyType(serviceType, implementationInstance.GetType());
+            return Activator.CreateInstance(proxyType, _aspectActivatorFactory, implementationInstance);
         }
 
-        public Type CreateInterfaceProxyType(Type serviceType, Type implementationType)
+        public object CreateInterfaceProxy(Type serviceType)
         {
             if (serviceType == null)
             {
                 throw new ArgumentNullException(nameof(serviceType));
             }
-
-            if (!serviceType.GetTypeInfo().IsInterface)
-            {
-                throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
-            }
-            return ProxyGeneratorUtils.CreateInterfaceProxy(serviceType, implementationType, GetInterfaces(implementationType, serviceType).ToArray(), _aspectValidator);
+            var proxyType = _proxyTypeGenerator.CreateInterfaceProxyType(serviceType);
+            return Activator.CreateInstance(proxyType, _aspectActivatorFactory);
         }
 
-        private IEnumerable<Type> GetInterfaces(Type type, params Type[] exceptInterfaces)
+        public object CreateInterfaceProxy(Type serviceType, object implementationInstance)
         {
-            var hashSet = new HashSet<Type>(exceptInterfaces);
-            foreach (var interfaceType in type.GetTypeInfo().GetInterfaces())
+            if (serviceType == null)
             {
-                if (!hashSet.Contains(interfaceType))
-                    yield return interfaceType;
+                throw new ArgumentNullException(nameof(serviceType));
             }
+            if (implementationInstance == null)
+            {
+                return CreateInterfaceProxy(serviceType);
+            }
+            var proxyType = _proxyTypeGenerator.CreateInterfaceProxyType(serviceType, implementationInstance.GetType());
+            return Activator.CreateInstance(proxyType, _aspectActivatorFactory, implementationInstance);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using AspectCore.Abstractions;
+using AspectCore.Core.Injector;
 
 namespace AspectCore.Core.Configuration
 {
@@ -13,16 +14,14 @@ namespace AspectCore.Core.Configuration
 
         public ICollection<IAspectValidationHandler> AspectValidationHandlers { get; }
 
-        public IServiceContainer InternalServices { get; }
+        public IServiceContainer Services { get; }
 
         public AspectCoreOptions(IServiceContainer services)
         {
-            InternalServices = services ?? new ServiceContainer();
+            Services = services ?? new ServiceContainer();
             AspectValidationHandlers = new List<IAspectValidationHandler>();
             InterceptorFactories = new List<IInterceptorFactory>();
             NonAspectPredicates= new List<Func<MethodInfo, bool>>();
-            AspectValidationHandlers.AddDefault();
-            NonAspectPredicates.AddDefault();
         }
     }
 }

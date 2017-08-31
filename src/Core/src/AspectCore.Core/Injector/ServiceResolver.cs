@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Core.Injector
 {
     internal class ServiceResolver : IServiceResolver
     {

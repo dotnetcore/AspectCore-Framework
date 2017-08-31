@@ -1,15 +1,16 @@
-﻿using AspectCore.Abstractions;
+﻿using System;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Core
+namespace AspectCore.Core.Injector
 {
     internal sealed class PropertyInjector : IPropertyInjector
     {
-        private readonly IServiceResolver _serviceResolver;
+        private readonly IServiceProvider _serviceProvider;
         private readonly PropertyResolver[] _propertyResolvers;
 
-        public PropertyInjector(IServiceResolver serviceResolver, PropertyResolver[] propertyResolvers)
+        public PropertyInjector(IServiceProvider serviceProvider, PropertyResolver[] propertyResolvers)
         {
-            _serviceResolver = serviceResolver;
+            _serviceProvider = serviceProvider;
             _propertyResolvers = propertyResolvers;
         }
 
@@ -26,7 +27,7 @@ namespace AspectCore.Core
             }
             for (var i = 0; i < resolverLength; i++)
             {
-                _propertyResolvers[i].Resolve(_serviceResolver, implementation);
+                _propertyResolvers[i].Resolve(_serviceProvider, implementation);
             }
         }
     }

@@ -20,16 +20,13 @@ namespace AspectCore.Core.DynamicProxy
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
-            if (!method.IsPropertyBinding())
+            if (_aspectConfigureProvider.AspectConfigure.InterceptorFactories.Any(x => x.CanCreated(method)))
             {
-                if (_aspectConfigureProvider.AspectConfigure.InterceptorFactories.Any(x => x.CanCreated(method)))
-                {
-                    return true;
-                }
-                if (_aspectConfigureProvider.AspectConfigure.NonAspectPredicates.Any(x => x(method)))
-                {
-                    return false;
-                }
+                return true;
+            }
+            if (_aspectConfigureProvider.AspectConfigure.NonAspectPredicates.Any(x => x(method)))
+            {
+                return false;
             }
 
             return next(method);

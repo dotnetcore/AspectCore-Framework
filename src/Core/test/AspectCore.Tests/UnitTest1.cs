@@ -12,7 +12,7 @@ namespace AspectCore.Tests
         [Fact]
         public void Test1()
         {
-            ProxyGenerator generator = new ProxyGenerator(AspectValidatorBuilderFactory.Create());
+            ProxyTypeGenerator generator = new ProxyTypeGenerator(AspectValidatorBuilderFactory.Create());
             var proxyType = generator.CreateInterfaceProxyType(typeof(IService), typeof(Service));
             var instance = (IService)Activator.CreateInstance(proxyType, AspectActivatorFactoryFactory.Create(), new Service());
             instance.Foo();
@@ -23,12 +23,23 @@ namespace AspectCore.Tests
         [Fact]
         public void Test2()
         {
-            ProxyGenerator generator = new ProxyGenerator(AspectValidatorBuilderFactory.Create());
+            ProxyTypeGenerator generator = new ProxyTypeGenerator(AspectValidatorBuilderFactory.Create());
             var proxyType = generator.CreateClassProxyType(typeof(AbsService), typeof(AbsService));
             var instance = (AbsService)Activator.CreateInstance(proxyType, AspectActivatorFactoryFactory.Create());
             instance.Foo();
             instance.Name = "lemon";
             Assert.Equal("lemon", instance.Name);
+        }
+
+        [Fact]
+        public void Test3()
+        {
+            ProxyTypeGenerator generator = new ProxyTypeGenerator(AspectValidatorBuilderFactory.Create());
+            var proxyType = generator.CreateInterfaceProxyType(typeof(IService));
+            var instance = (IService)Activator.CreateInstance(proxyType, AspectActivatorFactoryFactory.Create());
+            instance.Foo();
+            instance.Name = "lemon";
+            //Assert.Equal("lemon", instance.Name);
         }
     }
 
