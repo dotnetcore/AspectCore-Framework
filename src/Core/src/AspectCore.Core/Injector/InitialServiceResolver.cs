@@ -6,6 +6,8 @@ namespace AspectCore.Core.Injector
 {
     internal sealed class InitialServiceResolver
     {
-        private readonly ConcurrentDictionary<Type, LinkedList<ProxyServiceDefinition>> proxyServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ProxyServiceDefinition>>();
+        private readonly Dictionary<Type, LinkedList<ProxyServiceDefinition>> proxyServiceDefinitions = new Dictionary<Type, LinkedList<ProxyServiceDefinition>>();
+
+
     }
 }

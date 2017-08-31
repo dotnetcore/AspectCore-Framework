@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using AspectCore.Abstractions;
+using AspectCore.Core.DynamicProxy;
+using AspectCore.Core.Utils;
 
 namespace AspectCore.Core.Injector
 {
@@ -21,6 +23,33 @@ namespace AspectCore.Core.Injector
         public ServiceResolver(IEnumerable<ServiceDefinition> serviceDefinitions)
         {
             _initialServiceDefinitions = serviceDefinitions;
+        }
+
+        private void Populate()
+        {
+            var aspectValidatorBuilder = new AspectValidatorBuilder(AspectConfigureProvider.Instance);
+            var proxyGengrator = new ProxyTypeGenerator(aspectValidatorBuilder);
+            var aspectValidator = aspectValidatorBuilder.Build();
+            foreach (var service in _initialServiceDefinitions)
+            {
+                LinkedList<ServiceDefinition> linkedList = new LinkedList<ServiceDefinition>();
+                if (ServiceValidateUtils.TryValidate(service, aspectValidator, out Type implType))
+                {
+                    if (service.ServiceType.GetTypeInfo().IsClass)
+                    {
+                        var proxy = new ProxyServiceDefinition(service, proxyGengrator.CreateClassProxyType(service.ServiceType, implType));
+                    }
+                    else
+                    {
+                        var proxy = new ProxyServiceDefinition(service, proxyGengrator.CreateClassProxyType(service.ServiceType, implType));
+                    }
+                }
+                else
+                {
+
+                }
+                _linkedServiceDefinitions.Add(service.ServiceType, linkedList);
+            }
         }
 
         public void Dispose()

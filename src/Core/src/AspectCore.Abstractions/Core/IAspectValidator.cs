@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Abstractions
 {
@@ -22,6 +23,12 @@ namespace AspectCore.Abstractions
                 return false;
             }
             var typeInfo = type.GetTypeInfo();
+
+            if (typeInfo.GetReflector().IsDefined<NonAspectAttribute>() || typeInfo.GetReflector().IsDefined<DynamicallyAttribute>())
+            {
+                return false;
+            }
+
             foreach (var method in typeInfo.DeclaredMethods)
             {
                 if (aspectValidator.Validate(method))
@@ -29,6 +36,7 @@ namespace AspectCore.Abstractions
                     return true;
                 }
             }
+
             foreach (var interfaceType in typeInfo.GetInterfaces())
             {
                 if (aspectValidator.Validate(interfaceType))
@@ -36,11 +44,14 @@ namespace AspectCore.Abstractions
                     return true;
                 }
             }
+
             var baseType = typeInfo.BaseType;
+
             if (baseType == typeof(object))
             {
                 return false;
             }
+
             return aspectValidator.Validate(baseType);
         }
     }

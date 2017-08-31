@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Injector
@@ -9,8 +7,14 @@ namespace AspectCore.Core.Injector
     {
         public ServiceDefinition ServiceDefinition { get; }
 
-        public ProxyServiceDefinition(ServiceDefinition serviceDefinition) : base(serviceDefinition.ServiceType, serviceDefinition.Lifetime)
+        public ProxyServiceDefinition(ServiceDefinition serviceDefinition,Type proxyType) : base(serviceDefinition.ServiceType, serviceDefinition.Lifetime)
         {
+            ProxyType = proxyType;
+        }
+
+        public ProxyServiceDefinition(ServiceDefinition serviceDefinition, Func<IServiceResolver, object> proxyFactory) : base(serviceDefinition.ServiceType, serviceDefinition.Lifetime)
+        {
+            ProxyFactory = proxyFactory;
         }
 
         public Type ProxyType { get; }
