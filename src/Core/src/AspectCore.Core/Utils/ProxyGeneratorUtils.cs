@@ -244,8 +244,8 @@ namespace AspectCore.Core.Utils
                 foreach (var constructor in constructors)
                 {
                     var parameterTypes = constructor.GetParameters().Select(p => p.ParameterType).ToArray();
-                    var parameters = new Type[] { typeof(IServiceProvider) }.Concat(parameterTypes).ToArray();
-                    var constructorBuilder = typeDesc.Builder.DefineConstructor(constructor.Attributes, constructor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory) });
+                    var parameters = new Type[] { typeof(IAspectActivatorFactory) }.Concat(parameterTypes).ToArray();
+                    var constructorBuilder = typeDesc.Builder.DefineConstructor(constructor.Attributes, constructor.CallingConvention, parameters);
 
                     constructorBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 

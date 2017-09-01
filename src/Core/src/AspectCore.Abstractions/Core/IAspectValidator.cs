@@ -24,6 +24,11 @@ namespace AspectCore.Abstractions
             }
             var typeInfo = type.GetTypeInfo();
 
+            if (typeInfo.IsValueType)
+            {
+                return false;
+            }
+
             if (typeInfo.GetReflector().IsDefined<NonAspectAttribute>() || typeInfo.GetReflector().IsDefined<DynamicallyAttribute>())
             {
                 return false;

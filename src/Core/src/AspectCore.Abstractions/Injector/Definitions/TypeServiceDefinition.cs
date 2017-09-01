@@ -8,10 +8,10 @@ namespace AspectCore.Abstractions
         public TypeServiceDefinition(Type serviceType, Type implementationType, Lifetime lifetime) : base(serviceType, lifetime)
         {
             ImplementationType = implementationType ?? throw new ArgumentNullException(nameof(implementationType));
-            if (!serviceType.GetTypeInfo().IsAssignableFrom(implementationType))
-            {
-                throw new ArgumentException($"Type '{implementationType}' is not a subclass or implementation type of type '{serviceType}'.", nameof(implementationType));
-            }
+            //if (!serviceType.GetTypeInfo().IsAssignableFrom(implementationType))
+            //{
+            //    throw new ArgumentException($"Type '{implementationType}' is not a subclass or implementation type of type '{serviceType}'.", nameof(implementationType));
+            //}
         }
 
         public Type ImplementationType { get; }

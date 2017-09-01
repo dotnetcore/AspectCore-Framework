@@ -1,6 +1,7 @@
 ﻿using System;
+using AspectCore.Abstractions;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Core.Injector
 {
     public static class LifetimeServiceContainerExtensions
     {

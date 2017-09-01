@@ -2,7 +2,7 @@
 
 namespace AspectCore.Abstractions
 {
-    public sealed class DelegateServiceDefinition : ServiceDefinition
+    public class DelegateServiceDefinition : ServiceDefinition
     {
         public DelegateServiceDefinition(Type serviceType, Func<IServiceResolver, object> implementationDelegate, Lifetime lifetime) : base(serviceType, lifetime)
         {

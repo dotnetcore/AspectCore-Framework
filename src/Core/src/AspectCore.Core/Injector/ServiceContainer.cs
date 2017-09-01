@@ -35,9 +35,10 @@ namespace AspectCore.Core.Injector
 
         private void AddInternalServices()
         {
-            if (!_collection.Any(x => x.ServiceType == typeof(IServiceProvider)))
-                Scopeds.AddDelegate<IServiceProvider>(resolver => resolver.Resolve<IServiceResolver>());   
-
+            if (!Contains(typeof(IServiceProvider)))
+                Scopeds.AddDelegate<IServiceProvider>(resolver => resolver);
+            Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
+            Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
         }
 
         public int Count => _collection.Count;
