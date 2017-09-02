@@ -22,7 +22,7 @@ namespace AspectCore.Configuration
 
         public IEnumerator<InterceptorFactory> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return _collection.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

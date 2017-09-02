@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
@@ -36,9 +37,30 @@ namespace AspectCore.Injector
         {
             if (!Contains(typeof(IServiceProvider)))
                 Scopeds.AddDelegate<IServiceProvider>(resolver => resolver);
+            if (!Contains(typeof(IPropertyInjectorFactory)))
+                Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>();
             Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
             Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
             Singletons.AddInstance<IAspectConfiguration>(_configuration);
+
+            //add DynamicProxy services   
+            Singletons.AddType<IInterceptorSelector, MethodInterceptorSelector>();
+            Singletons.AddType<IInterceptorSelector, TypeInterceptorSelector>();
+            Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();
+            Singletons.AddType<IInterceptorCollector, InterceptorCollector>();
+            Singletons.AddType<SingletonPropertyInjectorFactory>();
+            if (!Contains(typeof(IAspectValidatorBuilder)))
+                Singletons.AddType<IAspectValidatorBuilder, AspectValidatorBuilder>();
+            if (!Contains(typeof(IAspectContextFactory)))
+                Scopeds.AddType<IAspectContextFactory, AspectContextFactory>();
+            if (!Contains(typeof(IAspectBuilderFactory)))
+                Singletons.AddType<IAspectBuilderFactory, AspectBuilderFactory>();
+            if (!Contains(typeof(IAspectActivatorFactory)))
+                Scopeds.AddType<IAspectActivatorFactory, AspectActivatorFactory>();
+            if (!Contains(typeof(IProxyGenerator)))
+                Scopeds.AddType<IProxyGenerator, ProxyGenerator>();
+            if (!Contains(typeof(IProxyTypeGenerator)))
+                Singletons.AddType<IProxyTypeGenerator, ProxyTypeGenerator>();
         }
 
         public int Count => _collection.Count;
@@ -49,7 +71,7 @@ namespace AspectCore.Injector
 
         public ILifetimeServiceContainer Transients { get; }
 
-        public IAspectConfiguration Configuration => throw new NotImplementedException();
+        public IAspectConfiguration Configuration => _configuration;
 
         public void Add(ServiceDefinition item) => _collection.Add(item);
 

@@ -15,7 +15,7 @@ namespace AspectCore.DynamicProxy
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
 
-        public InterceptorCollector(IEnumerable<IInterceptorSelector> interceptorSelectors, IPropertyInjectorFactory propertyInjectorFactory)
+        public InterceptorCollector(IEnumerable<IInterceptorSelector> interceptorSelectors, SingletonPropertyInjectorFactory propertyInjectorFactory)
         {
             if (interceptorSelectors == null)
             {

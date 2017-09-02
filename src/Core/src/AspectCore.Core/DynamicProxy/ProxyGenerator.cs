@@ -13,18 +13,28 @@ namespace AspectCore.DynamicProxy
             _aspectActivatorFactory= aspectActivatorFactory ?? throw new ArgumentNullException(nameof(aspectActivatorFactory));
         }
 
-        public object CreateClassProxy(Type serviceType, object implementationInstance)
+        public object CreateClassProxy(Type serviceType, Type implementationType, object[] args)
         {
             if (serviceType == null)
             {
                 throw new ArgumentNullException(nameof(serviceType));
             }
-            if (implementationInstance == null)
+            if (implementationType == null)
             {
-                throw new ArgumentNullException(nameof(implementationInstance));
+                throw new ArgumentNullException(nameof(implementationType));
             }
-            var proxyType = _proxyTypeGenerator.CreateClassProxyType(serviceType, implementationInstance.GetType());
-            return Activator.CreateInstance(proxyType, _aspectActivatorFactory, implementationInstance);
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
+            var proxyType = _proxyTypeGenerator.CreateClassProxyType(serviceType, implementationType);
+            var proxyArgs = new object[args.Length + 1];
+            proxyArgs[0] = _aspectActivatorFactory;
+            for (var i = 0; i < args.Length; i++)
+            {
+                proxyArgs[i + 1] = args[i];
+            }
+            return Activator.CreateInstance(proxyType, proxyArgs);
         }
 
         public object CreateInterfaceProxy(Type serviceType)

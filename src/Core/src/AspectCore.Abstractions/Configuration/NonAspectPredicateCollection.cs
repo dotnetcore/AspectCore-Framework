@@ -18,7 +18,7 @@ namespace AspectCore.Configuration
 
         public IEnumerator<AspectPredicate> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return _collection.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

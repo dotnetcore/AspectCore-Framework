@@ -19,24 +19,47 @@ namespace AspectCore.Injector
 
         internal Func<IServiceResolver, object> Resolve(ServiceDefinition service)
         {
-            return _resolvedCallSites.GetOrAdd(service, d =>
-             {
-                 switch (d)
-                 {
-                     case ProxyServiceDefinition proxyServiceDefinition:
-                         return ResolveProxyService(proxyServiceDefinition);
-                     case InstanceServiceDefinition instanceServiceDefinition:
-                         return resolver => instanceServiceDefinition.ImplementationInstance;
-                     case DelegateServiceDefinition delegateServiceDefinition:
-                         return delegateServiceDefinition.ImplementationDelegate;
-                     case TypeServiceDefinition typeServiceDefinition:
-                         return ResolveTypeService(typeServiceDefinition);
-                     case EnumerableServiceDefintion enumerableServiceDefintion:
-                         return ResolveEnumerableService(enumerableServiceDefintion);
-                     default:
-                         return resolver => null;
-                 }
-             });
+            return _resolvedCallSites.GetOrAdd(service, ResolvePropertyInject);
+        }
+
+        internal Func<IServiceResolver, object> ResolvePropertyInject(ServiceDefinition service)
+        {
+            var callSite = ResolveInternal(service);
+            if (!service.RequiredPropertyInjection())
+            {
+                return callSite;
+            }
+            return resolver =>
+            {
+                var instance = callSite(resolver);
+                if (instance == null)
+                {
+                    return null;
+                }
+                var injectorFactory = resolver.Resolve<IPropertyInjectorFactory>();
+                var injector = injectorFactory.Create(instance.GetType());
+                injector.Invoke(instance);
+                return instance;
+            };
+        }
+
+        internal Func<IServiceResolver, object> ResolveInternal(ServiceDefinition service)
+        {
+            switch (service)
+            {
+                case ProxyServiceDefinition proxyServiceDefinition:
+                    return ResolveProxyService(proxyServiceDefinition);
+                case InstanceServiceDefinition instanceServiceDefinition:
+                    return resolver => instanceServiceDefinition.ImplementationInstance;
+                case DelegateServiceDefinition delegateServiceDefinition:
+                    return delegateServiceDefinition.ImplementationDelegate;
+                case TypeServiceDefinition typeServiceDefinition:
+                    return ResolveTypeService(typeServiceDefinition);
+                case EnumerableServiceDefintion enumerableServiceDefintion:
+                    return ResolveEnumerableService(enumerableServiceDefintion);
+                default:
+                    return resolver => null;
+            };
         }
 
         private Func<IServiceResolver, object> ResolveEnumerableService(EnumerableServiceDefintion enumerableServiceDefintion)

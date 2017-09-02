@@ -2,7 +2,7 @@
 
 namespace AspectCore.Injector
 {
-    public sealed class PropertyInjectorFactory : IPropertyInjectorFactory
+    public class PropertyInjectorFactory : IPropertyInjectorFactory
     {
         private readonly IServiceProvider _servicePorvider;
         private readonly PropertyResolverSelector _propertyResolverSelector;

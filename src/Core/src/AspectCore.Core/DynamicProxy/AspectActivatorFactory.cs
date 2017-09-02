@@ -2,7 +2,6 @@
 
 namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public sealed class AspectActivatorFactory : IAspectActivatorFactory
     {
         private readonly IAspectContextFactory _aspectContextFactory;

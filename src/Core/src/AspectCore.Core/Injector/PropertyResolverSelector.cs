@@ -24,7 +24,7 @@ namespace AspectCore.Injector
 
         private IEnumerable<PropertyResolver> SelectPropertyResolverInternal(Type type)
         {
-            foreach (var property in type.GetTypeInfo().GetProperties())
+            foreach (var property in type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (property.CanWrite)
                 {

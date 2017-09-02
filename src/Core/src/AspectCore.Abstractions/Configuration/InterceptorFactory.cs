@@ -27,6 +27,6 @@ namespace AspectCore.Configuration
             return false;
         }
 
-        public abstract IInterceptor CreateInstance(IServiceProvider serviceProvider);
+        public abstract IInterceptor CreateInstance();
     }
 }

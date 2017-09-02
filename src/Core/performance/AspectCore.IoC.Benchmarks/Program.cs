@@ -8,6 +8,8 @@ namespace AspectCore.IoC.Benchmarks
         static void Main(string[] args)
         {
             BenchmarkRunner.Run<SimpleObjectBenchmarks>();
+            //var SimpleObjectBenchmarks = new SimpleObjectBenchmarks();
+            //SimpleObjectBenchmarks.AspectCoreIoC_Enumerable();
         }
     }
 }

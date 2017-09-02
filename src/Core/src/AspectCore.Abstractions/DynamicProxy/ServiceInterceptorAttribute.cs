@@ -26,7 +26,11 @@ namespace AspectCore.DynamicProxy
 
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            var instance = (IInterceptor)context.ServiceProvider.GetService(_interceptorType);
+            var instance = context.ServiceProvider.GetService(_interceptorType) as IInterceptor;
+            if (instance == null)
+            {
+                throw new InvalidOperationException($"Cannot resolve type  '{_interceptorType}' of service interceptor.");
+            }
             return instance.Invoke(context, next);
         }
     }

@@ -8,6 +8,6 @@ namespace AspectCore.DynamicProxy
 
         object CreateInterfaceProxy(Type serviceType, object implementationInstance);
 
-        object CreateClassProxy(Type serviceType, object implementationInstance);
+        object CreateClassProxy(Type serviceType, Type implementationType, object[] args);
     }
 }

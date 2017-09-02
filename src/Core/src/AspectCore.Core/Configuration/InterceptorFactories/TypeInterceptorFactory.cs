@@ -25,7 +25,7 @@ namespace AspectCore.Configuration
             _args = args ?? emptyArgs;
         }
 
-        public override IInterceptor CreateInstance(IServiceProvider serviceProvider)
+        public override IInterceptor CreateInstance()
         {
             return (IInterceptor)Activator.CreateInstance(_interceptorType, _args);
         }

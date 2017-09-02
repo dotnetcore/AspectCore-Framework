@@ -15,7 +15,7 @@ namespace AspectCore.Configuration
             _order = order;
         }
 
-        public override IInterceptor CreateInstance(IServiceProvider serviceProvider)
+        public override IInterceptor CreateInstance()
         {
             return new DelegateInterceptor(_aspectDelegate, _order);
         }

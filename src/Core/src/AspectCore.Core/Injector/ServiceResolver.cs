@@ -53,11 +53,18 @@ namespace AspectCore.Injector
 
         public object Resolve(Type serviceType)
         {
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException(nameof(serviceType));
+            }
+
             var definition = _serviceTable.TryGetService(serviceType);
+
             if (definition == null)
             {
                 return null;
             }
+
             switch (definition.Lifetime)
             {
                 case Lifetime.Singleton:
