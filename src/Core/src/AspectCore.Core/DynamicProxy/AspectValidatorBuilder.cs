@@ -10,11 +10,11 @@ namespace AspectCore.Core.DynamicProxy
     {
         private readonly IList<Func<AspectValidationDelegate, AspectValidationDelegate>> _collections;
 
-        public AspectValidatorBuilder(IAspectConfigureProvider aspectConfigureProvider)
+        public AspectValidatorBuilder(IAspectConfiguration aspectConfiguration)
         {
             _collections = new List<Func<AspectValidationDelegate, AspectValidationDelegate>>();
 
-            foreach (var handler in aspectConfigureProvider.AspectConfigure.AspectValidationHandlers.OrderBy(x => x.Order))
+            foreach (var handler in aspectConfiguration.ValidationHandlers.OrderBy(x => x.Order))
             {
                 _collections.Add(next => method => handler.Invoke(method, next));
             }

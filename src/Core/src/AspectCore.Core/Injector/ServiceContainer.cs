@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Abstractions;
+using AspectCore.Core.Configuration;
 
 namespace AspectCore.Core.Injector
 {
     public class ServiceContainer : IServiceContainer
     {
         private readonly ICollection<ServiceDefinition> _collection;
+        private readonly IAspectConfiguration _configuration;
 
         public ServiceContainer()
             : this(null)
@@ -18,18 +20,16 @@ namespace AspectCore.Core.Injector
         public ServiceContainer(IEnumerable<ServiceDefinition> services)
         {
             _collection = new List<ServiceDefinition>();
+            _configuration = new AspectConfiguration(this);
 
-            //init lifetimeServiceContainer
             Singletons = new LifetimeServiceContainer(_collection, Lifetime.Singleton);
             Scopeds = new LifetimeServiceContainer(_collection, Lifetime.Scoped);
             Transients = new LifetimeServiceContainer(_collection, Lifetime.Transient);
 
-            //add external services
             if (services != null)
                 foreach (var service in services)
                     _collection.Add(service);
 
-            //add internal services
             AddInternalServices();
         }
 
@@ -39,6 +39,7 @@ namespace AspectCore.Core.Injector
                 Scopeds.AddDelegate<IServiceProvider>(resolver => resolver);
             Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
             Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
+            Singletons.AddInstance<IAspectConfiguration>(_configuration);
         }
 
         public int Count => _collection.Count;
@@ -48,6 +49,8 @@ namespace AspectCore.Core.Injector
         public ILifetimeServiceContainer Scopeds { get; }
 
         public ILifetimeServiceContainer Transients { get; }
+
+        public IAspectConfiguration Configuration => throw new NotImplementedException();
 
         public void Add(ServiceDefinition item) => _collection.Add(item);
 

@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Reflection;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Configuration
 {
     public static class Predicates
     {
-        public static Func<MethodInfo, bool> ForNamespace(string nameSpace)
+        public static AspectPredicate ForNamespace(string nameSpace)
         {
             if (nameSpace == null)
             {
@@ -15,7 +15,7 @@ namespace AspectCore.Core.Configuration
             return method => method.DeclaringType.Namespace.Matches(nameSpace);
         }
 
-        public static Func<MethodInfo, bool> ForService(string service)
+        public static AspectPredicate ForService(string service)
         {
             if (service == null)
             {
@@ -25,7 +25,7 @@ namespace AspectCore.Core.Configuration
             return method => method.DeclaringType.FullName.Matches(service);
         }
 
-        public static Func<MethodInfo, bool> ForMethod(string method)
+        public static AspectPredicate ForMethod(string method)
         {
             if (method == null)
             {
@@ -35,7 +35,7 @@ namespace AspectCore.Core.Configuration
             return methodInfo => methodInfo.Name.Matches(method);
         }
 
-        public static Func<MethodInfo, bool> ForMethod(string service, string method)
+        public static AspectPredicate ForMethod(string service, string method)
         {
             if (service == null)
             {

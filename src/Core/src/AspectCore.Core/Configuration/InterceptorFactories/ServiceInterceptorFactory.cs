@@ -8,7 +8,7 @@ namespace AspectCore.Core.Configuration
     {
         private readonly Type _interceptorType;
 
-        public ServiceInterceptorFactory(Type interceptorType, params Func<MethodInfo, bool>[] predicates)
+        public ServiceInterceptorFactory(Type interceptorType, params AspectPredicate[] predicates)
             : base(predicates)
         {
             if (interceptorType == null)

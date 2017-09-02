@@ -8,18 +8,18 @@ namespace AspectCore.Core.DynamicProxy
 {
     public sealed class ProxyGeneratorBuilder
     {
-        private readonly AspectCoreOptions _aspectCoreOptions;
-        private readonly Dictionary<Type, IInterceptorSelector> _selectors;
+        private readonly IAspectConfiguration _configuration;
+        private readonly HashSet<IInterceptorSelector> _selectors;
 
         public ProxyGeneratorBuilder()
         {
-            _aspectCoreOptions = new AspectCoreOptions(null);
-            _selectors = new Dictionary<Type, IInterceptorSelector>();
+            _configuration = new AspectConfiguration();
+            _selectors = new HashSet<IInterceptorSelector>(new EqualityComparer());
         }
 
-        public ProxyGeneratorBuilder Configure(Action<AspectCoreOptions> options)
+        public ProxyGeneratorBuilder Configure(Action<IAspectConfiguration> options)
         {
-            options?.Invoke(_aspectCoreOptions);
+            options?.Invoke(_configuration);
             return this;
         }
 
@@ -29,30 +29,38 @@ namespace AspectCore.Core.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(interceptorSelector));
             }
-            if (!_selectors.ContainsKey(interceptorSelector.GetType()))
-            {
-                _selectors[interceptorSelector.GetType()] = interceptorSelector;
-            }
+            _selectors.Add(interceptorSelector);
             return this;
         }
 
         public IProxyGenerator Build()
         {
-            AspectConfigureProvider.AddInterceptorFactories(_aspectCoreOptions.InterceptorFactories);
-            AspectConfigureProvider.AddNonAspectPredicates(_aspectCoreOptions.NonAspectPredicates);
-            AspectConfigureProvider.AddValidationHandlers(_aspectCoreOptions.AspectValidationHandlers);
-            var resolver = _aspectCoreOptions.Services.Build();
-            UseSelector(new MethodInterceptorSelector());
-            UseSelector(new TypeInterceptorSelector());
-            UseSelector(new ConfigureInterceptorSelector(AspectConfigureProvider.Instance, resolver));
-            return new ProxyGenerator(
-                new ProxyTypeGenerator(
-                    new AspectValidatorBuilder(AspectConfigureProvider.Instance)),
-                new AspectActivatorFactory(
-                    new AspectContextFactory(resolver),
-                    new AspectBuilderFactory(
-                        new InterceptorCollector(_selectors.Values,
-                        new PropertyInjectorFactory(resolver)))));
+            var serviceResolver = _configuration.ServiceContainer.Build();
+            _selectors.Add(new MethodInterceptorSelector());
+            _selectors.Add(new TypeInterceptorSelector());
+            _selectors.Add(new ConfigureInterceptorSelector(_configuration, serviceResolver));
+            var validatorBuilder = new AspectValidatorBuilder(_configuration);
+            var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
+            var injectorFactory = new PropertyInjectorFactory(serviceResolver);
+            var collector = new InterceptorCollector(_selectors, injectorFactory);
+            var builderFactory = new AspectBuilderFactory(collector);
+            var contextFactory = new AspectContextFactory(serviceResolver);
+            var activatorFactory = new AspectActivatorFactory(contextFactory, builderFactory);
+            return new ProxyGenerator(proxyTypeGenerator, activatorFactory);
+        }
+
+        private class EqualityComparer : IEqualityComparer<IInterceptorSelector>
+        {
+            public bool Equals(IInterceptorSelector x, IInterceptorSelector y)
+            {
+                if (x == null || y == null) return false;
+                return x.GetType().Equals(y.GetType());
+            }
+
+            public int GetHashCode(IInterceptorSelector obj)
+            {
+                return obj.GetType().GetHashCode();
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace AspectCore.Core.Configuration
         private readonly Func<AspectDelegate, AspectDelegate> _aspectDelegate;
         private readonly int _order;
 
-        public DelegateInterceptorFactory(Func<AspectDelegate, AspectDelegate> aspectDelegate, int order, params Func<MethodInfo, bool>[] predicates)
+        public DelegateInterceptorFactory(Func<AspectDelegate, AspectDelegate> aspectDelegate, int order, params AspectPredicate[] predicates)
             : base(predicates)
         {
             _aspectDelegate = aspectDelegate ?? throw new ArgumentNullException(nameof(aspectDelegate));

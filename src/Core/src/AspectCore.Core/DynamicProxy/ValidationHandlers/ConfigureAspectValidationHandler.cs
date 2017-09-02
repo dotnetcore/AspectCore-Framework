@@ -1,30 +1,29 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using AspectCore.Abstractions;
-using AspectCore.Core.Utils;
-using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Core.DynamicProxy
 {
     [NonAspect]
     public sealed class ConfigureAspectValidationHandler : IAspectValidationHandler
     {
-        private readonly IAspectConfigureProvider _aspectConfigureProvider;
+        private readonly IAspectConfiguration _aspectConfiguration;
 
-        public ConfigureAspectValidationHandler(IAspectConfigureProvider aspectConfigureProvider)
+        public ConfigureAspectValidationHandler(IAspectConfiguration aspectConfiguration)
         {
-            _aspectConfigureProvider = aspectConfigureProvider;
+            _aspectConfiguration = aspectConfiguration ?? throw new ArgumentNullException(nameof(aspectConfiguration));
         }
 
         public int Order { get; } = 11;
 
         public bool Invoke(MethodInfo method, AspectValidationDelegate next)
         {
-            if (_aspectConfigureProvider.AspectConfigure.InterceptorFactories.Any(x => x.CanCreated(method)))
+            if (_aspectConfiguration.Interceptors.Any(x => x.CanCreated(method)))
             {
                 return true;
             }
-            if (_aspectConfigureProvider.AspectConfigure.NonAspectPredicates.Any(x => x(method)))
+            if (_aspectConfiguration.NonAspectPredicates.Any(x => x(method)))
             {
                 return false;
             }

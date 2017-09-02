@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Injector
@@ -13,10 +12,10 @@ namespace AspectCore.Core.Injector
         private readonly ServiceCallSiteResolver _serviceCallSiteResolver;
         internal readonly ServiceResolver _root;
 
-        public ServiceResolver(IEnumerable<ServiceDefinition> serviceDefinitions)
+        public ServiceResolver(IServiceContainer serviceContainer)
         {
-            _serviceTable = new ServiceTable();
-            _serviceTable.Populate(serviceDefinitions);
+            _serviceTable = new ServiceTable(serviceContainer.Configuration);
+            _serviceTable.Populate(serviceContainer);
             _resolvedScopedServcies = new ConcurrentDictionary<ServiceDefinition, object>();
             _resolvedSingletonServcies = new ConcurrentDictionary<ServiceDefinition, object>();
             _serviceCallSiteResolver = new ServiceCallSiteResolver(_serviceTable);

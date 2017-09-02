@@ -4,16 +4,17 @@ using AspectCore.Core.DynamicProxy;
 
 namespace AspectCore.Core.Configuration
 {
-    public static class AspectValidationHandlerCollectionExtensions
+    internal static class AspectValidationHandlerCollectionExtensions
     {
-        internal static void AddDefault(this ICollection<IAspectValidationHandler> aspectValidationHandlers)
+        internal static AspectValidationHandlerCollection AddDefault(this AspectValidationHandlerCollection aspectValidationHandlers,IAspectConfiguration configuration)
         {
             aspectValidationHandlers.Add(new AccessibleAspectValidationHandler());
             aspectValidationHandlers.Add(new AttributeAspectValidationHandler());
             aspectValidationHandlers.Add(new CacheAspectValidationHandler());
-            aspectValidationHandlers.Add(new ConfigureAspectValidationHandler(AspectConfigureProvider.Instance));
+            aspectValidationHandlers.Add(new ConfigureAspectValidationHandler(configuration));
             aspectValidationHandlers.Add(new DynamicallyAspectValidationHandler());
             aspectValidationHandlers.Add(new NonAspectValidationHandler());
+            return aspectValidationHandlers;
         }
     }
 }

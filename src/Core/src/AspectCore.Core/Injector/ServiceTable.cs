@@ -15,9 +15,9 @@ namespace AspectCore.Core.Injector
         private readonly IProxyTypeGenerator _proxyTypeGenerator;
         private readonly ServiceValidator _serviceValidator;
 
-        public ServiceTable()
+        public ServiceTable(IAspectConfiguration configuration)
         {
-            var aspectValidatorBuilder = new AspectValidatorBuilder(AspectConfigureProvider.Instance);
+            var aspectValidatorBuilder = new AspectValidatorBuilder(configuration);
             _proxyTypeGenerator = new ProxyTypeGenerator(aspectValidatorBuilder);
             _serviceValidator = new ServiceValidator(aspectValidatorBuilder);
             _linkedServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ServiceDefinition>>();

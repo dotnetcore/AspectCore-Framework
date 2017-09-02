@@ -10,7 +10,7 @@ namespace AspectCore.Core.Configuration
         private readonly object[] _args;
         private readonly Type _interceptorType;
 
-        public TypeInterceptorFactory(Type interceptorType, object[] args, params Func<MethodInfo, bool>[] predicates)
+        public TypeInterceptorFactory(Type interceptorType, object[] args, params AspectPredicate[] predicates)
             : base(predicates)
         {
             if (interceptorType == null)

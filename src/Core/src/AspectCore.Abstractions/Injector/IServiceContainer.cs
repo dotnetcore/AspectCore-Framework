@@ -12,6 +12,8 @@ namespace AspectCore.Abstractions
 
         ILifetimeServiceContainer Transients { get; }
 
+        IAspectConfiguration Configuration { get; }
+
         int Count { get; }
 
         void Add(ServiceDefinition item);

@@ -6,10 +6,10 @@ namespace AspectCore.Core.Configuration
 {
     public abstract class InterceptorFactory : IInterceptorFactory
     {
-        private static readonly Func<MethodInfo, bool>[] EmptyPredicates = new Func<MethodInfo, bool>[0];
-        private readonly Func<MethodInfo, bool>[] _predicates;
+        private static readonly AspectPredicate[] EmptyPredicates = new AspectPredicate[0];
+        private readonly AspectPredicate[] _predicates;
 
-        public InterceptorFactory(params Func<MethodInfo, bool>[] predicates)
+        public InterceptorFactory(params AspectPredicate[] predicates)
         {
             _predicates = predicates ?? EmptyPredicates;
         }

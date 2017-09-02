@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using AspectCore.Abstractions;
 
 namespace AspectCore.Core.Configuration
 {
     public static class NonAspectsCollectionExtensions
     {
-        public static ICollection<Func<MethodInfo, bool>> AddNamespace(this ICollection<Func<MethodInfo, bool>> collection, string nameSpace)
+        public static NonAspectPredicateCollection AddNamespace(this NonAspectPredicateCollection collection, string nameSpace)
         {
             if (collection == null)
             {
@@ -18,7 +19,7 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddService(this ICollection<Func<MethodInfo, bool>> collection, string service)
+        public static NonAspectPredicateCollection AddService(this NonAspectPredicateCollection collection, string service)
         {
             if (collection == null)
             {
@@ -30,7 +31,7 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddMethod(this ICollection<Func<MethodInfo, bool>> collection, string method)
+        public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string method)
         {
             if (collection == null)
             {
@@ -42,7 +43,7 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        public static ICollection<Func<MethodInfo, bool>> AddMethod(this ICollection<Func<MethodInfo, bool>> collection, string service, string method)
+        public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string service, string method)
         {
             if (collection == null)
             {
@@ -54,7 +55,7 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddAspNetCore(this ICollection<Func<MethodInfo, bool>> collection)
+        private static NonAspectPredicateCollection AddAspNetCore(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("Microsoft.AspNetCore.*");
             collection.AddNamespace("Microsoft.AspNet.*");
@@ -65,7 +66,7 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddEntityFramework(this ICollection<Func<MethodInfo, bool>> collection)
+        private static NonAspectPredicateCollection AddEntityFramework(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("Microsoft.Data.*");
             collection.AddNamespace("Microsoft.EntityFrameworkCore");
@@ -73,27 +74,27 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddOwin(this ICollection<Func<MethodInfo, bool>> collection)
+        private static NonAspectPredicateCollection AddOwin(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("Microsoft.Owin.*");
             collection.AddNamespace("Owin");
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddPageGenerator(this ICollection<Func<MethodInfo, bool>> collection)
+        private static NonAspectPredicateCollection AddPageGenerator(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("PageGenerator");
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddSystem(this ICollection<Func<MethodInfo, bool>> collection)
+        private static NonAspectPredicateCollection AddSystem(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("System");
             collection.AddNamespace("System.*");
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddObjectVMethod(this ICollection<Func<MethodInfo, bool>> collection)
+        private static NonAspectPredicateCollection AddObjectVMethod(this NonAspectPredicateCollection collection)
         {
             collection.AddMethod("Equals");
             collection.AddMethod("GetHashCode");
@@ -102,7 +103,7 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
-        internal static ICollection<Func<MethodInfo, bool>> AddDefault(this ICollection<Func<MethodInfo, bool>> collection)
+        internal static NonAspectPredicateCollection AddDefault(this NonAspectPredicateCollection collection)
         {
             return collection.
                 AddObjectVMethod().
