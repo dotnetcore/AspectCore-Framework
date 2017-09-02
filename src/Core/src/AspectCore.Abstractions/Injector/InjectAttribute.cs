@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Injector
 {
-    [NonAspect]
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
     public sealed class InjectAttribute : Attribute
     {

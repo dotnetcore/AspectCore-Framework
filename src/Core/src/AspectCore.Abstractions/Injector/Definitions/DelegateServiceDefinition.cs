@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Injector
 {
     public class DelegateServiceDefinition : ServiceDefinition
     {

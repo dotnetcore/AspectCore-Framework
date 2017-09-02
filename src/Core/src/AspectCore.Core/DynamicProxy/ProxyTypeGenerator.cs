@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
-using AspectCore.Core.Utils;
+using AspectCore.Utils;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
     [NonAspect]
     public sealed class ProxyTypeGenerator : IProxyTypeGenerator

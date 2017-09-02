@@ -1,4 +1,6 @@
-﻿namespace AspectCore.Abstractions
+﻿using AspectCore.Injector;
+
+namespace AspectCore.Configuration
 {
     public interface IAspectConfiguration
     {

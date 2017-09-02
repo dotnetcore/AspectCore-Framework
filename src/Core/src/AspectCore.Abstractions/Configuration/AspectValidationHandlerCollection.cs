@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using AspectCore.DynamicProxy;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Configuration
 {
     public class AspectValidationHandlerCollection: IEnumerable<IAspectValidationHandler>
     {

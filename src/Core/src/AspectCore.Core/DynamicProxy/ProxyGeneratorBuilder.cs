@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using AspectCore.Abstractions;
-using AspectCore.Core.Configuration;
-using AspectCore.Core.Injector;
+using AspectCore.Configuration;
+using AspectCore.Injector;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
     public sealed class ProxyGeneratorBuilder
     {

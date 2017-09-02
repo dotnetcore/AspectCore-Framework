@@ -6,11 +6,11 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Extensions.Reflection.Emit;
 
-namespace AspectCore.Core.Utils
+namespace AspectCore.Utils
 {
     internal class ProxyGeneratorUtils
     {

@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Injector
 {
-    [NonAspect]
     public interface IServiceResolver : IServiceProvider, IDisposable
     {
         object Resolve(Type serviceType);

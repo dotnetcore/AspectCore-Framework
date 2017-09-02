@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
-using AspectCore.Core.Utils;
+using AspectCore.Utils;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     internal sealed class AspectActivator : IAspectActivator
     {
         private readonly IAspectContextFactory _aspectContextFactory;

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AspectCore.Abstractions;
+using AspectCore.Configuration;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public sealed class AspectValidatorBuilder : IAspectValidatorBuilder
     {
         private readonly IList<Func<AspectValidationDelegate, AspectValidationDelegate>> _collections;

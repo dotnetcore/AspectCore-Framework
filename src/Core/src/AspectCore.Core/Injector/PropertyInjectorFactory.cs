@@ -1,7 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     public sealed class PropertyInjectorFactory : IPropertyInjectorFactory
     {

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public abstract class AspectContext : IDisposable
     {
         public abstract IDictionary<string, object> AdditionalData { get; }

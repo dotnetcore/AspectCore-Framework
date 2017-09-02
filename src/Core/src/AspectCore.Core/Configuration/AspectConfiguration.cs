@@ -1,7 +1,6 @@
-﻿using AspectCore.Abstractions;
-using AspectCore.Core.Injector;
+﻿using AspectCore.Injector;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     public sealed class AspectConfiguration : IAspectConfiguration
     {

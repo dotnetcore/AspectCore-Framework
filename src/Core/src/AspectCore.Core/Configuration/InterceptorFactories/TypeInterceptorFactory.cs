@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     public sealed class TypeInterceptorFactory : InterceptorFactory
     {

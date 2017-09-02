@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Reflection;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
     [NonAspect]
     public sealed class AspectBuilderFactory : IAspectBuilderFactory

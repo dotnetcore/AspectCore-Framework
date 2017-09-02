@@ -1,4 +1,4 @@
-﻿namespace AspectCore.Abstractions
+﻿namespace AspectCore.Injector
 {
     public enum Lifetime
     {

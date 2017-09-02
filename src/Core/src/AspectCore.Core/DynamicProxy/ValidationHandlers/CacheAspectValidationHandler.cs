@@ -1,10 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public sealed class CacheAspectValidationHandler : IAspectValidationHandler
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> detectorCache = new ConcurrentDictionary<MethodInfo, bool>();

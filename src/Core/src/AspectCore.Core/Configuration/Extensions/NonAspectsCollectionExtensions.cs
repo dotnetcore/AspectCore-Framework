@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     public static class NonAspectsCollectionExtensions
     {
@@ -103,9 +100,16 @@ namespace AspectCore.Core.Configuration
             return collection;
         }
 
+        private static NonAspectPredicateCollection AddAspectCore(this NonAspectPredicateCollection collection)
+        {
+            collection.AddNamespace("AspectCore.*");
+            return collection;
+        }
+
         internal static NonAspectPredicateCollection AddDefault(this NonAspectPredicateCollection collection)
         {
             return collection.
+                AddAspectCore().
                 AddObjectVMethod().
                 AddSystem().
                 AddAspNetCore().

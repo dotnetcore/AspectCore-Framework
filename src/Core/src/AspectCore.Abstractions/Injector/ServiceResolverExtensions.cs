@@ -1,7 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     public static class ServiceResolverExtensions
     {
@@ -22,7 +21,7 @@ namespace AspectCore.Core.Injector
 
         public static object ResolveRequired(this IServiceResolver serviceResolver, Type serviceType)
         {
-
+            return null;
         }
     }
 }

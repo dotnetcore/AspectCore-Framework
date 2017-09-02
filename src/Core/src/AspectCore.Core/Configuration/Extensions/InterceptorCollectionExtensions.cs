@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     public static class InterceptorCollectionExtensions
     {

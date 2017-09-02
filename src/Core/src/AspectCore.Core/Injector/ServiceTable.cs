@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
-using AspectCore.Core.DynamicProxy;
+using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal class ServiceTable
     {

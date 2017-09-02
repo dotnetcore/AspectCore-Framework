@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
     public delegate Task AspectDelegate(AspectContext context);
 }

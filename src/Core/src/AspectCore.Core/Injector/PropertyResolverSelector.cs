@@ -3,10 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal sealed class PropertyResolverSelector
     {

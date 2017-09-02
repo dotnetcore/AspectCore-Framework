@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal static class LinkedListExtensions
     {

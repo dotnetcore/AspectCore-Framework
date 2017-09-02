@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Injector
 {
-    [NonAspect]
     public interface ILifetimeServiceContainer : IEnumerable<ServiceDefinition>
     {
         Lifetime Lifetime { get; }

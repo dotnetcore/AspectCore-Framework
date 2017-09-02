@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
-using AspectCore.Core.Utils;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Utils;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public sealed class MethodInterceptorSelector : IInterceptorSelector
     {
         public IEnumerable<IInterceptor> Select(MethodInfo method)

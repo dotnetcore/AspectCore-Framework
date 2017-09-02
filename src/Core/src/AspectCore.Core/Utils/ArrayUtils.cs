@@ -1,4 +1,4 @@
-﻿namespace AspectCore.Core.Utils
+﻿namespace AspectCore.Utils
 {
     public static class ArrayUtils
     {

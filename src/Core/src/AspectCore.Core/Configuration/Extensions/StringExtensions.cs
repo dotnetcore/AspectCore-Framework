@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     internal static class StringExtensions
     {

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AspectCore.Abstractions
+namespace AspectCore
 {
     public sealed class ParameterCollection : IEnumerable<Parameter>, IReadOnlyList<Parameter>
     {

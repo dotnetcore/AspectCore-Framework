@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
-using AspectCore.Core.Utils;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Utils;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
     [NonAspect]
     internal sealed class RuntimeAspectContext : AspectContext

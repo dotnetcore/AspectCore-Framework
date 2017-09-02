@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 
-namespace AspectCore.Core.Utils
+namespace AspectCore.Utils
 {
     internal static class MethodUtils
     {

@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public interface IAspectBuilder
     {
         AspectDelegate Build();

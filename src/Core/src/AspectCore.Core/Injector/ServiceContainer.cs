@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using AspectCore.Abstractions;
-using AspectCore.Core.Configuration;
+using AspectCore.Configuration;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     public class ServiceContainer : IServiceContainer
     {

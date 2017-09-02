@@ -3,12 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Injector;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public sealed class InterceptorCollector : IInterceptorCollector
     {
         private static readonly ConcurrentDictionary<MethodInfo, IEnumerable<IInterceptor>> interceptorCache = new ConcurrentDictionary<MethodInfo, IEnumerable<IInterceptor>>();

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.DynamicProxy
 {
     public class DelegateInterceptor : IInterceptor
     {

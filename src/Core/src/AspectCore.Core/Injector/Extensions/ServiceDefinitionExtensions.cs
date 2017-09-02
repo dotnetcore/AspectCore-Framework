@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal static class ServiceDefinitionExtensions
     {

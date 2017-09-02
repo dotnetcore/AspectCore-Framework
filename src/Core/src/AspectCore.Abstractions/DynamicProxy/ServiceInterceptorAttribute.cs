@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.DynamicProxy
 {
     public sealed class ServiceInterceptorAttribute : InterceptorAttribute
     {

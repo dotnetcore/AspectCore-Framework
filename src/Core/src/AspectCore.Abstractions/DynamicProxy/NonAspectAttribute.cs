@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
     public sealed class NonAspectAttribute : Attribute

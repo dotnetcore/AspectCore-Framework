@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using AspectCore.Abstractions;
-using AspectCore.Core.DynamicProxy;
+﻿using AspectCore.DynamicProxy;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     internal static class AspectValidationHandlerCollectionExtensions
     {
-        internal static AspectValidationHandlerCollection AddDefault(this AspectValidationHandlerCollection aspectValidationHandlers,IAspectConfiguration configuration)
+        internal static AspectValidationHandlerCollection AddDefault(this AspectValidationHandlerCollection aspectValidationHandlers, IAspectConfiguration configuration)
         {
             aspectValidationHandlers.Add(new AccessibleAspectValidationHandler());
             aspectValidationHandlers.Add(new AttributeAspectValidationHandler());

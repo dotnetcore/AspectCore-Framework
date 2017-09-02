@@ -1,9 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
-using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
     [NonAspect]
     public sealed class AttributeAspectValidationHandler : IAspectValidationHandler

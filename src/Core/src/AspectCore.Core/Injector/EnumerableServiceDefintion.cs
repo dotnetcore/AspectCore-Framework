@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal class EnumerableServiceDefintion : ServiceDefinition
     {

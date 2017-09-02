@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
     public delegate bool AspectValidationDelegate(MethodInfo method);
 }

@@ -1,8 +1,7 @@
 ﻿using System;
-using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     public sealed class PropertyResolver
     {

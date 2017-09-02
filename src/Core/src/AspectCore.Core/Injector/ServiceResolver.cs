@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal class ServiceResolver : IServiceResolver
     {

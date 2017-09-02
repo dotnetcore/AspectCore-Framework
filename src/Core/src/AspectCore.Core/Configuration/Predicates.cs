@@ -1,7 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.Configuration
+namespace AspectCore.Configuration
 {
     public static class Predicates
     {

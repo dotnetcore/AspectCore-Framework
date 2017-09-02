@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AspectCore.Abstractions
+﻿namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public interface IAspectContextFactory
     {
         AspectContext CreateContext(AspectActivatorContext activatorContext);

@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Abstractions
-{
-    [NonAspect]
+namespace AspectCore.DynamicProxy
+{ 
     public interface IAspectValidationHandler
     {
         int Order { get; }

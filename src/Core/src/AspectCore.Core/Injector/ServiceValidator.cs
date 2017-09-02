@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
     internal class ServiceValidator
     {

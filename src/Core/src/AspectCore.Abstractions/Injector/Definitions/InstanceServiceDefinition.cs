@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Injector
 {
     public sealed class InstanceServiceDefinition : ServiceDefinition
     {

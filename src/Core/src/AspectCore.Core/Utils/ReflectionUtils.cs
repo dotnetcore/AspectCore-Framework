@@ -2,31 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.Utils
+namespace AspectCore.Utils
 {
     public static class ReflectionUtils
-    {
-        public static Type MakeDefType(this TypeInfo byRefTypeInfo)
-        {
-            if (byRefTypeInfo == null)
-            {
-                throw new ArgumentNullException(nameof(byRefTypeInfo));
-            }
-            if (!byRefTypeInfo.IsByRef)
-            {
-                throw new ArgumentException($"Type {byRefTypeInfo} is not passed by reference.");
-            }
-
-            var assemblyQualifiedName = byRefTypeInfo.AssemblyQualifiedName;
-            var index = assemblyQualifiedName.IndexOf('&');
-            assemblyQualifiedName = assemblyQualifiedName.Remove(index, 1);
-
-            return byRefTypeInfo.Assembly.GetType(assemblyQualifiedName, true);
-        }
-
+    {     
         public static bool IsProxyType(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -62,8 +44,8 @@ namespace AspectCore.Core.Utils
                 return typeInfo.IsPublic;
             }
         }
-     
-        public static Type[] GetParameterTypes(this MethodInfo method)
+
+        internal static Type[] GetParameterTypes(this MethodInfo method)
         {
             if (method == null)
             {

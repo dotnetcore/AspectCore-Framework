@@ -1,7 +1,6 @@
 ﻿using System;
-using AspectCore.Abstractions;
 
-namespace AspectCore.Core.DynamicProxy
+namespace AspectCore.DynamicProxy
 {
     [NonAspect]
     public sealed class AspectActivatorFactory : IAspectActivatorFactory

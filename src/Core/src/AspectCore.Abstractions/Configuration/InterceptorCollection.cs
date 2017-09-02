@@ -2,13 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.Configuration
 {
-    public sealed class InterceptorCollection : IEnumerable<IInterceptorFactory>
+    public sealed class InterceptorCollection : IEnumerable<InterceptorFactory>
     {
-        private readonly ICollection<IInterceptorFactory> _collection = new List<IInterceptorFactory>();
+        private readonly ICollection<InterceptorFactory> _collection = new List<InterceptorFactory>();
 
-        public InterceptorCollection Add(IInterceptorFactory interceptorFactory)
+        public InterceptorCollection Add(InterceptorFactory interceptorFactory)
         {
             if (interceptorFactory == null)
             {
@@ -20,7 +20,7 @@ namespace AspectCore.Abstractions
 
         public int Count => _collection.Count;
 
-        public IEnumerator<IInterceptorFactory> GetEnumerator()
+        public IEnumerator<InterceptorFactory> GetEnumerator()
         {
             throw new NotImplementedException();
         }

@@ -2,12 +2,10 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Abstractions;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Core.Injector
+namespace AspectCore.Injector
 {
-
     internal sealed class ConstructorCallSiteResolver
     {
         private static readonly ConcurrentDictionary<Type, Func<IServiceResolver, object>> compiledCallSites = new ConcurrentDictionary<Type, Func<IServiceResolver, object>>();

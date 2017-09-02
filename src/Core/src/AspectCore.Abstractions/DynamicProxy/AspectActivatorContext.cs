@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public struct AspectActivatorContext
     {
         public MethodInfo ServiceMethod { get; }

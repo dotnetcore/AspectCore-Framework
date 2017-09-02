@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace AspectCore.Core.Utils
+namespace AspectCore.Utils
 {
     internal static class TaskUtils
     {

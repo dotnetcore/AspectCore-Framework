@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public interface IInterceptorCollector
     {
         IEnumerable<IInterceptor> Collect(MethodInfo method);

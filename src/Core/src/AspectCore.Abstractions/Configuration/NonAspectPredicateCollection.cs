@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AspectCore
+namespace AspectCore.Configuration
 {
     public sealed class NonAspectPredicateCollection : IEnumerable<AspectPredicate>
     {

@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
 
-namespace AspectCore.Abstractions
+namespace AspectCore.DynamicProxy
 {
-    [NonAspect]
     public interface IAspectActivator
     {
         TResult Invoke<TResult>(AspectActivatorContext activatorContext);
