@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
+using AspectCore.Utils;
 
 namespace AspectCore.Injector
 {
@@ -84,6 +85,8 @@ namespace AspectCore.Injector
                 {
                     case Type enumerable when enumerable == typeof(IEnumerable<>):
                         return FindEnumerable(serviceType);
+                    case Type enumerable when enumerable == typeof(IManyEnumerable<>):
+                        return FindManyEnumerable(serviceType);
                     case Type genericTypeDefinition when _linkedGenericServiceDefinitions.TryGetValue(genericTypeDefinition, out var genericServiceDefinitions):
                         return FindGenericService(serviceType, genericServiceDefinitions);
                     default:
@@ -91,6 +94,33 @@ namespace AspectCore.Injector
                 }
             }
             return null;
+        }
+
+        private ServiceDefinition FindEnumerable(Type serviceType)
+        {
+            if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
+            {
+                return value.Last.Value;
+            }
+            var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
+            if (_linkedServiceDefinitions.TryGetValue(elementType, out var services))
+            {
+                var enumerableServiceDefinition = new EnumerableServiceDefintion(serviceType, elementType, services.ToArray());
+                _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition }));
+                return enumerableServiceDefinition;
+            }
+            return new InstanceServiceDefinition(serviceType, Array.CreateInstance(elementType, 0));
+        }
+
+        private ServiceDefinition FindManyEnumerable(Type serviceType)
+        {
+            var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
+            if (_linkedServiceDefinitions.TryGetValue(elementType, out var services))
+            {
+                var enumerableServiceDefinition = new ManyEnumerableServiceDefintion(serviceType, elementType, services);
+                return enumerableServiceDefinition;
+            }
+            return new InstanceServiceDefinition(serviceType, ActivatorUtils.CreateManyEnumerable(elementType));
         }
 
         private ServiceDefinition FindGenericService(Type serviceType, LinkedList<ServiceDefinition> genericServiceDefinitions)
@@ -121,21 +151,6 @@ namespace AspectCore.Injector
             }
         }
 
-        private ServiceDefinition FindEnumerable(Type serviceType)
-        {
-            if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
-            {
-                return value.Last.Value;
-            }
-            var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
-            if (_linkedServiceDefinitions.TryGetValue(elementType, out var services))
-            {
-                var enumerableServiceDefinition = new EnumerableServiceDefintion(serviceType, elementType, services.ToArray());
-                _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition }));
-                return enumerableServiceDefinition;
-            }
-            return new InstanceServiceDefinition(serviceType, Array.CreateInstance(elementType, 0));
-        }
 
         private ServiceDefinition MakProxyService(ServiceDefinition service)
         {

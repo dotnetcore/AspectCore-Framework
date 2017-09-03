@@ -59,8 +59,8 @@ namespace AspectCore.Injector
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
-            var genericEnumerable = typeof(IEnumerable<>).MakeGenericType(serviceType);
-            return (IEnumerable<object>)serviceResolver.ResolveRequired(genericEnumerable);
+            var genericEnumerable = typeof(IManyEnumerable<>).MakeGenericType(serviceType);
+            return (IManyEnumerable<object>)serviceResolver.ResolveRequired(genericEnumerable);
         }
 
         public static IEnumerable<T> ResolveMany<T>(this IServiceResolver serviceResolver)
@@ -70,7 +70,7 @@ namespace AspectCore.Injector
                 throw new ArgumentNullException(nameof(serviceResolver));
             }
 
-            return serviceResolver.ResolveRequired<IEnumerable<T>>();
+            return serviceResolver.ResolveRequired<IManyEnumerable<T>>();
         }
     }
 }

@@ -29,7 +29,6 @@ namespace AspectCore.Injector
                 return proxyServiceDefinition.ProxyType;
             }
 
-            //Debug.Assert(false, "ImplementationType, ImplementationInstance or ImplementationFactory must be non null");
             return null;
         }
 
@@ -49,7 +48,7 @@ namespace AspectCore.Injector
                 return true;
             }
             return implType.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(x => x.CanWrite).Any(x => x.GetReflector().IsDefined<InjectAttribute>());
+                .Where(x => x.CanWrite).Any(x => x.GetReflector().IsDefined<FromContainerAttribute>());
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Utils;
 
 namespace AspectCore.Injector
 {
@@ -55,10 +56,28 @@ namespace AspectCore.Injector
                     return delegateServiceDefinition.ImplementationDelegate;
                 case TypeServiceDefinition typeServiceDefinition:
                     return ResolveTypeService(typeServiceDefinition);
+                case ManyEnumerableServiceDefintion manyEnumerableServiceDefintion:
+                    return  ResolveManyEnumerableService(manyEnumerableServiceDefintion);
                 case EnumerableServiceDefintion enumerableServiceDefintion:
                     return ResolveEnumerableService(enumerableServiceDefintion);
                 default:
                     return resolver => null;
+            };
+        }
+
+        private Func<IServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefintion manyEnumerableServiceDefintion)
+        {
+            var elementResolvers = manyEnumerableServiceDefintion.ServiceDefinitions.Select(x => Resolve(x)).ToArray();
+            var elementType = manyEnumerableServiceDefintion.ElementType;
+            return resolver =>
+            {
+                var length = elementResolvers.Length;
+                var instance = Array.CreateInstance(elementType, length);
+                for (var i = 0; i < length; i++)
+                {
+                    instance.SetValue(elementResolvers[i](resolver), i);
+                }
+                return ActivatorUtils.CreateManyEnumerable(elementType, instance);
             };
         }
 

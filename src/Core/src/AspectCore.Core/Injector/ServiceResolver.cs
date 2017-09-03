@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace AspectCore.Injector
 {
@@ -27,23 +28,6 @@ namespace AspectCore.Injector
             _resolvedSingletonServcies = root._resolvedSingletonServcies;
             _resolvedScopedServcies = new ConcurrentDictionary<ServiceDefinition, object>();
             _serviceCallSiteResolver = new ServiceCallSiteResolver(_serviceTable);
-        }
-
-        public void Dispose()
-        {
-            if (_root == null || _root == this)
-            {
-                foreach (var singleton in _resolvedSingletonServcies)
-                {
-                    var disposable = singleton.Value as IDisposable;
-                    disposable?.Dispose();
-                }
-            }
-            foreach (var scoped in _resolvedScopedServcies)
-            {
-                var disposable = scoped.Value as IDisposable;
-                disposable?.Dispose();
-            }
         }
 
         public object GetService(Type serviceType)
@@ -75,5 +59,38 @@ namespace AspectCore.Injector
                     return _serviceCallSiteResolver.Resolve(definition)(this);
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    if (_root == null || _root == this)
+                    {
+                        foreach (var singleton in _resolvedSingletonServcies.Where(x => x.Value != this))
+                        {
+                            var disposable = singleton.Value as IDisposable;
+                            disposable?.Dispose();
+                        }
+                    }
+                    foreach (var scoped in _resolvedScopedServcies.Where(x => x.Value != this))
+                    {
+                        var disposable = scoped.Value as IDisposable;
+                        disposable?.Dispose();
+                    }
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
 }

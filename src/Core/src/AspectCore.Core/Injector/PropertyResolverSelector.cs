@@ -29,7 +29,7 @@ namespace AspectCore.Injector
                 if (property.CanWrite)
                 {
                     var reflector = property.GetReflector();
-                    if (reflector.IsDefined(typeof(InjectAttribute)))
+                    if (reflector.IsDefined(typeof(FromContainerAttribute)))
                     {
                         yield return new PropertyResolver(provider => provider.GetService(property.PropertyType), reflector);
                     }

@@ -15,4 +15,11 @@ namespace AspectCore.Injector
             ServiceDefinitions = serviceDefinitions;
         }
     }
+
+    internal class ManyEnumerableServiceDefintion : EnumerableServiceDefintion
+    {
+        public ManyEnumerableServiceDefintion(Type serviceType, Type elementType, IEnumerable<ServiceDefinition> serviceDefinitions) : base(serviceType, elementType, serviceDefinitions)
+        {
+        }
+    }
 }
