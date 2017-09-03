@@ -16,8 +16,4 @@
     <ProjectReference Include="..\..\src\AspectCore.Core\AspectCore.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DynamicProxy\" />
-  </ItemGroup>
-
 </Project>

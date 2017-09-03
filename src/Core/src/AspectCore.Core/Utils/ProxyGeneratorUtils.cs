@@ -281,7 +281,7 @@ namespace AspectCore.Utils
         private class MethodBuilderUtils
         {
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
-            const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+            internal const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
 
             internal static void DefineInterfaceImplMethods(Type[] interfaceTypes, TypeBuilder implTypeBuilder)
@@ -309,7 +309,7 @@ namespace AspectCore.Utils
             }
 
             internal static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
-            {     
+            {
                 foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
                     DefineInterfaceMethod(method, targetType, typeDesc);
@@ -632,15 +632,32 @@ namespace AspectCore.Utils
             private static void DefineInterfaceImplProperty(PropertyInfo property, TypeBuilder implTypeBuilder)
             {
                 var propertyBuilder = implTypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
+                var field = implTypeBuilder.DefineField($"<{property.Name}>k__BackingField", property.PropertyType, FieldAttributes.Private);
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderUtils.DefineInterfaceImplMethod(property.GetMethod, implTypeBuilder);
-                    propertyBuilder.SetGetMethod(method);
+                    var methodBuilder = implTypeBuilder.DefineMethod(property.GetMethod.Name, MethodBuilderUtils.InterfaceMethodAttributes, property.GetMethod.CallingConvention, property.GetMethod.ReturnType, property.GetMethod.GetParameterTypes());
+                    var ilGen = methodBuilder.GetILGenerator();
+                    ilGen.Emit(OpCodes.Ldarg_0);
+                    ilGen.Emit(OpCodes.Ldfld, field);
+                    ilGen.Emit(OpCodes.Ret);
+                    implTypeBuilder.DefineMethodOverride(methodBuilder, property.GetMethod);
+                    propertyBuilder.SetGetMethod(methodBuilder);
                 }
                 if (property.CanWrite)
                 {
-                    var method = MethodBuilderUtils.DefineInterfaceImplMethod(property.SetMethod, implTypeBuilder);
-                    propertyBuilder.SetSetMethod(method);
+                    var methodBuilder = implTypeBuilder.DefineMethod(property.SetMethod.Name, MethodBuilderUtils.InterfaceMethodAttributes, property.SetMethod.CallingConvention, property.SetMethod.ReturnType, property.SetMethod.GetParameterTypes());
+                    var ilGen = methodBuilder.GetILGenerator();
+                    ilGen.Emit(OpCodes.Ldarg_0);
+                    ilGen.Emit(OpCodes.Ldarg_1);
+                    ilGen.Emit(OpCodes.Stfld, field);
+                    ilGen.Emit(OpCodes.Ret);
+                    implTypeBuilder.DefineMethodOverride(methodBuilder, property.SetMethod);
+                    propertyBuilder.SetSetMethod(methodBuilder);
+                }
+
+                foreach (var customAttributeData in property.CustomAttributes)
+                {
+                    propertyBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
                 }
             }
         }

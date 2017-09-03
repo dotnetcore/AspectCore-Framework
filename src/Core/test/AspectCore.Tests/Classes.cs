@@ -7,14 +7,16 @@ namespace AspectCore.Tests
 {
     public interface IService
     {
-        Guid Id { get; }
+        Guid Id { get; set; }
 
         ILogger Logger { get; set; }
     }
 
     public class ServiceBase : IService
     {
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [FromContainer]
         public virtual ILogger Logger { get; set; }
     }
 
@@ -46,9 +48,6 @@ namespace AspectCore.Tests
     public class PropertyInjectionService : ServiceBase
     {
         [FromContainer]
-        public override ILogger Logger { get; set; }
-
-        [FromContainer]
         internal ILogger InternalLogger { get; set; }
     }
 
@@ -59,5 +58,25 @@ namespace AspectCore.Tests
     public interface IInstanceSimpleGeneric<T> : ISimpleGeneric<T> { }
 
     public interface IDelegateSimpleGeneric<T> : ISimpleGeneric<T> { }
+
+    public interface IUserService : IService
+    {
+        IRepository<User> Repository { get; }
+    }
+
+    public class UserService : ServiceBase, IUserService
+    {
+        public UserService(IRepository<User> repository) {
+            Repository = repository;
+        }
+
+        public IRepository<User> Repository { get; }
+    }
+
+    public interface IRepository<T> { }
+
+    public class Repository<T> : IRepository<T> { }
+
+    public class User { }
 
 }

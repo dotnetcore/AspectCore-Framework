@@ -4,7 +4,6 @@ namespace AspectCore.Injector
 {
     public static class LifetimeServiceContainerExtensions
     {
-
         public static ILifetimeServiceContainer AddType(this ILifetimeServiceContainer lifetimeServiceContainer, Type serviceType)
         {
             return AddType(lifetimeServiceContainer, serviceType, serviceType);

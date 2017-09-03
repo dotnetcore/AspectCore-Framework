@@ -60,5 +60,7 @@ namespace AspectCore.DynamicProxy
             var proxyType = _proxyTypeGenerator.CreateInterfaceProxyType(serviceType, implementationInstance.GetType());
             return Activator.CreateInstance(proxyType, _aspectActivatorFactory, implementationInstance);
         }
+
+
     }
 }
