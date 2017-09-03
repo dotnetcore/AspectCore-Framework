@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AspectCore.Injector
 {
-    internal sealed class ManyEnumerable<T> : IManyEnumerable<T>
+    public sealed class ManyEnumerable<T> : IManyEnumerable<T>
     {
         private readonly T[] _array;
 

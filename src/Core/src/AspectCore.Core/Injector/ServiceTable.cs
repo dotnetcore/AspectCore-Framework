@@ -27,11 +27,13 @@ namespace AspectCore.Injector
 
         internal void Populate(IEnumerable<ServiceDefinition> services)
         {
-            foreach (var service in services)
+            Func<IEnumerable<ServiceDefinition>, IEnumerable<ServiceDefinition>> filter = input => input.Where(x => !x.IsManyEnumerable());
+
+            foreach (var service in filter(services))
             {
-                if (service.ServiceType.GetTypeInfo().IsGenericTypeDefinition)
+                if (service.ServiceType.GetTypeInfo().ContainsGenericParameters)
                 {
-                    var linkedGenericServices = _linkedGenericServiceDefinitions.GetOrAdd(service.ServiceType, _ => new LinkedList<ServiceDefinition>());
+                    var linkedGenericServices = _linkedGenericServiceDefinitions.GetOrAdd(service.ServiceType.GetGenericTypeDefinition(), _ => new LinkedList<ServiceDefinition>());
                     linkedGenericServices.Add(service);
                 }
                 else
@@ -48,15 +50,16 @@ namespace AspectCore.Injector
             {
                 return true;
             }
-            var serviceTypeInfo = serviceType.GetTypeInfo();
-            if (serviceTypeInfo.IsGenericType)
+            if (serviceType.IsConstructedGenericType)
             {
-                switch (serviceTypeInfo.GetGenericTypeDefinition())
+                switch (serviceType.GetGenericTypeDefinition())
                 {
                     case Type enumerable when enumerable == typeof(IEnumerable<>):
-                        return _linkedServiceDefinitions.ContainsKey(serviceTypeInfo.GetGenericArguments()[0]);
-                    case Type genericTypeDefinition when _linkedGenericServiceDefinitions.TryGetValue(genericTypeDefinition, out var genericServiceDefinitions):
-                        return _linkedGenericServiceDefinitions.ContainsKey(genericTypeDefinition);
+                        return _linkedServiceDefinitions.ContainsKey(serviceType.GetTypeInfo().GetGenericArguments()[0]);
+                    case Type enumerable when enumerable == typeof(IManyEnumerable<>):
+                        return _linkedServiceDefinitions.ContainsKey(serviceType.GetTypeInfo().GetGenericArguments()[0]);
+                    case Type genericTypeDefinition when _linkedGenericServiceDefinitions.ContainsKey(genericTypeDefinition):
+                        return true;
                     default:
                         break;
                 }
@@ -73,15 +76,10 @@ namespace AspectCore.Injector
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
                 return value.Last.Value;
-            }
-            var serviceTypeInfo = serviceType.GetTypeInfo();
-            if (serviceTypeInfo.IsGenericType)
+            }    
+            if (serviceType.IsConstructedGenericType)
             {
-                if (serviceTypeInfo.IsGenericTypeDefinition)
-                {
-                    throw new InvalidOperationException($"GenericTypeDefinition service '{serviceType}' cannot be resolved.");
-                }
-                switch (serviceTypeInfo.GetGenericTypeDefinition())
+                switch (serviceType.GetGenericTypeDefinition())
                 {
                     case Type enumerable when enumerable == typeof(IEnumerable<>):
                         return FindEnumerable(serviceType);
@@ -114,10 +112,15 @@ namespace AspectCore.Injector
 
         private ServiceDefinition FindManyEnumerable(Type serviceType)
         {
+            if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
+            {
+                return value.Last.Value;
+            }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             if (_linkedServiceDefinitions.TryGetValue(elementType, out var services))
             {
                 var enumerableServiceDefinition = new ManyEnumerableServiceDefintion(serviceType, elementType, services);
+                _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition }));
                 return enumerableServiceDefinition;
             }
             return new InstanceServiceDefinition(serviceType, ActivatorUtils.CreateManyEnumerable(elementType));
@@ -150,7 +153,6 @@ namespace AspectCore.Injector
                 }
             }
         }
-
 
         private ServiceDefinition MakProxyService(ServiceDefinition service)
         {

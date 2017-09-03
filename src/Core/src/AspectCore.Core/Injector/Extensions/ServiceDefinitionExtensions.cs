@@ -50,5 +50,15 @@ namespace AspectCore.Injector
             return implType.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(x => x.CanWrite).Any(x => x.GetReflector().IsDefined<FromContainerAttribute>());
         }
+
+        internal static bool IsManyEnumerable(this ServiceDefinition serviceDefinition)
+        {
+            if (serviceDefinition == null)
+            {
+                return false;
+            }
+            var serviceTypeInfo = serviceDefinition.ServiceType.GetTypeInfo();
+            return serviceTypeInfo.IsGenericType && serviceTypeInfo.GetGenericTypeDefinition() == typeof(IManyEnumerable<>);
+        }
     }
 }
