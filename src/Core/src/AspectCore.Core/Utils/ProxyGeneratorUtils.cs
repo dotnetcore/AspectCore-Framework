@@ -66,7 +66,7 @@ namespace AspectCore.Utils
 
             string GetProxyTypeName()
             {
-                return $"{ProxyNameSpace}.{implType.Name}Proxy^{interfaceType.Name}";
+                return $"{ProxyNameSpace}.{implType.Name}ProxyFor{interfaceType.Name}";
             }
         }
 
@@ -105,7 +105,7 @@ namespace AspectCore.Utils
 
             var implType = implTypeBuilder.CreateTypeInfo().AsType();
 
-            var typeDesc = TypeBuilderUtils.DefineType($"{ProxyNameSpace}.{implType.Name}Proxy^{interfaceType.Name}", interfaceType, typeof(object), interfaceTypes);
+            var typeDesc = TypeBuilderUtils.DefineType($"{ProxyNameSpace}.{implType.Name}ProxyFor{interfaceType.Name}", interfaceType, typeof(object), interfaceTypes);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 

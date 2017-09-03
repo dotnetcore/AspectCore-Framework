@@ -21,7 +21,7 @@ namespace AspectCore.Configuration
                 throw new ArgumentNullException(nameof(service));
             }
 
-            return method => method.DeclaringType.FullName.Matches(service);
+            return method => method.DeclaringType.Name.Matches(service) || method.DeclaringType.FullName.Matches(service);
         }
 
         public static AspectPredicate ForMethod(string method)
@@ -46,7 +46,7 @@ namespace AspectCore.Configuration
                 throw new ArgumentNullException(nameof(method));
             }
 
-            return methodInfo => methodInfo.DeclaringType.FullName.Matches(service) && methodInfo.Name.Matches(method);
+            return methodInfo => ForService(service)(methodInfo) && methodInfo.Name.Matches(method);
         }
     }
 }

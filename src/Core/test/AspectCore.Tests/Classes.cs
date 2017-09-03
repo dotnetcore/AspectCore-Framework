@@ -20,9 +20,14 @@ namespace AspectCore.Tests
         public virtual ILogger Logger { get; set; }
     }
 
-    public interface ITransient : IService { }
+    public interface ITransient : IService {
+        void Foo();
+    }
 
-    public class Transient : ServiceBase, ITransient, IDelegateTransient { }
+    public class Transient : ServiceBase, ITransient, IDelegateTransient
+    {
+        public void Foo() { }
+    }
 
     public interface IDelegateTransient : ITransient { }
 
