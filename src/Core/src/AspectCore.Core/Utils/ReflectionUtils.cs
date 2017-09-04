@@ -65,6 +65,10 @@ namespace AspectCore.Utils
        
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
             var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
             if (typeInfo.IsClass)
             {
@@ -75,6 +79,10 @@ namespace AspectCore.Utils
 
         internal static string GetFullName(this MemberInfo member)
         {
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
             var declaringType = member.DeclaringType.GetTypeInfo();
             if (declaringType.IsInterface)
             {
@@ -85,11 +93,19 @@ namespace AspectCore.Utils
 
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
 
         internal static bool IsReturnValueTask(this MethodInfo methodInfo)
         {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
             var returnType = methodInfo.ReturnType.GetTypeInfo();
             return returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>);
         }
@@ -105,11 +121,19 @@ namespace AspectCore.Utils
 
         internal static bool IsAccessibility(this TypeInfo declaringType)
         {
+            if (declaringType == null)
+            {
+                throw new ArgumentNullException(nameof(declaringType));
+            }
             return !(declaringType.IsNotPublic || declaringType.IsValueType || declaringType.IsSealed);
         }
 
         internal static bool IsAccessibility(this MethodInfo method)
         {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
             return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
     }

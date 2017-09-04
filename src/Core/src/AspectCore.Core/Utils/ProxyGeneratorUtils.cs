@@ -419,7 +419,7 @@ namespace AspectCore.Utils
                        implType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
                        implType;
 
-                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(method));
+                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? method;
 
                     ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, method);
                     ilGen.Emit(OpCodes.Ret);

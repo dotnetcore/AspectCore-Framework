@@ -1,8 +1,7 @@
 ﻿using System;
-using AspectCore.Configuration;
 using AspectCore.Injector;
 
-namespace AspectCore.DynamicProxy
+namespace AspectCore.Configuration
 {
     public static class ConfigurationExtensions
     {

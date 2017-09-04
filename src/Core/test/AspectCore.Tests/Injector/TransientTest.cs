@@ -1,5 +1,7 @@
 ﻿using AspectCore.Injector;
 using Xunit;
+using AspectCore.DynamicProxy;
+using AspectCore.Configuration;
 
 namespace AspectCore.Tests.Injector
 {
@@ -24,7 +26,6 @@ namespace AspectCore.Tests.Injector
         {
             var result = ServiceResolver.Resolve<ITransient>();
             Assert.NotNull(result);
-            Assert.IsType<Transient>(result);
         }
 
         [Fact]
@@ -32,7 +33,6 @@ namespace AspectCore.Tests.Injector
         {
             var result = ServiceResolver.Resolve<IDelegateTransient>();
             Assert.NotNull(result);
-            Assert.IsType<Transient>(result);
         }
 
         protected override void ConfigureService(IServiceContainer serviceContainer)

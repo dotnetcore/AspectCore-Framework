@@ -53,8 +53,16 @@ namespace AspectCore.Injector
             return lifetimeServiceContainer;
         }
 
-        public static ILifetimeServiceContainer AddDelegate<TService>(this ILifetimeServiceContainer lifetimeServiceContainer, Func<IServiceResolver, TService> implementationDelegate)
+        public static ILifetimeServiceContainer AddDelegate<TService, TImplementation>(this ILifetimeServiceContainer lifetimeServiceContainer, Func<IServiceResolver, TImplementation> implementationDelegate)
             where TService : class
+            where TImplementation : class, TService
+        {
+            lifetimeServiceContainer.Add(new DelegateServiceDefinition(typeof(TService), implementationDelegate, lifetimeServiceContainer.Lifetime));
+            return lifetimeServiceContainer;
+        }
+
+        public static ILifetimeServiceContainer AddDelegate<TService>(this ILifetimeServiceContainer lifetimeServiceContainer, Func<IServiceResolver, TService> implementationDelegate)
+           where TService : class
         {
             lifetimeServiceContainer.Add(new DelegateServiceDefinition(typeof(TService), implementationDelegate, lifetimeServiceContainer.Lifetime));
             return lifetimeServiceContainer;
