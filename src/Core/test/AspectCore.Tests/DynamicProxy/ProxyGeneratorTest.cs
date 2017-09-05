@@ -36,9 +36,24 @@ namespace AspectCore.Tests.DynamicProxy
             Assert.Equal(logger, serviceProxy.Logger);
         }
 
+        [Fact]
+        public void CreateClassProxy()
+        {
+            var serviceProxy = ProxyGenerator.CreateClassProxy<BaseService>();
+            Assert.IsNotType<BaseService>(serviceProxy);
+            var name = serviceProxy.GetServiceName();
+            Assert.Equal("CreateClassProxy", name);
+        }
+
         protected override void Configure(IAspectConfiguration configuration)
         {
             configuration.Interceptors.AddDelegate((ctx, next) => next(ctx), Predicates.ForService("IService"));
+            configuration.Interceptors.AddDelegate( async (ctx, next) =>
+            {
+                await next(ctx);
+                ctx.ReturnValue = "CreateClassProxy";
+            }
+            , Predicates.ForService("*BaseService"));
         }
 
         public class Service : IService
@@ -49,6 +64,14 @@ namespace AspectCore.Tests.DynamicProxy
             public Service(Guid id)
             {
                 Id = id;
+            }
+        }
+
+        public class BaseService
+        {
+            public virtual string GetServiceName()
+            {
+                return "BaseService";
             }
         }
     }

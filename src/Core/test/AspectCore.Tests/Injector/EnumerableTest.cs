@@ -40,7 +40,7 @@ namespace AspectCore.Tests.Injector
         {
             var enumerable = ServiceResolver.Resolve<IEnumerable<Transient>>();
             Assert.NotNull(enumerable);
-            Assert.Equal(0, enumerable.Count());
+            Assert.Empty(enumerable);
         }
 
         protected override void ConfigureService(IServiceContainer serviceContainer)

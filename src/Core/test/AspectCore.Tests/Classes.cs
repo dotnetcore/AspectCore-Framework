@@ -24,7 +24,7 @@ namespace AspectCore.Tests
 
     public class Transient : ServiceBase, ITransient, IDelegateTransient
     {
-        public void Foo() { }
+        public virtual void Foo() { }
     }
 
     public interface IDelegateTransient : ITransient { }
@@ -44,9 +44,16 @@ namespace AspectCore.Tests
 
     public class Singleton : Scoped, ISingleton { }
 
-    public interface ILogger { }
+    public interface ILogger {
+        void Info();
+    }
 
-    public class Logger : ILogger { }
+    public class Logger : ILogger
+    {
+        public void Info()
+        {
+        }
+    }
 
     public class PropertyInjectionService : ServiceBase
     {
