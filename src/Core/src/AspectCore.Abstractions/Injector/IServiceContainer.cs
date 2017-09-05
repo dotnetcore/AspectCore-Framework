@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
+    [NonAspect]
     public interface IServiceContainer : IEnumerable<ServiceDefinition>
     {
         ILifetimeServiceContainer Singletons { get; }

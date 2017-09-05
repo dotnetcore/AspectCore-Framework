@@ -2,6 +2,7 @@
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public interface IAspectActivator
     {
         TResult Invoke<TResult>(AspectActivatorContext activatorContext);

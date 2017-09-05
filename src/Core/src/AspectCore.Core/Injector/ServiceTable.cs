@@ -162,10 +162,10 @@ namespace AspectCore.Injector
             }
             if (_serviceValidator.TryValidate(service, out Type implType))
             {
-                var proxtType = service.ServiceType.GetTypeInfo().IsClass
+                var proxyType = service.ServiceType.GetTypeInfo().IsClass
                     ? _proxyTypeGenerator.CreateClassProxyType(service.ServiceType, implType)
                     : _proxyTypeGenerator.CreateInterfaceProxyType(service.ServiceType, implType);
-                return new ProxyServiceDefinition(service, proxtType);
+                return new ProxyServiceDefinition(service, proxyType);
             }
             return service;
         }

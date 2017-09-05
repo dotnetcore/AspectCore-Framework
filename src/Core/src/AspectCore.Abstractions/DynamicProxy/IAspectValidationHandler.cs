@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
 
 namespace AspectCore.DynamicProxy
-{ 
+{
+    [NonAspect]
     public interface IAspectValidationHandler
     {
         int Order { get; }

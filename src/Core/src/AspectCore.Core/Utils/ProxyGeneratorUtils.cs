@@ -47,7 +47,7 @@ namespace AspectCore.Utils
                 {
                     className = className.Substring(1);
                 }
-                return $"{ProxyNameSpace}.{className}Impl";
+                return $"{ProxyNameSpace}.{interfaceType.GetTypeInfo().MetadataToken}{interfaceType.GetHashCode()}.{className}";
             }
         }
 
@@ -66,7 +66,7 @@ namespace AspectCore.Utils
 
             string GetProxyTypeName()
             {
-                return $"{ProxyNameSpace}.{implType.Name}ProxyFor{interfaceType.Name}";
+                return $"{ProxyNameSpace}.{interfaceType.GetTypeInfo().MetadataToken}{implType.GetTypeInfo().MetadataToken}.{implType.Name}";
             }
         }
 
@@ -88,7 +88,7 @@ namespace AspectCore.Utils
 
             string GetProxyTypeName()
             {
-                return $"{ProxyNameSpace}.{implType.Name}Proxy";
+                return $"{ProxyNameSpace}.{serviceType.GetTypeInfo().MetadataToken}{implType.GetTypeInfo().MetadataToken}.{implType.Name}";
             }
         }
 
@@ -105,7 +105,9 @@ namespace AspectCore.Utils
 
             var implType = implTypeBuilder.CreateTypeInfo().AsType();
 
-            var typeDesc = TypeBuilderUtils.DefineType($"{ProxyNameSpace}.{implType.Name}ProxyFor{interfaceType.Name}", interfaceType, typeof(object), interfaceTypes);
+            var typeDesc = TypeBuilderUtils.DefineType(
+                $"{ProxyNameSpace}.{interfaceType.GetTypeInfo().MetadataToken}{implType.GetTypeInfo().MetadataToken}.{implType.Name}",
+                interfaceType, typeof(object), interfaceTypes);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 
@@ -455,20 +457,20 @@ namespace AspectCore.Utils
 
                     if (method.IsGenericMethodDefinition)
                     {
-                        methodConstants.AddMethod($"service{serviceMethod.Name}", serviceMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
-                        methodConstants.AddMethod($"imp{implMethod.Name}", implMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
-                        methodConstants.AddMethod($"proxy{methodBuilder.Name}", methodBuilder.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        methodConstants.AddMethod($"service{serviceMethod.GetFullName()}", serviceMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        methodConstants.AddMethod($"imp{implMethod.GetFullName()}", implMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        methodConstants.AddMethod($"proxy{methodBuilder.GetFullName()}", methodBuilder.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                     }
                     else
                     {
-                        methodConstants.AddMethod($"service{serviceMethod.Name}", serviceMethod);
-                        methodConstants.AddMethod($"imp{implMethod.Name}", implMethod);
-                        methodConstants.AddMethod($"proxy{methodBuilder.Name}", methodBuilder);
+                        methodConstants.AddMethod($"service{serviceMethod.GetFullName()}", serviceMethod);
+                        methodConstants.AddMethod($"imp{implMethod.GetFullName()}", implMethod);
+                        methodConstants.AddMethod($"proxy{methodBuilder.GetFullName()}", methodBuilder);
                     }
 
-                    methodConstants.LoadMethod(ilGen, $"service{serviceMethod.Name}");
-                    methodConstants.LoadMethod(ilGen, $"imp{implMethod.Name}");
-                    methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.Name}");
+                    methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetFullName()}");
+                    methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetFullName()}");
+                    methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.GetFullName()}");
 
                     ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
@@ -849,12 +851,15 @@ namespace AspectCore.Utils
 
             public void AddMethod(string name, MethodInfo method)
             {
-                var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.InitOnly | FieldAttributes.Assembly);
-                _fields.Add(name, field);
-                if (method != null)
+                if (!_fields.ContainsKey(name))
                 {
-                    _ilGen.EmitMethod(method);
-                    _ilGen.Emit(OpCodes.Stsfld, field);
+                    var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.InitOnly | FieldAttributes.Assembly);
+                    _fields.Add(name, field);
+                    if (method != null)
+                    {
+                        _ilGen.EmitMethod(method);
+                        _ilGen.Emit(OpCodes.Stsfld, field);
+                    }
                 }
             }
 

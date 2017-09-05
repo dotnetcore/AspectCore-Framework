@@ -9,6 +9,14 @@ namespace AspectCore.Configuration
         private static readonly AspectPredicate[] EmptyPredicates = new AspectPredicate[0];
         private readonly AspectPredicate[] _predicates;
 
+        public AspectPredicate[] Predicates
+        {
+            get
+            {
+                return _predicates;
+            }
+        }
+
         public InterceptorFactory(params AspectPredicate[] predicates)
         {
             _predicates = predicates ?? EmptyPredicates;

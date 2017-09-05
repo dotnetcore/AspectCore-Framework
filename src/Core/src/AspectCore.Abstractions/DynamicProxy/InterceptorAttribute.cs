@@ -6,6 +6,7 @@ namespace AspectCore.DynamicProxy
     /// <summary>
     /// Standard interceptor definition via custom attribute.
     /// </summary>
+    [NonAspect]
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
     public abstract class InterceptorAttribute : Attribute, IInterceptor
     {

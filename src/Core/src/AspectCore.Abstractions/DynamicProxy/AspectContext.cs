@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public abstract class AspectContext : IDisposable
     {
         public abstract IDictionary<string, object> AdditionalData { get; }

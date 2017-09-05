@@ -2,6 +2,7 @@
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public interface IInterceptor
     {
         bool AllowMultiple { get; }

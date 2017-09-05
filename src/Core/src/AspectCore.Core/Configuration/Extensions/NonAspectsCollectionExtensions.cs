@@ -81,6 +81,7 @@ namespace AspectCore.Configuration
         private static NonAspectPredicateCollection AddPageGenerator(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("PageGenerator");
+            collection.AddNamespace("PageGenerator*");
             return collection;
         }
 
@@ -102,7 +103,12 @@ namespace AspectCore.Configuration
 
         private static NonAspectPredicateCollection AddAspectCore(this NonAspectPredicateCollection collection)
         {
-            collection.AddNamespace("AspectCore.*");
+            collection.AddNamespace("AspectCore.Configuration");
+            collection.AddNamespace("AspectCore.DynamicProxy");
+            collection.AddNamespace("AspectCore.Injector");
+            collection.AddNamespace("AspectCore.Configuration.*");
+            collection.AddNamespace("AspectCore.DynamicProxy.*");
+            collection.AddNamespace("AspectCore.Injector.*");
             return collection;
         }
 

@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
 {
@@ -18,7 +20,28 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            return _aspectValidationDelegate(method);
+            if(_aspectValidationDelegate(method))
+            {
+                return true;
+            }
+
+            var declaringTypeInfo = method.DeclaringType.GetTypeInfo();
+            if (declaringTypeInfo.IsClass)
+            {
+                foreach (var interfaceTypeInfo in declaringTypeInfo.GetInterfaces().Select(x => x.GetTypeInfo()))
+                {
+                    var interfaceMethod = interfaceTypeInfo.GetMethod(new MethodSignature(method));
+                    if (interfaceMethod != null)
+                    {
+                        if(Validate(interfaceMethod))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

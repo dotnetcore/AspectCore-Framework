@@ -5,10 +5,19 @@ using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 
-namespace AspectCore.Utils
+namespace AspectCore.DynamicProxy
 {
     public static class ReflectionUtils
     {     
+        public static bool IsProxy(this object instance)
+        {
+            if (instance == null)
+            {
+               return false;
+            }
+            return instance.GetType().GetTypeInfo().IsProxyType();
+        }
+
         public static bool IsProxyType(this TypeInfo typeInfo)
         {
             if (typeInfo == null)

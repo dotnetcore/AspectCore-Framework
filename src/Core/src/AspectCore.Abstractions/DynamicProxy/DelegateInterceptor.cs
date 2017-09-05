@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public class DelegateInterceptor : IInterceptor
     {
         private readonly Func<AspectDelegate, AspectDelegate> _aspectDelegate;
