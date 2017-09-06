@@ -11,7 +11,7 @@ namespace AspectCore.Utils
     {
         private readonly static ConcurrentDictionary<Type, bool> dictionary = new ConcurrentDictionary<Type, bool>();
 
-        public static bool Required(Type type)
+        public static bool TypeRequired(Type type)
         {
             if (type == null)
             {
@@ -27,7 +27,7 @@ namespace AspectCore.Utils
             {
                 return false;
             }
-            return Required(instance.GetType());
+            return TypeRequired(instance.GetType());
         }
     }
 }

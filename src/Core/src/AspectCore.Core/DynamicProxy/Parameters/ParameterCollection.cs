@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AspectCore
+namespace AspectCore.DynamicProxy.Parameters
 {
     public sealed class ParameterCollection : IEnumerable<Parameter>, IReadOnlyList<Parameter>
     {
@@ -10,14 +10,10 @@ namespace AspectCore
         private readonly int _count;
         private readonly Parameter[] _parameterEntries;
 
-        public ParameterCollection(object[] values, string[] names)
+        internal ParameterCollection(Parameter[] parameters)
         {
-            _count = values.Length;
-            _parameterEntries = new Parameter[_count];
-            for (var i = 0; i < _count; i++)
-            {
-                _parameterEntries[i] = new Parameter(values[i], names[i]);
-            }
+            _count = parameters.Length;
+            _parameterEntries = parameters;
         }
 
         public Parameter this[int index]

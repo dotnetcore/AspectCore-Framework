@@ -48,7 +48,7 @@ namespace AspectCore.Injector
             {
                 return true;
             }
-            return PropertyInjectionUtils.Required(implType);
+            return PropertyInjectionUtils.TypeRequired(implType);
         }
 
         internal static bool IsManyEnumerable(this ServiceDefinition serviceDefinition)

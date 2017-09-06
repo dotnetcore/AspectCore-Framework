@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.Injector
 {
@@ -47,7 +48,7 @@ namespace AspectCore.Injector
             Singletons.AddType<IInterceptorSelector, MethodInterceptorSelector>();
             Singletons.AddType<IInterceptorSelector, TypeInterceptorSelector>();
             Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();
-            Singletons.AddType<IInterceptorCollector, InterceptorCollector>();
+            Scopeds.AddType<IInterceptorCollector, InterceptorCollector>();
             if (!Contains(typeof(IAspectValidatorBuilder)))
                 Singletons.AddType<IAspectValidatorBuilder, AspectValidatorBuilder>();
             if (!Contains(typeof(IAspectContextFactory)))
@@ -60,6 +61,8 @@ namespace AspectCore.Injector
                 Scopeds.AddType<IProxyGenerator, ProxyGenerator>();
             if (!Contains(typeof(IProxyTypeGenerator)))
                 Singletons.AddType<IProxyTypeGenerator, ProxyTypeGenerator>();
+            if (!Contains(typeof(IParameterInterceptorSelector)))
+                Scopeds.AddType<IParameterInterceptorSelector, ParameterInterceptorSelector>();
         }
 
         public int Count => _collection.Count;

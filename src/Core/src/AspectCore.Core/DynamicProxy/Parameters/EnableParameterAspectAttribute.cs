@@ -9,9 +9,10 @@ namespace AspectCore.DynamicProxy.Parameters
     {
         public override int Order { get; set; } = -999;
 
-        public override Task Invoke(AspectContext context, AspectDelegate next)
+        public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            return base.Invoke(context, next);
+
+            await next(context);
         }
     }
 }
