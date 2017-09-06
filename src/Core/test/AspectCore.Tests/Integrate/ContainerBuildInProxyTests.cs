@@ -10,15 +10,24 @@ namespace AspectCore.Tests.Integrate
         [Fact]
         public void Interface_Proxy()
         {
-            var transient = ServiceResolver.Resolve<ITransient>();
-            var logger = ServiceResolver.Resolve<ILogger>();
+            var serviceContainer = new ServiceContainer();
+            ConfigureService(serviceContainer);
+            serviceContainer.Configure(Configure);
+            var resolver = serviceContainer.Build();
+
+            var transient = resolver.Resolve<ITransient>();
             Assert.True(transient.IsProxy());
         }
 
         [Fact]
         public void Class_Proxy()
         {
-            var transient = ServiceResolver.Resolve<Transient>();
+            var serviceContainer = new ServiceContainer();
+            ConfigureService(serviceContainer);
+            serviceContainer.Configure(Configure);
+            var resolver = serviceContainer.Build();
+
+            var transient = resolver.Resolve<Transient>();
             Assert.True(transient.IsProxy());
         }
 
@@ -26,7 +35,7 @@ namespace AspectCore.Tests.Integrate
         {
             serviceContainer.AddType<ITransient, Transient>();
             serviceContainer.AddType<ILogger, Logger>();
-             serviceContainer.AddType<Transient>();
+            serviceContainer.AddType<Transient>();
         }
 
         protected override void Configure(IAspectConfiguration configuration)
