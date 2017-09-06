@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Injector;
+using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
@@ -15,7 +16,7 @@ namespace AspectCore.DynamicProxy
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
 
-        public InterceptorCollector(IEnumerable<IInterceptorSelector> interceptorSelectors, SingletonPropertyInjectorFactory propertyInjectorFactory)
+        public InterceptorCollector(IEnumerable<IInterceptorSelector> interceptorSelectors, IPropertyInjectorFactory propertyInjectorFactory)
         {
             if (interceptorSelectors == null)
             {
@@ -35,11 +36,16 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(method));
             }
+            return HandleInjector(CollectFromCache(method));
+        }
+
+        private IEnumerable<IInterceptor> CollectFromCache(MethodInfo method)
+        {
             return interceptorCache.GetOrAdd(method, m =>
             {
                 var inherited = CollectFromInherited(m);
                 var selected = CollectFromSelector(m);
-                var collection = HandleInjector(selected).Concat(inherited).HandleSort().HandleMultiple();
+                var collection = selected.Concat(inherited).HandleSort().HandleMultiple();
                 return collection.ToArray();
             });
         }
@@ -57,7 +63,7 @@ namespace AspectCore.DynamicProxy
                 var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethod(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
-                    list.AddRange(Collect(interfaceMethod).Where(x => x.Inherited));
+                    list.AddRange(CollectFromCache(interfaceMethod).Where(x => x.Inherited));
                 }
             }
             var baseType = typeInfo.BaseType;
@@ -68,7 +74,7 @@ namespace AspectCore.DynamicProxy
             var baseMethod = baseType.GetTypeInfo().GetMethod(new MethodSignature(method));
             if (baseMethod != null)
             {
-                list.AddRange(Collect(baseMethod).Where(x => x.Inherited));
+                list.AddRange(CollectFromCache(baseMethod).Where(x => x.Inherited));
             }
             return list;
         }
@@ -87,7 +93,7 @@ namespace AspectCore.DynamicProxy
 
         private IEnumerable<IInterceptor> HandleInjector(IEnumerable<IInterceptor> interceptors)
         {
-            foreach (var interceptor in interceptors)
+            foreach (var interceptor in interceptors.Where(x => PropertyInjectionUtils.Required(x)))
             {
                 _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
                 yield return interceptor;

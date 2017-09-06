@@ -40,7 +40,7 @@ namespace AspectCore.DynamicProxy
             _selectors.Add(new ConfigureInterceptorSelector(_configuration));
             var validatorBuilder = new AspectValidatorBuilder(_configuration);
             var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
-            var injectorFactory = new SingletonPropertyInjectorFactory(serviceResolver);
+            var injectorFactory = new PropertyInjectorFactory(serviceResolver);
             var collector = new InterceptorCollector(_selectors, injectorFactory);
             var builderFactory = new AspectBuilderFactory(collector);
             var contextFactory = new AspectContextFactory(serviceResolver);

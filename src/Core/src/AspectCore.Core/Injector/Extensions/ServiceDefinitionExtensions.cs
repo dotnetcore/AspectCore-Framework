@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Utils;
 
 namespace AspectCore.Injector
 {
@@ -47,8 +48,7 @@ namespace AspectCore.Injector
             {
                 return true;
             }
-            return implType.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(x => x.CanWrite).Any(x => x.GetReflector().IsDefined<FromContainerAttribute>());
+            return PropertyInjectionUtils.Required(implType);
         }
 
         internal static bool IsManyEnumerable(this ServiceDefinition serviceDefinition)
