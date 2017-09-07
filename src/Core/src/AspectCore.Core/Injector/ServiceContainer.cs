@@ -21,15 +21,26 @@ namespace AspectCore.Injector
         public ServiceContainer(IEnumerable<ServiceDefinition> services)
         {
             _collection = new List<ServiceDefinition>();
-            _configuration = new AspectConfiguration(this);
 
             Singletons = new LifetimeServiceContainer(_collection, Lifetime.Singleton);
             Scopeds = new LifetimeServiceContainer(_collection, Lifetime.Scoped);
             Transients = new LifetimeServiceContainer(_collection, Lifetime.Transient);
 
             if (services != null)
+            {
+                var configuration = services.LastOrDefault(x => x.ServiceType == typeof(IAspectConfiguration) && x is InstanceServiceDefinition);
+                if (configuration != null)
+                {
+                    _configuration = (IAspectConfiguration)((InstanceServiceDefinition)configuration).ImplementationInstance;
+                }
                 foreach (var service in services)
                     _collection.Add(service);
+            }
+
+            if (_configuration == null)
+            {
+                _configuration = new AspectConfiguration();
+            }
 
             AddInternalServices();
         }
@@ -45,9 +56,9 @@ namespace AspectCore.Injector
             Singletons.AddInstance<IAspectConfiguration>(_configuration);
 
             //add DynamicProxy services   
-            Singletons.AddType<IInterceptorSelector, MethodInterceptorSelector>();
-            Singletons.AddType<IInterceptorSelector, TypeInterceptorSelector>();
             Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();
+            Singletons.AddType<IInterceptorSelector, TypeInterceptorSelector>();
+            Singletons.AddType<IInterceptorSelector, MethodInterceptorSelector>();
             Scopeds.AddType<IInterceptorCollector, InterceptorCollector>();
             if (!Contains(typeof(IAspectValidatorBuilder)))
                 Singletons.AddType<IAspectValidatorBuilder, AspectValidatorBuilder>();

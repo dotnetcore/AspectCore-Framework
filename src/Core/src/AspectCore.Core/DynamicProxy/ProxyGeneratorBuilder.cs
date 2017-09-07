@@ -9,16 +9,27 @@ namespace AspectCore.DynamicProxy
     {
         private readonly IAspectConfiguration _configuration;
         private readonly HashSet<IInterceptorSelector> _selectors;
+        private readonly IServiceContainer _serviceContainer;
 
         public ProxyGeneratorBuilder()
         {
             _configuration = new AspectConfiguration();
+            _serviceContainer = new ServiceContainer();
             _selectors = new HashSet<IInterceptorSelector>(new EqualityComparer());
+            _selectors.Add(new ConfigureInterceptorSelector(_configuration));
+            _selectors.Add(new TypeInterceptorSelector());
+            _selectors.Add(new MethodInterceptorSelector());
         }
 
         public ProxyGeneratorBuilder Configure(Action<IAspectConfiguration> options)
         {
             options?.Invoke(_configuration);
+            return this;
+        }
+
+        public ProxyGeneratorBuilder ConfigureService(Action<IServiceContainer> options)
+        {
+            options?.Invoke(_serviceContainer);
             return this;
         }
 
@@ -33,11 +44,8 @@ namespace AspectCore.DynamicProxy
         }
 
         public IProxyGenerator Build()
-        {
-            var serviceResolver = _configuration.ServiceContainer.Build();
-            _selectors.Add(new MethodInterceptorSelector());
-            _selectors.Add(new TypeInterceptorSelector());
-            _selectors.Add(new ConfigureInterceptorSelector(_configuration));
+        {     
+            var serviceResolver = _serviceContainer.Build();
             var validatorBuilder = new AspectValidatorBuilder(_configuration);
             var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
             var injectorFactory = new PropertyInjectorFactory(serviceResolver);

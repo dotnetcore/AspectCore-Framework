@@ -26,7 +26,7 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(propertyInjectorFactory));
             }
-            _interceptorSelectors = interceptorSelectors;
+            _interceptorSelectors = interceptorSelectors.Distinct(new InterceptorSelectorEqualityComparer()).ToList();
             _propertyInjectorFactory = propertyInjectorFactory;
         }
 
@@ -98,7 +98,7 @@ namespace AspectCore.DynamicProxy
                 _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
             }
             return interceptors;
-        }
+        }   
     }
 
     internal static class InterceptorCollectorExtensions

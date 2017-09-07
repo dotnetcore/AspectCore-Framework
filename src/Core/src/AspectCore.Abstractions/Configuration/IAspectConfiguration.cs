@@ -11,7 +11,5 @@ namespace AspectCore.Configuration
         InterceptorCollection Interceptors { get; }
 
         NonAspectPredicateCollection NonAspectPredicates { get; }
-
-        IServiceContainer ServiceContainer { get; }
     }
 }
