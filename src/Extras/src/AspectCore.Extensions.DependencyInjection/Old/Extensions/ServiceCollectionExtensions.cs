@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
-    public static class ServiceCollectionExtensions
+    public static class ServiceCollectionExtensions1
     {
         public static IAspectCoreBuilder AddAspectCore(this IServiceCollection services)
         {
