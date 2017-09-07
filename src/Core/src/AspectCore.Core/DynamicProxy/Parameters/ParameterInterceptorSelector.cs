@@ -8,7 +8,7 @@ using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy.Parameters
 {
-    internal sealed class ParameterInterceptorSelector : IParameterInterceptorSelector
+    public sealed class ParameterInterceptorSelector : IParameterInterceptorSelector
     {
         private static readonly ConcurrentDictionary<ParameterInfo, IParameterInterceptor[]> interceptorCache = new ConcurrentDictionary<ParameterInfo, IParameterInterceptor[]>();
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;

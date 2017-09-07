@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Tests.Integrate
 {
-    public class ContainerBuildInProxyTests : IntegrateTestBase
+    public class Container_Built_In_ProxyTests : IntegrateTestBase
     {
         [Fact]
         public void Interface_Proxy()

@@ -59,7 +59,8 @@ namespace AspectCore.Injector
             Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();
             Singletons.AddType<IInterceptorSelector, TypeInterceptorSelector>();
             Singletons.AddType<IInterceptorSelector, MethodInterceptorSelector>();
-            Scopeds.AddType<IInterceptorCollector, InterceptorCollector>();
+            if (!Contains(typeof(IInterceptorCollector)))
+                Scopeds.AddType<IInterceptorCollector, InterceptorCollector>();
             if (!Contains(typeof(IAspectValidatorBuilder)))
                 Singletons.AddType<IAspectValidatorBuilder, AspectValidatorBuilder>();
             if (!Contains(typeof(IAspectContextFactory)))

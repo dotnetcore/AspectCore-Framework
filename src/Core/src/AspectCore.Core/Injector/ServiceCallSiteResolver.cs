@@ -106,7 +106,7 @@ namespace AspectCore.Injector
             var proxyConstructor = proxyServiceDefinition.ProxyType.GetTypeInfo().GetConstructor(new Type[] { typeof(IAspectActivatorFactory), proxyServiceDefinition.ServiceType });
             var reflector = proxyConstructor.GetReflector();
             var serviceResolver = Resolve(proxyServiceDefinition.ServiceDefinition);
-            return resolver => reflector.Invoke(resolver.Resolve<IAspectActivatorFactory>(), serviceResolver(resolver));
+            return resolver => reflector.Invoke(resolver.ResolveRequired<IAspectActivatorFactory>(), serviceResolver(resolver));
         }
 
         private Func<IServiceResolver, object> ResolveTypeService(TypeServiceDefinition typeServiceDefinition)

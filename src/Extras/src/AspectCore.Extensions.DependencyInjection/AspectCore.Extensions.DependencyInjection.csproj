@@ -19,5 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\..\..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
   </ItemGroup>
 </Project>

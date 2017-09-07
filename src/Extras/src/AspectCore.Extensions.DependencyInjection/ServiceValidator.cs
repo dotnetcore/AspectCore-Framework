@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace AspectCore.Injector
+namespace AspectCore.Extensions.DependencyInjection
 {
     internal class ServiceValidator
     {
@@ -14,20 +17,20 @@ namespace AspectCore.Injector
             _aspectValidator = aspectValidatorBuilder.Build();
         }
 
-        internal bool TryValidate(ServiceDefinition definition, out Type implementationType)
+        internal bool TryValidate(ServiceDescriptor descriptor, out Type implementationType)
         {
             implementationType = null;
 
-            if (!_aspectValidator.Validate(definition.ServiceType))
+            if (!_aspectValidator.Validate(descriptor.ServiceType))
             {
                 return false;
             }
 
-            implementationType = definition.GetImplementationType();
+            implementationType = GetImplementationType(descriptor);
 
-            if (definition.ServiceType.GetTypeInfo().IsClass)
+            if (descriptor.ServiceType.GetTypeInfo().IsClass)
             {
-                if (!(definition is TypeServiceDefinition))
+                if (descriptor.ImplementationType == null)
                 {
                     return false;
                 }
@@ -74,6 +77,25 @@ namespace AspectCore.Injector
                     return typeInfo.IsPublic;
                 }
             }
+        }
+
+        private Type GetImplementationType(ServiceDescriptor descriptor)
+        {
+            if (descriptor.ImplementationType != null)
+            {
+                return descriptor.ImplementationType;
+            }
+            else if (descriptor.ImplementationInstance != null)
+            {
+                return descriptor.ImplementationInstance.GetType();
+            }
+            else if (descriptor.ImplementationFactory != null)
+            {
+                var typeArguments = descriptor.ImplementationFactory.GetType().GenericTypeArguments;
+
+                return typeArguments[1];
+            }
+            return null;
         }
     }
 }
