@@ -11,20 +11,20 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(reflectionInfo));
             }
-            return ReflectorCacheUtils<Tuple<PropertyInfo, CallOptions>, PropertyReflector>.GetOrAdd(Tuple.Create(reflectionInfo, callOption), CreateInternal);
+            return ReflectorCacheUtils<Pair<PropertyInfo, CallOptions>, PropertyReflector>.GetOrAdd(new Pair<PropertyInfo, CallOptions>(reflectionInfo, callOption), CreateInternal);
 
-            PropertyReflector CreateInternal(Tuple<PropertyInfo, CallOptions> item)
+            PropertyReflector CreateInternal(Pair<PropertyInfo, CallOptions> item)
             {
-                var property = item.Item1;
+                var property = item.MemberInfo;
                 if (property.DeclaringType.GetTypeInfo().ContainsGenericParameters)
                 {
-                    return new OpenGenericPropertyReflector(item.Item1);
+                    return new OpenGenericPropertyReflector(property);
                 }
                 if ((property.CanRead && property.GetMethod.IsStatic) || (property.CanWrite && property.SetMethod.IsStatic) || property.DeclaringType.GetTypeInfo().IsValueType)
                 {
                     return new StaticPropertyReflector(property);
                 }
-                if (property.DeclaringType.GetTypeInfo().IsValueType || item.Item2 == CallOptions.Call)
+                if (property.DeclaringType.GetTypeInfo().IsValueType || item.CallOptions == CallOptions.Call)
                 {
                     return new CallPropertyReflector(property);
                 }
