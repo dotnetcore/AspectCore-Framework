@@ -4,7 +4,7 @@ namespace AspectCore.Configuration
 {
     public static class Predicates
     {
-        public static AspectPredicate ForNamespace(string nameSpace)
+        public static AspectPredicate ForNameSpace(string nameSpace)
         {
             if (nameSpace == null)
             {

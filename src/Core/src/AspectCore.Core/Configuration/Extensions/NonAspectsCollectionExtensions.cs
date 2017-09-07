@@ -11,7 +11,7 @@ namespace AspectCore.Configuration
                 throw new ArgumentNullException(nameof(collection));
             }
 
-            collection.Add(Predicates.ForNamespace(nameSpace));
+            collection.Add(Predicates.ForNameSpace(nameSpace));
 
             return collection;
         }

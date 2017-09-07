@@ -1,6 +1,6 @@
 ﻿namespace AspectCore.Utils
 {
-    public static class ArrayUtils
+    internal static class ArrayUtils
     {
         public static T[] Empty<T>()
         {
