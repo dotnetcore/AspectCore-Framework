@@ -8,16 +8,14 @@ namespace AspectCore.Tests.Injector
         [Fact]
         public void Public_Property_Inject()
         {
-            var service = ServiceResolver.Resolve<IService>();
+            var service = ServiceResolver.Resolve<IPropertyInjectionService>();
             Assert.NotNull(service);
-            Assert.NotNull(service.Logger);
-            Assert.Equal(service.Logger, ServiceResolver.Resolve<ILogger>());
         }
 
         [Fact]
         public void NonPublic_Property_Inject()
         {
-            var service = (PropertyInjectionService)ServiceResolver.Resolve<IService>();
+            var service = (PropertyInjectionService)ServiceResolver.Resolve<IPropertyInjectionService>();
             Assert.NotNull(service);
             Assert.NotNull(service.InternalLogger);
             Assert.Equal(service.InternalLogger, ServiceResolver.Resolve<ILogger>());
@@ -25,9 +23,9 @@ namespace AspectCore.Tests.Injector
 
         protected override void ConfigureService(IServiceContainer serviceContainer)
         {
-            serviceContainer.Transients.AddType<IService, PropertyInjectionService>();
+            serviceContainer.Transients.AddType<IPropertyInjectionService, PropertyInjectionService>();
             serviceContainer.Singletons.AddType<ILogger, Logger>();
-            serviceContainer.Transients.AddDelegate(typeof(IService), resolver => new PropertyInjectionService());
+            serviceContainer.Transients.AddDelegate(typeof(IPropertyInjectionService), resolver => new PropertyInjectionService());
         }
     }
 }

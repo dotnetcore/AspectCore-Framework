@@ -16,6 +16,6 @@ namespace AspectCore.DynamicProxy
 
         public bool Inherited { get; set; } = false;
 
-        public virtual Task Invoke(AspectContext context, AspectDelegate next) => next(context);
+        public abstract Task Invoke(AspectContext context, AspectDelegate next);
     }
 }

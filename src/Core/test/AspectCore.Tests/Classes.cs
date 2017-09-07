@@ -22,6 +22,7 @@ namespace AspectCore.Tests
         void Foo();
     }
 
+
     public class Transient : ServiceBase, ITransient, IDelegateTransient
     {
         public virtual void Foo() { }
@@ -55,7 +56,12 @@ namespace AspectCore.Tests
         }
     }
 
-    public class PropertyInjectionService : ServiceBase
+    public interface IPropertyInjectionService
+    {
+
+    }
+
+    public class PropertyInjectionService : ServiceBase, IPropertyInjectionService
     {
         [FromContainer]
         internal ILogger InternalLogger { get; set; }

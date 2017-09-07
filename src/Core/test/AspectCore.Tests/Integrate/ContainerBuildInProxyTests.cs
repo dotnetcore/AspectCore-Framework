@@ -2,6 +2,7 @@
 using AspectCore.Injector;
 using Xunit;
 using AspectCore.DynamicProxy;
+using System.Threading.Tasks;
 
 namespace AspectCore.Tests.Integrate
 {
@@ -11,11 +12,10 @@ namespace AspectCore.Tests.Integrate
         public void Interface_Proxy()
         {
             var serviceContainer = new ServiceContainer();
-            ConfigureService(serviceContainer);
-            serviceContainer.Configure(Configure);
+            serviceContainer.AddType<IProxyTransient, ProxyTransient>();
             var resolver = serviceContainer.Build();
 
-            var transient = resolver.Resolve<ITransient>();
+            var transient = resolver.Resolve<IProxyTransient>();
             Assert.True(transient.IsProxy());
         }
 
@@ -23,24 +23,39 @@ namespace AspectCore.Tests.Integrate
         public void Class_Proxy()
         {
             var serviceContainer = new ServiceContainer();
-            ConfigureService(serviceContainer);
-            serviceContainer.Configure(Configure);
+            ConfigureServiceInternal(serviceContainer);
             var resolver = serviceContainer.Build();
 
-            var transient = resolver.Resolve<Transient>();
+            var transient = resolver.Resolve<ProxyTransient>();
             Assert.True(transient.IsProxy());
         }
 
-        protected override void ConfigureService(IServiceContainer serviceContainer)
+        protected void ConfigureServiceInternal(IServiceContainer serviceContainer)
         {
-            serviceContainer.AddType<ITransient, Transient>();
-            serviceContainer.AddType<ILogger, Logger>();
-            serviceContainer.AddType<Transient>();
+            serviceContainer.AddType<IProxyTransient, ProxyTransient>();
+            serviceContainer.AddType<ProxyTransient>();
         }
 
-        protected override void Configure(IAspectConfiguration configuration)
+        public class Test : InterceptorAttribute
         {
-            configuration.Interceptors.AddDelegate(next => ctx => next(ctx));
+            public override Task Invoke(AspectContext context, AspectDelegate next)
+            {
+                return next(context);
+            }
+        }
+
+        [Test]
+        public interface IProxyTransient
+        {
+            void Foo();
+        }
+
+        [Test]
+        public class ProxyTransient : IProxyTransient
+        {
+            public virtual void Foo()
+            {
+            }
         }
     }
 }

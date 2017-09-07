@@ -31,5 +31,10 @@ namespace AspectCore.DynamicProxy.Parameters
         {
             return Build()(context);
         }
+
+        public void Reset()
+        {
+            delegates.Clear();
+        }
     }
 }

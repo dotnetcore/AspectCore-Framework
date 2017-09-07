@@ -9,7 +9,7 @@ namespace AspectCore.Injector
 {
     internal sealed class PropertyResolverSelector
     {
-        private static readonly ConcurrentDictionary<Type, PropertyResolver[]> propertyInjectorCache = new ConcurrentDictionary<Type, PropertyResolver[]>();
+        private readonly ConcurrentDictionary<Type, PropertyResolver[]> propertyInjectorCache = new ConcurrentDictionary<Type, PropertyResolver[]>();
 
         internal static readonly PropertyResolverSelector Default = new PropertyResolverSelector();
 

@@ -96,8 +96,8 @@ namespace AspectCore.DynamicProxy
             foreach (var interceptor in interceptors.Where(x => PropertyInjectionUtils.Required(x)))
             {
                 _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
-                yield return interceptor;
             }
+            return interceptors;
         }
     }
 

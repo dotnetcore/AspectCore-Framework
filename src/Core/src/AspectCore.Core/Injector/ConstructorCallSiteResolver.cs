@@ -8,7 +8,7 @@ namespace AspectCore.Injector
 {
     internal sealed class ConstructorCallSiteResolver
     {
-        private static readonly ConcurrentDictionary<Type, Func<IServiceResolver, object>> compiledCallSites = new ConcurrentDictionary<Type, Func<IServiceResolver, object>>();
+        private readonly ConcurrentDictionary<Type, Func<IServiceResolver, object>> compiledCallSites = new ConcurrentDictionary<Type, Func<IServiceResolver, object>>();
 
         private readonly ServiceTable _serviceTable;
 

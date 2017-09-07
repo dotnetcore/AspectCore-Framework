@@ -23,7 +23,8 @@ namespace AspectCore.DynamicProxy
                 var invoke = aspectBuilder.Build()(context);
                 if (invoke.IsFaulted)
                 {
-                    throw invoke.Exception?.InnerException;
+                    var innerException = invoke.Exception?.InnerException;
+                    ThrowInvocationException(context, innerException);
                 }
                 if (!invoke.IsCompleted)
                 {
@@ -41,7 +42,8 @@ namespace AspectCore.DynamicProxy
                 var invoke = aspectBuilder.Build()(context);
                 if (invoke.IsFaulted)
                 {
-                    throw invoke.Exception?.InnerException;
+                    var innerException = invoke.Exception?.InnerException;
+                    ThrowInvocationException(context, innerException);
                 }
                 if (!invoke.IsCompleted)
                 {
@@ -64,7 +66,7 @@ namespace AspectCore.DynamicProxy
                 {
                     throw new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'.");
                 }
-            }   
+            }
         }
 
         public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
@@ -75,7 +77,8 @@ namespace AspectCore.DynamicProxy
                 var invoke = aspectBuilder.Build()(context);
                 if (invoke.IsFaulted)
                 {
-                    throw invoke.Exception?.InnerException;
+                    var innerException = invoke.Exception?.InnerException;
+                    ThrowInvocationException(context, innerException);
                 }
                 if (!invoke.IsCompleted)
                 {
@@ -83,6 +86,15 @@ namespace AspectCore.DynamicProxy
                 }
                 return (ValueTask<TResult>)context.ReturnValue;
             }
+        }
+
+        private void ThrowInvocationException(AspectContext aspectContext, Exception exception)
+        {
+            if (exception is AspectInvocationException aspectInvocationException)
+            {
+                throw new AspectInvocationException(aspectContext, aspectInvocationException.InnerException);
+            }
+            throw new AspectInvocationException(aspectContext, exception);
         }
     }
 }
