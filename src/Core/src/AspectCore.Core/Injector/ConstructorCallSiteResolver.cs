@@ -68,7 +68,7 @@ namespace AspectCore.Injector
                 {
                     if (!parameter.HasDefaultValue)
                     {
-                        return false;
+                        throw new InvalidOperationException($"Cannot resolve parameter {parameter.Name}--{parameter.ParameterType}");
                     }
                     var defaultValue = parameter.DefaultValue;
                     parameterResolvers[i] = resolver => defaultValue;

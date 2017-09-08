@@ -21,7 +21,16 @@ namespace AspectCore.Configuration
                 throw new ArgumentNullException(nameof(service));
             }
 
-            return method => method.DeclaringType.Name.Matches(service) || method.DeclaringType.FullName.Matches(service);
+            return method =>
+            {
+                if (method.DeclaringType.Name.Matches(service))
+                {
+                    return true;
+                }
+                var declaringType = method.DeclaringType;
+                var fullName = declaringType.FullName ?? $"{declaringType.Name}.{declaringType.Name}";
+                return fullName.Matches(service);
+            };
         }
 
         public static AspectPredicate ForMethod(string method)

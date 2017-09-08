@@ -72,7 +72,12 @@ namespace AspectCore.Extensions.DependencyInjection
             else
             {
                 var implementationType = descriptor.ImplementationType;
-                return provider => reflector.Invoke(provider.GetRequiredService<IAspectActivatorFactory>(), ActivatorUtilities.CreateInstance(provider, implementationType));
+                return provider =>
+                {
+                    var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
+                    var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
+                    return reflector.Invoke(aspectActivatorFactory, instance);
+                };
             }
         }
     }
