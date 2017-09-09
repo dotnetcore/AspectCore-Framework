@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -14,15 +15,17 @@ namespace AspectCore.Utils
 {
     internal class ProxyGeneratorUtils
     {
-        private const string ProxyNameSpace = "AspectCore.ProxyBuilder";
+        private const string ProxyNameSpace = "AspectCore.DynamicGenerated";
+        private const string ProxyAssemblyName = "AspectCore.DynamicProxy.Generator";
         private static readonly ModuleBuilder _moduleBuilder;
-        private static ConcurrentDictionary<string, Lazy<Type>> _definedTypes;
+        private static readonly Dictionary<string, Type> _definedTypes;
+        private static readonly object _lock = new object();
 
         static ProxyGeneratorUtils()
         {
-            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(ProxyNameSpace), AssemblyBuilderAccess.RunAndCollect);
+            var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(ProxyAssemblyName), AssemblyBuilderAccess.RunAndCollect);
             _moduleBuilder = asmBuilder.DefineDynamicModule("core");
-            _definedTypes = new ConcurrentDictionary<string, Lazy<Type>>();
+            _definedTypes = new Dictionary<string, Type>();
         }
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
@@ -32,22 +35,15 @@ namespace AspectCore.Utils
                 throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
             }
 
-            var name = GetProxyTypeName();
-
-            var lazy = _definedTypes.GetOrAdd(name, key =>
-                new Lazy<Type>(() => CreateInterfaceImplInternal(key, interfaceType, additionalInterfaces, aspectValidator),
-                LazyThreadSafetyMode.ExecutionAndPublication));
-
-            return lazy.Value;
-
-            string GetProxyTypeName()
+            lock (_lock)
             {
-                var className = interfaceType.Name;
-                if (className.StartsWith("I", StringComparison.Ordinal))
+                var name = ProxyNameUtils.GetInterfaceImplTypeFullName(interfaceType);
+                if (!_definedTypes.TryGetValue(name, out Type type))
                 {
-                    className = className.Substring(1);
+                    type = CreateInterfaceImplInternal(name, interfaceType, additionalInterfaces, aspectValidator);
+                    _definedTypes[name] = type;
                 }
-                return $"{ProxyNameSpace}.{interfaceType.GetTypeInfo().MetadataToken}{interfaceType.GetHashCode()}.{className}";
+                return type;
             }
         }
 
@@ -58,15 +54,15 @@ namespace AspectCore.Utils
                 throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
             }
 
-            var name = GetProxyTypeName();
-            var lazy = _definedTypes.GetOrAdd(name, key =>
-                new Lazy<Type>(() => CreateInterfaceProxyInternal(key, interfaceType, implType, additionalInterfaces, aspectValidator),
-                LazyThreadSafetyMode.ExecutionAndPublication));
-            return lazy.Value;
-
-            string GetProxyTypeName()
+            lock (_lock)
             {
-                return $"{ProxyNameSpace}.{interfaceType.GetTypeInfo().MetadataToken}{implType.GetTypeInfo().MetadataToken}.{implType.Name}";
+                var name = ProxyNameUtils.GetProxyTypeName(interfaceType, implType);
+                if (!_definedTypes.TryGetValue(name, out Type type))
+                {
+                    type = CreateInterfaceProxyInternal(name, interfaceType, implType, additionalInterfaces, aspectValidator);
+                    _definedTypes[name] = type;
+                }
+                return type;
             }
         }
 
@@ -80,15 +76,16 @@ namespace AspectCore.Utils
             {
                 throw new InvalidOperationException($"Validate '{implType}' failed because the type does not satisfy the condition to be inherited.");
             }
-            var name = GetProxyTypeName();
-            var lazy = _definedTypes.GetOrAdd(name, key =>
-                new Lazy<Type>(() => CreateClassProxyInternal(name, serviceType, implType, additionalInterfaces, aspectValidator),
-                LazyThreadSafetyMode.ExecutionAndPublication));
-            return lazy.Value;
 
-            string GetProxyTypeName()
+            lock (_lock)
             {
-                return $"{ProxyNameSpace}.{serviceType.GetTypeInfo().MetadataToken}{implType.GetTypeInfo().MetadataToken}.{implType.Name}";
+                var name = ProxyNameUtils.GetProxyTypeName(serviceType, implType);
+                if (!_definedTypes.TryGetValue(name, out Type type))
+                {
+                    type = CreateClassProxyInternal(name, serviceType, implType, additionalInterfaces, aspectValidator);
+                    _definedTypes[name] = type;
+                }
+                return type;
             }
         }
 
@@ -105,8 +102,7 @@ namespace AspectCore.Utils
 
             var implType = implTypeBuilder.CreateTypeInfo().AsType();
 
-            var typeDesc = TypeBuilderUtils.DefineType(
-                $"{ProxyNameSpace}.{interfaceType.GetTypeInfo().MetadataToken}{implType.GetTypeInfo().MetadataToken}.{implType.Name}",
+            var typeDesc = TypeBuilderUtils.DefineType(ProxyNameUtils.GetProxyTypeName(ProxyNameUtils.GetInterfaceImplTypeName(interfaceType), interfaceType, implType),
                 interfaceType, typeof(object), interfaceTypes);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
@@ -159,6 +155,68 @@ namespace AspectCore.Utils
             return typeDesc.Compile();
         }
 
+        private class ProxyNameUtils
+        {
+            private static readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
+            private static readonly Dictionary<string, string> _indexMaps = new Dictionary<string, string>();
+
+            private static string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
+            {
+                ProxyNameIndex nameIndex;
+                if (!_indexs.TryGetValue(className, out nameIndex))
+                {
+                    nameIndex = new ProxyNameIndex();
+                    _indexs[className] = nameIndex;
+                }
+                var key = $"{serviceType.GetTypeInfo().MetadataToken}.{implementationType.GetTypeInfo().MetadataToken}";
+                string index;
+                if (!_indexMaps.TryGetValue(key, out index))
+                {
+                    var tempIndex = nameIndex.GenIndex();
+                    index = tempIndex == 0 ? string.Empty : tempIndex.ToString();
+                    _indexMaps[key] = index;
+                }
+                Debug.WriteLine($"{className}-{serviceType}-{implementationType}-{index}");
+                return index;
+            }
+
+            public static string GetInterfaceImplTypeName(Type interfaceType)
+            {
+                var className = interfaceType.Name;
+                if (className.StartsWith("I", StringComparison.Ordinal))
+                {
+                    className = className.Substring(1);
+                }
+                return className /*+ "Impl"*/;
+            }
+
+            public static string GetInterfaceImplTypeFullName(Type interfaceType)
+            {
+                var className = GetInterfaceImplTypeName(interfaceType);
+                return $"{ProxyNameSpace}.{className}{GetProxyTypeIndex(className, interfaceType, interfaceType)}";
+            }
+
+            public static string GetProxyTypeName(Type serviceType, Type implType)
+            {
+                return $"{ProxyNameSpace}.{implType.Name}{GetProxyTypeIndex(implType.Name, serviceType, implType)}";
+            }
+
+            public static string GetProxyTypeName(string className, Type serviceType, Type implType)
+            {
+                return $"{ProxyNameSpace}.{className}{GetProxyTypeIndex(className, serviceType, implType)}";
+            }
+        }
+
+        private class ProxyNameIndex
+        {
+            private int _index = -1;
+
+            public int GenIndex()
+            {
+                return Interlocked.Increment(ref _index);
+            }
+        }
+
         private class TypeBuilderUtils
         {
             public static TypeDesc DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
@@ -193,7 +251,7 @@ namespace AspectCore.Utils
 
             internal static void DefineInterfaceProxyConstructor(Type interfaceType, Type implType, TypeDesc typeDesc)
             {
-                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory)});
+                var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory) });
 
                 constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderUtils.ActivatorFactory);
 

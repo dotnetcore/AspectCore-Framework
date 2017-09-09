@@ -4,6 +4,7 @@ using System.Text;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
 using Xunit;
+using F_IService = AspectCore.Tests.IService;
 
 namespace AspectCore.Tests.DynamicProxy
 {
@@ -12,23 +13,27 @@ namespace AspectCore.Tests.DynamicProxy
         [Fact]
         public void CreateInterfaceProxy_Without_ImplType()
         {
-            var serviceProxy = ProxyGenerator.CreateInterfaceProxy<IService>();
+            var serviceProxy = ProxyGenerator.CreateInterfaceProxy<F_IService>();
             Assert.NotNull(serviceProxy);
-            Assert.IsAssignableFrom<IService>(serviceProxy);
+            Assert.IsAssignableFrom<F_IService>(serviceProxy);
             Assert.Equal(default(Guid), serviceProxy.Id);
             var id = Guid.NewGuid();
             serviceProxy.Id = id;
             Assert.Equal(id, serviceProxy.Id);
             Assert.Equal(default(ILogger), serviceProxy.Logger);
+
+            var serviceProxy2 = ProxyGenerator.CreateInterfaceProxy<IService>();
+            Assert.NotNull(serviceProxy2);
+            Assert.IsAssignableFrom<IService>(serviceProxy2);
         }
 
         [Fact]
         public void CreateInterfaceProxy_With_ImplType()
         {
             var id = Guid.NewGuid();
-            var serviceProxy = ProxyGenerator.CreateInterfaceProxy<IService, Service>(args: new object[] { id });
+            var serviceProxy = ProxyGenerator.CreateInterfaceProxy<F_IService, Service>(args: new object[] { id });
             Assert.NotNull(serviceProxy);
-            Assert.IsAssignableFrom<IService>(serviceProxy);
+            Assert.IsAssignableFrom<F_IService>(serviceProxy);
             Assert.Equal(id, serviceProxy.Id);
             Assert.Equal(default(ILogger), serviceProxy.Logger);
             var logger = new Logger();
@@ -56,7 +61,7 @@ namespace AspectCore.Tests.DynamicProxy
             , Predicates.ForService("*BaseService"));
         }
 
-        public class Service : IService
+        public class Service : F_IService
         {
             public Guid Id { get; set; }
             public ILogger Logger { get; set; }
@@ -75,4 +80,6 @@ namespace AspectCore.Tests.DynamicProxy
             }
         }
     }
+
+    public interface IService { }
 }
