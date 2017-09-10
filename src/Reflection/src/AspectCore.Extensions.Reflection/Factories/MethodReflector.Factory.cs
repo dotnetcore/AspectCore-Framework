@@ -11,14 +11,14 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(reflectionInfo));
             }
-            return ReflectorCacheUtils<Tuple<MethodInfo, CallOptions>, MethodReflector>.GetOrAdd(Tuple.Create(reflectionInfo, callOption), CreateInternal);
+            return ReflectorCacheUtils<Pair<MethodInfo, CallOptions>, MethodReflector>.GetOrAdd(new Pair<MethodInfo, CallOptions>(reflectionInfo, callOption), CreateInternal);
 
-            MethodReflector CreateInternal(Tuple<MethodInfo, CallOptions> item)
+            MethodReflector CreateInternal(Pair<MethodInfo, CallOptions> item)
             {
-                var methodInfo = item.Item1;
+                var methodInfo = item.MemberInfo;
                 if (methodInfo.ContainsGenericParameters)
                 {
-                    return new OpenGenericMethodReflector(item.Item1);
+                    return new OpenGenericMethodReflector(methodInfo);
                 }
                 if (methodInfo.IsStatic)
                 {

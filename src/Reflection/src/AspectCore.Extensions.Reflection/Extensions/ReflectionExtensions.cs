@@ -83,6 +83,15 @@ namespace AspectCore.Extensions.Reflection
             }
             return PropertyReflector.Create(property, callOption);
         }
+
+        public static ParameterReflector GetReflector(this ParameterInfo parameterInfo)
+        {
+            if (parameterInfo == null)
+            {
+                throw new ArgumentNullException(nameof(parameterInfo));
+            }
+            return ParameterReflector.Create(parameterInfo);
+        }
         #endregion
 
         #region Reflectr

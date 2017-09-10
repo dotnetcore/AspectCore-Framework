@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <NETStandardImplicitPackageVersion>2.0.0-*</NETStandardImplicitPackageVersion>
+    <NETStandardLibraryNETFrameworkVersion>2.0.0-*</NETStandardLibraryNETFrameworkVersion>
+  </PropertyGroup>
+</Project>
