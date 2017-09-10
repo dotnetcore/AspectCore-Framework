@@ -60,6 +60,7 @@ namespace AspectCore.Configuration
             collection.AddNamespace("Microsoft.ApplicationInsights.*");
             collection.AddNamespace("Microsoft.Net.*");
             collection.AddNamespace("Microsoft.Web.*");
+            collection.AddNamespace("Microsoft.*");
             return collection;
         }
 

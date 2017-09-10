@@ -20,7 +20,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .ConfigureServices(services => services.AddAspectCoreContainer())
+                //.ConfigureServices(services => services.AddAspectCoreContainer())
                 .Build();
     }
 }
