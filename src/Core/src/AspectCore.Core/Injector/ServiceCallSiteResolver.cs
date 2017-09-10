@@ -57,7 +57,7 @@ namespace AspectCore.Injector
                 case TypeServiceDefinition typeServiceDefinition:
                     return ResolveTypeService(typeServiceDefinition);
                 case ManyEnumerableServiceDefintion manyEnumerableServiceDefintion:
-                    return  ResolveManyEnumerableService(manyEnumerableServiceDefintion);
+                    return ResolveManyEnumerableService(manyEnumerableServiceDefintion);
                 case EnumerableServiceDefintion enumerableServiceDefintion:
                     return ResolveEnumerableService(enumerableServiceDefintion);
                 default:
@@ -89,9 +89,10 @@ namespace AspectCore.Injector
             {
                 var length = elementResolvers.Length;
                 var instance = Array.CreateInstance(elementType, length);
-                for(var i = 0; i < length; i++)
+                for (var i = 0; i < length; i++)
                 {
-                    instance.SetValue(elementResolvers[i](resolver), i);
+                    var element = elementResolvers[i](resolver);
+                    instance.SetValue(element, i);
                 }
                 return instance;
             };

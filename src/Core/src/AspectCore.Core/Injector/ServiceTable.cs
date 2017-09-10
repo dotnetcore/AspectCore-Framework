@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
-using AspectCore.Utils;
 
 namespace AspectCore.Injector
 {
@@ -46,7 +45,7 @@ namespace AspectCore.Injector
 
         internal bool Contains(Type serviceType)
         {
-            if (_linkedServiceDefinitions.ContainsKey(serviceType))
+            if (ContainsLinked(serviceType))
             {
                 return true;
             }
@@ -55,13 +54,28 @@ namespace AspectCore.Injector
                 switch (serviceType.GetGenericTypeDefinition())
                 {
                     case Type enumerable when enumerable == typeof(IEnumerable<>):
-                        return _linkedServiceDefinitions.ContainsKey(serviceType.GetTypeInfo().GetGenericArguments()[0]);
-                    case Type enumerable when enumerable == typeof(IManyEnumerable<>):
-                        return _linkedServiceDefinitions.ContainsKey(serviceType.GetTypeInfo().GetGenericArguments()[0]);
+                    case Type manyEnumerable when manyEnumerable == typeof(IManyEnumerable<>):
+                        return ContainsLinked(serviceType.GetTypeInfo().GetGenericArguments()[0]) ? true : true;
                     case Type genericTypeDefinition when _linkedGenericServiceDefinitions.ContainsKey(genericTypeDefinition):
                         return true;
                     default:
                         break;
+                }
+            }
+            return false;
+        }
+
+        private bool ContainsLinked(Type serviceType)
+        {
+            if (_linkedServiceDefinitions.ContainsKey(serviceType))
+            {
+                return true;
+            }
+            if (serviceType.IsConstructedGenericType)
+            {
+                if (_linkedGenericServiceDefinitions.ContainsKey(serviceType.GetGenericTypeDefinition()))
+                {
+                    return true;
                 }
             }
             return false;
@@ -101,13 +115,10 @@ namespace AspectCore.Injector
                 return value.Last.Value;
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
-            if (_linkedServiceDefinitions.TryGetValue(elementType, out var services))
-            {
-                var enumerableServiceDefinition = new EnumerableServiceDefintion(serviceType, elementType, services.ToArray());
-                _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition }));
-                return enumerableServiceDefinition;
-            }
-            return new InstanceServiceDefinition(serviceType, Array.CreateInstance(elementType, 0));
+            var elements = FindEnumerableElements(serviceType);
+            var enumerableServiceDefinition = new EnumerableServiceDefintion(serviceType, elementType, elements);
+            _linkedServiceDefinitions[serviceType] = new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
+            return enumerableServiceDefinition;
         }
 
         private ServiceDefinition FindManyEnumerable(Type serviceType)
@@ -117,13 +128,26 @@ namespace AspectCore.Injector
                 return value.Last.Value;
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
-            if (_linkedServiceDefinitions.TryGetValue(elementType, out var services))
+            var elements = FindEnumerableElements(serviceType);
+            var enumerableServiceDefinition = new ManyEnumerableServiceDefintion(serviceType, elementType, elements);
+            _linkedServiceDefinitions[serviceType] = new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
+            return enumerableServiceDefinition;
+        }
+
+        private ServiceDefinition[] FindEnumerableElements(Type serviceType)
+        {
+            var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
+            var services = new List<ServiceDefinition>();
+            if (_linkedServiceDefinitions.TryGetValue(elementType, out var linkedServices))
             {
-                var enumerableServiceDefinition = new ManyEnumerableServiceDefintion(serviceType, elementType, services);
-                _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition }));
-                return enumerableServiceDefinition;
+                services.AddRange(linkedServices);
             }
-            return new InstanceServiceDefinition(serviceType, ActivatorUtils.CreateManyEnumerable(elementType));
+            if (elementType.IsConstructedGenericType &&
+                _linkedGenericServiceDefinitions.TryGetValue(elementType.GetGenericTypeDefinition(), out var linkedGenericServices))
+            {
+                services.AddRange(linkedGenericServices.Select(x => MakProxyService(MakGenericService(elementType, x))).Where(x => x != null));
+            }
+            return services.ToArray();
         }
 
         private ServiceDefinition FindGenericService(Type serviceType, LinkedList<ServiceDefinition> genericServiceDefinitions)
@@ -132,25 +156,28 @@ namespace AspectCore.Injector
             {
                 return value.Last.Value;
             }
-            var elementTypes = serviceType.GetTypeInfo().GetGenericArguments();
-
-            var service = MakProxyService(MakGenericService());
+            var service = MakProxyService(MakGenericService(serviceType, genericServiceDefinitions.Last.Value));
+            if (service == null)
+            {
+                return null;
+            }
             _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { service }));
             return service;
+        }
 
-            ServiceDefinition MakGenericService()
+        private ServiceDefinition MakGenericService(Type serviceType, ServiceDefinition service)
+        {
+            switch (service)
             {
-                switch (genericServiceDefinitions.Last.Value)
-                {
-                    case InstanceServiceDefinition instanceServiceDefinition:
-                        return new InstanceServiceDefinition(serviceType, instanceServiceDefinition.ImplementationInstance);
-                    case DelegateServiceDefinition delegateServiceDefinition:
-                        return new DelegateServiceDefinition(serviceType, delegateServiceDefinition.ImplementationDelegate, delegateServiceDefinition.Lifetime);
-                    case TypeServiceDefinition typeServiceDefinition:
-                        return new TypeServiceDefinition(serviceType, typeServiceDefinition.ImplementationType.MakeGenericType(elementTypes), typeServiceDefinition.Lifetime);
-                    default:
-                        return null;
-                }
+                case InstanceServiceDefinition instanceServiceDefinition:
+                    return new InstanceServiceDefinition(serviceType, instanceServiceDefinition.ImplementationInstance);
+                case DelegateServiceDefinition delegateServiceDefinition:
+                    return new DelegateServiceDefinition(serviceType, delegateServiceDefinition.ImplementationDelegate, delegateServiceDefinition.Lifetime);
+                case TypeServiceDefinition typeServiceDefinition:
+                    var elementTypes = serviceType.GetTypeInfo().GetGenericArguments();
+                    return new TypeServiceDefinition(serviceType, typeServiceDefinition.ImplementationType.MakeGenericType(elementTypes), typeServiceDefinition.Lifetime);
+                default:
+                    return null;
             }
         }
 

@@ -31,6 +31,7 @@ namespace AspectCore.Injector
             var length = constructors.Length;
             if (length == 0)
             {
+                var c = implementationType.GetTypeInfo().GetConstructors();
                 return null;
             }
             if (length == 1)
@@ -68,7 +69,8 @@ namespace AspectCore.Injector
                 {
                     if (!parameter.HasDefaultValue)
                     {
-                        throw new InvalidOperationException($"Cannot resolve parameter {parameter.Name}--{parameter.ParameterType}");
+                        return false;
+                        //throw new InvalidOperationException($"Cannot resolve parameter '{parameter.Name}：{parameter.ParameterType}' for '{constructor}'");
                     }
                     var defaultValue = parameter.DefaultValue;
                     parameterResolvers[i] = resolver => defaultValue;
