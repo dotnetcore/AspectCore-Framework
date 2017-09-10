@@ -67,7 +67,17 @@ namespace AspectCore.DynamicProxy
             foreach (var interfaceType in type.GetTypeInfo().GetInterfaces().Distinct())
             {
                 if (!hashSet.Contains(interfaceType))
-                    yield return interfaceType;
+                {
+                    if (interfaceType.GetTypeInfo().ContainsGenericParameters && type.GetTypeInfo().ContainsGenericParameters)
+                    {
+                        if (!hashSet.Contains(interfaceType.GetGenericTypeDefinition()))
+                            yield return interfaceType;
+                    }
+                    else
+                    {
+                        yield return interfaceType;
+                    }
+                }
             }
         }
     }

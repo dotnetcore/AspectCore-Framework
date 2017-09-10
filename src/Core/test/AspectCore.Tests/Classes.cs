@@ -95,4 +95,28 @@ namespace AspectCore.Tests
 
     public class User { }
 
+    public class PocoClass
+    {
+    }
+
+    public interface IFakeOpenGenericService<TValue>
+    {
+        TValue Value { get; }
+    }
+
+    public class FakeService : IFakeOpenGenericService<PocoClass>
+    {
+        public PocoClass Value { get; set; }
+    }
+
+    public class FakeOpenGenericService<TVal> : IFakeOpenGenericService<TVal>
+    {
+        public FakeOpenGenericService(TVal value)
+        {
+            Value = value;
+        }
+
+        public TVal Value { get; }
+    }
+
 }

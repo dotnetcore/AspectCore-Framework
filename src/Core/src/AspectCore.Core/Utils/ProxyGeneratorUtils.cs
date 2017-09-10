@@ -94,6 +94,8 @@ namespace AspectCore.Utils
             var interfaceTypes = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
             var implTypeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Public, typeof(object), interfaceTypes);
 
+            GenericParameterUtils.DefineGenericParameter(interfaceType, implTypeBuilder);
+
             ConstructorBuilderUtils.DefineInterfaceImplConstructor(implTypeBuilder);
 
             MethodBuilderUtils.DefineInterfaceImplMethods(interfaceTypes, implTypeBuilder);
@@ -158,7 +160,7 @@ namespace AspectCore.Utils
         private class ProxyNameUtils
         {
             private static readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
-            private static readonly Dictionary<string, string> _indexMaps = new Dictionary<string, string>();
+            private static readonly Dictionary<Tuple<Type,Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
 
             private static string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
             {
@@ -168,7 +170,7 @@ namespace AspectCore.Utils
                     nameIndex = new ProxyNameIndex();
                     _indexs[className] = nameIndex;
                 }
-                var key = $"{serviceType.GetTypeInfo().MetadataToken}.{implementationType.GetTypeInfo().MetadataToken}";
+                var key = Tuple.Create(serviceType, implementationType);
                 string index;
                 if (!_indexMaps.TryGetValue(key, out index))
                 {
@@ -475,9 +477,7 @@ namespace AspectCore.Utils
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implTypeIfGenericTypeDefinition = implType.GetTypeInfo().IsGenericTypeDefinition ?
-                       implType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
-                       implType;
+                    var implTypeIfGenericTypeDefinition = implType;
 
                     var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? method;
 
@@ -499,15 +499,8 @@ namespace AspectCore.Utils
                 void EmitInitializeMetaData(ILGenerator ilGen)
                 {
                     var serviceMethod = method;
-                    if (serviceMethod.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
-                    {
-                        var serviceTypeOfGeneric = serviceMethod.DeclaringType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments());
-                        serviceMethod = serviceTypeOfGeneric.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
-                    }
 
-                    var implTypeIfGenericTypeDefinition = implType.GetTypeInfo().IsGenericTypeDefinition ?
-                        implType.GetTypeInfo().MakeGenericType(typeDesc.Builder.GetGenericArguments()) :
-                        implType;
+                    var implTypeIfGenericTypeDefinition = implType;
 
                     var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod)) ?? serviceMethod;
 
