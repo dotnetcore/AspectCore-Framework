@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +43,11 @@ namespace AspectCore.Extensions.DependencyInjection
             }
 
             if (implementationType == null || implementationType == typeof(object))
+            {
+                return false;
+            }
+
+            if (!implementationType.GetTypeInfo().IsClass)
             {
                 return false;
             }

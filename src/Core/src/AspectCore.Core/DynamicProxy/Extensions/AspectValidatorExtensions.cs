@@ -28,7 +28,7 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            foreach (var method in typeInfo.DeclaredMethods)
+            foreach (var method in typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (aspectValidator.Validate(method))
                 {

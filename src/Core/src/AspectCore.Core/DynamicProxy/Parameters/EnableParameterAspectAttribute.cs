@@ -5,7 +5,7 @@ namespace AspectCore.DynamicProxy.Parameters
 {
     public class EnableParameterAspectAttribute : InterceptorAttribute
     {
-        public override int Order { get; set; } = -9999;
+        public override int Order { get; set; } = -9;
 
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {

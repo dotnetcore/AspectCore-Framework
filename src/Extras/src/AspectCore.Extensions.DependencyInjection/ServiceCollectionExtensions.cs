@@ -40,6 +40,7 @@ namespace AspectCore.Extensions.DependencyInjection
             services.AddSingleton<IAspectValidatorBuilder, AspectValidatorBuilder>();
             services.AddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
             services.AddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
+            services.AddSingleton<IAspectCachingProvider, AspectCachingProvider>();
 
             return services;
         }
