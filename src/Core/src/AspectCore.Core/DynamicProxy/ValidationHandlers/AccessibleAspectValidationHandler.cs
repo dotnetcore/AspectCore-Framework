@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {

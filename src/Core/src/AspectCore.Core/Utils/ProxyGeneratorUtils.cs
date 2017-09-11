@@ -477,11 +477,13 @@ namespace AspectCore.Utils
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implTypeIfGenericTypeDefinition = implType;
+                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method));
+                    if (implMethod == null)
+                    {
+                        throw new MissingMethodException($"Type '{implType}' does not contain a method named '{method.Name}'");
+                    }
 
-                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? method;
-
-                    ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, method);
+                    ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implMethod);
                     ilGen.Emit(OpCodes.Ret);
                 }
 
@@ -502,7 +504,12 @@ namespace AspectCore.Utils
 
                     var implTypeIfGenericTypeDefinition = implType;
 
-                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod)) ?? serviceMethod;
+                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
+
+                    if (implMethod == null)
+                    {
+                        throw new MissingMethodException($"Type '{implType}' does not contain a method named '{method.Name}'");
+                    }
 
                     var methodConstants = typeDesc.MethodConstants;
 

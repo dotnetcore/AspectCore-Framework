@@ -5,7 +5,7 @@ namespace AspectCore.DynamicProxy
 {
     public sealed class CacheAspectValidationHandler : IAspectValidationHandler
     {
-        private static readonly ConcurrentDictionary<MethodInfo, bool> detectorCache = new ConcurrentDictionary<MethodInfo, bool>();
+        private readonly ConcurrentDictionary<MethodInfo, bool> detectorCache = new ConcurrentDictionary<MethodInfo, bool>();
 
         public int Order { get; } = -101;
 

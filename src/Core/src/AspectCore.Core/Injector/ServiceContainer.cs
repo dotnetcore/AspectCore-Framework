@@ -8,17 +8,27 @@ using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.Injector
 {
-    public class ServiceContainer : IServiceContainer
+    public sealed class ServiceContainer : IServiceContainer
     {
         private readonly ICollection<ServiceDefinition> _collection;
         private readonly IAspectConfiguration _configuration;
 
         public ServiceContainer()
-            : this(null)
+            : this(null, null)
         {
         }
 
         public ServiceContainer(IEnumerable<ServiceDefinition> services)
+          : this(services, null)
+        {
+        }
+
+        public ServiceContainer(IAspectConfiguration aspectConfiguration)
+           : this(null, aspectConfiguration)
+        {
+        }
+
+        public ServiceContainer(IEnumerable<ServiceDefinition> services, IAspectConfiguration aspectConfiguration)
         {
             _collection = new List<ServiceDefinition>();
 
@@ -35,6 +45,11 @@ namespace AspectCore.Injector
                 }
                 foreach (var service in services)
                     _collection.Add(service);
+            }
+
+            if (aspectConfiguration != null)
+            {
+                _configuration = aspectConfiguration;
             }
 
             if (_configuration == null)
@@ -75,6 +90,8 @@ namespace AspectCore.Injector
                 Singletons.AddType<IProxyTypeGenerator, ProxyTypeGenerator>();
             if (!Contains(typeof(IParameterInterceptorSelector)))
                 Scopeds.AddType<IParameterInterceptorSelector, ParameterInterceptorSelector>();
+            if (!Contains(typeof(IAspectCachingProvider)))
+                Singletons.AddType<IAspectCachingProvider, AspectCachingProvider>();
         }
 
         public int Count => _collection.Count;

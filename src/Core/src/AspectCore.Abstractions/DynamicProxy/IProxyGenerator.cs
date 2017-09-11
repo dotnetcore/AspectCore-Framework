@@ -3,7 +3,7 @@
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    public interface IProxyGenerator
+    public interface IProxyGenerator : IDisposable
     {
         object CreateInterfaceProxy(Type serviceType);
 

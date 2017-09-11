@@ -52,6 +52,12 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        private static NonAspectPredicateCollection AddMicrosoft(this NonAspectPredicateCollection collection)
+        {        
+            //collection.AddNamespace("Microsoft.*");
+            return collection;
+        }
+
         private static NonAspectPredicateCollection AddAspNetCore(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("Microsoft.AspNetCore.*");
@@ -60,7 +66,8 @@ namespace AspectCore.Configuration
             collection.AddNamespace("Microsoft.ApplicationInsights.*");
             collection.AddNamespace("Microsoft.Net.*");
             collection.AddNamespace("Microsoft.Web.*");
-            collection.AddNamespace("Microsoft.*");
+            //collection.AddNamespace("Microsoft.CodeAnalysis.Razor");
+            //collection.AddNamespace("Microsoft.CodeAnalysis.Razor.*");
             return collection;
         }
 
@@ -119,6 +126,7 @@ namespace AspectCore.Configuration
                 AddAspectCore().
                 AddObjectVMethod().
                 AddSystem().
+                AddMicrosoft().
                 AddAspNetCore().
                 AddEntityFramework().
                 AddOwin().

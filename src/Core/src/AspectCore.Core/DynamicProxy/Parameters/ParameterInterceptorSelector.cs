@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Extensions.Reflection;
@@ -10,17 +9,26 @@ namespace AspectCore.DynamicProxy.Parameters
 {
     public sealed class ParameterInterceptorSelector : IParameterInterceptorSelector
     {
-        private static readonly ConcurrentDictionary<ParameterInfo, IParameterInterceptor[]> interceptorCache = new ConcurrentDictionary<ParameterInfo, IParameterInterceptor[]>();
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
+        private readonly IAspectCaching _aspectCaching;
 
-        public ParameterInterceptorSelector(IPropertyInjectorFactory propertyInjectorFactory)
+        public ParameterInterceptorSelector(IPropertyInjectorFactory propertyInjectorFactory, IAspectCachingProvider aspectCachingProvider)
         {
+            if (aspectCachingProvider == null)
+            {
+                throw new ArgumentNullException(nameof(aspectCachingProvider));
+            }
             _propertyInjectorFactory = propertyInjectorFactory ?? throw new ArgumentNullException(nameof(propertyInjectorFactory));
+            _aspectCaching = aspectCachingProvider.GetAspectCaching(nameof(ParameterInterceptorSelector));
         }
 
         public IParameterInterceptor[] Select(ParameterInfo parameter)
         {
-            var interceptors = interceptorCache.GetOrAdd(parameter, info => info.GetReflector().GetCustomAttributes().OfType<IParameterInterceptor>().ToArray());
+            if (parameter == null)
+            {
+                throw new ArgumentNullException(nameof(parameter));
+            }
+            var interceptors = (IParameterInterceptor[])_aspectCaching.GetOrAdd(parameter, info => ((ParameterInfo)info).GetReflector().GetCustomAttributes().OfType<IParameterInterceptor>().ToArray());
             for (var i = 0; i < interceptors.Length; i++)
             {
                 var interceptor = interceptors[i];

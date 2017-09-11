@@ -38,7 +38,7 @@ namespace AspectCore.Tests.Injector
         protected override void ConfigureService(IServiceContainer serviceContainer)
         {
             serviceContainer.Transients.AddType<ITransient, Transient>();
-            serviceContainer.Transients.AddDelegate<IDelegateTransient>(resolver => new Transient());
+            serviceContainer.Transients.AddDelegate<IDelegateTransient, Transient>(resolver => new Transient());
         }
     }
 }

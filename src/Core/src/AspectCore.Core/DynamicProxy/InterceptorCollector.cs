@@ -11,12 +11,14 @@ namespace AspectCore.DynamicProxy
 {
     public sealed class InterceptorCollector : IInterceptorCollector
     {
-        private static readonly ConcurrentDictionary<MethodInfo, IEnumerable<IInterceptor>> interceptorCache = new ConcurrentDictionary<MethodInfo, IEnumerable<IInterceptor>>();
-
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
+        private readonly IAspectCaching _aspectCaching;
 
-        public InterceptorCollector(IEnumerable<IInterceptorSelector> interceptorSelectors, IPropertyInjectorFactory propertyInjectorFactory)
+        public InterceptorCollector(
+            IEnumerable<IInterceptorSelector> interceptorSelectors,
+            IPropertyInjectorFactory propertyInjectorFactory,
+            IAspectCachingProvider aspectCachingProvider)
         {
             if (interceptorSelectors == null)
             {
@@ -26,8 +28,13 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(propertyInjectorFactory));
             }
+            if (aspectCachingProvider == null)
+            {
+                throw new ArgumentNullException(nameof(aspectCachingProvider));
+            }
             _interceptorSelectors = interceptorSelectors.Distinct(new InterceptorSelectorEqualityComparer()).ToList();
             _propertyInjectorFactory = propertyInjectorFactory;
+            _aspectCaching = aspectCachingProvider.GetAspectCaching(nameof(InterceptorCollector));
         }
 
         public IEnumerable<IInterceptor> Collect(MethodInfo method)
@@ -41,8 +48,9 @@ namespace AspectCore.DynamicProxy
 
         private IEnumerable<IInterceptor> CollectFromCache(MethodInfo method)
         {
-            return interceptorCache.GetOrAdd(method, m =>
+            return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(method, key =>
             {
+                var m = (MethodInfo)key;
                 var inherited = CollectFromInherited(m);
                 var selected = CollectFromSelector(m);
                 var collection = selected.Concat(inherited).HandleSort().HandleMultiple();
@@ -98,7 +106,7 @@ namespace AspectCore.DynamicProxy
                 _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
             }
             return interceptors;
-        }   
+        }
     }
 
     internal static class InterceptorCollectorExtensions
