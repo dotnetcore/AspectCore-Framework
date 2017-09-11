@@ -1,4 +1,5 @@
 ﻿using System;
+using AspectCore.Injector;
 
 namespace AspectCore.DynamicProxy
 {
@@ -10,7 +11,7 @@ namespace AspectCore.DynamicProxy
         public ProxyGenerator(IProxyTypeGenerator proxyTypeGenerator, IAspectActivatorFactory aspectActivatorFactory)
         {
             _proxyTypeGenerator = proxyTypeGenerator ?? throw new ArgumentNullException(nameof(proxyTypeGenerator));
-            _aspectActivatorFactory= aspectActivatorFactory ?? throw new ArgumentNullException(nameof(aspectActivatorFactory));
+            _aspectActivatorFactory = aspectActivatorFactory ?? throw new ArgumentNullException(nameof(aspectActivatorFactory));
         }
 
         public object CreateClassProxy(Type serviceType, Type implementationType, object[] args)
@@ -61,6 +62,40 @@ namespace AspectCore.DynamicProxy
             return Activator.CreateInstance(proxyType, _aspectActivatorFactory, implementationInstance);
         }
 
+        public void Dispose()
+        {
+        }
+    }
 
+    internal sealed class DisposedProxyGenerator : IProxyGenerator
+    {
+        private readonly IServiceResolver _serviceResolver;
+        private readonly IProxyGenerator _proxyGenerator;
+
+        public DisposedProxyGenerator(IServiceResolver serviceResolver)
+        {
+            _serviceResolver = serviceResolver;
+            _proxyGenerator = serviceResolver.ResolveRequired<IProxyGenerator>();
+        }
+
+        public object CreateClassProxy(Type serviceType, Type implementationType, object[] args)
+        {
+            return _proxyGenerator.CreateClassProxy(serviceType, implementationType, args);
+        }
+
+        public object CreateInterfaceProxy(Type serviceType)
+        {
+            return _proxyGenerator.CreateInterfaceProxy(serviceType);
+        }
+
+        public object CreateInterfaceProxy(Type serviceType, object implementationInstance)
+        {
+            return _proxyGenerator.CreateInterfaceProxy(serviceType, implementationInstance);
+        }
+
+        public void Dispose()
+        {
+            _serviceResolver.Dispose();
+        }
     }
 }

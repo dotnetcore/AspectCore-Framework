@@ -6,7 +6,6 @@ namespace AspectCore.DynamicProxy
 {
     public class AspectContextFactory : IAspectContextFactory
     {
-        private static readonly ConcurrentDictionary<MethodInfo, string[]> nameTable = new ConcurrentDictionary<MethodInfo, string[]>();
         private static readonly object[] emptyParameters = new object[0];
         private readonly IServiceProvider _serviceProvider;
 

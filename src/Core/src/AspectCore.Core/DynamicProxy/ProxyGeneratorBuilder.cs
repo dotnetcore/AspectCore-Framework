@@ -8,17 +8,12 @@ namespace AspectCore.DynamicProxy
     public sealed class ProxyGeneratorBuilder
     {
         private readonly IAspectConfiguration _configuration;
-        private readonly HashSet<IInterceptorSelector> _selectors;
         private readonly IServiceContainer _serviceContainer;
 
         public ProxyGeneratorBuilder()
         {
             _configuration = new AspectConfiguration();
-            _serviceContainer = new ServiceContainer();
-            _selectors = new HashSet<IInterceptorSelector>(new EqualityComparer());
-            _selectors.Add(new ConfigureInterceptorSelector(_configuration));
-            _selectors.Add(new TypeInterceptorSelector());
-            _selectors.Add(new MethodInterceptorSelector());
+            _serviceContainer = new ServiceContainer(_configuration);
         }
 
         public ProxyGeneratorBuilder Configure(Action<IAspectConfiguration> options)
@@ -33,27 +28,10 @@ namespace AspectCore.DynamicProxy
             return this;
         }
 
-        public ProxyGeneratorBuilder UseSelector(IInterceptorSelector interceptorSelector)
-        {
-            if (interceptorSelector == null)
-            {
-                throw new ArgumentNullException(nameof(interceptorSelector));
-            }
-            _selectors.Add(interceptorSelector);
-            return this;
-        }
-
         public IProxyGenerator Build()
-        {     
+        {
             var serviceResolver = _serviceContainer.Build();
-            var validatorBuilder = new AspectValidatorBuilder(_configuration);
-            var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
-            var injectorFactory = new PropertyInjectorFactory(serviceResolver);
-            var collector = new InterceptorCollector(_selectors, injectorFactory);
-            var builderFactory = new AspectBuilderFactory(collector);
-            var contextFactory = new AspectContextFactory(serviceResolver);
-            var activatorFactory = new AspectActivatorFactory(contextFactory, builderFactory);
-            return new ProxyGenerator(proxyTypeGenerator, activatorFactory);
+            return new DisposedProxyGenerator(serviceResolver);
         }
 
         private class EqualityComparer : IEqualityComparer<IInterceptorSelector>
