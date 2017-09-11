@@ -14,9 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspectCore.Core" Version="0.2.0-preview1" />
-    <PackageReference Include="AspectCore.Extensions.Configuration" Version="0.2.0-preview1" />
-    <PackageReference Include="Autofac" Version="4.0.1" />
+    <PackageReference Include="Autofac" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\src\AspectCore.Core\AspectCore.Core.csproj" />
   </ItemGroup>
 
 </Project>

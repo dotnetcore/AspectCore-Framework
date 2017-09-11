@@ -1,115 +1,104 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using AspectCore.Abstractions;
-using AspectCore.Core.Internal;
-using Autofac;
-using Autofac.Builder;
-using Autofac.Core;
-using Autofac.Core.Activators.Reflection;
-using Autofac.Features.Scanning;
-
-namespace AspectCore.Extensions.Autofac
+﻿namespace AspectCore.Extensions.Autofac
 {
-    public static class RegistrationBuilderExtensions
-    {
-        public static void AsInterfacesProxy<TLimit, TRegistrationStyle>(this IRegistrationBuilder<TLimit, ScanningActivatorData, TRegistrationStyle> registration)
-        {
-            if (registration == null)
-            {
-                throw new ArgumentNullException(nameof(registration));
-            }
+    //public static class RegistrationBuilderExtensions
+    //{
+    //    public static void AsInterfacesProxy<TLimit, TRegistrationStyle>(this IRegistrationBuilder<TLimit, ScanningActivatorData, TRegistrationStyle> registration)
+    //    {
+    //        if (registration == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(registration));
+    //        }
 
-            registration.ActivatorData.ConfigurationActions.Add((t, rb) => rb.AsInterfacesProxy());
-        }
+    //        registration.ActivatorData.ConfigurationActions.Add((t, rb) => rb.AsInterfacesProxy());
+    //    }
 
-        public static void AsClassProxy<TLimit, TRegistrationStyle>(this IRegistrationBuilder<TLimit, ScanningActivatorData, TRegistrationStyle> registration)
-        {
-            if (registration == null)
-            {
-                throw new ArgumentNullException(nameof(registration));
-            }
+    //    public static void AsClassProxy<TLimit, TRegistrationStyle>(this IRegistrationBuilder<TLimit, ScanningActivatorData, TRegistrationStyle> registration)
+    //    {
+    //        if (registration == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(registration));
+    //        }
 
-            registration.ActivatorData.ConfigurationActions.Add((t, rb) => rb.AsClassProxy());
-        }
+    //        registration.ActivatorData.ConfigurationActions.Add((t, rb) => rb.AsClassProxy());
+    //    }
 
-        public static void AsInterfacesProxy<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle>(this IRegistrationBuilder<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle> registration)
-            where TConcreteReflectionActivatorData : ConcreteReflectionActivatorData
-        {
-            if (registration == null)
-            {
-                throw new ArgumentNullException(nameof(registration));
-            }
- 
-            var activatorData = registration.ActivatorData;
+    //    public static void AsInterfacesProxy<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle>(this IRegistrationBuilder<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle> registration)
+    //        where TConcreteReflectionActivatorData : ConcreteReflectionActivatorData
+    //    {
+    //        if (registration == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(registration));
+    //        }
 
-            var interfaceTypes = registration.RegistrationData.Services.Select(s => s.GetServiceType()).Where(type => type.GetTypeInfo().IsInterface).ToArray();
+    //        var activatorData = registration.ActivatorData;
 
-            if (interfaceTypes.Length == 0)
-            {
-                return;
-            }
+    //        var interfaceTypes = registration.RegistrationData.Services.Select(s => s.GetServiceType()).Where(type => type.GetTypeInfo().IsInterface).ToArray();
 
-            foreach(var interfaceType in interfaceTypes)
-            {
-                AutofacRealServiceProvider.MapActivatorData(interfaceType, activatorData);
-            }
+    //        if (interfaceTypes.Length == 0)
+    //        {
+    //            return;
+    //        }
 
-            registration.OnActivating(args =>
-            {
-                var parameters = args.Parameters.ToList();
+    //        foreach(var interfaceType in interfaceTypes)
+    //        {
+    //            AutofacRealServiceProvider.MapActivatorData(interfaceType, activatorData);
+    //        }
 
-                parameters.Add(new ResolvedParameter((pi, ctx) => pi.ParameterType == typeof(IServiceProvider), (pi, ctx) => ctx.Resolve<IServiceProvider>()));
+    //        registration.OnActivating(args =>
+    //        {
+    //            var parameters = args.Parameters.ToList();
 
-                var proxyGenerator = args.Context.Resolve<IProxyGenerator>();
+    //            parameters.Add(new ResolvedParameter((pi, ctx) => pi.ParameterType == typeof(IServiceProvider), (pi, ctx) => ctx.Resolve<IServiceProvider>()));
 
-                var proxyType = proxyGenerator.CreateClassProxyType(activatorData.ImplementationType, activatorData.ImplementationType);
+    //            var proxyGenerator = args.Context.Resolve<IProxyGenerator>();
 
-                var proxyActivator = new ReflectionActivator(proxyType, activatorData.ConstructorFinder,
-                    activatorData.ConstructorSelector, EmptyArray<Parameter>.Value, activatorData.ConfiguredProperties);
+    //            var proxyType = proxyGenerator.CreateClassProxyType(activatorData.ImplementationType, activatorData.ImplementationType);
 
-                var proxyValue = proxyActivator.ActivateInstance(args.Context, parameters);
+    //            var proxyActivator = new ReflectionActivator(proxyType, activatorData.ConstructorFinder,
+    //                activatorData.ConstructorSelector, EmptyArray<Parameter>.Value, activatorData.ConfiguredProperties);
 
-                args.ReplaceInstance(proxyValue);
-            });
-        }
+    //            var proxyValue = proxyActivator.ActivateInstance(args.Context, parameters);
 
-        public static void AsClassProxy<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle>(this IRegistrationBuilder<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle> registration)
-            where TConcreteReflectionActivatorData : ConcreteReflectionActivatorData
-        {
-            if (registration == null)
-            {
-                throw new ArgumentNullException(nameof(registration));
-            }
+    //            args.ReplaceInstance(proxyValue);
+    //        });
+    //    }
 
-            var activatorData = registration.ActivatorData;
+    //    public static void AsClassProxy<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle>(this IRegistrationBuilder<TLimit, TConcreteReflectionActivatorData, TRegistrationStyle> registration)
+    //        where TConcreteReflectionActivatorData : ConcreteReflectionActivatorData
+    //    {
+    //        if (registration == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(registration));
+    //        }
 
-            var serviceType = registration.RegistrationData.Services.Select(s => s.GetServiceType()).Where(type => type.GetTypeInfo().IsClass).First();
+    //        var activatorData = registration.ActivatorData;
 
-            if (serviceType == null)
-            {
-                return;
-            }
+    //        var serviceType = registration.RegistrationData.Services.Select(s => s.GetServiceType()).Where(type => type.GetTypeInfo().IsClass).First();
 
-            AutofacRealServiceProvider.MapActivatorData(serviceType, activatorData);
+    //        if (serviceType == null)
+    //        {
+    //            return;
+    //        }
 
-            registration.OnActivating(args =>
-            {
-                var parameters = args.Parameters.ToList();
+    //        AutofacRealServiceProvider.MapActivatorData(serviceType, activatorData);
 
-                parameters.Add(new ResolvedParameter((pi, ctx) => pi.ParameterType == typeof(IServiceProvider), (pi, ctx) => ctx.Resolve<IServiceProvider>()));
+    //        registration.OnActivating(args =>
+    //        {
+    //            var parameters = args.Parameters.ToList();
 
-                var proxyGenerator = args.Context.Resolve<IProxyGenerator>();
+    //            parameters.Add(new ResolvedParameter((pi, ctx) => pi.ParameterType == typeof(IServiceProvider), (pi, ctx) => ctx.Resolve<IServiceProvider>()));
 
-                var proxyType = proxyGenerator.CreateClassProxyType(serviceType, activatorData.ImplementationType);
+    //            var proxyGenerator = args.Context.Resolve<IProxyGenerator>();
 
-                var proxyActivator = new ReflectionActivator(proxyType, activatorData.ConstructorFinder,
-                    activatorData.ConstructorSelector, EmptyArray<Parameter>.Value, activatorData.ConfiguredProperties);
+    //            var proxyType = proxyGenerator.CreateClassProxyType(serviceType, activatorData.ImplementationType);
 
-                var proxyValue = proxyActivator.ActivateInstance(args.Context, parameters);
+    //            var proxyActivator = new ReflectionActivator(proxyType, activatorData.ConstructorFinder,
+    //                activatorData.ConstructorSelector, EmptyArray<Parameter>.Value, activatorData.ConfiguredProperties);
 
-                args.ReplaceInstance(proxyValue);
-            });
-        }
-    }
+    //            var proxyValue = proxyActivator.ActivateInstance(args.Context, parameters);
+
+    //            args.ReplaceInstance(proxyValue);
+    //        });
+    //    }
+    //}
 }
