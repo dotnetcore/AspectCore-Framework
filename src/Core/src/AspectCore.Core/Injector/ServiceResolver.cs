@@ -26,8 +26,8 @@ namespace AspectCore.Injector
             _root = root;
             _serviceTable = root._serviceTable;
             _resolvedSingletonServcies = root._resolvedSingletonServcies;
-            _resolvedScopedServcies = new ConcurrentDictionary<ServiceDefinition, object>();
-            _serviceCallSiteResolver = new ServiceCallSiteResolver(_serviceTable);
+            _serviceCallSiteResolver = root._serviceCallSiteResolver;
+            _resolvedScopedServcies = new ConcurrentDictionary<ServiceDefinition, object>();    
         }
 
         public object GetService(Type serviceType)

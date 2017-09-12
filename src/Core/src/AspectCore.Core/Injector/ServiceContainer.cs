@@ -69,6 +69,8 @@ namespace AspectCore.Injector
             Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
             Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
             Singletons.AddInstance<IAspectConfiguration>(_configuration);
+            if (!Contains(typeof(ITransientServiceAccessor<>)))
+                Singletons.AddType(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
 
             //add DynamicProxy services   
             Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();
