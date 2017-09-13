@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -43,19 +42,18 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            return HandleInjector(CollectFromCache(method));
-        }
-
-        private IEnumerable<IInterceptor> CollectFromCache(MethodInfo method)
-        {
             return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(method, key =>
             {
-                var m = (MethodInfo)key;
-                var inherited = CollectFromInherited(m);
-                var selected = CollectFromSelector(m);
-                var collection = selected.Concat(inherited).HandleSort().HandleMultiple();
-                return collection.ToArray();
+                return HandleInjector(CollectInternal(method));
             });
+        }
+
+        private IEnumerable<IInterceptor> CollectInternal(MethodInfo method)
+        {
+            var inherited = CollectFromInherited(method);
+            var selected = CollectFromSelector(method);
+            var collection = selected.Concat(inherited).HandleSort().HandleMultiple();
+            return collection.ToArray();
         }
 
         private IEnumerable<IInterceptor> CollectFromInherited(MethodInfo method)
@@ -71,7 +69,7 @@ namespace AspectCore.DynamicProxy
                 var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethod(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
-                    list.AddRange(CollectFromCache(interfaceMethod).Where(x => x.Inherited));
+                    list.AddRange(CollectInternal(interfaceMethod).Where(x => x.Inherited));
                 }
             }
             var baseType = typeInfo.BaseType;
@@ -82,7 +80,7 @@ namespace AspectCore.DynamicProxy
             var baseMethod = baseType.GetTypeInfo().GetMethod(new MethodSignature(method));
             if (baseMethod != null)
             {
-                list.AddRange(CollectFromCache(baseMethod).Where(x => x.Inherited));
+                list.AddRange(CollectInternal(baseMethod).Where(x => x.Inherited));
             }
             return list;
         }

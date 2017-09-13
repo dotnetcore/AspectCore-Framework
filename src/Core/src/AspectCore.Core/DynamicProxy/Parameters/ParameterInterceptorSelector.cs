@@ -28,16 +28,20 @@ namespace AspectCore.DynamicProxy.Parameters
             {
                 throw new ArgumentNullException(nameof(parameter));
             }
-            var interceptors = (IParameterInterceptor[])_aspectCaching.GetOrAdd(parameter, info => ((ParameterInfo)info).GetReflector().GetCustomAttributes().OfType<IParameterInterceptor>().ToArray());
-            for (var i = 0; i < interceptors.Length; i++)
-            {
-                var interceptor = interceptors[i];
-                if (PropertyInjectionUtils.Required(interceptor))
-                {
-                    _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
-                }
-            }
-            return interceptors;
+
+            return (IParameterInterceptor[])_aspectCaching.GetOrAdd(parameter, info =>
+             {
+                 var interceptors = ((ParameterInfo)info).GetReflector().GetCustomAttributes().OfType<IParameterInterceptor>().ToArray();
+                 for (var i = 0; i < interceptors.Length; i++)
+                 {
+                     var interceptor = interceptors[i];
+                     if (PropertyInjectionUtils.Required(interceptor))
+                     {
+                         _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
+                     }
+                 }
+                 return interceptors;
+             });
         }
     }
 }
