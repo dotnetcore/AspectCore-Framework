@@ -28,12 +28,12 @@ namespace AspectCore.Extensions.DependencyInjection
 
             services.AddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>));
             services.AddScoped<IServiceResolver, MSDIServiceResolver>();
-            services.AddScoped<IPropertyInjectorFactory, PropertyInjectorFactory>();          
-            services.AddScoped<IInterceptorCollector, InterceptorCollector>();         
+            services.AddScoped<IPropertyInjectorFactory, PropertyInjectorFactory>();                         
             services.AddScoped<IAspectContextFactory, AspectContextFactory>();   
             services.AddScoped<IAspectActivatorFactory, AspectActivatorFactory>();
             services.AddScoped<IProxyGenerator, ProxyGenerator>();      
             services.AddScoped<IParameterInterceptorSelector, ParameterInterceptorSelector>();
+            services.AddSingleton<IInterceptorCollector, InterceptorCollector>();
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, TypeInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, MethodInterceptorSelector>();

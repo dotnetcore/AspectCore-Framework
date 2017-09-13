@@ -16,7 +16,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(services));
             }
 
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider(false);
 
             var serviceValidator = new ServiceValidator(serviceProvider.GetRequiredService<IAspectValidatorBuilder>());
             var proxyTypeGenerator = serviceProvider.GetRequiredService<IProxyTypeGenerator>();
@@ -33,7 +33,7 @@ namespace AspectCore.Extensions.DependencyInjection
 
             serviceProvider.Dispose();
 
-            return dynamicProxyServices.BuildServiceProvider();
+            return dynamicProxyServices.BuildServiceProvider(false);
         }
 
         private static ServiceDescriptor MakeProxyService(ServiceDescriptor descriptor, Type implementationType, IProxyTypeGenerator proxyTypeGenerator)
