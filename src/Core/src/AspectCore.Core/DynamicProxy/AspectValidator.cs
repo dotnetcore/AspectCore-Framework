@@ -20,28 +20,37 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            if(_aspectValidationDelegate(method))
+            if (_aspectValidationDelegate(method))
             {
                 return true;
             }
 
             var declaringTypeInfo = method.DeclaringType.GetTypeInfo();
-            if (declaringTypeInfo.IsClass)
+            if (!declaringTypeInfo.IsClass)
             {
-                foreach (var interfaceTypeInfo in declaringTypeInfo.GetInterfaces().Select(x => x.GetTypeInfo()))
+                return false;
+            }
+
+            foreach (var interfaceTypeInfo in declaringTypeInfo.GetInterfaces().Select(x => x.GetTypeInfo()))
+            {
+                var interfaceMethod = interfaceTypeInfo.GetMethod(new MethodSignature(method));
+                if (interfaceMethod != null)
                 {
-                    var interfaceMethod = interfaceTypeInfo.GetMethod(new MethodSignature(method));
-                    if (interfaceMethod != null)
+                    if (Validate(interfaceMethod))
                     {
-                        if(Validate(interfaceMethod))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
 
-            return false;
+            var baseType = declaringTypeInfo.BaseType;
+            if (baseType == typeof(object) || baseType == null)
+            {
+                return false;
+            }
+
+            var baseMethod = baseType.GetTypeInfo().GetMethod(new MethodSignature(method));
+            return baseMethod != null && Validate(baseMethod);
         }
     }
 }

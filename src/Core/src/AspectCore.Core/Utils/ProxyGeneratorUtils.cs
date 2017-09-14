@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -387,7 +386,7 @@ namespace AspectCore.Utils
 
             internal static void DefineClassProxyMethods(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                foreach (var method in serviceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
+                foreach (var method in serviceType.GetTypeInfo().GetMethods().Where(x => !x.IsPropertyBinding()))
                 {
                     if (method.IsAccessibility())
                         DefineClassMethod(method, implType, typeDesc);
@@ -603,7 +602,7 @@ namespace AspectCore.Utils
 
             internal static void DefineClassProxyProperties(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                foreach (var property in serviceType.GetTypeInfo().DeclaredProperties)
+                foreach (var property in serviceType.GetTypeInfo().GetProperties())
                 {
                     if (property.IsAccessibility())
                     {

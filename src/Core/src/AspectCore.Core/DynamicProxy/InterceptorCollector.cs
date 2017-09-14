@@ -73,7 +73,7 @@ namespace AspectCore.DynamicProxy
                 }
             }
             var baseType = typeInfo.BaseType;
-            if (baseType == typeof(object))
+            if (baseType == typeof(object) || baseType == null)
             {
                 return list;
             }

@@ -25,6 +25,14 @@ namespace AspectCore.Tests.DynamicProxy
             Assert.Equal("serviceproxy", proxy.GetName());
         }
 
+        [Fact]
+        public void Class_Inherited()
+        {
+            var proxy = ProxyGenerator.CreateClassProxy<SubService>();
+            Assert.Equal("serviceproxy", proxy.GetName());
+            Assert.Equal("serviceproxy", proxy.GetBaseName());
+        }
+
         public interface INamed
         {
             [NamedInterceptor(Inherited = true)]
@@ -40,6 +48,20 @@ namespace AspectCore.Tests.DynamicProxy
             public virtual string GetName()
             {
                 return "service";
+            }
+        }
+
+        [NamedInterceptor]
+        public class SubService : Service
+        {
+            public override string GetName()
+            {
+                return base.GetName();
+            }
+
+            public virtual string GetBaseName()
+            {
+                return base.GetName();
             }
         }
 
