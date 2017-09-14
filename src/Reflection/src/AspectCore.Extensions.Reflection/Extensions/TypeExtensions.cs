@@ -13,7 +13,8 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
-            return typeInfo.GetMethods().FirstOrDefault(m => new MethodSignature(m) == signature);
+            return typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static).
+                FirstOrDefault(m => new MethodSignature(m) == signature);
         }
 
         public static MethodInfo GetDeclaredMethod(this TypeInfo typeInfo, MethodSignature signature)

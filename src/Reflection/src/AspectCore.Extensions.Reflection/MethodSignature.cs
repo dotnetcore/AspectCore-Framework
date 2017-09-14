@@ -58,7 +58,7 @@ namespace AspectCore.Extensions.Reflection
                     {
                         continue;       
                     }
-                    else if (paramterType.GetTypeInfo().IsGenericType)
+                    else if (paramterType.GetTypeInfo().ContainsGenericParameters)
                     {
                         signatureCode = (signatureCode * 397) ^ paramterType.GetGenericTypeDefinition().GetHashCode();
                         signatureCode = (signatureCode * 397) ^ paramterType.GenericTypeArguments.Length.GetHashCode();

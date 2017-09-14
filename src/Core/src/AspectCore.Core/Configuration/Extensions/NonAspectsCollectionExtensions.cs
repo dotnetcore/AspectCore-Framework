@@ -113,6 +113,8 @@ namespace AspectCore.Configuration
             collection.AddMethod("GetHashCode");
             collection.AddMethod("ToString");
             collection.AddMethod("GetType");
+            collection.AddMethod("Finalize");
+            collection.Add(m => m.DeclaringType == typeof(object));
             return collection;
         }
 

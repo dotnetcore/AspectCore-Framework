@@ -183,7 +183,7 @@ namespace AspectCore.Utils
 
             public static string GetInterfaceImplTypeName(Type interfaceType)
             {
-                var className = interfaceType.Name;
+                var className = interfaceType.GetName();
                 if (className.StartsWith("I", StringComparison.Ordinal))
                 {
                     className = className.Substring(1);
@@ -199,7 +199,7 @@ namespace AspectCore.Utils
 
             public static string GetProxyTypeName(Type serviceType, Type implType)
             {
-                return $"{ProxyNameSpace}.{implType.Name}{GetProxyTypeIndex(implType.Name, serviceType, implType)}";
+                return $"{ProxyNameSpace}.{implType.GetName()}{GetProxyTypeIndex(implType.GetName(), serviceType, implType)}";
             }
 
             public static string GetProxyTypeName(string className, Type serviceType, Type implType)
@@ -344,6 +344,7 @@ namespace AspectCore.Utils
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             internal const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
+            private static readonly HashSet<string> ignores = new HashSet<string> { "Finalize" };
 
             internal static void DefineInterfaceImplMethods(Type[] interfaceTypes, TypeBuilder implTypeBuilder)
             {
@@ -386,9 +387,9 @@ namespace AspectCore.Utils
 
             internal static void DefineClassProxyMethods(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                foreach (var method in serviceType.GetTypeInfo().GetMethods().Where(x => !x.IsPropertyBinding()))
+                foreach (var method in serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => !x.IsPropertyBinding()))
                 {
-                    if (method.IsAccessibility())
+                    if (method.IsAccessibility() && !ignores.Contains(method.Name))
                         DefineClassMethod(method, implType, typeDesc);
                 }
                 foreach (var item in additionalInterfaces)
@@ -476,10 +477,10 @@ namespace AspectCore.Utils
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method));       
+                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? implType.GetTypeInfo().GetExplicitMethod(method);    
                     if (implMethod == null)
                     {
-                        throw new MissingMethodException($"Type '{implType}' does not contain a method named '{method.Name}'");
+                        throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                     }
 
                     ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implMethod);
@@ -501,13 +502,11 @@ namespace AspectCore.Utils
                 {
                     var serviceMethod = method;
 
-                    var implTypeIfGenericTypeDefinition = implType;
-
-                    var implMethod = implTypeIfGenericTypeDefinition.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod));
+                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod)) ?? implType.GetTypeInfo().GetExplicitMethod(method); ;
 
                     if (implMethod == null)
                     {
-                        throw new MissingMethodException($"Type '{implType}' does not contain a method named '{method.Name}'");
+                        throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                     }
 
                     var methodConstants = typeDesc.MethodConstants;
@@ -602,7 +601,7 @@ namespace AspectCore.Utils
 
             internal static void DefineClassProxyProperties(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
-                foreach (var property in serviceType.GetTypeInfo().GetProperties())
+                foreach (var property in serviceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
                     if (property.IsAccessibility())
                     {
@@ -833,7 +832,21 @@ namespace AspectCore.Utils
                 {
                     var attributeTypeInfo = customAttributeData.AttributeType.GetTypeInfo();
                     var constructor = customAttributeData.Constructor;
-                    var constructorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value).ToArray();
+                    //var constructorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value).ToArray();
+                    var constructorArgs = new object[customAttributeData.ConstructorArguments.Count];
+                    for (var i = 0; i < constructorArgs.Length; i++)
+                    {
+                        if (customAttributeData.ConstructorArguments[i].ArgumentType.IsArray)
+                        {
+                            constructorArgs[i] = ((IEnumerable<CustomAttributeTypedArgument>)customAttributeData.ConstructorArguments[i].Value).
+                        Select(x => x.Value).ToArray();
+                        }
+                        else
+                        {
+                            constructorArgs[i] = customAttributeData.ConstructorArguments[i].Value;
+                        }
+                       
+                    }
                     var namedProperties = customAttributeData.NamedArguments
                             .Where(n => !n.IsField)
                             .Select(n => attributeTypeInfo.GetProperty(n.MemberName))

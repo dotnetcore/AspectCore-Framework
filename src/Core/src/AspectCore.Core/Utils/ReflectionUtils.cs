@@ -8,12 +8,12 @@ using AspectCore.Extensions.Reflection;
 namespace AspectCore.DynamicProxy
 {
     public static class ReflectionUtils
-    {     
+    {
         public static bool IsProxy(this object instance)
         {
             if (instance == null)
             {
-               return false;
+                return false;
             }
             return instance.GetType().GetTypeInfo().IsProxyType();
         }
@@ -39,7 +39,7 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            if (typeInfo.IsNonAspect()|| typeInfo.IsProxyType())
+            if (typeInfo.IsNonAspect() || typeInfo.IsProxyType())
             {
                 return false;
             }
@@ -71,7 +71,7 @@ namespace AspectCore.DynamicProxy
             }
             return member.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
-       
+
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
@@ -95,9 +95,24 @@ namespace AspectCore.DynamicProxy
             var declaringType = member.DeclaringType.GetTypeInfo();
             if (declaringType.IsInterface)
             {
-                return $"{declaringType.Name}.{member.Name}".Replace('+', '.');
+                return $"{declaringType.Namespace}.{declaringType.AsType().GetName()}.{member.Name}";
             }
             return member.Name;
+        }
+
+        internal static string GetName(this Type type)
+        {
+            if (!type.GetTypeInfo().IsGenericType)
+            {
+                return type.Name.Replace('+', '.');
+            }
+            var arguments = type.GenericTypeArguments;
+            var name = $"{type.Name.Replace('+', '.')}<{arguments[0].GetName()}";
+            for (var i = 1; i < arguments.Length; i++)
+            {
+                name = name + "," + arguments[i].GetName();
+            }
+            return name + ">";
         }
 
         internal static bool IsReturnTask(this MethodInfo methodInfo)
@@ -144,6 +159,80 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(method));
             }
             return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
+        }
+
+        internal static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
+        {
+            var interfaceType = method.DeclaringType;
+            var explicitMethodName = $"{interfaceType.GetName()}.{method.Name}";
+            foreach (var m in typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (m.Name != explicitMethodName)
+                {
+                    continue;
+                }
+                var parameters1 = method.GetParameterTypes();
+                var parameters2 = m.GetParameterTypes();
+                if (parameters1.Length != parameters2.Length)
+                {
+                    continue;
+                }
+                if (method.GetGenericArguments().Length != method.GetGenericArguments().Length)
+                {
+                    continue;
+                }
+                for (var i = 0; i < parameters2.Length; i++)
+                {
+                    var p1 = parameters1[i];
+                    var p2 = parameters2[i];
+                    if (p1.IsGenericParameter && !p2.IsGenericParameter)
+                    {
+                        continue;
+                    }
+                    else if (!p1.IsGenericParameter && p2.IsGenericParameter)
+                    {
+                        continue;
+                    }
+                    else if (p1.IsGenericParameter && p2.IsGenericParameter)
+                    {
+                        return m;
+                    }
+                    else
+                    {
+                        var pt1 = p1.GetTypeInfo();
+                        var pt2 = p2.GetTypeInfo();
+                        if (pt1.IsGenericType && !pt2.IsGenericType)
+                        {
+                            continue;
+                        }
+                        else if (!pt1.IsGenericType && pt2.IsGenericType)
+                        {
+                            continue;
+                        }
+                        else if (pt1.IsGenericType && pt2.IsGenericType)
+                        {
+                            if(pt1.AsType().IsConstructedGenericType&& pt2.AsType().IsConstructedGenericType && pt1 == pt2)
+                            {
+                                return m;
+                            }
+                            if (pt1.GetGenericTypeDefinition() == pt2.GetGenericTypeDefinition() &&
+                                pt1.GenericTypeArguments.Length == pt2.GenericTypeArguments.Length)
+                            {
+                                return m;
+                            }
+                        }
+                        else
+                        {
+                            if (pt1 == pt2)
+                            {
+                                return m;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }
