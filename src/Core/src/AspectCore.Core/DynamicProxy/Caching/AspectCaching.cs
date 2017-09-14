@@ -24,10 +24,13 @@ namespace AspectCore.DynamicProxy
                 if (_dictionary.TryRemove(key, out var value))
                 {
                     var enumerbale = value as IEnumerable;
-                    foreach(var item in enumerbale)
+                    if (enumerbale != null)
                     {
-                        var d = item as IDisposable;
-                        d?.Dispose();
+                        foreach (var item in enumerbale)
+                        {
+                            var d = item as IDisposable;
+                            d?.Dispose();
+                        }
                     }
                     var disposable = value as IDisposable;
                     disposable?.Dispose();

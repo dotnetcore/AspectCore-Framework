@@ -54,7 +54,16 @@ namespace AspectCore.Configuration
 
         private static NonAspectPredicateCollection AddMicrosoft(this NonAspectPredicateCollection collection)
         {        
-            //collection.AddNamespace("Microsoft.*");
+            collection.AddNamespace("Microsoft.*");
+            collection.AddNamespace("Microsoft.CodeAnalysis.Razor");
+            collection.AddNamespace("Microsoft.CodeAnalysis.Razor.*");
+            return collection;
+        }
+
+        private static NonAspectPredicateCollection AddCodeAnalysis(this NonAspectPredicateCollection collection)
+        {
+            collection.AddNamespace("Microsoft.CodeAnalysis.Razor");
+            collection.AddNamespace("Microsoft.CodeAnalysis.Razor.*");
             return collection;
         }
 
@@ -66,8 +75,6 @@ namespace AspectCore.Configuration
             collection.AddNamespace("Microsoft.ApplicationInsights.*");
             collection.AddNamespace("Microsoft.Net.*");
             collection.AddNamespace("Microsoft.Web.*");
-            //collection.AddNamespace("Microsoft.CodeAnalysis.Razor");
-            //collection.AddNamespace("Microsoft.CodeAnalysis.Razor.*");
             return collection;
         }
 
@@ -127,6 +134,7 @@ namespace AspectCore.Configuration
                 AddObjectVMethod().
                 AddSystem().
                 AddMicrosoft().
+                AddCodeAnalysis().
                 AddAspNetCore().
                 AddEntityFramework().
                 AddOwin().
