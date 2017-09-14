@@ -164,7 +164,7 @@ namespace AspectCore.DynamicProxy
         internal static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
         {
             var interfaceType = method.DeclaringType;
-            var explicitMethodName = $"{interfaceType.GetName()}.{method.Name}";
+            var explicitMethodName = $"{interfaceType.Namespace}.{interfaceType.GetName()}.{method.Name}";
             foreach (var m in typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (m.Name != explicitMethodName)

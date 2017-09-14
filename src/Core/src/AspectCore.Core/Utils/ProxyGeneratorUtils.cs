@@ -734,7 +734,8 @@ namespace AspectCore.Utils
                         var parameterBuilder = methodBuilder.DefineParameter(i + paramOffset, parameter.Attributes, parameter.Name);
                         if (parameter.HasDefaultValue)
                         {
-                            parameterBuilder.SetConstant(parameter.DefaultValue);
+                            if (!(parameter.ParameterType.GetTypeInfo().IsValueType && parameter.DefaultValue == null))
+                                parameterBuilder.SetConstant(parameter.DefaultValue);
                         }
                         parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                         foreach (var attribute in parameter.CustomAttributes)

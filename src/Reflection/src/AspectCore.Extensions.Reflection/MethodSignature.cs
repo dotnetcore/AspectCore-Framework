@@ -56,21 +56,42 @@ namespace AspectCore.Extensions.Reflection
                 {
                     if (paramterType.IsGenericParameter)
                     {
-                        continue;       
+                        continue;
                     }
-                    else if (paramterType.GetTypeInfo().ContainsGenericParameters)
+                    else if (paramterType.GetTypeInfo().IsGenericType)
                     {
-                        signatureCode = (signatureCode * 397) ^ paramterType.GetGenericTypeDefinition().GetHashCode();
-                        signatureCode = (signatureCode * 397) ^ paramterType.GenericTypeArguments.Length.GetHashCode();
+                        signatureCode = GetSignatureCode(signatureCode, paramterType);
                     }
                     else
                     {
                         signatureCode = (signatureCode * 397) ^ paramterType.GetHashCode();
                     }
-                }       
+                }
                 signatureCode = (signatureCode * 397) ^ method.GetGenericArguments().Length.GetHashCode();
                 return signatureCode;
             }
+        }
+
+        private static int GetSignatureCode(int signatureCode, Type genericType)
+        {
+            signatureCode = (signatureCode * 397) ^ genericType.GetGenericTypeDefinition().GetHashCode();
+            signatureCode = (signatureCode * 397) ^ genericType.GenericTypeArguments.Length.GetHashCode();
+            foreach (var argument in genericType.GenericTypeArguments)
+            {
+                if (argument.IsGenericParameter)
+                {
+                    continue;
+                }
+                else if (argument.GetTypeInfo().IsGenericType)
+                {
+                    signatureCode = GetSignatureCode(signatureCode, argument);
+                }
+                else
+                {
+                    signatureCode = (signatureCode * 397) ^ argument.GetHashCode();
+                }
+            }
+            return signatureCode;
         }
     }
 }
