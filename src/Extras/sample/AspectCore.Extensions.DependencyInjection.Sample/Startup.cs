@@ -4,9 +4,11 @@ using AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy;
 using AspectCore.Extensions.DependencyInjection.Sample.Services;
 using AspectCore.Injector;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ObjectPool;
 
 namespace AspectCore.Extensions.DependencyInjection.Sample
 {
@@ -21,7 +23,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc().AddControllersAsServices();
 
             services.AddOptions();
 
@@ -35,9 +37,9 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             //方式一步骤2.调用IServiceContainer.Configure配置全局拦截器
             container.Configure(config =>
             {
-                config.Interceptors.AddTyped<ServiceExecuteLoggerInterceptor>(Predicates.ForService("*Service"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForMethod("*"));
             });
-
+            XmlKeyManager
             //方式一步骤3.调用IServiceContainer.Build构建动态代理服务解析器
             return container.Build();
             #endregion

@@ -476,7 +476,7 @@ namespace AspectCore.Utils
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method));
+                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method));       
                     if (implMethod == null)
                     {
                         throw new MissingMethodException($"Type '{implType}' does not contain a method named '{method.Name}'");

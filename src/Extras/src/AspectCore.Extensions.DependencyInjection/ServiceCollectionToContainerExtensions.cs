@@ -13,7 +13,7 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            return new ServiceContainer(services.AddAspectCoreContainer().Select(x => Replace(x)));
+            return new ServiceContainer(services.AddAspectCoreContainer().Select(Replace));
         }
 
         public static IServiceCollection AddAspectCoreContainer(this IServiceCollection services)

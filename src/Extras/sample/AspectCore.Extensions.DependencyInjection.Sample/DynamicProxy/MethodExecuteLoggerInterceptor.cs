@@ -9,10 +9,10 @@ using Microsoft.Extensions.Logging;
 
 namespace AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy
 {
-    public class ServiceExecuteLoggerInterceptor : InterceptorAttribute
+    public class MethodExecuteLoggerInterceptor : InterceptorAttribute
     {
         [FromContainer]
-        public ILogger<ServiceExecuteLoggerInterceptor> Logger { get; set; }
+        public ILogger<MethodExecuteLoggerInterceptor> Logger { get; set; }
 
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
@@ -20,10 +20,10 @@ namespace AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy
             await next(context);
             stopwatch.Stop();
             Logger?.LogInformation("Executed method {0}.{1}.{2} ({3}) in {4}ms", 
-                context.ProxyMethod.DeclaringType.Namespace, 
-                context.ProxyMethod.DeclaringType.Name,
-                context.ProxyMethod.Name,
-                context.ProxyMethod.DeclaringType.Assembly.GetName().Name,
+                context.ServiceMethod.DeclaringType.Namespace, 
+                context.ServiceMethod.DeclaringType.Name,
+                context.ServiceMethod.Name,
+                context.ServiceMethod.DeclaringType.Assembly.GetName().Name,
                 stopwatch.ElapsedMilliseconds
                 );
         }

@@ -18,34 +18,48 @@ namespace AspectCore.Tests
         public virtual ILogger Logger { get; set; }
     }
 
-    public interface ITransient : IService {
+    public interface ITransient : IService
+    {
         void Foo();
     }
 
 
     public class Transient : ServiceBase, ITransient, IDelegateTransient
     {
-        public virtual void Foo() { }
+        public virtual void Foo()
+        {
+        }
     }
 
-    public interface IDelegateTransient : ITransient { }
+    public interface IDelegateTransient : ITransient
+    {
+    }
 
-    public interface IScoped : IService, IDisposable { bool IsDisposed { get; } }
+    public interface IScoped : IService, IDisposable
+    {
+        bool IsDisposed { get; }
+    }
 
     public class Scoped : ServiceBase, IScoped
     {
         public bool IsDisposed { get; private set; }
+
         public void Dispose()
         {
             IsDisposed = true;
         }
     }
 
-    public interface ISingleton : IScoped { }
+    public interface ISingleton : IScoped
+    {
+    }
 
-    public class Singleton : Scoped, ISingleton { }
+    public class Singleton : Scoped, ISingleton
+    {
+    }
 
-    public interface ILogger {
+    public interface ILogger
+    {
         void Info();
     }
 
@@ -67,13 +81,21 @@ namespace AspectCore.Tests
         internal ILogger InternalLogger { get; set; }
     }
 
-    public interface ISimpleGeneric<T> { }
+    public interface ISimpleGeneric<T>
+    {
+    }
 
-    public class SimpleGeneric<T> : ISimpleGeneric<T>, IInstanceSimpleGeneric<T>, IDelegateSimpleGeneric<T> { }
+    public class SimpleGeneric<T> : ISimpleGeneric<T>, IInstanceSimpleGeneric<T>, IDelegateSimpleGeneric<T>
+    {
+    }
 
-    public interface IInstanceSimpleGeneric<T> : ISimpleGeneric<T> { }
+    public interface IInstanceSimpleGeneric<T> : ISimpleGeneric<T>
+    {
+    }
 
-    public interface IDelegateSimpleGeneric<T> : ISimpleGeneric<T> { }
+    public interface IDelegateSimpleGeneric<T> : ISimpleGeneric<T>
+    {
+    }
 
     public interface IUserService : IService
     {
@@ -82,18 +104,25 @@ namespace AspectCore.Tests
 
     public class UserService : ServiceBase, IUserService
     {
-        public UserService(IRepository<User> repository) {
+        public UserService(IRepository<User> repository)
+        {
             Repository = repository;
         }
 
         public IRepository<User> Repository { get; }
     }
 
-    public interface IRepository<T> { }
+    public interface IRepository<T>
+    {
+    }
 
-    public class Repository<T> : IRepository<T> { }
+    public class Repository<T> : IRepository<T>
+    {
+    }
 
-    public class User { }
+    public class User
+    {
+    }
 
     public class PocoClass
     {
@@ -119,4 +148,19 @@ namespace AspectCore.Tests
         public TVal Value { get; }
     }
 
+    public class AbsFakeOpenGenericMethod
+    {
+        public virtual T Create<T>() where T : class
+        {
+            return default(T);
+        }
+    }
+
+    public class FakeOpenGenericMethod : AbsFakeOpenGenericMethod
+    {
+        public override T Create<T>()
+        {
+            return base.Create<T>();
+        }
+    }
 }

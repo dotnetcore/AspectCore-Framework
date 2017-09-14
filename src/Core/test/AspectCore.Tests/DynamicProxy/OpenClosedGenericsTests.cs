@@ -23,7 +23,7 @@ namespace AspectCore.Tests.DynamicProxy
         public void CreateInterfaceProxyType_Without_ImplType()
         {
             var configuration = new AspectConfiguration();
-            configuration.Interceptors.AddTyped<EnableParameterAspectAttribute>();
+            configuration.Interceptors.AddTyped<EnableParameterAspectInterceptor>();
             var validatorBuilder = new AspectValidatorBuilder(configuration);
             var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
             var proxyType = proxyTypeGenerator.CreateInterfaceProxyType(typeof(IFakeOpenGenericService<>));
@@ -46,7 +46,7 @@ namespace AspectCore.Tests.DynamicProxy
         public void CreateInterfaceProxyType_Wit_ImplType()
         {
             var configuration = new AspectConfiguration();
-            configuration.Interceptors.AddTyped<EnableParameterAspectAttribute>();
+            configuration.Interceptors.AddTyped<EnableParameterAspectInterceptor>();
             var validatorBuilder = new AspectValidatorBuilder(configuration);
             var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
             var proxyType = proxyTypeGenerator.CreateInterfaceProxyType(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>));
@@ -59,7 +59,7 @@ namespace AspectCore.Tests.DynamicProxy
 
         protected override void Configure(IAspectConfiguration configuration)
         {
-            configuration.Interceptors.AddTyped<EnableParameterAspectAttribute>();
+            configuration.Interceptors.AddTyped<EnableParameterAspectInterceptor>();
         }
     }
 }
