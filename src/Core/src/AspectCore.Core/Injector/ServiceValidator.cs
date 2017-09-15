@@ -51,6 +51,11 @@ namespace AspectCore.Injector
                 return false;
             }
 
+            if (!implementationType.GetTypeInfo().IsVisible())
+            {
+                return false;
+            }
+
             return true;
 
             bool CanInherited(TypeInfo typeInfo)

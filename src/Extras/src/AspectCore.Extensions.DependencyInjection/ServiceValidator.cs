@@ -24,6 +24,11 @@ namespace AspectCore.Extensions.DependencyInjection
                 return false;
             }
 
+            if (descriptor.ServiceType.IsGenericTypeDefinition)
+            {
+                return false;
+            }
+
             implementationType = GetImplementationType(descriptor);
 
             if (descriptor.ServiceType.GetTypeInfo().IsClass)
@@ -48,6 +53,11 @@ namespace AspectCore.Extensions.DependencyInjection
             }
 
             if (!implementationType.GetTypeInfo().IsClass)
+            {
+                return false;
+            }
+
+            if (!implementationType.GetTypeInfo().IsVisible())
             {
                 return false;
             }

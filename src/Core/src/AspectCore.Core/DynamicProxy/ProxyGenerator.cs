@@ -14,6 +14,8 @@ namespace AspectCore.DynamicProxy
             _aspectActivatorFactory = aspectActivatorFactory ?? throw new ArgumentNullException(nameof(aspectActivatorFactory));
         }
 
+        public IProxyTypeGenerator TypeGenerator => _proxyTypeGenerator;
+
         public object CreateClassProxy(Type serviceType, Type implementationType, object[] args)
         {
             if (serviceType == null)
@@ -77,6 +79,8 @@ namespace AspectCore.DynamicProxy
             _serviceResolver = serviceResolver;
             _proxyGenerator = serviceResolver.ResolveRequired<IProxyGenerator>();
         }
+
+        public IProxyTypeGenerator TypeGenerator => _proxyGenerator.TypeGenerator;
 
         public object CreateClassProxy(Type serviceType, Type implementationType, object[] args)
         {

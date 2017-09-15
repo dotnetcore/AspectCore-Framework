@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AspectCore.Configuration;
 using AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy;
 using AspectCore.Extensions.DependencyInjection.Sample.Services;
@@ -9,7 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 
 namespace AspectCore.Extensions.DependencyInjection.Sample
 {
@@ -31,6 +34,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             services.AddTransient<IValuesService, ValuesService>();
 
             #region 方式一：使用AspectCore.Injector内置的IoC容器
+
             //方式一：使用AspectCore.Injector内置的IoC容器
             //方式一步骤1.调用services.ToServiceContainer()得到AspectCore内置容器IServiceContainer
             var container = services.ToServiceContainer();
@@ -38,26 +42,61 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             //方式一步骤2.调用IServiceContainer.Configure配置全局拦截器
             container.Configure(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForMethod("*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(
+                    Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample"),
+                    Predicates.ForNameSpace("Microsoft.*"));
             });
+
             //方式一步骤3.调用IServiceContainer.Build构建动态代理服务解析器
-            return container.Build(); /*ObjectResultExecutor*/
+            var resolver= container.Build();
+
+            AspectCore.DynamicProxy.ProxyGeneratorBuilder proxyGeneratorBuilder =
+                new AspectCore.DynamicProxy.ProxyGeneratorBuilder();
+            proxyGeneratorBuilder.Configure(config =>
+                {
+                    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(
+                        Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample"),
+                        Predicates.ForNameSpace("*"));
+                }
+            );
+
+            var proxyG = proxyGeneratorBuilder.Build();
+
+            var args = new object[]
+            {
+                resolver.Resolve<IOptionsFactory<ConsoleLoggerOptions>>(),
+                resolver.Resolve<IEnumerable<IOptionsChangeTokenSource<ConsoleLoggerOptions>>>(),
+                resolver.Resolve<IOptionsMonitorCache<ConsoleLoggerOptions>>()
+            };
+
+            var a = AspectCore.DynamicProxy.ProxyGeneratorExtensions
+                .CreateInterfaceProxy<IOptionsMonitor<ConsoleLoggerOptions>, OptionsMonitor<ConsoleLoggerOptions>>(
+                    proxyG, args);
+          var c=  a.CurrentValue;
+
+            return resolver;
+
             #endregion
 
             #region 方式二：使用Microsoft.Extensions.DependencyInjection容器
+
             ////方式二：使用Microsoft.Extensions.DependencyInjection容器
             ////方式二步骤1.services.AddDynamicProxy添加动态代理服务和配置全局拦截器
             //services.AddDynamicProxy(config =>
             //{
-            //    config.Interceptors.AddTyped<ServiceExecuteLoggerInterceptor>(Predicates.ForService("*Service"));
+            //    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(
+            //        Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample"),
+            //        Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample.*"));
             //});
             ////方式二步骤2.调用services.BuildAspectCoreServiceProvider构建动态代理服务解析器
-            //return services.BuildAspectCoreServiceProvider();
+            //return services.BuildAspectCoreServiceProvider(); 
+
             #endregion
 
         }
 
         #region 方式三：使用ConfigureContainer和ServiceProviderFactory配置AspectCore.Injector内置的IoC容器
+
         /// <summary>
         /// 方式三：使用ConfigureContainer和ServiceProviderFactory配置AspectCore.Injector内置的IoC容器
         /// 方式三步骤1.添加ConfigureContainer方法进行容器和动态代理配置
@@ -68,9 +107,10 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
         //{
         //    serviceContainer.Configure(config =>
         //    {
-        //        config.Interceptors.AddTyped<ServiceExecuteLoggerInterceptor>(Predicates.ForService("*Service"));
+        //        config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
         //    });
         //}
+
         #endregion
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

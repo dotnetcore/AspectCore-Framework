@@ -126,6 +126,7 @@ namespace AspectCore.Configuration
             collection.AddNamespace("AspectCore.Configuration.*");
             collection.AddNamespace("AspectCore.DynamicProxy.*");
             collection.AddNamespace("AspectCore.Injector.*");
+            collection.AddNamespace("AspectCore.Extensions.*");
             return collection;
         }
 

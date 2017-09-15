@@ -21,7 +21,7 @@ namespace AspectCore.Utils
 
         internal static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
 
-        internal static MethodInfo GetMethod<T>(Expression<T> expression)
+        private static MethodInfo GetMethod<T>(Expression<T> expression)
         {
             if (expression == null)
             {
@@ -35,7 +35,7 @@ namespace AspectCore.Utils
             return methodCallExpression.Method;
         }
 
-        internal static MethodInfo GetMethod<T>(string name)
+        private static MethodInfo GetMethod<T>(string name)
         {
             if (name == null)
             {

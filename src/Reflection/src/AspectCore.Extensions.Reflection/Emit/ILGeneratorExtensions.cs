@@ -276,7 +276,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
 
             var t = value as Type;
-            if (t != null && ShouldLdtoken(t))
+            if (t != null /*&& ShouldLdtoken(t)*/)
             {
                 ilGenerator.EmitType(t);
                 if (valueType != typeof(Type))
@@ -286,10 +286,10 @@ namespace AspectCore.Extensions.Reflection.Emit
                 return;
             }
 
-            var mb = value as MethodInfo;
+            var mb = value as MethodBase;
             if (mb != null && ShouldLdtoken(mb))
             {
-                ilGenerator.EmitMethod(mb);
+                ilGenerator.EmitMethod((MethodInfo)mb);
                 return;
             }
 

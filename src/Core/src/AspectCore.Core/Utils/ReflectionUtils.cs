@@ -106,7 +106,9 @@ namespace AspectCore.DynamicProxy
             {
                 return type.Name.Replace('+', '.');
             }
-            var arguments = type.GenericTypeArguments;
+            var arguments = type.GetTypeInfo().IsGenericTypeDefinition
+                ? type.GetTypeInfo().GenericTypeParameters
+                : type.GenericTypeArguments;
             var name = $"{type.Name.Replace('+', '.')}<{arguments[0].GetName()}";
             for (var i = 1; i < arguments.Length; i++)
             {
@@ -140,7 +142,8 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(property));
             }
-            return (property.CanRead && property.GetMethod.IsAccessibility()) || (property.CanWrite && property.GetMethod.IsAccessibility());
+            return (property.CanRead && property.GetMethod.IsAccessibility()) ||
+                   (property.CanWrite && property.GetMethod.IsAccessibility());
         }
 
         internal static bool IsAccessibility(this TypeInfo declaringType)
@@ -158,7 +161,8 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            return !method.IsStatic && !method.IsFinal && method.IsVirtual && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
+            return !method.IsStatic && !method.IsFinal && method.IsVirtual &&
+                   (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
         internal static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
@@ -211,7 +215,8 @@ namespace AspectCore.DynamicProxy
                         }
                         else if (pt1.IsGenericType && pt2.IsGenericType)
                         {
-                            if(pt1.AsType().IsConstructedGenericType&& pt2.AsType().IsConstructedGenericType && pt1 == pt2)
+                            if (pt1.AsType().IsConstructedGenericType && pt2.AsType().IsConstructedGenericType &&
+                                pt1 == pt2)
                             {
                                 return m;
                             }
@@ -233,6 +238,25 @@ namespace AspectCore.DynamicProxy
             }
 
             return null;
+        }
+
+        public static bool IsVisible(this TypeInfo typeInfo)
+        {
+            if (!typeInfo.IsVisible || !typeInfo.IsPublic)
+            {
+                return false;
+            }
+            if (typeInfo.IsGenericType)
+            {
+                foreach (var argument in typeInfo.GenericTypeArguments)
+                {
+                    if (!argument.GetTypeInfo().IsVisible())
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }

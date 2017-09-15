@@ -66,8 +66,12 @@ namespace AspectCore.DynamicProxy
             var hashSet = new HashSet<Type>(exceptInterfaces);
             foreach (var interfaceType in type.GetTypeInfo().GetInterfaces().Distinct())
             {
-                if (!hashSet.Contains(interfaceType))
+                if (!interfaceType.GetTypeInfo().IsVisible())
                 {
+                    continue;
+                }
+                if (!hashSet.Contains(interfaceType))
+                {      
                     if (interfaceType.GetTypeInfo().ContainsGenericParameters && type.GetTypeInfo().ContainsGenericParameters)
                     {
                         if (!hashSet.Contains(interfaceType.GetGenericTypeDefinition()))
@@ -80,5 +84,6 @@ namespace AspectCore.DynamicProxy
                 }
             }
         }
+
     }
 }
