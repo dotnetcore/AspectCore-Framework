@@ -22,7 +22,7 @@ namespace AspectCore.DynamicProxy
 
         private bool IsAttributeAspect(MemberInfo member)
         {
-            return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType.GetTypeInfo()));
+            return member.CustomAttributes.Any(data => typeof(IInterceptor).GetTypeInfo().IsAssignableFrom(data.AttributeType));
         }
     }
 }

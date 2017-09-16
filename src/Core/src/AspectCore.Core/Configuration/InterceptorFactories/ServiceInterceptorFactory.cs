@@ -22,7 +22,7 @@ namespace AspectCore.Configuration
             _interceptorType = interceptorType;
         }
 
-        public override IInterceptor CreateInstance()
+        public override IInterceptor CreateInstance(IServiceProvider serviceProvider)
         {
             return new ServiceInterceptorAttribute(_interceptorType);
         }

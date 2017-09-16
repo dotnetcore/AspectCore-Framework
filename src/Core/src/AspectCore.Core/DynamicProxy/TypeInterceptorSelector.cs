@@ -15,7 +15,7 @@ namespace AspectCore.DynamicProxy
             {
                 return ArrayUtils.Empty<IInterceptor>();
             }
-            return method.DeclaringType.GetReflector().GetCustomAttributes().OfType<IInterceptor>();
+            return method.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes().OfType<IInterceptor>();
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace AspectCore.DynamicProxy
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]
-    public sealed class NonAspectAttribute : Attribute
+    public class NonAspectAttribute : Attribute
     {
     }
 }

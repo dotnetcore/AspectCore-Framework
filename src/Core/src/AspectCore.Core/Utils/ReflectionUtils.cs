@@ -63,13 +63,22 @@ namespace AspectCore.DynamicProxy
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
         }
 
-        public static bool IsNonAspect(this MemberInfo member)
+        public static bool IsNonAspect(this TypeInfo typeInfo)
         {
-            if (member == null)
+            if (typeInfo == null)
             {
-                throw new ArgumentNullException(nameof(member));
+                throw new ArgumentNullException(nameof(typeInfo));
             }
-            return member.GetReflector().IsDefined(typeof(NonAspectAttribute));
+            return typeInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
+        }
+
+        public static bool IsNonAspect(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+            return methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
         internal static bool IsCallvirt(this MethodInfo methodInfo)
