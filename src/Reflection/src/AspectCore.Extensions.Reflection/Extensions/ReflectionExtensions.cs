@@ -7,23 +7,6 @@ namespace AspectCore.Extensions.Reflection
     public static class ReflectionExtensions
     {
         #region Reflection
-        public static TypeReflector GetReflector(this object instance)
-        {
-            if (instance == null)
-            {
-                throw new ArgumentNullException(nameof(instance));
-            }
-            return instance.GetType().GetReflector();
-        }
-
-        public static TypeReflector GetReflector(this Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-            return type.GetTypeInfo().GetReflector();
-        }
 
         public static TypeReflector GetReflector(this TypeInfo typeInfo)
         {
