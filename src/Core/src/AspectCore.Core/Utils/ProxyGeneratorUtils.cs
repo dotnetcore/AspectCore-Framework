@@ -519,16 +519,13 @@ namespace AspectCore.Utils
                     }
                     else
                     {
-                        //methodConstants.AddMethod($"service{serviceMethod.GetFullName()}", serviceMethod);
-                        //methodConstants.AddMethod($"imp{implMethod.GetFullName()}", implMethod);
-                        //methodConstants.AddMethod($"proxy{methodBuilder.GetFullName()}", methodBuilder);
+                        methodConstants.AddMethod($"service{serviceMethod.GetFullName()}", serviceMethod);
+                        methodConstants.AddMethod($"imp{implMethod.GetFullName()}", implMethod);
+                        methodConstants.AddMethod($"proxy{methodBuilder.GetFullName()}", methodBuilder);
 
-                        //methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetFullName()}");
-                        //methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetFullName()}");
-                        //methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.GetFullName()}");
-                        ilGen.EmitMethod(serviceMethod);
-                        ilGen.EmitMethod(implMethod);
-                        ilGen.EmitMethod(methodBuilder);
+                        methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetFullName()}");
+                        methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetFullName()}");
+                        methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.GetFullName()}");
                     }
 
                     ilGen.EmitThis();
