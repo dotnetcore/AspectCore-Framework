@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace AspectCore.Extensions.DependencyInjection.Sample.Controllers
 {
     [Route("api/[controller]")]
-    public class ValuesController : ControllerBase<string>
+    public class ValuesController : ControllerBase
     {
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get([FromServices]IValuesService valuesService)
         {
             var ms = this.GetType().GetMethods();
-            return ApiResultWith(() => valuesService.GetAll());
+            return ApiResult(() => valuesService.GetAll());
         }
 
         // GET api/values/5

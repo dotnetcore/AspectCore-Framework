@@ -12,14 +12,11 @@ namespace AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy
 {
     public class MethodExecuteLoggerInterceptor : InterceptorAttribute
     {
+        [FromContainer]
+        private ILogger<MethodExecuteLoggerInterceptor> logger { get; set; }
+
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            ILogger logger = null;
-            //var s = context.ProxyInstance.GetType().Name;
-            //if (logger == null)
-            //{
-            //    logger = context.ServiceProvider.GetService<ILogger<MethodExecuteLoggerInterceptor>>();
-            //}
             Stopwatch stopwatch = Stopwatch.StartNew();
             await next(context);
             stopwatch.Stop();

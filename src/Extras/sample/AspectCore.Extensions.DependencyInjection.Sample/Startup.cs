@@ -42,39 +42,10 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             //方式一步骤2.调用IServiceContainer.Configure配置全局拦截器
             container.Configure(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(
-                    Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample"),
-                    Predicates.ForNameSpace("Microsoft.*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
             });
 
-            //方式一步骤3.调用IServiceContainer.Build构建动态代理服务解析器
-            var resolver= container.Build();
-
-            AspectCore.DynamicProxy.ProxyGeneratorBuilder proxyGeneratorBuilder =
-                new AspectCore.DynamicProxy.ProxyGeneratorBuilder();
-            proxyGeneratorBuilder.Configure(config =>
-                {
-                    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(
-                        Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample"),
-                        Predicates.ForNameSpace("*"));
-                }
-            );
-
-            var proxyG = proxyGeneratorBuilder.Build();
-
-            var args = new object[]
-            {
-                resolver.Resolve<IOptionsFactory<ConsoleLoggerOptions>>(),
-                resolver.Resolve<IEnumerable<IOptionsChangeTokenSource<ConsoleLoggerOptions>>>(),
-                resolver.Resolve<IOptionsMonitorCache<ConsoleLoggerOptions>>()
-            };
-
-            var a = AspectCore.DynamicProxy.ProxyGeneratorExtensions
-                .CreateInterfaceProxy<IOptionsMonitor<ConsoleLoggerOptions>, OptionsMonitor<ConsoleLoggerOptions>>(
-                    proxyG, args);
-          var c=  a.CurrentValue;
-
-            return resolver;
+            return container.Build();
 
             #endregion
 
@@ -84,12 +55,10 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             ////方式二步骤1.services.AddDynamicProxy添加动态代理服务和配置全局拦截器
             //services.AddDynamicProxy(config =>
             //{
-            //    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(
-            //        Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample"),
-            //        Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.Sample.*"));
+            //    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
             //});
             ////方式二步骤2.调用services.BuildAspectCoreServiceProvider构建动态代理服务解析器
-            //return services.BuildAspectCoreServiceProvider(); 
+            //return services.BuildAspectCoreServiceProvider();
 
             #endregion
 
