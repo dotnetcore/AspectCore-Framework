@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace AspectCore.DynamicProxy
 {
@@ -15,10 +13,13 @@ namespace AspectCore.DynamicProxy
         }
 
         public virtual AspectContext CreateContext(AspectActivatorContext activatorContext)
-        {  
+        {
             return new RuntimeAspectContext(_serviceProvider,
-                activatorContext.ServiceMethod, activatorContext.TargetMethod, activatorContext.ProxyMethod,
-                activatorContext.ServiceInstance, activatorContext.ProxyInstance,
+                activatorContext.ServiceMethod,
+                activatorContext.TargetMethod,
+                activatorContext.ProxyMethod,
+                activatorContext.ServiceInstance,
+                activatorContext.ProxyInstance,
                 activatorContext.Parameters ?? emptyParameters);
         }
     }

@@ -20,6 +20,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DynamicProxy\Enhances\**" />
+    <EmbeddedResource Remove="DynamicProxy\Enhances\**" />
+    <None Remove="DynamicProxy\Enhances\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
   </ItemGroup>
 
@@ -31,10 +37,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DynamicProxy\Enhances\" />
   </ItemGroup>
 
 </Project>

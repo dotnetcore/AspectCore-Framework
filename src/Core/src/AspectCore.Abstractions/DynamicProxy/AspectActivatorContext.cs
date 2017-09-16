@@ -22,7 +22,7 @@ namespace AspectCore.DynamicProxy
             TargetMethod = targetMethod;
             ProxyMethod = proxyMethod;
             ServiceInstance = serviceInstance;
-            ProxyInstance = proxyMethod;
+            ProxyInstance = proxyInstance;
             Parameters = parameters;
         }
     }

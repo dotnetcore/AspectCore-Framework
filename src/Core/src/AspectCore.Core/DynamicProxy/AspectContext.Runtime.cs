@@ -56,7 +56,14 @@ namespace AspectCore.DynamicProxy
 
         public override object ProxyInstance { get; }
 
-        public RuntimeAspectContext(IServiceProvider serviceProvider, MethodInfo serviceMethod, MethodInfo implMethod, MethodInfo proxyMethod, object implInstance, object proxyInstance, object[] parameters)
+        public RuntimeAspectContext(
+            IServiceProvider serviceProvider, 
+            MethodInfo serviceMethod, 
+            MethodInfo implMethod, 
+            MethodInfo proxyMethod, 
+            object implInstance, 
+            object proxyInstance, 
+            object[] parameters)
         {
             _serviceProvider = serviceProvider;
             _implMethod = implMethod;
