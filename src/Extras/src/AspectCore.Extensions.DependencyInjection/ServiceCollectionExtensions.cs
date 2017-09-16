@@ -26,12 +26,31 @@ namespace AspectCore.Extensions.DependencyInjection
                 services.AddSingleton<IAspectConfiguration>(configuration);
             }
 
+            return services;
+        }
+
+        internal static IServiceCollection AddDynamicProxyServices(this IServiceCollection services)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            var configurationService = services.LastOrDefault(x => x.ServiceType == typeof(IAspectConfiguration) && x.ImplementationInstance != null);
+            var configuration = (IAspectConfiguration)configurationService?.ImplementationInstance ?? new AspectConfiguration();
+
+            if (configurationService == null)
+            {
+                services.AddSingleton<IAspectConfiguration>(configuration);
+            }
+
             services.AddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>));
-            services.AddScoped<IServiceResolver, MSDIServiceResolver>();
-            services.AddScoped<IPropertyInjectorFactory, PropertyInjectorFactory>();                         
-            services.AddScoped<IAspectContextFactory, AspectContextFactory>();   
+            services.AddScoped<IServiceResolver, MsdiServiceResolver>();
+            services.AddScoped<IScopeResolverFactory, MsdiScopeResolverFactory>();
+            services.AddScoped<IPropertyInjectorFactory, PropertyInjectorFactory>();
+            services.AddScoped<IAspectContextFactory, AspectContextFactory>();
             services.AddScoped<IAspectActivatorFactory, AspectActivatorFactory>();
-            services.AddScoped<IProxyGenerator, ProxyGenerator>();      
+            services.AddScoped<IProxyGenerator, ProxyGenerator>();
             services.AddScoped<IParameterInterceptorSelector, ParameterInterceptorSelector>();
             services.AddSingleton<IInterceptorCollector, InterceptorCollector>();
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
@@ -41,7 +60,6 @@ namespace AspectCore.Extensions.DependencyInjection
             services.AddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
             services.AddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
             services.AddSingleton<IAspectCachingProvider, AspectCachingProvider>();
-
             return services;
         }
     }

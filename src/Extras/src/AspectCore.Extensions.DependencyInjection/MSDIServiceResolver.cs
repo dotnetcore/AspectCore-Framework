@@ -3,10 +3,10 @@ using AspectCore.Injector;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
-    internal class MSDIServiceResolver : IServiceResolver
+    internal class MsdiServiceResolver : IServiceResolver
     {
         private readonly IServiceProvider _serviceProvider;
-        public MSDIServiceResolver(IServiceProvider serviceProvider)
+        public MsdiServiceResolver(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
