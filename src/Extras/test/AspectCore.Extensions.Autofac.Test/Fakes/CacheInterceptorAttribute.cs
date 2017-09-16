@@ -1,7 +1,8 @@
-﻿using AspectCore.Abstractions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.Extensions.Test.Fakes
 {
@@ -11,7 +12,7 @@ namespace AspectCore.Extensions.Test.Fakes
 
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            var parameters = context.Parameters;
+            var parameters = context.GetParameters();
             if (parameters.Any())
             {
                 var id = default(int);
@@ -20,13 +21,13 @@ namespace AspectCore.Extensions.Test.Fakes
                     var result = default(Model);
                     if (cache.TryGetValue(id, out result))
                     {
-                        context.ReturnParameter.Value = result;
+                        context.ReturnValue = result;
                         return;
                     }
                 }
             }
             await next(context);
-            var value = context.ReturnParameter.Value as Model;
+            var value = context.ReturnValue as Model;
             if (value != null)
             {
                 cache[value.Id] = value;

@@ -42,7 +42,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             //方式一步骤2.调用IServiceContainer.Configure配置全局拦截器
             container.Configure(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
             });
 
             return container.Build();
@@ -76,7 +76,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
         //{
         //    serviceContainer.Configure(config =>
         //    {
-        //        config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
+        //        config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
         //    });
         //}
 

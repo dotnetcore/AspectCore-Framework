@@ -1,10 +1,9 @@
-﻿using AspectCore.Abstractions;
-using System;
-using Xunit;
-using Autofac;
+﻿using System.Reflection;
+using AspectCore.DynamicProxy;
+using AspectCore.Configuration;
 using AspectCore.Extensions.Test.Fakes;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+using Autofac;
+using Xunit;
 
 namespace AspectCore.Extensions.Autofac.Test
 {
@@ -12,14 +11,17 @@ namespace AspectCore.Extensions.Autofac.Test
     {
         private ContainerBuilder CreateBuilder()
         {
-            return new ContainerBuilder().RegisterAspectCore();
+            return new ContainerBuilder().RegisterDynamicProxy(config =>
+            {
+                config.Interceptors.AddDelegate(next => ctx => next(ctx),Predicates.ForNameSpace("AspectCore.Extensions.Test.Fakes"));
+            });
         }
 
         [Fact]
         public void AsProxy_Test()
         {
             var builder = CreateBuilder();
-            builder.RegisterType<Service>().As<IService>().AsInterfacesProxy();
+            builder.RegisterType<Service>().As<IService>();
             var container = builder.Build();
             var proxyService = container.Resolve<IService>();
             Assert.True(proxyService.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
@@ -30,7 +32,7 @@ namespace AspectCore.Extensions.Autofac.Test
         public void AsNamedProxy_Test()
         {
             var builder = CreateBuilder();
-            builder.RegisterType<Service>().Named<IService>("proxy").AsInterfacesProxy();
+            builder.RegisterType<Service>().Named<IService>("proxy");
             var container = builder.Build();
             var proxyService = container.ResolveNamed<IService>("proxy");
             Assert.True(proxyService.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
@@ -42,7 +44,7 @@ namespace AspectCore.Extensions.Autofac.Test
         {
             var builder = CreateBuilder();
             var key = new object();
-            builder.RegisterType<Service>().Keyed<IService>(key).AsInterfacesProxy();
+            builder.RegisterType<Service>().Keyed<IService>(key);
             var container = builder.Build();
             var proxyService = container.ResolveKeyed<IService>(key);
             Assert.True(proxyService.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
@@ -53,8 +55,8 @@ namespace AspectCore.Extensions.Autofac.Test
         public void AsProxyWithParamter_Test()
         {
             var builder = CreateBuilder();
-            builder.RegisterType<Service>().As<IService>().AsInterfacesProxy();
-            builder.RegisterType<Controller>().As<IController>().AsInterfacesProxy();
+            builder.RegisterType<Service>().As<IService>();
+            builder.RegisterType<Controller>().As<IController>();
             var container = builder.Build();
 
             var proxyService = container.Resolve<IService>();
@@ -63,38 +65,6 @@ namespace AspectCore.Extensions.Autofac.Test
 
             var proxyController = container.Resolve<IController>();
             Assert.Equal(proxyService.Get(100), proxyController.Execute());
-        }
-
-        [Fact]
-        public void OriginalServiceProvider_Test()
-        {
-            var builder = CreateBuilder();
-            builder.RegisterType<Service>().As<IService>().AsInterfacesProxy();
-            var container = builder.Build();
-            var proxyService = container.Resolve<IRealServiceProvider>().GetService<IService>();
-            Assert.False(proxyService.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
-            Assert.NotEqual(proxyService.Get(1), proxyService.Get(1));
-        }
-
-        [Fact]
-        public void OriginalServiceProviderWithParameter_Test()
-        {
-            var builder = CreateBuilder();
-            builder.RegisterType<Service>().As<IService>().AsInterfacesProxy();
-            builder.RegisterType<Controller>().As<IController>().AsInterfacesProxy();
-
-            var container = builder.Build();
-
-            var proxyService = container.Resolve<IRealServiceProvider>().GetService<IService>();
-
-            Assert.False(proxyService.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
-
-            var proxyController = container.Resolve<IRealServiceProvider>().GetService<IController>();
-
-            Assert.False(proxyController.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
-            Assert.False(proxyController.Service.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
-
-            Assert.NotEqual(proxyService.Get(100), proxyController.Execute());
         }
     }
 }
