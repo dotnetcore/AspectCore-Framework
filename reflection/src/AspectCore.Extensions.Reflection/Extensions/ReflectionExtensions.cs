@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 
 namespace AspectCore.Extensions.Reflection
@@ -7,6 +6,15 @@ namespace AspectCore.Extensions.Reflection
     public static class ReflectionExtensions
     {
         #region Reflection
+
+        public static TypeReflector GetReflector(this Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+            return TypeReflector.Create(type.GetTypeInfo());
+        }
 
         public static TypeReflector GetReflector(this TypeInfo typeInfo)
         {

@@ -69,6 +69,47 @@ namespace AspectCore.Extensions.Reflection.Test
             var result = reflector.Invoke(new MethodFakes());
             Assert.Equal(1, result);
         }
+
+        [Fact]
+        public void Method_DisplayName()
+        {
+            var method = typeof(MethodFakes).GetMethod("GetString");
+            var reflector = method.GetReflector();
+            var displayName = reflector.DisplayName;
+            Assert.Equal("GetString(Object)", displayName);
+        }
+
+        [Fact]
+        public void Out_Method_DisplayName()
+        {
+            var method = typeof(MethodFakes).GetMethod("GetStringByRef");
+            var reflector = method.GetReflector();
+            var displayName = reflector.DisplayName;
+            Assert.Equal("GetStringByRef(Object,String&)", displayName);
+        }
+
+        [Fact]
+        public void OpenGeneric_Method_DisplayName()
+        {
+            var method = typeof(MethodFakes).GetMethod("GetValue2");
+            var reflector = method.GetReflector();
+            var displayName = reflector.DisplayName;
+            Assert.Equal("GetValue2<T>()", displayName);
+
+            method = typeof(MethodFakes<>).GetMethod("GetString");
+            reflector = method.GetReflector();
+            displayName = reflector.DisplayName;
+            Assert.Equal("GetString(T)", displayName);
+        }
+
+        [Fact]
+        public void CloseGeneric_Method_DisplayName()
+        {
+            var method = typeof(MethodFakes).GetMethod("GetValue2").MakeGenericMethod(typeof(string));
+            var reflector = method.GetReflector();
+            var displayName = reflector.DisplayName;
+            Assert.Equal("GetValue2<String>()", displayName);
+        }
     }
 
     public class MethodFakes
@@ -91,6 +132,11 @@ namespace AspectCore.Extensions.Reflection.Test
         public int GetValue()
         {
             return 1;
+        }
+
+        public T GetValue2<T>()
+        {
+            return default(T);
         }
     }
 

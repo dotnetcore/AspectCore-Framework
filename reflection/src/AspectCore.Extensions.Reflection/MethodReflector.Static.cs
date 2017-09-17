@@ -20,7 +20,7 @@ namespace AspectCore.Extensions.Reflection
 
             protected override Func<object, object[], object> CreateInvoker()
             {
-                DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{Guid.NewGuid()}",
+                DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{_displayName}",
                typeof(object), new Type[] { typeof(object), typeof(object[]) }, _reflectionInfo.Module, true);
 
                 ILGenerator ilGen = dynamicMethod.GetILGenerator();

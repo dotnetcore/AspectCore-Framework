@@ -16,13 +16,14 @@ namespace AspectCore.Extensions.Reflection
 
         private MethodReflector(MethodInfo reflectionInfo) : base(reflectionInfo)
         {
+            _displayName = GetDisplayName(reflectionInfo);
             _invoker = CreateInvoker();
             _parameterReflectors = reflectionInfo.GetParameters().Select(x => ParameterReflector.Create(x)).ToArray();
         }
 
         protected virtual Func<object, object[], object> CreateInvoker()
         {
-            DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{Guid.NewGuid()}",
+            DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{_displayName}",
                typeof(object), new Type[] { typeof(object), typeof(object[]) }, _reflectionInfo.Module, true);
 
             ILGenerator ilGen = dynamicMethod.GetILGenerator();

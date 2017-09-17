@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace AspectCore.Extensions.Reflection
 {
@@ -20,5 +19,7 @@ namespace AspectCore.Extensions.Reflection
         public override string ToString() => $"{_reflectionInfo.MemberType} : {_reflectionInfo}  DeclaringType : {_reflectionInfo.DeclaringType}";
 
         public TMemberInfo GetMemberInfo() => _reflectionInfo;
+
+        public virtual string DisplayName => _reflectionInfo.Name;
     }
 }
