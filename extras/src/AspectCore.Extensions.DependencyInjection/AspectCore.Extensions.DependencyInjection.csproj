@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\..\..\build\common.props" />
-  <Import Project="..\..\..\..\build\net46.props" />
-  <Import Project="..\..\..\..\build\netstandard20.props" />
+  <Import Project="..\..\..\build\common.props" />
+  <Import Project="..\..\..\build\netstandard20.props" />
   
   <PropertyGroup>
     <Description>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</Description>

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\..\..\build\common.props" />
-  <Import Project="..\..\..\..\build\net45.props" />
+  <Import Project="..\..\..\build\common.props" />
+  <Import Project="..\..\..\build\net45.props" />
       
   <PropertyGroup>
     <Description>Reflection extension system for AspectCore Framework.</Description>

@@ -1,9 +1,5 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System;
+using System.Reflection;
 using Xunit;
 
 namespace AspectCore.Extensions.Reflection.Test
@@ -18,7 +14,7 @@ namespace AspectCore.Extensions.Reflection.Test
         [Fact]
         public void GetCustomAttributes_Test()
         {
-            var reflector = typeof(CustomAttributeExtensionsTests).GetReflector();
+            var reflector = typeof(CustomAttributeExtensionsTests).GetTypeInfo().GetReflector();
             var attrs = reflector.GetCustomAttributes();
             Assert.Equal(5, attrs.Length);
         }
@@ -26,7 +22,7 @@ namespace AspectCore.Extensions.Reflection.Test
         [Fact]
         public void GetCustomAttributes_With_Attr_Type_Test()
         {
-            var reflector = typeof(CustomAttributeExtensionsTests).GetReflector();
+            var reflector = typeof(CustomAttributeExtensionsTests).GetTypeInfo().GetReflector();
             var attrs = reflector.GetCustomAttributes(typeof(AttributeFakes));
             //AttributeFakes1 inherit from AttributeFakes
             Assert.Equal(4, attrs.Length);
@@ -37,7 +33,7 @@ namespace AspectCore.Extensions.Reflection.Test
         [Fact]
         public void GetCustomAttribute_Test()
         {
-            var reflector = typeof(CustomAttributeExtensionsTests).GetReflector();
+            var reflector = typeof(CustomAttributeExtensionsTests).GetTypeInfo().GetReflector();
             var attr1 = reflector.GetCustomAttribute<AttributeFakes1>();
             Assert.Equal(1, attr1.Id);
             var attr2 = (AttributeFakes2)reflector.GetCustomAttribute(typeof(AttributeFakes2));
@@ -47,7 +43,7 @@ namespace AspectCore.Extensions.Reflection.Test
         [Fact]
         public void IsDefined_Test()
         {
-            var reflector = typeof(CustomAttributeExtensionsTests).GetReflector();
+            var reflector = typeof(CustomAttributeExtensionsTests).GetTypeInfo().GetReflector();
             Assert.True(reflector.IsDefined<AttributeFakes>());
             Assert.True(reflector.IsDefined<AttributeFakes2>());
             Assert.True(reflector.IsDefined<Attribute>());
