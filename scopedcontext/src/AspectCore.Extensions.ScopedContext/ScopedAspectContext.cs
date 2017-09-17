@@ -1,51 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
-using AspectCore.Abstractions;
+using System.Threading.Tasks;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.ScopedContext
 {
     internal sealed class ScopedAspectContext : AspectContext
     {
-        private static readonly AsyncLocal<AspectContext> CurrentContextLocal = new AsyncLocal<AspectContext>();
+        private static readonly AsyncLocal<AspectContext> CurrentRuntimeContext = new AsyncLocal<AspectContext>();
         private readonly IAspectContextScheduler _aspectContextScheduler;
-        private readonly AspectContext _rtContext;
+        private readonly AspectContext _runtimeContext;
 
         internal int Id { get; set; }
 
-        internal AspectContext RtContext
+        internal AspectContext RuntimeContext
         {
-            get => CurrentContextLocal.Value;
-            private set => CurrentContextLocal.Value = value;
+            get => CurrentRuntimeContext.Value;
+            private set => CurrentRuntimeContext.Value = value;
         }
 
-        public override IServiceProvider ServiceProvider => _rtContext.ServiceProvider;
+        public override IServiceProvider ServiceProvider => _runtimeContext.ServiceProvider;
 
-        public override ITargetDescriptor Target => _rtContext.Target;
+        public override IDictionary<string, object> AdditionalData => _runtimeContext.AdditionalData;
 
-        public override IProxyDescriptor Proxy => _rtContext.Proxy;
+        public override object ReturnValue { get => _runtimeContext.ReturnValue; set => _runtimeContext.ReturnValue = value; }
 
-        public override IParameterCollection Parameters => _rtContext.Parameters;
+        public override MethodInfo ServiceMethod => _runtimeContext.ServiceMethod;
 
-        public override IParameterDescriptor ReturnParameter => _rtContext.ReturnParameter;
+        public override object[] Parameters => _runtimeContext.Parameters;
 
-        public override IDictionary<string, object> Items => _rtContext.Items;
+        public override MethodInfo ProxyMethod => _runtimeContext.ProxyMethod;
 
-        internal ScopedAspectContext(AspectContext aspectContext, IAspectContextScheduler aspectContextScheduler)
+        public override object ProxyInstance => _runtimeContext.ProxyInstance;
+
+        internal ScopedAspectContext(AspectContext runtimeContext, IAspectContextScheduler aspectContextScheduler)
         {
-            _rtContext = aspectContext;
             _aspectContextScheduler = aspectContextScheduler;
             if (!_aspectContextScheduler.TryEnter(this))
             {
                 throw new InvalidOperationException("Error occurred in the schedule AspectContext.");
             }
-            RtContext = _rtContext;
+            RuntimeContext = _runtimeContext = runtimeContext;
         }
 
         protected override void Dispose(bool disposing)
         {
-            RtContext.Dispose();
+            _runtimeContext.Dispose();
             _aspectContextScheduler.Release(this);
+            RuntimeContext = null;
+        }
+
+        public override Task Break()
+        {
+           return _runtimeContext.Break();
+        }
+
+        public override Task Complete()
+        {
+            return _runtimeContext.Complete();
         }
     }
 }

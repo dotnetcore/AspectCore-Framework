@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspectCore.Core" Version="0.2.0-preview1" />
+    <ProjectReference Include="..\..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
   </ItemGroup>
 
 </Project>

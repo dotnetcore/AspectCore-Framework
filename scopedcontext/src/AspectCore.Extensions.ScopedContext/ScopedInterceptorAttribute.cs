@@ -1,5 +1,5 @@
 ﻿using System;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.ScopedContext
 {

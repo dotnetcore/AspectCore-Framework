@@ -1,18 +1,17 @@
 ﻿using System;
-using AspectCore.Abstractions;
-using AspectCore.Core;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.ScopedContext
 {
     [NonAspect]
-    public sealed class ScopedAspectBuilderFactory : IAspectBuilderFactory
+    internal sealed class ScopedAspectBuilderFactory : IAspectBuilderFactory
     {
-        private readonly IInterceptorProvider _interceptorProvider;
+        private readonly IInterceptorCollector _interceptorCollector;
         private readonly IAspectContextScheduler _aspectContextScheduler;
 
-        public ScopedAspectBuilderFactory(IInterceptorProvider interceptorProvider, IAspectContextScheduler aspectContextScheduler)
+        public ScopedAspectBuilderFactory(IInterceptorCollector interceptorProvider, IAspectContextScheduler aspectContextScheduler)
         {
-            _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
+            _interceptorCollector = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
             _aspectContextScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
         }
 
@@ -20,7 +19,7 @@ namespace AspectCore.Extensions.ScopedContext
         {
             var aspectBuilder = new AspectBuilder();
 
-            foreach (var interceptor in _interceptorProvider.GetInterceptors(context.Target.ServiceMethod))
+            foreach (var interceptor in _interceptorCollector.Collect(context.ServiceMethod))
             {
                 if (interceptor is IScopedInterceptor scopedInterceptor)
                 {

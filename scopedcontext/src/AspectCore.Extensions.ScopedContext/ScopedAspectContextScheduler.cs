@@ -3,24 +3,24 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using AspectCore.Abstractions;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.ScopedContext
 {
-    public sealed class ScopedAspectContextScheduler : IAspectContextScheduler
+    internal sealed class ScopedAspectContextScheduler : IAspectContextScheduler
     {
         private readonly ConcurrentDictionary<ScopedAspectContext, object> _scopedContexts = new ConcurrentDictionary<ScopedAspectContext, object>();
-        private readonly IInterceptorProvider _interceptorProvider;
+        private readonly IInterceptorCollector _interceptorCollector;
         private int _idx = 0;
 
-        public ScopedAspectContextScheduler(IInterceptorProvider interceptorProvider)
+        public ScopedAspectContextScheduler(IInterceptorCollector interceptorCollector)
         {
-            _interceptorProvider = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
+            _interceptorCollector = interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
         }
 
         public AspectContext[] GetCurrentContexts()
         {
-            return _scopedContexts.Keys.Where(x => x.RtContext != null).ToArray();
+            return _scopedContexts.Keys.Where(x => x.RuntimeContext != null).ToArray();
         }
 
         public bool TryEnter(AspectContext context)
@@ -80,8 +80,8 @@ namespace AspectCore.Extensions.ScopedContext
 
             bool TryIncludeImpl(AspectContext ctx)
             {
-                return _interceptorProvider.
-                    GetInterceptors(ctx.Target.ServiceMethod).
+                return _interceptorCollector.
+                    Collect(ctx.ServiceMethod).
                     Where(x => x.GetType() == interceptor.GetType()).
                     Any(x => TryInclude(ctx, interceptor));
             }

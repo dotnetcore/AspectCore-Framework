@@ -1,10 +1,9 @@
 ﻿using System;
-using AspectCore.Abstractions;
-using AspectCore.Core;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.ScopedContext
 {
-    public sealed class ScopedAspectContextFactory : AspectContextFactory
+    internal sealed class ScopedAspectContextFactory : AspectContextFactory
     {
         private readonly IAspectContextScheduler _aspectContextScheduler;
 
@@ -13,9 +12,9 @@ namespace AspectCore.Extensions.ScopedContext
             _aspectContextScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
         }
 
-        public override AspectContext CreateContext<TReturn>(AspectActivatorContext activatorContext)
+        public override AspectContext CreateContext(AspectActivatorContext activatorContext)
         {
-            return new ScopedAspectContext(base.CreateContext<TReturn>(activatorContext), _aspectContextScheduler);
+            return new ScopedAspectContext(base.CreateContext(activatorContext), _aspectContextScheduler);
         }
     }
 }
