@@ -2,6 +2,7 @@
 using System.Linq;
 using AspectCore.Injector;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
@@ -13,6 +14,8 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(services));
             }
+            services.AddScoped<ISupportRequiredService, SupportRequiredService>();
+            services.AddScoped<IServiceScopeFactory, ServiceScopeFactory>();
             return new ServiceContainer(services.AddAspectCoreContainer().Select(Replace));
         }
 
@@ -21,10 +24,8 @@ namespace AspectCore.Extensions.DependencyInjection
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
-            }
-            services.AddScoped<ISupportRequiredService, SupportRequiredService>();
-            services.AddScoped<IServiceScopeFactory, ServiceScopeFactory>();
-            services.AddSingleton<IServiceProviderFactory<IServiceContainer>, AspectCoreServiceProviderFactory>();
+            }         
+            services.TryAddSingleton<IServiceProviderFactory<IServiceContainer>, AspectCoreServiceProviderFactory>();
             return services;
         }
 

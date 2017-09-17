@@ -19,7 +19,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(services));
             }
 
-            var serviceProvider = services.AddDynamicProxyServices().BuildServiceProvider(false);
+            var serviceProvider = services.TryAddDynamicProxyServices().BuildServiceProvider(false);
 
             var serviceValidator = new ServiceValidator(serviceProvider.GetRequiredService<IAspectValidatorBuilder>());
             var proxyTypeGenerator = serviceProvider.GetRequiredService<IProxyTypeGenerator>();

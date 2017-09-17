@@ -5,6 +5,7 @@ using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
 using AspectCore.Injector;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
@@ -29,7 +30,7 @@ namespace AspectCore.Extensions.DependencyInjection
             return services;
         }
 
-        internal static IServiceCollection AddDynamicProxyServices(this IServiceCollection services)
+        internal static IServiceCollection TryAddDynamicProxyServices(this IServiceCollection services)
         {
             if (services == null)
             {
@@ -44,22 +45,25 @@ namespace AspectCore.Extensions.DependencyInjection
                 services.AddSingleton<IAspectConfiguration>(configuration);
             }
 
-            services.AddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>));
-            services.AddScoped<IServiceResolver, MsdiServiceResolver>();
-            services.AddScoped<IScopeResolverFactory, MsdiScopeResolverFactory>();
-            services.AddScoped<IPropertyInjectorFactory, PropertyInjectorFactory>();
-            services.AddScoped<IAspectContextFactory, AspectContextFactory>();
-            services.AddScoped<IAspectActivatorFactory, AspectActivatorFactory>();
-            services.AddScoped<IProxyGenerator, ProxyGenerator>();
-            services.AddScoped<IParameterInterceptorSelector, ParameterInterceptorSelector>();
-            services.AddSingleton<IInterceptorCollector, InterceptorCollector>();
+            services.TryAddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>));
+            services.TryAddScoped<IServiceResolver, MsdiServiceResolver>();
+            services.TryAddScoped<IScopeResolverFactory, MsdiScopeResolverFactory>();
+            services.TryAddScoped<IPropertyInjectorFactory, PropertyInjectorFactory>();
+            services.TryAddScoped<IAspectContextFactory, AspectContextFactory>();
+            services.TryAddScoped<IAspectActivatorFactory, AspectActivatorFactory>();
+            services.TryAddScoped<IProxyGenerator, ProxyGenerator>();
+            services.TryAddScoped<IParameterInterceptorSelector, ParameterInterceptorSelector>();
+
+            services.TryAddSingleton<IInterceptorCollector, InterceptorCollector>();
+            services.TryAddSingleton<IAspectValidatorBuilder, AspectValidatorBuilder>();
+            services.TryAddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
+            services.TryAddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
+            services.TryAddSingleton<IAspectCachingProvider, AspectCachingProvider>();
+
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, TypeInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, MethodInterceptorSelector>();
-            services.AddSingleton<IAspectValidatorBuilder, AspectValidatorBuilder>();
-            services.AddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
-            services.AddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
-            services.AddSingleton<IAspectCachingProvider, AspectCachingProvider>();
+
             return services;
         }
     }

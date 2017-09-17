@@ -62,12 +62,14 @@ namespace AspectCore.Injector
 
         private void AddInternalServices()
         {
+            Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
+
             if (!Contains(typeof(IServiceProvider)))
                 Scopeds.AddDelegate<IServiceProvider>(resolver => resolver);
             if (!Contains(typeof(IPropertyInjectorFactory)))
-                Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>();
-            Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
-            Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
+                Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>(); 
+            if (!Contains(typeof(IScopeResolverFactory)))
+                Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
             Singletons.AddInstance<IAspectConfiguration>(_configuration);
             if (!Contains(typeof(ITransientServiceAccessor<>)))
                 Singletons.AddType(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
