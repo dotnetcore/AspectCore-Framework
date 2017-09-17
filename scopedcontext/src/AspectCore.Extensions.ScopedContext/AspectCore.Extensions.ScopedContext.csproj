@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\..\build\common.props" />
+  <Import Project="..\..\..\build\net46.props" />
+  
+  <PropertyGroup>
+    <Description>ScopedContext extension system for AspectCore Framework.</Description>
+    <AssemblyTitle>AspectCore.Extensions.ScopedContext</AssemblyTitle>
+    <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
+    <AssemblyName>AspectCore.Extensions.ScopedContext</AssemblyName>
+    <PackageId>AspectCore.Extensions.ScopedContext</PackageId>
+    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
+    <PackageReleaseNotes>ScopedContext extension system for AspectCore Framework.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
+  </ItemGroup>
+
+</Project>
