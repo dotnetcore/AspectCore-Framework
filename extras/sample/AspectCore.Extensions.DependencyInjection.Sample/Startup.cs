@@ -35,14 +35,14 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
 
             #region 方式一：使用AspectCore.Injector内置的IoC容器
 
-            //方式一：使用AspectCore.Injector内置的IoC容器
+            //方式一：使用AspectCore.Injector内置的IoC容器。推荐使用
             //方式一步骤1.调用services.ToServiceContainer()得到AspectCore内置容器IServiceContainer
             var container = services.ToServiceContainer();
 
             //方式一步骤2.调用IServiceContainer.Configure配置全局拦截器
             container.Configure(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
             });
 
             return container.Build();

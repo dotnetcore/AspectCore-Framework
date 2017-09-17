@@ -183,7 +183,7 @@ namespace AspectCore.Utils
 
             public static string GetInterfaceImplTypeName(Type interfaceType)
             {
-                var className = interfaceType.GetName();
+                var className = interfaceType.GetReflector().DisplayName;
                 if (className.StartsWith("I", StringComparison.Ordinal))
                 {
                     className = className.Substring(1);
@@ -199,7 +199,7 @@ namespace AspectCore.Utils
 
             public static string GetProxyTypeName(Type serviceType, Type implType)
             {
-                return $"{ProxyNameSpace}.{implType.GetName()}{GetProxyTypeIndex(implType.GetName(), serviceType, implType)}";
+                return $"{ProxyNameSpace}.{implType.GetReflector().DisplayName}{GetProxyTypeIndex(implType.GetReflector().DisplayName, serviceType, implType)}";
             }
 
             public static string GetProxyTypeName(string className, Type serviceType, Type implType)
@@ -519,13 +519,13 @@ namespace AspectCore.Utils
                     }
                     else
                     {
-                        methodConstants.AddMethod($"service{serviceMethod.GetFullName()}", serviceMethod);
-                        methodConstants.AddMethod($"imp{implMethod.GetFullName()}", implMethod);
-                        methodConstants.AddMethod($"proxy{methodBuilder.GetFullName()}", methodBuilder);
+                        methodConstants.AddMethod($"service{serviceMethod.GetDisplayName()}", serviceMethod);
+                        methodConstants.AddMethod($"imp{implMethod.GetDisplayName()}", implMethod);
+                        methodConstants.AddMethod($"proxy{serviceMethod.GetDisplayName()}", methodBuilder);
 
-                        methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetFullName()}");
-                        methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetFullName()}");
-                        methodConstants.LoadMethod(ilGen, $"proxy{methodBuilder.GetFullName()}");
+                        methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetDisplayName()}");
+                        methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetDisplayName()}");
+                        methodConstants.LoadMethod(ilGen, $"proxy{serviceMethod.GetDisplayName()}");
                     }
 
                     ilGen.EmitThis();
@@ -593,7 +593,7 @@ namespace AspectCore.Utils
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
                     {
-                        var builder = DefineInterfaceProxyProperty(property, property.GetFullName(), implType, typeDesc);
+                        var builder = DefineInterfaceProxyProperty(property, property.GetDisplayName(), implType, typeDesc);
                         DefineExplicitPropertyMethod(builder, property, implType, typeDesc);
                     }
                 }
@@ -613,7 +613,7 @@ namespace AspectCore.Utils
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
                     {
-                        var builder = DefineInterfaceProxyProperty(property, property.GetFullName(), implType, typeDesc);
+                        var builder = DefineInterfaceProxyProperty(property, property.GetDisplayName(), implType, typeDesc);
                         DefineExplicitPropertyMethod(builder, property, implType, typeDesc);
                     }
                 }

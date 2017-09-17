@@ -95,7 +95,7 @@ namespace AspectCore.DynamicProxy
             return true;
         }
 
-        internal static string GetFullName(this MemberInfo member)
+        internal static string GetDisplayName(this PropertyInfo member)
         {
             if (member == null)
             {
@@ -104,27 +104,51 @@ namespace AspectCore.DynamicProxy
             var declaringType = member.DeclaringType.GetTypeInfo();
             if (declaringType.IsInterface)
             {
-                return $"{declaringType.Namespace}.{declaringType.AsType().GetName()}.{member.Name}";
+                return $"{declaringType.Namespace}.{declaringType.GetReflector().DisplayName}.{member.Name}";
             }
             return member.Name;
         }
 
-        internal static string GetName(this Type type)
+        internal static string GetFullName(this MethodInfo member)
         {
-            if (!type.GetTypeInfo().IsGenericType)
+            if (member == null)
             {
-                return type.Name.Replace('+', '.');
+                throw new ArgumentNullException(nameof(member));
             }
-            var arguments = type.GetTypeInfo().IsGenericTypeDefinition
-                ? type.GetTypeInfo().GenericTypeParameters
-                : type.GenericTypeArguments;
-            var name = $"{type.Name.Replace('+', '.')}<{arguments[0].GetName()}";
-            for (var i = 1; i < arguments.Length; i++)
+            var declaringType = member.DeclaringType.GetTypeInfo();
+            if (declaringType.IsInterface)
             {
-                name = name + "," + arguments[i].GetName();
+                return $"{declaringType.Namespace}.{declaringType.GetReflector().DisplayName}.{member.Name}";
             }
-            return name + ">";
+            return member.Name;
         }
+
+        internal static string GetDisplayName(this MethodInfo member)
+        {
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
+            var declaringType = member.DeclaringType.GetTypeInfo();
+            return $"{declaringType.Namespace}.{declaringType.GetReflector().DisplayName}.{member.GetReflector().DisplayName}";
+        }
+
+        //internal static string GetName(this Type type)
+        //{
+        //    if (!type.GetTypeInfo().IsGenericType)
+        //    {
+        //        return type.Name.Replace('+', '.');
+        //    }
+        //    var arguments = type.GetTypeInfo().IsGenericTypeDefinition
+        //        ? type.GetTypeInfo().GenericTypeParameters
+        //        : type.GenericTypeArguments;
+        //    var name = $"{type.Name.Replace('+', '.')}<{arguments[0].GetName()}";
+        //    for (var i = 1; i < arguments.Length; i++)
+        //    {
+        //        name = name + "," + arguments[i].GetName();
+        //    }
+        //    return name + ">";
+        //}
 
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
@@ -177,7 +201,7 @@ namespace AspectCore.DynamicProxy
         internal static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
         {
             var interfaceType = method.DeclaringType;
-            var explicitMethodName = $"{interfaceType.Namespace}.{interfaceType.GetName()}.{method.Name}";
+            var explicitMethodName = $"{interfaceType.Namespace}.{interfaceType.GetReflector().DisplayName}.{method.Name}";
             foreach (var m in typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (m.Name != explicitMethodName)

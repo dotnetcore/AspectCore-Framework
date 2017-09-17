@@ -41,20 +41,28 @@ namespace AspectCore.Extensions.DependencyInjection
 
         private static ServiceDescriptor MakeProxyService(ServiceDescriptor descriptor, Type implementationType, IProxyTypeGenerator proxyTypeGenerator)
         {
-            if (descriptor.ServiceType.GetTypeInfo().IsInterface)
+            var serviceTypeInfo = descriptor.ServiceType.GetTypeInfo();
+            if (serviceTypeInfo.IsClass)
+            {
+                return ServiceDescriptor.Describe(
+                  descriptor.ServiceType,
+                  proxyTypeGenerator.CreateClassProxyType(descriptor.ServiceType, implementationType),
+                  descriptor.Lifetime);
+            }
+            else if (serviceTypeInfo.IsGenericTypeDefinition)
+            {
+                return ServiceDescriptor.Describe(
+                descriptor.ServiceType,
+                proxyTypeGenerator.CreateClassProxyType(implementationType, implementationType),
+                descriptor.Lifetime);
+            }
+            else
             {
                 var proxyType = proxyTypeGenerator.CreateInterfaceProxyType(descriptor.ServiceType, implementationType);
                 return ServiceDescriptor.Describe(
                   descriptor.ServiceType,
                   CreateFactory(descriptor, proxyType),
                   descriptor.Lifetime);
-            }
-            else
-            {
-                return ServiceDescriptor.Describe(
-                    descriptor.ServiceType,
-                    proxyTypeGenerator.CreateClassProxyType(descriptor.ServiceType, implementationType),
-                    descriptor.Lifetime);
             }
         }
 
