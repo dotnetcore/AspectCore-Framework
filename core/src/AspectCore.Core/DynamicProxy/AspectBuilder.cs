@@ -13,10 +13,7 @@ namespace AspectCore.DynamicProxy
 
         public AspectBuilder(AspectDelegate complete, IList<Func<AspectDelegate, AspectDelegate>> delegates)
         {
-            if (complete == null)
-            {
-                throw new ArgumentNullException(nameof(complete));
-            }
+            _complete = complete ?? throw new ArgumentNullException(nameof(complete));
             _delegates = delegates ?? new List<Func<AspectDelegate, AspectDelegate>>();
         }
 
