@@ -2,6 +2,7 @@
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     internal class InterceptorSelectorEqualityComparer : IEqualityComparer<IInterceptorSelector>
     {
         public bool Equals(IInterceptorSelector x, IInterceptorSelector y)

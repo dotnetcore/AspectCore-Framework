@@ -4,6 +4,7 @@ using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     internal sealed class AspectActivator : IAspectActivator
     {
         private readonly IAspectContextFactory _aspectContextFactory;

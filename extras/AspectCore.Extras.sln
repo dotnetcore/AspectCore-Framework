@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{E933A0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.DependencyInjection.Sample", "sample\AspectCore.Extensions.DependencyInjection.Sample\AspectCore.Extensions.DependencyInjection.Sample.csproj", "{D72797D5-4BAF-45BD-A301-8C429957B846}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Extensions.Autofac.Sample", "sample\AspectCore.Extensions.Autofac.Sample\AspectCore.Extensions.Autofac.Sample.csproj", "{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{D72797D5-4BAF-45BD-A301-8C429957B846}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D72797D5-4BAF-45BD-A301-8C429957B846}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D72797D5-4BAF-45BD-A301-8C429957B846}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{ECF5F6E2-660C-4FC4-BB04-73761DB75658} = {FA9E353F-695D-49FC-A0CA-654829134AB5}
 		{AD8942CF-ED17-4DAF-BC3B-20EF8DD8C74F} = {FA9E353F-695D-49FC-A0CA-654829134AB5}
 		{D72797D5-4BAF-45BD-A301-8C429957B846} = {E933A059-A6AC-46AC-928D-33656D7FE93A}
+		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF} = {E933A059-A6AC-46AC-928D-33656D7FE93A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7A2B7A3-2AF0-4769-8E22-4FAA41E80591}

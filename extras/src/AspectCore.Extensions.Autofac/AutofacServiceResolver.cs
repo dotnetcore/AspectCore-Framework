@@ -1,10 +1,12 @@
 ﻿using System;
+using AspectCore.DynamicProxy;
 using AspectCore.Injector;
 using Autofac;
 
 namespace AspectCore.Extensions.Autofac
 {
-    public class AutofacServiceResolver : IServiceResolver
+    [NonAspect]
+    internal class AutofacServiceResolver : IServiceResolver
     {
         private readonly IComponentContext _componentContext;
 

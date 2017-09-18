@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class AspectBuilder : IAspectBuilder
     {
         private readonly IList<Func<AspectDelegate, AspectDelegate>> _delegates;

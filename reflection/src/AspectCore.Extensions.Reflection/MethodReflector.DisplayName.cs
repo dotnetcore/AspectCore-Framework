@@ -10,7 +10,7 @@ namespace AspectCore.Extensions.Reflection
 
         private static string GetDisplayName(MethodInfo method)
         {
-            var name = method.Name;
+            var name = $"{method.ReturnType.GetReflector().DisplayName} {method.Name}";
             if (method.IsGenericMethod)
             {
                 name += "<";

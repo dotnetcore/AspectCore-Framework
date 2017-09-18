@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using AspectCore.Extensions.DependencyInjection.Sample.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,12 +7,19 @@ namespace AspectCore.Extensions.DependencyInjection.Sample.Controllers
     [Route("api/[controller]")]
     public class ValuesController : ControllerBase
     {
+        private readonly IValuesService _valueService;
+
+        public ValuesController(IValuesService valuesService)
+        {
+            _valueService = valuesService;
+        }
+
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get([FromServices]IValuesService valuesService)
+        public IEnumerable<string> Get()
         {
             var ms = this.GetType().GetMethods();
-            return ApiResult(() => valuesService.GetAll());
+            return ApiResult(() => _valueService.GetAll());
         }
 
         // GET api/values/5

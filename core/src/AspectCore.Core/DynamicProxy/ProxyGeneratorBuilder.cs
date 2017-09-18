@@ -5,6 +5,7 @@ using AspectCore.Injector;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class ProxyGeneratorBuilder
     {
         private readonly IAspectConfiguration _configuration;

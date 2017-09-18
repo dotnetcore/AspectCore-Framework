@@ -5,6 +5,7 @@ using AspectCore.Configuration;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class AspectValidatorBuilder : IAspectValidatorBuilder
     {
         private readonly IList<Func<AspectValidationDelegate, AspectValidationDelegate>> _collections;

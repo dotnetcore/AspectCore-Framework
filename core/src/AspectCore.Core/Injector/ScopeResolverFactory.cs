@@ -1,7 +1,9 @@
 ﻿using System;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
+    [NonAspect]
     internal class ScopeResolverFactory : IScopeResolverFactory
     {
         private readonly ServiceResolver _serviceResolver;

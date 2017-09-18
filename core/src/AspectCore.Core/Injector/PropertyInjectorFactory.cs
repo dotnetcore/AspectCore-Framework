@@ -1,7 +1,9 @@
 ﻿using System;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
+    [NonAspect]
     public class PropertyInjectorFactory : IPropertyInjectorFactory
     {
         private readonly IServiceProvider _servicePorvider;

@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using AspectCore.Configuration;
 using AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy;
 using AspectCore.Extensions.DependencyInjection.Sample.Services;
 using AspectCore.Injector;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.ObjectPool;
-using Microsoft.Extensions.Options;
 
 namespace AspectCore.Extensions.DependencyInjection.Sample
 {
@@ -59,9 +53,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             //});
             ////方式二步骤2.调用services.BuildAspectCoreServiceProvider构建动态代理服务解析器
             //return services.BuildAspectCoreServiceProvider();
-
             #endregion
-
         }
 
         #region 方式三：使用ConfigureContainer和ServiceProviderFactory配置AspectCore.Injector内置的IoC容器

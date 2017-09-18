@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace AspectCore.Extensions.Reflection
 {
-    public static class ReflectionExtensions
+    public static class ReflectorExtensions
     {
         #region Reflection
 

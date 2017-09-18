@@ -2,6 +2,7 @@
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public class AspectContextFactory : IAspectContextFactory
     {
         private static readonly object[] emptyParameters = new object[0];

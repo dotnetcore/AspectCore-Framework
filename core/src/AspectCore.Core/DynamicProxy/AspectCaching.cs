@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     internal class AspectCaching : IAspectCaching
     {
         private readonly ConcurrentDictionary<object, object> _dictionary;
