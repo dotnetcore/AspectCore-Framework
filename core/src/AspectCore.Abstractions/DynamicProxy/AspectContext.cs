@@ -16,6 +16,8 @@ namespace AspectCore.DynamicProxy
 
         public abstract MethodInfo ServiceMethod { get; }
 
+        public abstract MethodInfo TargetMethod { get; }
+
         public abstract object[] Parameters { get; }
 
         public abstract MethodInfo ProxyMethod { get; }

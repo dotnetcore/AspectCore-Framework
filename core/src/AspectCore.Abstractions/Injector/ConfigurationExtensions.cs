@@ -1,7 +1,7 @@
 ﻿using System;
-using AspectCore.Injector;
+using AspectCore.Configuration;
 
-namespace AspectCore.Configuration
+namespace AspectCore.Injector
 {
     public static class ConfigurationExtensions
     {

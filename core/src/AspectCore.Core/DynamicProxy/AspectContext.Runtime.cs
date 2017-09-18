@@ -16,8 +16,8 @@ namespace AspectCore.DynamicProxy
 
         private volatile IDictionary<string, object> _data;
         private IServiceProvider _serviceProvider;
-        private MethodInfo _implMethod;
-        private object _implInstance;
+        private MethodInfo _targetMethod;
+        private object _targetInstance;
         private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
@@ -56,18 +56,15 @@ namespace AspectCore.DynamicProxy
 
         public override object ProxyInstance { get; }
 
+        public override MethodInfo TargetMethod => _targetMethod;
+
         public RuntimeAspectContext(
-            IServiceProvider serviceProvider, 
-            MethodInfo serviceMethod, 
-            MethodInfo implMethod, 
-            MethodInfo proxyMethod, 
-            object implInstance, 
-            object proxyInstance, 
-            object[] parameters)
+            IServiceProvider serviceProvider, MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod,
+            object targetInstance, object proxyInstance, object[] parameters)
         {
             _serviceProvider = serviceProvider;
-            _implMethod = implMethod;
-            _implInstance = implInstance;
+            _targetMethod = targetMethod;
+            _targetInstance = targetInstance;
             ServiceMethod = serviceMethod;
             ProxyMethod = proxyMethod;
             ProxyInstance = proxyInstance;
@@ -108,8 +105,12 @@ namespace AspectCore.DynamicProxy
 
         public override Task Complete()
         {
-            var reflector = reflectorTable.GetOrAdd(_implMethod, method => method.GetReflector(CallOptions.Call));
-            ReturnValue = reflector.Invoke(_implInstance, Parameters);
+            if (_targetInstance == null || _targetMethod == null)
+            {
+                return Break();
+            }
+            var reflector = reflectorTable.GetOrAdd(_targetMethod, method => method.GetReflector(CallOptions.Call));
+            ReturnValue = reflector.Invoke(_targetInstance, Parameters);
             return TaskUtils.CompletedTask;
         }
 

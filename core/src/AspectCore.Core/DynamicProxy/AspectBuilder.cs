@@ -8,12 +8,19 @@ namespace AspectCore.DynamicProxy
     public sealed class AspectBuilder : IAspectBuilder
     {
         private readonly IList<Func<AspectDelegate, AspectDelegate>> _delegates;
+        private readonly AspectDelegate _complete;
         private AspectDelegate _aspectDelegate;
 
-        public AspectBuilder()
+        public AspectBuilder(AspectDelegate complete, IList<Func<AspectDelegate, AspectDelegate>> delegates)
         {
-            _delegates = new List<Func<AspectDelegate, AspectDelegate>>();
+            if (complete == null)
+            {
+                throw new ArgumentNullException(nameof(complete));
+            }
+            _delegates = delegates ?? new List<Func<AspectDelegate, AspectDelegate>>();
         }
+
+        public IEnumerable<Func<AspectDelegate, AspectDelegate>> Delegates => _delegates;
 
         public void AddAspectDelegate(Func<AspectContext, AspectDelegate, Task> interceptorInvoke)
         {
@@ -30,7 +37,7 @@ namespace AspectCore.DynamicProxy
             {
                 return _aspectDelegate;
             }
-            AspectDelegate invoke = context => context.Complete();
+            AspectDelegate invoke = _complete;
             var count = _delegates.Count;
             for (var i = count - 1; i > -1; i--)
             {

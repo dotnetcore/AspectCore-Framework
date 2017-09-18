@@ -151,7 +151,7 @@ namespace AspectCore.DynamicProxy
         //    return name + ">";
         //}
 
-        internal static bool IsReturnTask(this MethodInfo methodInfo)
+        public static bool IsReturnTask(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
             {
@@ -160,7 +160,7 @@ namespace AspectCore.DynamicProxy
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
 
-        internal static bool IsReturnValueTask(this MethodInfo methodInfo)
+        public static bool IsReturnValueTask(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
             {
@@ -199,7 +199,7 @@ namespace AspectCore.DynamicProxy
                    (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
-        internal static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
+        public static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
         {
             var interfaceType = method.DeclaringType;
             var explicitMethodName =

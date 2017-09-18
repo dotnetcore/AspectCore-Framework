@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Depen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Extensions.Autofac.Sample", "sample\AspectCore.Extensions.Autofac.Sample\AspectCore.Extensions.Autofac.Sample.csproj", "{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Extensions.Windsor", "src\AspectCore.Extensions.Windsor\AspectCore.Extensions.Windsor.csproj", "{CA6F52CA-3B0E-416D-9A96-9962385542CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA6F52CA-3B0E-416D-9A96-9962385542CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA6F52CA-3B0E-416D-9A96-9962385542CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA6F52CA-3B0E-416D-9A96-9962385542CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA6F52CA-3B0E-416D-9A96-9962385542CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +91,7 @@ Global
 		{AD8942CF-ED17-4DAF-BC3B-20EF8DD8C74F} = {FA9E353F-695D-49FC-A0CA-654829134AB5}
 		{D72797D5-4BAF-45BD-A301-8C429957B846} = {E933A059-A6AC-46AC-928D-33656D7FE93A}
 		{B1D4ADB5-1E40-4CCA-BF10-F17832B115DF} = {E933A059-A6AC-46AC-928D-33656D7FE93A}
+		{CA6F52CA-3B0E-416D-9A96-9962385542CB} = {EF35FB72-D934-45A8-9856-E60EA2623135}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7A2B7A3-2AF0-4769-8E22-4FAA41E80591}

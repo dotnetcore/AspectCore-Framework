@@ -19,7 +19,7 @@ namespace AspectCore.DynamicProxy
                 activatorContext.ServiceMethod,
                 activatorContext.TargetMethod,
                 activatorContext.ProxyMethod,
-                activatorContext.ServiceInstance,
+                activatorContext.TargetInstance,
                 activatorContext.ProxyInstance,
                 activatorContext.Parameters ?? emptyParameters);
         }
