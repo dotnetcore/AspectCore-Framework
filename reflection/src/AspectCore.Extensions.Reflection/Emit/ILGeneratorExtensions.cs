@@ -674,6 +674,106 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        public static void EmitLdRef(this ILGenerator ilGenerator,Type type)
+        {
+            if (ilGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(ilGenerator));
+            }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+            if (type == typeof(short))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_I1);
+            }
+            else if (type == typeof(Int16))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_I2);
+            }
+            else if (type == typeof(Int32))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_I4);
+            }
+            else if (type == typeof(Int64))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_I8);
+            }
+            else if (type == typeof(float))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_R4);
+            }
+            else if (type == typeof(double))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_R8);
+            }
+            else if (type == typeof(ushort))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_U1);
+            }
+            else if (type == typeof(UInt16))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_U2);
+            }
+            else if (type == typeof(UInt32))
+            {
+                ilGenerator.Emit(OpCodes.Ldind_U4);
+            }
+            else if (type.GetTypeInfo().IsValueType)
+            {
+                ilGenerator.Emit(OpCodes.Ldobj);
+            }
+            else
+            {
+                ilGenerator.Emit(OpCodes.Ldind_Ref);
+            }
+        }
+
+        public static void EmitStRef(this ILGenerator ilGenerator, Type type)
+        {
+            if (ilGenerator == null)
+            {
+                throw new ArgumentNullException(nameof(ilGenerator));
+            }
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+            if (type == typeof(short))
+            {
+                ilGenerator.Emit(OpCodes.Stind_I1);
+            }
+            else if (type == typeof(Int16))
+            {
+                ilGenerator.Emit(OpCodes.Stind_I2);
+            }
+            else if (type == typeof(Int32))
+            {
+                ilGenerator.Emit(OpCodes.Stind_I4);
+            }
+            else if (type == typeof(Int64))
+            {
+                ilGenerator.Emit(OpCodes.Stind_I8);
+            }
+            else if (type == typeof(float))
+            {
+                ilGenerator.Emit(OpCodes.Stind_R4);
+            }
+            else if (type == typeof(double))
+            {
+                ilGenerator.Emit(OpCodes.Stind_R8);
+            }
+            else if (type.GetTypeInfo().IsValueType)
+            {
+                ilGenerator.Emit(OpCodes.Stobj);
+            }
+            else
+            {
+                ilGenerator.Emit(OpCodes.Stind_Ref);
+            }
+        }
+
         #region private
         private static void EmitNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {

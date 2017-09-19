@@ -490,11 +490,53 @@ namespace AspectCore.Utils
                 void EmitProxyMethodBody()
                 {
                     var ilGen = methodBuilder.GetILGenerator();
+                    var activatorContext = ilGen.DeclareLocal(typeof(AspectActivatorContext));
+                    var returnValue = default(LocalBuilder);
+
+                    EmitInitializeMetaData(ilGen);
+
+                    ilGen.Emit(OpCodes.Newobj, MethodUtils.AspectActivatorContextCtor);
+                    ilGen.Emit(OpCodes.Stloc, activatorContext);
+
                     ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
                     ilGen.Emit(OpCodes.Callvirt, MethodUtils.CreateAspectActivator);
-                    EmitInitializeMetaData(ilGen);
+                    ilGen.Emit(OpCodes.Ldloc, activatorContext);
+
                     EmitReturnVaule(ilGen);
+
+                    if (method.ReturnType != typeof(void))
+                    {
+                        returnValue = ilGen.DeclareLocal(method.ReturnType);
+                        ilGen.Emit(OpCodes.Stloc, returnValue);
+                    }
+
+                    var parameterTypes = method.GetParameterTypes();
+
+                    if (parameterTypes.Any(x => x.IsByRef))
+                    {
+                        var parameters = ilGen.DeclareLocal(typeof(object[]));
+                        ilGen.Emit(OpCodes.Ldloca, activatorContext);
+                        ilGen.Emit(OpCodes.Call, MethodUtils.GetParameters);
+                        ilGen.Emit(OpCodes.Stloc, parameters);
+                        for (var i = 0; i < parameterTypes.Length; i++)
+                        {
+                            if (parameterTypes[i].IsByRef)
+                            {
+                                ilGen.EmitLoadArg(i + 1);
+                                ilGen.Emit(OpCodes.Ldloc, parameters);
+                                ilGen.EmitInt(i);
+                                ilGen.Emit(OpCodes.Ldelem_Ref);
+                                ilGen.EmitConvertFromObject(parameterTypes[i].GetTypeInfo().MakeDefType());
+                                ilGen.EmitStRef(parameterTypes[i]);
+                            }
+                        }
+                    }
+
+                    if (returnValue != null)
+                    {
+                        ilGen.Emit(OpCodes.Ldloc, returnValue);
+                    }
                     ilGen.Emit(OpCodes.Ret);
                 }
 
@@ -531,28 +573,34 @@ namespace AspectCore.Utils
                     ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
                     ilGen.EmitThis();
-                    var parameters = method.GetParameterTypes();
-                    if (parameters.Length == 0)
+                    var parameterTypes = method.GetParameterTypes();
+                    if (parameterTypes.Length == 0)
                     {
                         ilGen.Emit(OpCodes.Ldnull);
                         return;
                     }
-                    ilGen.EmitInt(parameters.Length);
+                    ilGen.EmitInt(parameterTypes.Length);
                     ilGen.Emit(OpCodes.Newarr, typeof(object));
-                    for (var i = 0; i < parameters.Length; i++)
+                    for (var i = 0; i < parameterTypes.Length; i++)
                     {
                         ilGen.Emit(OpCodes.Dup);
                         ilGen.EmitInt(i);
                         ilGen.EmitLoadArg(i + 1);
-                        ilGen.EmitConvertToObject(parameters[i]);
+                        if (parameterTypes[i].IsByRef)
+                        {
+                            ilGen.EmitLdRef(parameterTypes[i]);
+                            ilGen.EmitConvertToObject(parameterTypes[i].GetTypeInfo().MakeDefType());
+                        }
+                        else
+                        {
+                            ilGen.EmitConvertToObject(parameterTypes[i]);
+                        }
                         ilGen.Emit(OpCodes.Stelem_Ref);
                     }
                 }
 
                 void EmitReturnVaule(ILGenerator ilGen)
                 {
-                    ilGen.Emit(OpCodes.Newobj, MethodUtils.AspectActivatorContexCtor);
-
                     if (method.ReturnType == typeof(void))
                     {
                         ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(typeof(object)));

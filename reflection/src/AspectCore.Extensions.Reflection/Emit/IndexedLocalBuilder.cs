@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection.Emit;
 
-namespace AspectCore.Extensions.Reflection.Internals
+namespace AspectCore.Extensions.Reflection.Emit
 {
-    internal struct IndexedLocalBuilder
+    public struct IndexedLocalBuilder
     {
         public LocalBuilder LocalBuilder { get; }   
         public Type LocalType { get; }

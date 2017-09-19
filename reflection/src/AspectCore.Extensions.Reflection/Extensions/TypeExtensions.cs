@@ -114,5 +114,23 @@ namespace AspectCore.Extensions.Reflection
             }
             return true;
         }
+
+        public static Type MakeDefType(this TypeInfo byRefTypeInfo)
+        {
+            if (byRefTypeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(byRefTypeInfo));
+            }
+            if (!byRefTypeInfo.IsByRef)
+            {
+                throw new ArgumentException($"Type {byRefTypeInfo} is not passed by reference.");
+            }
+
+            var assemblyQualifiedName = byRefTypeInfo.AssemblyQualifiedName;
+            var index = assemblyQualifiedName.IndexOf('&');
+            assemblyQualifiedName = assemblyQualifiedName.Remove(index, 1);
+
+            return byRefTypeInfo.Assembly.DefinedTypes.Single(x => x.AssemblyQualifiedName == assemblyQualifiedName).AsType();
+        }
     }
 }
