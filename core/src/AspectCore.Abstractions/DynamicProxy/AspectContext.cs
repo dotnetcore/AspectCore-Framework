@@ -26,6 +26,8 @@ namespace AspectCore.DynamicProxy
 
         public abstract Task Break();
 
+        public abstract Task Invoke(AspectDelegate next);
+
         public abstract Task Complete();
 
         protected virtual void Dispose(bool disposing)

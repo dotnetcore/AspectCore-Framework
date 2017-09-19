@@ -12,8 +12,6 @@ namespace AspectCore.DynamicProxy
     [NonAspect]
     internal sealed class RuntimeAspectContext : AspectContext
     {
-        private static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
-
         private volatile IDictionary<string, object> _data;
         private IServiceProvider _serviceProvider;
         private MethodInfo _targetMethod;
@@ -109,7 +107,7 @@ namespace AspectCore.DynamicProxy
             {
                 return Break();
             }
-            var reflector = reflectorTable.GetOrAdd(_targetMethod, method => method.GetReflector(CallOptions.Call));
+            var reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(_targetMethod, method => method.GetReflector(CallOptions.Call));
             ReturnValue = reflector.Invoke(_targetInstance, Parameters);
             return TaskUtils.CompletedTask;
         }
@@ -121,6 +119,11 @@ namespace AspectCore.DynamicProxy
                 ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
             }
             return TaskUtils.CompletedTask;
+        }
+
+        public override Task Invoke(AspectDelegate next)
+        {
+            return next(this);
         }
     }
 }
