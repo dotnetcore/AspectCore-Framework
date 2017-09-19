@@ -905,8 +905,8 @@ namespace AspectCore.Utils
 
         private class FieldBuilderUtils
         {
-            public const string ActivatorFactory = "__activatorFactory";
-            public const string Target = "__targetInstance";
+            public const string ActivatorFactory = "activatorFactory";
+            public const string Target = "targetInstance";
 
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
