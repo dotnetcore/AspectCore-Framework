@@ -276,7 +276,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
 
             var t = value as Type;
-            if (t != null /*&& ShouldLdtoken(t)*/)
+            if (t != null)
             {
                 ilGenerator.EmitType(t);
                 if (valueType != typeof(Type))
@@ -287,7 +287,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
 
             var mb = value as MethodBase;
-            if (mb != null && ShouldLdtoken(mb))
+            if (mb != null)
             {
                 ilGenerator.EmitMethod((MethodInfo)mb);
                 return;
@@ -296,7 +296,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             if (valueType.GetTypeInfo().IsArray)
             {
                 var array = (Array)value;
-                
+                ilGenerator.EmitArray(array, valueType.GetElementType());
             }
 
             throw new InvalidOperationException("Code supposed to be unreachable.");

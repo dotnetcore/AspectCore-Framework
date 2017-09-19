@@ -41,6 +41,10 @@ namespace AspectCore.Extensions.DependencyInjection
                 {
                     return false;
                 }
+                if (!implementationType.GetTypeInfo().IsVisible())
+                {
+                    return false;
+                }
                 if (!CanInherited(implementationType.GetTypeInfo()))
                 {
                     return false;
@@ -56,12 +60,7 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 return false;
             }
-
-            if (!implementationType.GetTypeInfo().IsVisible())
-            {
-                return false;
-            }
-
+           
             return true;
 
             bool CanInherited(TypeInfo typeInfo)

@@ -13,7 +13,7 @@ namespace AspectCore.Tests.DynamicProxy
     {
         [Fact]
         public void NonVirtualMethod_Test()
-        { 
+        {
             var proxy = ProxyGenerator.CreateClassProxy<FakeClass>();
             Assert.True(proxy.IsProxy());
             proxy.Name = "123";
@@ -30,24 +30,24 @@ namespace AspectCore.Tests.DynamicProxy
             });
             configuration.NonAspectPredicates.Add(m => m.DeclaringType == typeof(IFakeClass2));
         }
-    }
 
-    public interface IFakeClass
-    {
-        string Msg { get; }
-    }
+        public interface IFakeClass
+        {
+            string Msg { get; }
+        }
 
-    public interface IFakeClass2
-    {
-        string Context { get; }
-    }
+        public interface IFakeClass2
+        {
+            string Context { get; }
+        }
 
-    public class FakeClass : IFakeClass, IFakeClass2
-    {
-        public string Name { get; set; }
+        public class FakeClass : IFakeClass, IFakeClass2
+        {
+            public string Name { get; set; }
 
-        public string Msg => Name;
+            public string Msg => Name;
 
-        public string Context => Name;
+            public string Context => Name;
+        }
     }
 }
