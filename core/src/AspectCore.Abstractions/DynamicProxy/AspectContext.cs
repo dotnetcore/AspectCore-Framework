@@ -16,6 +16,8 @@ namespace AspectCore.DynamicProxy
 
         public abstract MethodInfo ServiceMethod { get; }
 
+        public abstract MethodInfo TargetMethod { get; }
+
         public abstract object[] Parameters { get; }
 
         public abstract MethodInfo ProxyMethod { get; }
@@ -23,6 +25,8 @@ namespace AspectCore.DynamicProxy
         public abstract object ProxyInstance { get; }
 
         public abstract Task Break();
+
+        public abstract Task Invoke(AspectDelegate next);
 
         public abstract Task Complete();
 

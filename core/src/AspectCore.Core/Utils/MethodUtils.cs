@@ -17,9 +17,11 @@ namespace AspectCore.Utils
 
         internal static readonly MethodInfo AspectActivatorInvokeValueTask = GetMethod<IAspectActivator>(nameof(IAspectActivator.InvokeValueTask));
 
-        internal static readonly ConstructorInfo AspectActivatorContexCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First();
+        internal static readonly ConstructorInfo AspectActivatorContextCtor = typeof(AspectActivatorContext).GetTypeInfo().DeclaredConstructors.First();
 
         internal static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
+
+        internal static readonly MethodInfo GetParameters = typeof(AspectActivatorContext).GetTypeInfo().GetMethod("get_Parameters");
 
         private static MethodInfo GetMethod<T>(Expression<T> expression)
         {

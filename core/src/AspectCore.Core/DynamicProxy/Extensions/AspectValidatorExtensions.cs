@@ -28,6 +28,11 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
+            if (!typeInfo.IsVisible())
+            {
+                return false;
+            }
+
             foreach (var method in typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (aspectValidator.Validate(method))

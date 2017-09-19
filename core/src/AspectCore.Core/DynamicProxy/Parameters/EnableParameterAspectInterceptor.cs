@@ -12,11 +12,11 @@ namespace AspectCore.DynamicProxy.Parameters
             var selector = (IParameterInterceptorSelector)context.ServiceProvider.GetService(typeof(IParameterInterceptorSelector));
             if (selector == null)
             {
-                throw new InvalidOperationException("ParameterInterceptorSelector cannot be null.");
+                throw new InvalidOperationException("Cannot resolve ParameterInterceptorSelector.");
             }
             var parameters = context.GetParameters();
             var count = parameters.Count;
-            if (count != 0)
+            if (count > 0)
             {
                 var parameterAspectInvoker = new ParameterAspectInvoker();
                 for (var i = 0; i < count; i++)

@@ -81,5 +81,56 @@ namespace AspectCore.Extensions.Reflection
         {
             return type?.GetTypeInfo()?.GetDefaultValue();
         }
+
+        public static bool IsVisible(this TypeInfo typeInfo)
+        {
+            if (typeInfo.IsNested)
+            {
+                if (!typeInfo.DeclaringType.GetTypeInfo().IsVisible())
+                {
+                    return false;
+                }
+                if (!typeInfo.IsVisible || !typeInfo.IsNestedPublic)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!typeInfo.IsVisible || !typeInfo.IsPublic)
+                {
+                    return false;
+                }
+            }
+            if (typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition)
+            {
+                foreach (var argument in typeInfo.GenericTypeArguments)
+                {
+                    if (!argument.GetTypeInfo().IsVisible())
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public static Type MakeDefType(this TypeInfo byRefTypeInfo)
+        {
+            if (byRefTypeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(byRefTypeInfo));
+            }
+            if (!byRefTypeInfo.IsByRef)
+            {
+                throw new ArgumentException($"Type {byRefTypeInfo} is not passed by reference.");
+            }
+
+            var assemblyQualifiedName = byRefTypeInfo.AssemblyQualifiedName;
+            var index = assemblyQualifiedName.IndexOf('&');
+            assemblyQualifiedName = assemblyQualifiedName.Remove(index, 1);
+
+            return byRefTypeInfo.Assembly.DefinedTypes.Single(x => x.AssemblyQualifiedName == assemblyQualifiedName).AsType();
+        }
     }
 }

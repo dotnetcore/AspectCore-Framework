@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
+    [NonAspect]
     internal class ServiceResolver : IServiceResolver
     {
         private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedScopedServcies;

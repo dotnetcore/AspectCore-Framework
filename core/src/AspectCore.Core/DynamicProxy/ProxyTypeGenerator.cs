@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Utils;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
 {

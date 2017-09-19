@@ -4,6 +4,7 @@ using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class AspectValidator : IAspectValidator
     {
         private readonly AspectValidationDelegate _aspectValidationDelegate;

@@ -9,13 +9,15 @@ namespace AspectCore.DynamicProxy
         private readonly IInterceptorCollector _interceptorCollector;
         private readonly IAspectCaching _aspectCaching;
 
-        public AspectBuilderFactory(IInterceptorCollector interceptorCollector, IAspectCachingProvider aspectCachingProvider)
+        public AspectBuilderFactory(IInterceptorCollector interceptorCollector,
+            IAspectCachingProvider aspectCachingProvider)
         {
             if (aspectCachingProvider == null)
             {
                 throw new ArgumentNullException(nameof(aspectCachingProvider));
             }
-            _interceptorCollector = interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
+            _interceptorCollector =
+                interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
             _aspectCaching = aspectCachingProvider.GetAspectCaching(nameof(AspectBuilderFactory));
         }
 
@@ -25,12 +27,12 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            return (IAspectBuilder)_aspectCaching.GetOrAdd(context.ServiceMethod, key => Create((MethodInfo)key));
+            return (IAspectBuilder) _aspectCaching.GetOrAdd(context.ServiceMethod, key => Create((MethodInfo) key));
         }
 
         private IAspectBuilder Create(MethodInfo method)
         {
-            var aspectBuilder = new AspectBuilder();
+            var aspectBuilder = new AspectBuilder(context => context.Complete(), null);
 
             foreach (var interceptor in _interceptorCollector.Collect(method))
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);

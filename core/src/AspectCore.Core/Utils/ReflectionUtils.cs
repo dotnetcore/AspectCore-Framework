@@ -130,7 +130,8 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(member));
             }
             var declaringType = member.DeclaringType.GetTypeInfo();
-            return $"{declaringType.Namespace}.{declaringType.GetReflector().DisplayName}.{member.GetReflector().DisplayName}";
+            return
+                $"{declaringType.Namespace}.{declaringType.GetReflector().DisplayName}.{member.GetReflector().DisplayName}";
         }
 
         //internal static string GetName(this Type type)
@@ -150,7 +151,7 @@ namespace AspectCore.DynamicProxy
         //    return name + ">";
         //}
 
-        internal static bool IsReturnTask(this MethodInfo methodInfo)
+        public static bool IsReturnTask(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
             {
@@ -159,7 +160,7 @@ namespace AspectCore.DynamicProxy
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
 
-        internal static bool IsReturnValueTask(this MethodInfo methodInfo)
+        public static bool IsReturnValueTask(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
             {
@@ -198,10 +199,11 @@ namespace AspectCore.DynamicProxy
                    (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
-        internal static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
+        public static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
         {
             var interfaceType = method.DeclaringType;
-            var explicitMethodName = $"{interfaceType.Namespace}.{interfaceType.GetReflector().DisplayName}.{method.Name}";
+            var explicitMethodName =
+                $"{interfaceType.Namespace}.{interfaceType.GetReflector().DisplayName}.{method.Name}";
             foreach (var m in typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (m.Name != explicitMethodName)
@@ -271,25 +273,6 @@ namespace AspectCore.DynamicProxy
             }
 
             return null;
-        }
-
-        public static bool IsVisible(this TypeInfo typeInfo)
-        {
-            if (!typeInfo.IsVisible || !typeInfo.IsPublic)
-            {
-                return false;
-            }
-            if (typeInfo.IsGenericType)
-            {
-                foreach (var argument in typeInfo.GenericTypeArguments)
-                {
-                    if (!argument.GetTypeInfo().IsVisible())
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
+        }  
     }
 }

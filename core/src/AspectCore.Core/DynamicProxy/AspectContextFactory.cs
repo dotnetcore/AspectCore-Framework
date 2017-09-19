@@ -2,6 +2,7 @@
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public class AspectContextFactory : IAspectContextFactory
     {
         private static readonly object[] emptyParameters = new object[0];
@@ -18,7 +19,7 @@ namespace AspectCore.DynamicProxy
                 activatorContext.ServiceMethod,
                 activatorContext.TargetMethod,
                 activatorContext.ProxyMethod,
-                activatorContext.ServiceInstance,
+                activatorContext.TargetInstance,
                 activatorContext.ProxyInstance,
                 activatorContext.Parameters ?? emptyParameters);
         }

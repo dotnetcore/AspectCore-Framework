@@ -3,6 +3,7 @@ using AspectCore.Injector;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class ProxyGenerator : IProxyGenerator
     {
         private readonly IProxyTypeGenerator _proxyTypeGenerator;

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class AspectCachingProvider : IAspectCachingProvider
     {
         private readonly ConcurrentDictionary<string, IAspectCaching> _cachings;

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AspectCore.DynamicProxy;
 using AspectCore.Injector;
 using Autofac;
 
 namespace AspectCore.Extensions.Autofac
 {
+    [NonAspect]
     internal class AutofacScopeResolverFactory : IScopeResolverFactory
     {
         private readonly ILifetimeScope _lifetimeScope;

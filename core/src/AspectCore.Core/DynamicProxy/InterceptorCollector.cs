@@ -8,6 +8,7 @@ using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
+    [NonAspect]
     public sealed class InterceptorCollector : IInterceptorCollector
     {
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
