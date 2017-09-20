@@ -73,13 +73,17 @@ namespace AspectCore.Extensions.Autofac
             {
                 return;
             }
-            var limitType = e.Component.Activator.LimitType;
-            if (limitType.GetTypeInfo().IsNonAspect())
+            if (!(e.Component.Activator is ReflectionActivator))
+            {
+                return;
+            }
+            var limitType = e.Instance.GetType();
+            if (!limitType.GetTypeInfo().CanInherited())
             {
                 return;
             }
             var services = e.Component.Services.Select(x => ((IServiceWithType)x).ServiceType).ToList();
-            if (services.All(x => x.GetTypeInfo().IsNonAspect()))
+            if (services.Any(x => !x.GetTypeInfo().CanInherited()))
             {
                 return;
             }
@@ -88,15 +92,22 @@ namespace AspectCore.Extensions.Autofac
             {
                 return;
             }
-            if (!limitType.GetTypeInfo().CanInherited())
-            {
-                return;
-            }
             var proxyTypeGenerator = e.Context.Resolve<IProxyTypeGenerator>();
-            var baseType = services.FirstOrDefault(x => x.GetTypeInfo().IsClass) ?? limitType;
-            var proxyType = proxyTypeGenerator.CreateClassProxyType(baseType, limitType);
-            var activator = new ReflectionActivator(proxyType, new DefaultConstructorFinder(), new MostParametersConstructorSelector(), new AParameter[0], new AParameter[0]);
-            var instance = activator.ActivateInstance(e.Context, e.Parameters);
+            Type proxyType; object instance;
+            var interfaceType = services.FirstOrDefault(x => x.GetTypeInfo().IsInterface);
+            if (interfaceType == null)
+            {
+                var baseType = services.FirstOrDefault(x => x.GetTypeInfo().IsClass) ?? limitType;
+                proxyType = proxyTypeGenerator.CreateClassProxyType(baseType, limitType);
+                var activator = new ReflectionActivator(proxyType, new DefaultConstructorFinder(type => type.GetTypeInfo().DeclaredConstructors.ToArray()), new MostParametersConstructorSelector(), new AParameter[0], new AParameter[0]);
+                instance = activator.ActivateInstance(e.Context, e.Parameters);
+            }
+            else
+            {
+                proxyType = proxyTypeGenerator.CreateInterfaceProxyType(interfaceType, limitType);
+                instance = Activator.CreateInstance(proxyType, new object[] { e.Context.Resolve<IAspectActivatorFactory>(), e.Instance });
+            }
+
             var propertyInjector = e.Context.Resolve<IPropertyInjectorFactory>().Create(instance.GetType());
             propertyInjector.Invoke(instance);
             e.Instance = instance;

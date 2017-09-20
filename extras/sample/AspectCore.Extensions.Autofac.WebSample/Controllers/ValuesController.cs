@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using AspectCore.Extensions.DependencyInjection.Sample.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspectCore.Extensions.DependencyInjection.Sample.Controllers
+namespace AspectCore.Extensions.Autofac.WebSample.Controllers
 {
     [Route("api/[controller]")]
-    public class ValuesController : ControllerBase
+    public class ValuesController
     {
-        private readonly IValuesService _valueService;
 
+        private readonly IValuesService _valueService;
         public ValuesController(IValuesService valuesService)
         {
             _valueService = valuesService;
@@ -16,9 +15,9 @@ namespace AspectCore.Extensions.DependencyInjection.Sample.Controllers
 
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public virtual IEnumerable<string> Get()
         {
-            return ApiResult(() => _valueService.GetAll());
+            return _valueService.GetAll();
         }
 
         // GET api/values/5

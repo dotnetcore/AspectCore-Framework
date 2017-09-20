@@ -7,7 +7,7 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.Autofac.Sample
 {
-    public class MethodExecuteLoggerInterceptor : AspectCore.DynamicProxy.InterceptorAttribute
+    public class MethodExecuteLoggerInterceptor : AbstractInterceptor
     {
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {

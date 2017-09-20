@@ -6,7 +6,7 @@ using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.Extensions.Test.Fakes
 {
-    public class CacheInterceptorAttribute : InterceptorAttribute
+    public class CacheInterceptorAttribute : AbstractInterceptorAttribute
     {
         private readonly IDictionary<int, Model> cache = new Dictionary<int, Model>();
 

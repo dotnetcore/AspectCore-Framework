@@ -2,9 +2,9 @@
 
 namespace AspectCore.Configuration
 {
-    internal static class StringExtensions
+    public static class StringExtensions
     {
-        internal static unsafe bool Matches(this string input, string pattern)
+        public static unsafe bool Matches(this string input, string pattern)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentNullException(nameof(input));
