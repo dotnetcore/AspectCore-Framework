@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
@@ -34,7 +33,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(typeInfo));
             }
 
-            if (!typeInfo.IsClass || typeInfo.IsSealed)
+            if (typeInfo.IsValueType || typeInfo.IsEnum || typeInfo.IsSealed)
             {
                 return false;
             }
@@ -44,14 +43,7 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            if (typeInfo.IsNested)
-            {
-                return typeInfo.IsNestedPublic && typeInfo.DeclaringType.GetTypeInfo().IsPublic;
-            }
-            else
-            {
-                return typeInfo.IsPublic;
-            }
+            return typeInfo.IsVisible();
         }
 
         internal static Type[] GetParameterTypes(this MethodInfo method)
@@ -109,7 +101,7 @@ namespace AspectCore.DynamicProxy
             return member.Name;
         }
 
-        internal static string GetFullName(this MethodInfo member)
+        internal static string GetName(this MethodInfo member)
         {
             if (member == null)
             {
@@ -153,26 +145,17 @@ namespace AspectCore.DynamicProxy
             return returnType.IsValueTask();
         }
 
-        internal static bool IsAccessibility(this PropertyInfo property)
+        internal static bool IsVisibleAndVirtual(this PropertyInfo property)
         {
             if (property == null)
             {
                 throw new ArgumentNullException(nameof(property));
             }
-            return (property.CanRead && property.GetMethod.IsAccessibility()) ||
-                   (property.CanWrite && property.GetMethod.IsAccessibility());
+            return (property.CanRead && property.GetMethod.IsVisibleAndVirtual()) ||
+                   (property.CanWrite && property.GetMethod.IsVisibleAndVirtual());
         }
 
-        internal static bool IsAccessibility(this TypeInfo declaringType)
-        {
-            if (declaringType == null)
-            {
-                throw new ArgumentNullException(nameof(declaringType));
-            }
-            return !(declaringType.IsNotPublic || declaringType.IsValueType || declaringType.IsSealed);
-        }
-
-        internal static bool IsAccessibility(this MethodInfo method)
+        internal static bool IsVisibleAndVirtual(this MethodInfo method)
         {
             if (method == null)
             {

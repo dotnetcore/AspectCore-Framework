@@ -29,9 +29,9 @@ namespace AspectCore.Utils
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
-            if (!interfaceType.GetTypeInfo().IsAccessibility())
+            if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
             {
-                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the visible conditions.");
             }
 
             lock (_lock)
@@ -48,9 +48,9 @@ namespace AspectCore.Utils
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
-            if (!interfaceType.GetTypeInfo().IsAccessibility())
+            if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
             {
-                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the visible conditions.");
             }
 
             lock (_lock)
@@ -67,9 +67,9 @@ namespace AspectCore.Utils
 
         internal static Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
-            if (!serviceType.GetTypeInfo().IsAccessibility())
+            if (!serviceType.GetTypeInfo().IsVisible() || !serviceType.GetTypeInfo().IsClass)
             {
-                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the visible conditions.");
             }
             if (!implType.GetTypeInfo().CanInherited())
             {
@@ -389,7 +389,7 @@ namespace AspectCore.Utils
             {
                 foreach (var method in serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => !x.IsPropertyBinding()))
                 {
-                    if (method.IsAccessibility() && !ignores.Contains(method.Name))
+                    if (method.IsVisibleAndVirtual() && !ignores.Contains(method.Name))
                         DefineClassMethod(method, implType, typeDesc);
                 }
                 foreach (var item in additionalInterfaces)
@@ -410,7 +410,7 @@ namespace AspectCore.Utils
 
             internal static MethodBuilder DefineExplicitMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
-                var methodBuilder = DefineMethod(method, method.GetFullName(), ExplicitMethodAttributes, implType, typeDesc);
+                var methodBuilder = DefineMethod(method, method.GetName(), ExplicitMethodAttributes, implType, typeDesc);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
@@ -651,7 +651,7 @@ namespace AspectCore.Utils
             {
                 foreach (var property in serviceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    if (property.IsAccessibility())
+                    if (property.IsVisibleAndVirtual())
                     {
                         var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
                         DefineClassPropertyMethod(builder, property, implType, typeDesc);
