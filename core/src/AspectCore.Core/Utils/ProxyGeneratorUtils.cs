@@ -527,7 +527,7 @@ namespace AspectCore.Utils
                                 ilGen.Emit(OpCodes.Ldloc, parameters);
                                 ilGen.EmitInt(i);
                                 ilGen.Emit(OpCodes.Ldelem_Ref);
-                                ilGen.EmitConvertFromObject(parameterTypes[i].GetTypeInfo().MakeDefType());
+                                ilGen.EmitConvertFromObject(parameterTypes[i].GetElementType());
                                 ilGen.EmitStRef(parameterTypes[i]);
                             }
                         }
@@ -589,7 +589,7 @@ namespace AspectCore.Utils
                         if (parameterTypes[i].IsByRef)
                         {
                             ilGen.EmitLdRef(parameterTypes[i]);
-                            ilGen.EmitConvertToObject(parameterTypes[i].GetTypeInfo().MakeDefType());
+                            ilGen.EmitConvertToObject(parameterTypes[i].GetElementType());
                         }
                         else
                         {

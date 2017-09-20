@@ -36,7 +36,7 @@ namespace AspectCore.Tests.Integrate
             serviceContainer.AddType<ProxyTransient>();
         }
 
-        public class Test : InterceptorAttribute
+        public class Test : AbstractInterceptorAttribute
         {
             public override Task Invoke(AspectContext context, AspectDelegate next)
             {

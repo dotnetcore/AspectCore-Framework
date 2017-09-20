@@ -50,7 +50,7 @@ namespace AspectCore.Tests.DynamicProxy
         }
     }
 
-    public class OutParameterInterceptor : InterceptorAttribute
+    public class OutParameterInterceptor : AbstractInterceptorAttribute
     {
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {

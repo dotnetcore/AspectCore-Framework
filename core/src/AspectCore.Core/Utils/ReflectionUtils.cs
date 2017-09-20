@@ -134,30 +134,13 @@ namespace AspectCore.DynamicProxy
                 $"{declaringType.Namespace}.{declaringType.GetReflector().DisplayName}.{member.GetReflector().DisplayName}";
         }
 
-        //internal static string GetName(this Type type)
-        //{
-        //    if (!type.GetTypeInfo().IsGenericType)
-        //    {
-        //        return type.Name.Replace('+', '.');
-        //    }
-        //    var arguments = type.GetTypeInfo().IsGenericTypeDefinition
-        //        ? type.GetTypeInfo().GenericTypeParameters
-        //        : type.GenericTypeArguments;
-        //    var name = $"{type.Name.Replace('+', '.')}<{arguments[0].GetName()}";
-        //    for (var i = 1; i < arguments.Length; i++)
-        //    {
-        //        name = name + "," + arguments[i].GetName();
-        //    }
-        //    return name + ">";
-        //}
-
         public static bool IsReturnTask(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
-            return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
+            return typeof(Task).GetTypeInfo().IsTaskWithResult();
         }
 
         public static bool IsReturnValueTask(this MethodInfo methodInfo)
@@ -167,7 +150,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(methodInfo));
             }
             var returnType = methodInfo.ReturnType.GetTypeInfo();
-            return returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>);
+            return returnType.IsValueTask();
         }
 
         internal static bool IsAccessibility(this PropertyInfo property)

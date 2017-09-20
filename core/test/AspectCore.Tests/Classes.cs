@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
+using AspectCore.DynamicProxy;
 using AspectCore.Injector;
+using Xunit;
 
 namespace AspectCore.Tests
 {
@@ -161,6 +164,52 @@ namespace AspectCore.Tests
         public override T Create<T>()
         {
             return base.Create<T>();
+        }
+    }
+
+    public class FakeAsyncClass
+    {
+        [DynAsyncTestInterceptor]
+        public virtual dynamic DynAsync(int value)
+        {
+            return Task.Run<int>(async () =>
+            {
+                await Task.Delay(value);
+                return value;
+            });
+        }
+
+        [AsyncTestInterceptor]
+        public virtual Task Async(int value)
+        {
+            return Task.Run<int>(async () =>
+            {
+                await Task.Delay(value);
+                return value;
+            });
+        }
+    }
+
+    public class AsyncTestInterceptor : AbstractInterceptorAttribute
+    {
+        public async override Task Invoke(AspectContext context, AspectDelegate next)
+        {
+            Assert.True(context.IsAsync());
+            await context.Invoke(next);
+            var result = context.UnwrapAsyncReturnValue();
+            Assert.Equal(100, result);
+        }
+    }
+
+    public class DynAsyncTestInterceptor : AbstractInterceptorAttribute
+    {
+        public async override Task Invoke(AspectContext context, AspectDelegate next)
+        {
+            Assert.False(context.IsAsync());
+            await context.Invoke(next);
+            Assert.True(context.IsAsync());
+            var result = context.UnwrapAsyncReturnValue();
+            Assert.Equal(100, result);
         }
     }
 }

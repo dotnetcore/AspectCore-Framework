@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy
 {
-    public sealed class ServiceInterceptorAttribute : InterceptorAttribute
+    public sealed class ServiceInterceptorAttribute : AbstractInterceptorAttribute
     {
         private readonly Type _interceptorType;
 

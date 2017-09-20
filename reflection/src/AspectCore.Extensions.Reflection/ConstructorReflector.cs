@@ -53,7 +53,7 @@ namespace AspectCore.Extensions.Reflection
                 ilGen.Emit(OpCodes.Ldelem_Ref);
                 if (parameterTypes[i].IsByRef)
                 {
-                    var defType = parameterTypes[i].GetTypeInfo().MakeDefType();
+                    var defType = parameterTypes[i].GetElementType();
                     var indexedLocal = new IndexedLocalBuilder(ilGen.DeclareLocal(defType), i);
                     indexedLocals[index++] = indexedLocal;
                     ilGen.EmitConvertFromObject(defType);

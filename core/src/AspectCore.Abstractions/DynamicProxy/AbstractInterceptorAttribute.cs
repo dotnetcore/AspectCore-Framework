@@ -8,7 +8,7 @@ namespace AspectCore.DynamicProxy
     /// </summary>
     [NonAspect]
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, Inherited = false)]
-    public abstract class InterceptorAttribute : Attribute, IInterceptor
+    public abstract class AbstractInterceptorAttribute : Attribute, IInterceptor
     {
         public virtual bool AllowMultiple { get; } = false;
 
