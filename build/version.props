@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <VersionPrefix>0.2.0</VersionPrefix>
-    <VersionSuffix>preview5</VersionSuffix>
+    <VersionSuffix>preview6</VersionSuffix>
     <Version>$(VersionPrefix)-$(VersionSuffix)</Version>
     <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
     <FileVersion>$(VersionPrefix).0</FileVersion>
