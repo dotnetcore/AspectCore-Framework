@@ -25,7 +25,7 @@ namespace AspectCore.DynamicProxy
                 if (invoke.IsFaulted)
                 {
                     var innerException = invoke.Exception?.InnerException;
-                    ThrowInvocationException(context, innerException);
+                    throw context.InvocationException(innerException);
                 }
                 if (!invoke.IsCompleted)
                 {
@@ -44,7 +44,7 @@ namespace AspectCore.DynamicProxy
                 if (invoke.IsFaulted)
                 {
                     var innerException = invoke.Exception?.InnerException;
-                    ThrowInvocationException(context, innerException);
+                    throw context.InvocationException(innerException);
                 }
                 if (!invoke.IsCompleted)
                 {
@@ -65,7 +65,7 @@ namespace AspectCore.DynamicProxy
                 }
                 else
                 {
-                    throw new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'.");
+                    throw context.InvocationException(new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'."));
                 }
             }
         }
@@ -79,7 +79,7 @@ namespace AspectCore.DynamicProxy
                 if (invoke.IsFaulted)
                 {
                     var innerException = invoke.Exception?.InnerException;
-                    ThrowInvocationException(context, innerException);
+                    throw context.InvocationException(innerException);
                 }
                 if (!invoke.IsCompleted)
                 {
@@ -87,15 +87,6 @@ namespace AspectCore.DynamicProxy
                 }
                 return (ValueTask<TResult>)context.ReturnValue;
             }
-        }
-
-        private void ThrowInvocationException(AspectContext aspectContext, Exception exception)
-        {
-            if (exception is AspectInvocationException aspectInvocationException)
-            {
-                throw new AspectInvocationException(aspectContext, aspectInvocationException.InnerException);
-            }
-            throw new AspectInvocationException(aspectContext, exception);
         }
     }
 }

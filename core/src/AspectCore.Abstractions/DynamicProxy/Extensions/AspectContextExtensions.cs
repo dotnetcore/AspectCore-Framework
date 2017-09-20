@@ -28,6 +28,26 @@ namespace AspectCore.DynamicProxy
             }
             return false;
         }
+  
+        public static object UnwrapAsyncReturnValue(this AspectContext aspectContext)
+        {
+            if (aspectContext == null)
+            {
+                throw new ArgumentNullException(nameof(aspectContext));
+            }
+            if (!aspectContext.IsAsync())
+            {
+                throw new AspectInvocationException(aspectContext, new InvalidOperationException("This operation only supports asynchronous method."));
+            }
+            var returnValue = aspectContext.ReturnValue;
+            if (returnValue == null)
+            {
+                return null;
+            }
+            var returnTypeInfo = returnValue.GetType().GetTypeInfo();
+            //todo
+            return null;
+        }
 
         private static bool IsAsyncFromMetaData(MethodInfo method)
         {
@@ -54,26 +74,6 @@ namespace AspectCore.DynamicProxy
                 return true;
             }
             return false;
-        }
-
-        public static object UnwrapAsyncReturnValue(this AspectContext aspectContext)
-        {
-            if (aspectContext == null)
-            {
-                throw new ArgumentNullException(nameof(aspectContext));
-            }
-            if (!aspectContext.IsAsync())
-            {
-                throw new AspectInvocationException(aspectContext, new InvalidOperationException("This operation only supports asynchronous method."));
-            }
-            var returnValue = aspectContext.ReturnValue;
-            if (returnValue == null)
-            {
-                return null;
-            }
-            var returnTypeInfo = returnValue.GetType().GetTypeInfo();
-            //todo
-            return null;
         }
     }
 }
