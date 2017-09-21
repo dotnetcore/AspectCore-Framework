@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
 using AspectCore.Injector;
 using Castle.Core;
 using Castle.Core.Configuration;
 using Castle.MicroKernel;
+using Castle.MicroKernel.Registration;
 
 namespace AspectCore.Extensions.Windsor
 {
@@ -27,7 +30,26 @@ namespace AspectCore.Extensions.Windsor
         {
             _kernel = kernel;
             kernel.ComponentModelCreated += Kernel_ComponentModelCreated;
-
+            kernel.Register(
+                Component.For(typeof(ManyEnumerable<>)).ImplementedBy(typeof(ManyEnumerable<>)).LifestyleTransient(),
+                Component.For<IProxyGenerator>().ImplementedBy<ProxyGenerator>().LifestyleScoped(),
+                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),
+                Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),         
+                Component.For<IProxyTypeGenerator>().ImplementedBy<ProxyTypeGenerator>().LifestyleSingleton(),
+                Component.For<IInterceptorSelector>().ImplementedBy<ConfigureInterceptorSelector>().LifestyleSingleton(),
+                Component.For<IInterceptorSelector>().ImplementedBy<TypeInterceptorSelector>().LifestyleSingleton(),
+                Component.For<IInterceptorSelector>().ImplementedBy<MethodInterceptorSelector>().LifestyleSingleton(),
+                Component.For<IScopeResolverFactory>().ImplementedBy<WindsorScopeResolverFactory>().LifestyleScoped(),
+                Component.For<IAspectBuilderFactory>().ImplementedBy<AspectBuilderFactory>().LifestyleSingleton(),
+                Component.For<IInterceptorCollector>().ImplementedBy<InterceptorCollector>().LifestyleSingleton(),
+                Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleScoped(),
+                Component.For<IAspectCachingProvider>().ImplementedBy<AspectCachingProvider>().LifestyleSingleton(),
+                Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleScoped(),
+                Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(), 
+                Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleScoped(),
+                Component.For<IParameterInterceptorSelector>().ImplementedBy<ParameterInterceptorSelector>().LifestyleScoped(),
+                Component.For<IAspectConfiguration>().Instance(_aspectConfiguration).LifestyleSingleton()
+                );
         }
 
         private void Kernel_ComponentModelCreated(ComponentModel model)
