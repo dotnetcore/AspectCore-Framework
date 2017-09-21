@@ -3,12 +3,13 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.Windsor
 {
-    internal class CastleAspectBuilderFactory : IAspectBuilderFactory
+    [NonAspect]
+    internal class WindsorAspectBuilderFactory : IAspectBuilderFactory
     {
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
         private readonly AspectDelegate _complete;
 
-        public CastleAspectBuilderFactory(IAspectBuilderFactory aspectBuilderFactory, AspectDelegate complete)
+        public WindsorAspectBuilderFactory(IAspectBuilderFactory aspectBuilderFactory, AspectDelegate complete)
         {
             _aspectBuilderFactory = aspectBuilderFactory;
             _complete = complete;

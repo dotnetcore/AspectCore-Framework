@@ -36,7 +36,7 @@ namespace AspectCore.DynamicProxy
         {
             if (exception is AspectInvocationException aspectInvocationException)
             {
-                throw new AspectInvocationException(aspectContext, aspectInvocationException.InnerException);
+                return aspectInvocationException;
             }
             return new AspectInvocationException(aspectContext, exception);
         }
