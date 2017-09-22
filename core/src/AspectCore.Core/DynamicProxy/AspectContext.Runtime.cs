@@ -14,8 +14,8 @@ namespace AspectCore.DynamicProxy
     {
         private volatile IDictionary<string, object> _data;
         private IServiceProvider _serviceProvider;
-        private MethodInfo _targetMethod;
-        private object _targetInstance;
+        private MethodInfo _implementationMethod;
+        private object _implementation;
         private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
@@ -52,20 +52,22 @@ namespace AspectCore.DynamicProxy
 
         public override MethodInfo ProxyMethod { get; }
 
-        public override object ProxyInstance { get; }
+        public override object Proxy { get; }
 
-        public override MethodInfo TargetMethod => _targetMethod;
+        public override MethodInfo ImplementationMethod => _implementationMethod;
+
+        public override object Implementation => _implementation;
 
         public RuntimeAspectContext(
             IServiceProvider serviceProvider, MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod,
             object targetInstance, object proxyInstance, object[] parameters)
         {
             _serviceProvider = serviceProvider;
-            _targetMethod = targetMethod;
-            _targetInstance = targetInstance;
+            _implementationMethod = targetMethod;
+            _implementation = targetInstance;
             ServiceMethod = serviceMethod;
             ProxyMethod = proxyMethod;
-            ProxyInstance = proxyInstance;
+            Proxy = proxyInstance;
             Parameters = parameters;
         }
 
@@ -103,12 +105,12 @@ namespace AspectCore.DynamicProxy
 
         public override Task Complete()
         {
-            if (_targetInstance == null || _targetMethod == null)
+            if (_implementation == null || _implementationMethod == null)
             {
                 return Break();
             }
-            var reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(_targetMethod, method => method.GetReflector(CallOptions.Call));
-            var returnValue = reflector.Invoke(_targetInstance, Parameters);
+            var reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(_implementationMethod, method => method.GetReflector(CallOptions.Call));
+            var returnValue = reflector.Invoke(_implementation, Parameters);
             AspectContextRuntimeExtensions.AwaitIfAsync(this, returnValue);
             ReturnValue = returnValue;
             return TaskUtils.CompletedTask;

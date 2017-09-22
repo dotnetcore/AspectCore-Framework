@@ -12,17 +12,23 @@ namespace AspectCore.DynamicProxy
     public sealed class InterceptorCollector : IInterceptorCollector
     {
         private readonly IEnumerable<IInterceptorSelector> _interceptorSelectors;
+        private readonly IEnumerable<IAdditionalInterceptorSelector> _additionalInterceptorSelectors;
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
         private readonly IAspectCaching _aspectCaching;
 
         public InterceptorCollector(
             IEnumerable<IInterceptorSelector> interceptorSelectors,
+            IEnumerable<IAdditionalInterceptorSelector> additionalInterceptorSelectors,
             IPropertyInjectorFactory propertyInjectorFactory,
             IAspectCachingProvider aspectCachingProvider)
         {
             if (interceptorSelectors == null)
             {
                 throw new ArgumentNullException(nameof(interceptorSelectors));
+            }
+            if (additionalInterceptorSelectors == null)
+            {
+                throw new ArgumentNullException(nameof(additionalInterceptorSelectors));
             }
             if (propertyInjectorFactory == null)
             {
@@ -32,29 +38,44 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(aspectCachingProvider));
             }
-            _interceptorSelectors = interceptorSelectors.Distinct(new InterceptorSelectorEqualityComparer()).ToList();
+            _interceptorSelectors = interceptorSelectors.Distinct(new InterceptorSelectorEqualityComparer<IInterceptorSelector>()).ToList();
+            _additionalInterceptorSelectors = additionalInterceptorSelectors.Distinct(new InterceptorSelectorEqualityComparer<IAdditionalInterceptorSelector>()).ToList();
             _propertyInjectorFactory = propertyInjectorFactory;
             _aspectCaching = aspectCachingProvider.GetAspectCaching(nameof(InterceptorCollector));
         }
 
-        public IEnumerable<IInterceptor> Collect(MethodInfo method)
+        public IEnumerable<IInterceptor> Collect(MethodInfo serviceMethod, MethodInfo implementationMethod)
         {
-            if (method == null)
+            if (serviceMethod == null)
             {
-                throw new ArgumentNullException(nameof(method));
+                throw new ArgumentNullException(nameof(serviceMethod));
             }
-            return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(method, key =>
+            if (implementationMethod == null)
             {
-                return HandleInjector(CollectInternal(method));
+                throw new ArgumentNullException(nameof(implementationMethod));
+            }
+
+            return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(GetKey(serviceMethod, implementationMethod), key =>
+            {
+                return HandleInjector(
+                    CollectFromService(serviceMethod).
+                    Concat(CollectFromAdditionalSelector(serviceMethod, implementationMethod)).
+                    HandleSort().
+                    HandleMultiple()).
+                    ToArray();
             });
         }
 
-        private IEnumerable<IInterceptor> CollectInternal(MethodInfo method)
+        private object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod)
         {
-            var inherited = CollectFromInherited(method);
-            var selected = CollectFromSelector(method);
-            var collection = selected.Concat(inherited).HandleSort().HandleMultiple();
-            return collection.ToArray();
+            return Tuple.Create(serviceMethod, implementationMethod);
+        }
+
+        private IEnumerable<IInterceptor> CollectFromService(MethodInfo serviceMethod)
+        {
+            var inherited = CollectFromInherited(serviceMethod);
+            var selected = CollectFromSelector(serviceMethod);
+            return inherited.Concat(selected);
         }
 
         private IEnumerable<IInterceptor> CollectFromInherited(MethodInfo method)
@@ -70,7 +91,7 @@ namespace AspectCore.DynamicProxy
                 var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethod(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
-                    list.AddRange(CollectInternal(interfaceMethod).Where(x => x.Inherited));
+                    list.AddRange(CollectFromService(interfaceMethod).Where(x => x.Inherited));
                 }
             }
             var baseType = typeInfo.BaseType;
@@ -81,7 +102,7 @@ namespace AspectCore.DynamicProxy
             var baseMethod = baseType.GetTypeInfo().GetMethod(new MethodSignature(method));
             if (baseMethod != null)
             {
-                list.AddRange(CollectInternal(baseMethod).Where(x => x.Inherited));
+                list.AddRange(CollectFromService(baseMethod).Where(x => x.Inherited));
             }
             return list;
         }
@@ -91,6 +112,18 @@ namespace AspectCore.DynamicProxy
             foreach (var selector in _interceptorSelectors)
             {
                 foreach (var interceptor in selector.Select(method))
+                {
+                    if (interceptor != null)
+                        yield return interceptor;
+                }
+            }
+        }
+
+        private IEnumerable<IInterceptor> CollectFromAdditionalSelector(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        {
+            foreach (var selector in _additionalInterceptorSelectors)
+            {
+                foreach (var interceptor in selector.Select(serviceMethod, implementationMethod))
                 {
                     if (interceptor != null)
                         yield return interceptor;

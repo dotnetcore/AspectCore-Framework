@@ -456,7 +456,13 @@ namespace AspectCore.Utils
                 //define paramters
                 ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
-                if (typeDesc.GetProperty<IAspectValidator>().Validate(method))
+                var implementationMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? implType.GetTypeInfo().GetExplicitMethod(method);
+                if (implementationMethod == null)
+                {
+                    throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
+                }
+
+                if (typeDesc.GetProperty<IAspectValidator>().Validate(method)|| typeDesc.GetProperty<IAspectValidator>().Validate(implementationMethod))
                 {
                     EmitProxyMethodBody();
                 }
@@ -477,13 +483,8 @@ namespace AspectCore.Utils
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? implType.GetTypeInfo().GetExplicitMethod(method);    
-                    if (implMethod == null)
-                    {
-                        throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
-                    }
 
-                    ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implMethod);
+                    ilGen.Emit(implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implementationMethod);
                     ilGen.Emit(OpCodes.Ret);
                 }
 
@@ -544,29 +545,22 @@ namespace AspectCore.Utils
                 {
                     var serviceMethod = method;
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod)) ?? implType.GetTypeInfo().GetExplicitMethod(method); ;
-
-                    if (implMethod == null)
-                    {
-                        throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
-                    }
-
                     var methodConstants = typeDesc.MethodConstants;
 
                     if (method.IsGenericMethodDefinition)
                     {
                         ilGen.EmitMethod(serviceMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
-                        ilGen.EmitMethod(implMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        ilGen.EmitMethod(implementationMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                         ilGen.EmitMethod(methodBuilder.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                     }
                     else
                     {
                         methodConstants.AddMethod($"service{serviceMethod.GetDisplayName()}", serviceMethod);
-                        methodConstants.AddMethod($"imp{implMethod.GetDisplayName()}", implMethod);
+                        methodConstants.AddMethod($"impl{implementationMethod.GetDisplayName()}", implementationMethod);
                         methodConstants.AddMethod($"proxy{serviceMethod.GetDisplayName()}", methodBuilder);
 
                         methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetDisplayName()}");
-                        methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetDisplayName()}");
+                        methodConstants.LoadMethod(ilGen, $"impl{implementationMethod.GetDisplayName()}");
                         methodConstants.LoadMethod(ilGen, $"proxy{serviceMethod.GetDisplayName()}");
                     }
 

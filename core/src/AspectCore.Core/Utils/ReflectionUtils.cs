@@ -161,8 +161,16 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            return !method.IsStatic && !method.IsFinal && method.IsVirtual &&
-                   (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
+            if (method.IsStatic)
+            {
+                return false;
+            }
+            if (method.IsFinal)
+            {
+                return method.Attributes.HasFlag(MethodAttributes.Virtual | MethodAttributes.NewSlot);
+            }
+            return method.IsVirtual &&
+                    (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
         public static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
