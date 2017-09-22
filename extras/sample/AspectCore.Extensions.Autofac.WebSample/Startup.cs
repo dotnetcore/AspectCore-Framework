@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AspectCore.Configuration;
+using AspectCore.Extensions.Autofac;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using AspectCore.Configuration;
-using AspectCore.DynamicProxy;
-using AspectCore.Injector;
-using AspectCore.Extensions.Autofac;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.Autofac.WebSample
 {
@@ -39,7 +32,7 @@ namespace AspectCore.Extensions.Autofac.WebSample
 
             builder.RegisterDynamicProxy(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.Autofac.*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
             });
 
             var container = builder.Build();

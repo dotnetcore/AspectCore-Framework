@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
@@ -18,11 +17,9 @@ namespace AspectCore.Extensions.Windsor
         private IKernel _kernel;
 
         private readonly IAspectConfiguration _aspectConfiguration;
-        private readonly IEnumerable<ServiceDefinition> _services;
 
-        public AspectCoreFacility(IAspectConfiguration aspectConfiguration, IEnumerable<ServiceDefinition> services)
+        public AspectCoreFacility(IAspectConfiguration aspectConfiguration)
         {
-            _services = services;
             _aspectConfiguration = aspectConfiguration ?? new AspectConfiguration();
         }
 

@@ -3,22 +3,23 @@ using AspectCore.DynamicProxy;
 using AspectCore.Injector;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Lifestyle.Scoped;
+using Castle.Windsor;
 
 namespace AspectCore.Extensions.Windsor
 {
     [NonAspect]
     internal sealed class WindsorScopeResolverFactory : IScopeResolverFactory
     {
-        private readonly IKernel _kernel;
+        private readonly IWindsorContainer _windsorContainer;
 
-        public WindsorScopeResolverFactory(IKernel kernel)
+        public WindsorScopeResolverFactory(IWindsorContainer  windsorContainer)
         {
-            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
+            _windsorContainer = windsorContainer ?? throw new ArgumentNullException(nameof(windsorContainer));
         }
 
         public IServiceResolver CreateScope()
         {
-            return new WindsorScopedServiceResolver(_kernel, new DefaultLifetimeScope());
+            return new WindsorScopedServiceResolver(_windsorContainer, new DefaultLifetimeScope());
         }
     }
 }

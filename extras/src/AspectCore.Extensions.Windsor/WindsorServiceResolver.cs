@@ -9,16 +9,13 @@ namespace AspectCore.Extensions.Windsor
     [NonAspect]
     public sealed class WindsorServiceResolver : IServiceResolver
     {
-        private readonly IKernel _kernel;
-
-        public WindsorServiceResolver(IKernel kernel)
-        {
-            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
-        }
+        private readonly IKernelInternal _kernel;
 
         public WindsorServiceResolver(IWindsorContainer windsorContainer)
-            :this(windsorContainer.Kernel)
         {
+            _kernel = windsorContainer?.Kernel as IKernelInternal;
+            if (_kernel == null)
+                throw new ArgumentException(string.Format("The kernel must implement {0}", typeof(IKernelInternal)));
         }
 
         public void Dispose()
@@ -29,12 +26,14 @@ namespace AspectCore.Extensions.Windsor
 
         public object GetService(Type serviceType)
         {
-            return _kernel.Resolve(serviceType);
+            return Resolve(serviceType);
         }
 
         public object Resolve(Type serviceType)
         {
-            return _kernel.Resolve(serviceType);
+            if (_kernel.LoadHandlerByType(null, serviceType, null) != null)
+                return _kernel.Resolve(serviceType);
+            return null;
         }
     }
 }
