@@ -145,7 +145,7 @@ namespace AspectCore.DynamicProxy
             return returnType.IsValueTask();
         }
 
-        internal static bool IsVisibleAndVirtual(this PropertyInfo property)
+        public static bool IsVisibleAndVirtual(this PropertyInfo property)
         {
             if (property == null)
             {
@@ -155,98 +155,52 @@ namespace AspectCore.DynamicProxy
                    (property.CanWrite && property.GetMethod.IsVisibleAndVirtual());
         }
 
-        internal static bool IsVisibleAndVirtual(this MethodInfo method)
+        public static bool IsVisibleAndVirtual(this MethodInfo method)
         {
             if (method == null)
             {
                 throw new ArgumentNullException(nameof(method));
             }
-            if (method.IsStatic)
+            if (method.IsStatic || method.IsFinal)
             {
                 return false;
-            }
-            if (method.IsFinal)
-            {
-                return method.Attributes.HasFlag(MethodAttributes.Virtual | MethodAttributes.NewSlot);
             }
             return method.IsVirtual &&
                     (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
-        public static MethodInfo GetExplicitMethod(this TypeInfo typeInfo, MethodInfo method)
+        public static MethodInfo GetMethodBySignature(this TypeInfo typeInfo, MethodInfo method)
         {
-            var interfaceType = method.DeclaringType;
-            var explicitMethodName =
-                $"{interfaceType.Namespace}.{interfaceType.GetReflector().DisplayName}.{method.Name}";
-            foreach (var m in typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            if (typeInfo == null)
             {
-                if (m.Name != explicitMethodName)
-                {
-                    continue;
-                }
-                var parameters1 = method.GetParameterTypes();
-                var parameters2 = m.GetParameterTypes();
-                if (parameters1.Length != parameters2.Length)
-                {
-                    continue;
-                }
-                if (method.GetGenericArguments().Length != method.GetGenericArguments().Length)
-                {
-                    continue;
-                }
-                for (var i = 0; i < parameters2.Length; i++)
-                {
-                    var p1 = parameters1[i];
-                    var p2 = parameters2[i];
-                    if (p1.IsGenericParameter && !p2.IsGenericParameter)
-                    {
-                        continue;
-                    }
-                    else if (!p1.IsGenericParameter && p2.IsGenericParameter)
-                    {
-                        continue;
-                    }
-                    else if (p1.IsGenericParameter && p2.IsGenericParameter)
-                    {
-                        return m;
-                    }
-                    else
-                    {
-                        var pt1 = p1.GetTypeInfo();
-                        var pt2 = p2.GetTypeInfo();
-                        if (pt1.IsGenericType && !pt2.IsGenericType)
-                        {
-                            continue;
-                        }
-                        else if (!pt1.IsGenericType && pt2.IsGenericType)
-                        {
-                            continue;
-                        }
-                        else if (pt1.IsGenericType && pt2.IsGenericType)
-                        {
-                            if (pt1.AsType().IsConstructedGenericType && pt2.AsType().IsConstructedGenericType &&
-                                pt1 == pt2)
-                            {
-                                return m;
-                            }
-                            if (pt1.GetGenericTypeDefinition() == pt2.GetGenericTypeDefinition() &&
-                                pt1.GenericTypeArguments.Length == pt2.GenericTypeArguments.Length)
-                            {
-                                return m;
-                            }
-                        }
-                        else
-                        {
-                            if (pt1 == pt2)
-                            {
-                                return m;
-                            }
-                        }
-                    }
-                }
+                throw new ArgumentNullException(nameof(typeInfo));
             }
-
-            return null;
-        }  
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+            var methods = typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var displayName = method.GetReflector().DisplayName;
+            var invocation = methods.FirstOrDefault(x => x.GetReflector().DisplayName.Equals(displayName, StringComparison.Ordinal));
+            if (invocation != null)
+            {
+                return invocation;
+            }
+            var declaringType = method.DeclaringType;
+            displayName = $"{declaringType.Namespace}.{ declaringType.GetReflector().DisplayName}.{displayName.Split(' ').Last()}";
+            invocation = methods.FirstOrDefault(x => x.GetReflector().DisplayName.Split(' ').Last().Equals(displayName, StringComparison.Ordinal));
+            if (invocation != null)
+            {
+                return invocation;
+            }
+            invocation = typeInfo.GetMethodBySignature(new MethodSignature(method));
+            if (invocation != null)
+            {
+                return invocation;
+            }
+            displayName = $"{declaringType.GetReflector().FullDisplayName}.{method.Name}";
+            return typeInfo.GetMethodBySignature(
+                new MethodSignature(method, displayName));
+        }
     }
 }

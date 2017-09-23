@@ -456,7 +456,7 @@ namespace AspectCore.Utils
                 //define paramters
                 ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
-                var implementationMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? implType.GetTypeInfo().GetExplicitMethod(method);
+                var implementationMethod = implType.GetTypeInfo().GetMethodBySignature(method);
                 if (implementationMethod == null)
                 {
                     throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");

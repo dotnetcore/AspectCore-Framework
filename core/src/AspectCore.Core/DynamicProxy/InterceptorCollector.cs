@@ -88,7 +88,7 @@ namespace AspectCore.DynamicProxy
             }
             foreach (var interfaceType in typeInfo.GetInterfaces())
             {
-                var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethod(new MethodSignature(method));
+                var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethodBySignature(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
                     list.AddRange(CollectFromService(interfaceMethod).Where(x => x.Inherited));
@@ -99,7 +99,7 @@ namespace AspectCore.DynamicProxy
             {
                 return list;
             }
-            var baseMethod = baseType.GetTypeInfo().GetMethod(new MethodSignature(method));
+            var baseMethod = baseType.GetTypeInfo().GetMethodBySignature(new MethodSignature(method));
             if (baseMethod != null)
             {
                 list.AddRange(CollectFromService(baseMethod).Where(x => x.Inherited));
