@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.Reflection
 
             PropertyReflector CreateInternal(Pair<PropertyInfo, CallOptions> item)
             {
-                var property = item.MemberInfo;
+                var property = item.Item1;
                 if (property.DeclaringType.GetTypeInfo().ContainsGenericParameters)
                 {
                     return new OpenGenericPropertyReflector(property);
@@ -24,7 +24,7 @@ namespace AspectCore.Extensions.Reflection
                 {
                     return new StaticPropertyReflector(property);
                 }
-                if (property.DeclaringType.GetTypeInfo().IsValueType || item.CallOptions == CallOptions.Call)
+                if (property.DeclaringType.GetTypeInfo().IsValueType || item.Item2 == CallOptions.Call)
                 {
                     return new CallPropertyReflector(property);
                 }

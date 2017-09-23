@@ -11,7 +11,7 @@ namespace AspectCore.Extensions.Reflection
         private static readonly ConcurrentDictionary<TypeInfo, bool> isTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
         private static readonly ConcurrentDictionary<TypeInfo, bool> isValueTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
 
-        public static MethodInfo GetMethod(this TypeInfo typeInfo, MethodSignature signature)
+        public static MethodInfo GetMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
             if (typeInfo == null)
             {
@@ -21,7 +21,7 @@ namespace AspectCore.Extensions.Reflection
                 FirstOrDefault(m => new MethodSignature(m) == signature);
         }
 
-        public static MethodInfo GetDeclaredMethod(this TypeInfo typeInfo, MethodSignature signature)
+        public static MethodInfo GetDeclaredMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
             if (typeInfo == null)
             {
