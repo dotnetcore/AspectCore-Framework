@@ -3,7 +3,8 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.AspectScope
 {
-    internal sealed class ScopeAspectContextFactory : AspectContextFactory
+    [NonAspect]
+    public sealed class ScopeAspectContextFactory : AspectContextFactory
     {
         private readonly IAspectScheduler _aspectContextScheduler;
 

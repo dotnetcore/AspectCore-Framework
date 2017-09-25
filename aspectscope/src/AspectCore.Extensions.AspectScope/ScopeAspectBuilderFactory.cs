@@ -4,7 +4,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.Extensions.AspectScope
 {
     [NonAspect]
-    internal sealed class ScopeAspectBuilderFactory : IAspectBuilderFactory
+    public sealed class ScopeAspectBuilderFactory : IAspectBuilderFactory
     {
         private readonly IInterceptorCollector _interceptorCollector;
         private readonly IAspectScheduler _aspectContextScheduler;

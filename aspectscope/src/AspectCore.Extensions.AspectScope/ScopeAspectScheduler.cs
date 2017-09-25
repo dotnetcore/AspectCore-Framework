@@ -7,7 +7,8 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.AspectScope
 {
-    internal sealed class ScopeAspectScheduler : IAspectScheduler
+    [NonAspect]
+    public sealed class ScopeAspectScheduler : IAspectScheduler
     {
         private readonly ConcurrentDictionary<ScopeAspectContext, object> _scopedContexts = new ConcurrentDictionary<ScopeAspectContext, object>();
         private readonly IInterceptorCollector _interceptorCollector;

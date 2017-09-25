@@ -7,6 +7,7 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.AspectScope
 {
+    [NonAspect]
     internal sealed class ScopeAspectContext : AspectContext
     {
         private static readonly AsyncLocal<AspectContext> CurrentRuntimeContext = new AsyncLocal<AspectContext>();
