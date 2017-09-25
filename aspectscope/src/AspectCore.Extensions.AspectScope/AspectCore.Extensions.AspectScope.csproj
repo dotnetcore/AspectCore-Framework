@@ -7,8 +7,9 @@
     <Description>ScopedContext extension system for AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.ScopedContext</AssemblyTitle>
     <TargetFrameworks>netstandard1.6;net46</TargetFrameworks>
-    <AssemblyName>AspectCore.Extensions.ScopedContext</AssemblyName>
-    <PackageId>AspectCore.Extensions.ScopedContext</PackageId>
+    <AssemblyName>AspectCore.Extensions.AspectScope</AssemblyName>
+    <PackageId>AspectCore.Extensions.AspectScope</PackageId>
+    <Title>AspectCore.Extensions.AspectScope</Title>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
     <PackageReleaseNotes>ScopedContext extension system for AspectCore Framework.</PackageReleaseNotes>
   </PropertyGroup>

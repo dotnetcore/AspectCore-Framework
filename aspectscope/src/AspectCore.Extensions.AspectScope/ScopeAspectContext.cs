@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 
-namespace AspectCore.Extensions.ScopedContext
+namespace AspectCore.Extensions.AspectScope
 {
-    internal sealed class ScopedAspectContext : AspectContext
+    internal sealed class ScopeAspectContext : AspectContext
     {
         private static readonly AsyncLocal<AspectContext> CurrentRuntimeContext = new AsyncLocal<AspectContext>();
-        private readonly IAspectContextScheduler _aspectContextScheduler;
+        private readonly IAspectScheduler _aspectContextScheduler;
         private readonly AspectContext _runtimeContext;
 
         internal int Id { get; set; }
@@ -33,9 +33,13 @@ namespace AspectCore.Extensions.ScopedContext
 
         public override MethodInfo ProxyMethod => _runtimeContext.ProxyMethod;
 
-        public override object ProxyInstance => _runtimeContext.ProxyInstance;
+        public override object Implementation => _runtimeContext.Implementation;
 
-        internal ScopedAspectContext(AspectContext runtimeContext, IAspectContextScheduler aspectContextScheduler)
+        public override MethodInfo ImplementationMethod => _runtimeContext.ImplementationMethod;
+
+        public override object Proxy => _runtimeContext.Proxy;
+
+        internal ScopeAspectContext(AspectContext runtimeContext, IAspectScheduler aspectContextScheduler)
         {
             _aspectContextScheduler = aspectContextScheduler;
             if (!_aspectContextScheduler.TryEnter(this))
@@ -60,6 +64,11 @@ namespace AspectCore.Extensions.ScopedContext
         public override Task Complete()
         {
             return _runtimeContext.Complete();
+        }
+
+        public override Task Invoke(AspectDelegate next)
+        {
+            return _runtimeContext.Invoke(next);
         }
     }
 }

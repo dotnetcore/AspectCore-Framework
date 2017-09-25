@@ -1,15 +1,15 @@
 ﻿using System;
 using AspectCore.DynamicProxy;
 
-namespace AspectCore.Extensions.ScopedContext
+namespace AspectCore.Extensions.AspectScope
 {
     [NonAspect]
-    internal sealed class ScopedAspectBuilderFactory : IAspectBuilderFactory
+    internal sealed class ScopeAspectBuilderFactory : IAspectBuilderFactory
     {
         private readonly IInterceptorCollector _interceptorCollector;
-        private readonly IAspectContextScheduler _aspectContextScheduler;
+        private readonly IAspectScheduler _aspectContextScheduler;
 
-        public ScopedAspectBuilderFactory(IInterceptorCollector interceptorProvider, IAspectContextScheduler aspectContextScheduler)
+        public ScopeAspectBuilderFactory(IInterceptorCollector interceptorProvider, IAspectScheduler aspectContextScheduler)
         {
             _interceptorCollector = interceptorProvider ?? throw new ArgumentNullException(nameof(interceptorProvider));
             _aspectContextScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
@@ -17,13 +17,13 @@ namespace AspectCore.Extensions.ScopedContext
 
         public IAspectBuilder Create(AspectContext context)
         {
-            var aspectBuilder = new AspectBuilder();
+            var aspectBuilder = new AspectBuilder(ctx => ctx.Complete(), null);
 
-            foreach (var interceptor in _interceptorCollector.Collect(context.ServiceMethod))
+            foreach (var interceptor in _interceptorCollector.Collect(context.ServiceMethod, context.ImplementationMethod))
             {
-                if (interceptor is IScopedInterceptor scopedInterceptor)
+                if (interceptor is IScopeInterceptor scopedInterceptor)
                 {
-                    if (!_aspectContextScheduler.TryInclude(context as ScopedAspectContext, scopedInterceptor))
+                    if (!_aspectContextScheduler.TryRelate(context as ScopeAspectContext, scopedInterceptor))
                         continue;
                 }
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);

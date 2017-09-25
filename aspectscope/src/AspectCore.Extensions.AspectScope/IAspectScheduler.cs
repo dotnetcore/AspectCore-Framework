@@ -1,15 +1,15 @@
 ﻿using AspectCore.DynamicProxy;
 
-namespace AspectCore.Extensions.ScopedContext
+namespace AspectCore.Extensions.AspectScope
 {
     [NonAspect]
-    public interface IAspectContextScheduler
+    public interface IAspectScheduler
     {
         bool TryEnter(AspectContext context);
 
         void Release(AspectContext context);
 
-        bool TryInclude(AspectContext context, IScopedInterceptor interceptor);
+        bool TryRelate(AspectContext context, IInterceptor interceptor);
 
         AspectContext[] GetCurrentContexts();
     }

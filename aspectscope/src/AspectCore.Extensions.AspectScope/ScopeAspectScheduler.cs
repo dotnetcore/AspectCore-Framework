@@ -5,27 +5,27 @@ using System.Linq;
 using System.Threading;
 using AspectCore.DynamicProxy;
 
-namespace AspectCore.Extensions.ScopedContext
+namespace AspectCore.Extensions.AspectScope
 {
-    internal sealed class ScopedAspectContextScheduler : IAspectContextScheduler
+    internal sealed class ScopeAspectScheduler : IAspectScheduler
     {
-        private readonly ConcurrentDictionary<ScopedAspectContext, object> _scopedContexts = new ConcurrentDictionary<ScopedAspectContext, object>();
+        private readonly ConcurrentDictionary<ScopeAspectContext, object> _scopedContexts = new ConcurrentDictionary<ScopeAspectContext, object>();
         private readonly IInterceptorCollector _interceptorCollector;
         private int _idx = 0;
 
-        public ScopedAspectContextScheduler(IInterceptorCollector interceptorCollector)
+        public ScopeAspectScheduler(IInterceptorCollector interceptorCollector)
         {
             _interceptorCollector = interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
         }
 
         public AspectContext[] GetCurrentContexts()
         {
-            return _scopedContexts.Keys.Where(x => x.RuntimeContext != null).ToArray();
+            return _scopedContexts.Keys.Where(x => x.RuntimeContext != null).OrderBy(x => x.Id).ToArray();
         }
 
         public bool TryEnter(AspectContext context)
         {
-            if (context is ScopedAspectContext scopedContext)
+            if (context is ScopeAspectContext scopedContext)
             {
                 scopedContext.Id = Interlocked.Increment(ref _idx);
                 return _scopedContexts.TryAdd(scopedContext, null);
@@ -33,21 +33,25 @@ namespace AspectCore.Extensions.ScopedContext
             return false;
         }
 
-        public bool TryInclude(AspectContext context, IScopedInterceptor interceptor)
+        public bool TryRelate(AspectContext context, IInterceptor interceptor)
         {
             if (interceptor == null || context == null)
             {
                 return false;
             }
-            if (!(context is ScopedAspectContext scopedContext))
+            if (!(context is ScopeAspectContext scopedContext))
             {
                 return false;
+            }
+            if (!(interceptor is IScopeInterceptor scopedInterceptor))
+            {
+                return true;
             }
             if (!_scopedContexts.ContainsKey(scopedContext))
             {
                 return false;
             }
-            if (interceptor.ScopedOption == ScopedOptions.None)
+            if (scopedInterceptor.Scope == Scope.None)
             {
                 return true;
             }
@@ -56,21 +60,21 @@ namespace AspectCore.Extensions.ScopedContext
             {
                 return true;
             }
-            if (interceptor.ScopedOption == ScopedOptions.OnlyNested)
+            if (scopedInterceptor.Scope == Scope.Nested)
             {
                 var preContext = currentContexts[currentContexts.Length - 1];
-                return !TryIncludeImpl(preContext);
+                return !TryInlineImpl(preContext);
             }
 
             foreach (var current in currentContexts)
-                if (TryIncludeImpl(current))
+                if (TryInlineImpl(current))
                     return false;
 
             return true;
 
-            IEnumerable<AspectContext> GetCurrentScopedContexts(ScopedAspectContext ctx)
+            IEnumerable<AspectContext> GetCurrentScopedContexts(ScopeAspectContext ctx)
             {
-                foreach (var current in GetCurrentContexts().OfType<ScopedAspectContext>().OrderBy(x => x.Id))
+                foreach (var current in GetCurrentContexts().OfType<ScopeAspectContext>().OrderBy(x => x.Id))
                 {
                     if (current == ctx)
                         break;
@@ -78,18 +82,18 @@ namespace AspectCore.Extensions.ScopedContext
                 }
             }
 
-            bool TryIncludeImpl(AspectContext ctx)
+            bool TryInlineImpl(AspectContext ctx)
             {
                 return _interceptorCollector.
-                    Collect(ctx.ServiceMethod).
+                    Collect(ctx.ServiceMethod,ctx.ImplementationMethod).
                     Where(x => x.GetType() == interceptor.GetType()).
-                    Any(x => TryInclude(ctx, interceptor));
+                    Any(x => TryRelate(ctx, interceptor));
             }
         }
 
         public void Release(AspectContext context)
         {
-            if (_scopedContexts.TryRemove(context as ScopedAspectContext, out _))
+            if (_scopedContexts.TryRemove(context as ScopeAspectContext, out _))
             {
                 Interlocked.Decrement(ref _idx);
             }
