@@ -40,7 +40,7 @@ namespace AspectCore.Extensions.Windsor
                 invocation.Proceed();
                 return Task.FromResult(0);
             });
-            var proxyMethod = proxyTypeInfo.GetMethod(new MethodSignature(invocation.Method)) ?? proxyTypeInfo.GetExplicitMethod(invocation.Method);
+            var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);
             var activator = new AspectActivatorFactory(_aspectContextFactory, builderFactory).Create();
             var activatorContext = new AspectActivatorContext(invocation.Method, invocation.MethodInvocationTarget, proxyMethod, invocation.InvocationTarget, invocation.Proxy, invocation.Arguments);
             var reflector = InterceptUtils.GetInvokeReflector(invocation.Method);

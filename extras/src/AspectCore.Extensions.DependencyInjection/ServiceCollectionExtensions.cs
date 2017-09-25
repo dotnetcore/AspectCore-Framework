@@ -61,8 +61,8 @@ namespace AspectCore.Extensions.DependencyInjection
             services.TryAddSingleton<IAspectCachingProvider, AspectCachingProvider>();
 
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
-            services.AddSingleton<IInterceptorSelector, TypeInterceptorSelector>();
-            services.AddSingleton<IInterceptorSelector, MethodInterceptorSelector>();
+            services.AddSingleton<IInterceptorSelector, AttributeInterceptorSelector>();
+            services.AddSingleton<IAdditionalInterceptorSelector, AttributeAdditionalInterceptorSelector>();
 
             return services;
         }
