@@ -29,7 +29,7 @@ namespace AspectCore.Extensions.Reflection
                 var arguments = typeInfo.IsGenericTypeDefinition
                  ? typeInfo.GenericTypeParameters
                  : typeInfo.GenericTypeArguments;
-                name = typeInfo.Name.Replace("`", "").Replace(arguments.Length.ToString(), "");
+                name = name.Replace("`", "").Replace(arguments.Length.ToString(), "");
                 name += $"<{GetDisplayName(arguments[0].GetTypeInfo())}";
                 for (var i = 1; i < arguments.Length; i++)
                 {
@@ -54,11 +54,11 @@ namespace AspectCore.Extensions.Reflection
                 var arguments = typeInfo.IsGenericTypeDefinition
                  ? typeInfo.GenericTypeParameters
                  : typeInfo.GenericTypeArguments;
-                name = typeInfo.Name.Replace("`", "").Replace(arguments.Length.ToString(), "");
+                name = name.Replace("`", "").Replace(arguments.Length.ToString(), "");
                 name += $"<{GetFullDisplayName(arguments[0].GetTypeInfo())}";
                 for (var i = 1; i < arguments.Length; i++)
                 {
-                    name = name + "," + GetFullDisplayName(arguments[i].GetTypeInfo());
+                    name += "," + GetFullDisplayName(arguments[i].GetTypeInfo());
                 }
                 name += ">";
             }

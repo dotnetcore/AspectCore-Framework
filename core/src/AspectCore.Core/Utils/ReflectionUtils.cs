@@ -187,7 +187,7 @@ namespace AspectCore.DynamicProxy
                 return invocation;
             }
             var declaringType = method.DeclaringType;
-            displayName = $"{declaringType.Namespace}.{ declaringType.GetReflector().DisplayName}.{displayName.Split(' ').Last()}";
+            displayName = $"{declaringType.GetReflector().FullDisplayName}.{displayName.Split(' ').Last()}";
             invocation = methods.FirstOrDefault(x => x.GetReflector().DisplayName.Split(' ').Last().Equals(displayName, StringComparison.Ordinal));
             if (invocation != null)
             {
