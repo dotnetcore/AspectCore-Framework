@@ -35,7 +35,7 @@ namespace AspectScope.Sample
     {
         void Foo();
     }
-    [ScopeIntercept]
+    [ScopeIntercept(Scope =Scope.Nested)]
     public interface IC
     {
         void Foo();
