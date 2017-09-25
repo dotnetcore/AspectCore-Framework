@@ -43,8 +43,8 @@ namespace AspectCore.Extensions.Autofac
 
             containerBuilder.RegisterType<InterceptorCollector>().As<IInterceptorCollector>().SingleInstance();
             containerBuilder.RegisterType<ConfigureInterceptorSelector>().As<IInterceptorSelector>().SingleInstance();
-            containerBuilder.RegisterType<TypeInterceptorSelector>().As<IInterceptorSelector>().SingleInstance();
-            containerBuilder.RegisterType<MethodInterceptorSelector>().As<IInterceptorSelector>().SingleInstance();
+            containerBuilder.RegisterType<AttributeInterceptorSelector>().As<IInterceptorSelector>().SingleInstance();
+            containerBuilder.RegisterType<AttributeAdditionalInterceptorSelector>().As<IAdditionalInterceptorSelector>().SingleInstance();
             containerBuilder.RegisterType<AspectValidatorBuilder>().As<IAspectValidatorBuilder>().SingleInstance();
             containerBuilder.RegisterType<AspectBuilderFactory>().As<IAspectBuilderFactory>().SingleInstance();
             containerBuilder.RegisterType<ProxyTypeGenerator>().As<IProxyTypeGenerator>().SingleInstance();
