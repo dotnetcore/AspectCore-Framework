@@ -319,13 +319,7 @@ namespace AspectCore.Utils
                     ParameterBuilderUtils.DefineParameters(constructor, constructorBuilder);
 
                     var ilGen = constructorBuilder.GetILGenerator();
-                    ilGen.EmitThis();
-                    for (var i = 2; i <= parameters.Length; i++)
-                    {
-                        ilGen.EmitLoadArg(i);
-                    }
-                    ilGen.Emit(OpCodes.Call, constructor);
-
+                    
                     ilGen.EmitThis();
                     ilGen.EmitLoadArg(1);
                     ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
@@ -333,6 +327,13 @@ namespace AspectCore.Utils
                     ilGen.EmitThis();
                     ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.Target]);
+
+                    ilGen.EmitThis();
+                    for (var i = 2; i <= parameters.Length; i++)
+                    {
+                        ilGen.EmitLoadArg(i);
+                    }
+                    ilGen.Emit(OpCodes.Call, constructor);
 
                     ilGen.Emit(OpCodes.Ret);
                 }
@@ -947,8 +948,8 @@ namespace AspectCore.Utils
 
         private class FieldBuilderUtils
         {
-            public const string ActivatorFactory = "activatorFactory";
-            public const string Target = "targetInstance";
+            public const string ActivatorFactory = "_activatorFactory";
+            public const string Target = "_implementation";
 
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
