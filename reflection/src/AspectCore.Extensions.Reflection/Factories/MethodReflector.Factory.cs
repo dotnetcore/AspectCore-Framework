@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.Reflection
 
             MethodReflector CreateInternal(Pair<MethodInfo, CallOptions> item)
             {
-                var methodInfo = item.MemberInfo;
+                var methodInfo = item.Item1;
                 if (methodInfo.ContainsGenericParameters)
                 {
                     return new OpenGenericMethodReflector(methodInfo);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using AspectCore.DynamicProxy;
-using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Injector
 {
@@ -25,26 +24,6 @@ namespace AspectCore.Injector
 
             implementationType = definition.GetImplementationType();
 
-            if (definition.ServiceType.GetTypeInfo().IsClass)
-            {
-                if (!(definition is TypeServiceDefinition))
-                {
-                    return false;
-                }
-                if (implementationType == typeof(object))
-                {
-                    return false;
-                }
-                if (!implementationType.GetTypeInfo().IsVisible())
-                {
-                    return false;
-                }
-                if (!CanInherited(implementationType.GetTypeInfo()))
-                {
-                    return false;
-                }
-            }
-
             if (implementationType == null || implementationType == typeof(object))
             {
                 return false;
@@ -54,35 +33,20 @@ namespace AspectCore.Injector
             {
                 return false;
             }
-           
-            return true;
 
-            bool CanInherited(TypeInfo typeInfo)
+            if (definition.ServiceType.GetTypeInfo().IsClass)
             {
-                if (typeInfo == null)
-                {
-                    throw new ArgumentNullException(nameof(typeInfo));
-                }
-
-                if (!typeInfo.IsClass || typeInfo.IsSealed)
+                if (!(definition is TypeServiceDefinition))
                 {
                     return false;
                 }
-
-                if (typeInfo.GetReflector().IsDefined<NonAspectAttribute>() || typeInfo.GetReflector().IsDefined<DynamicallyAttribute>())
+                if (!implementationType.GetTypeInfo().CanInherited())
                 {
                     return false;
-                }
-
-                if (typeInfo.IsNested)
-                {
-                    return typeInfo.IsNestedPublic && typeInfo.DeclaringType.GetTypeInfo().IsPublic;
-                }
-                else
-                {
-                    return typeInfo.IsPublic;
                 }
             }
+
+            return true;
         }
     }
 }

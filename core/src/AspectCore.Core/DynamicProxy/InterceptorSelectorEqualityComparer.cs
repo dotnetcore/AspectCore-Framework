@@ -3,9 +3,9 @@
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    internal class InterceptorSelectorEqualityComparer : IEqualityComparer<IInterceptorSelector>
+    internal class InterceptorSelectorEqualityComparer<T> : IEqualityComparer<T> where T : class
     {
-        public bool Equals(IInterceptorSelector x, IInterceptorSelector y)
+        public bool Equals(T x, T y)
         {
             if (x == null || y == null)
             {
@@ -22,7 +22,7 @@ namespace AspectCore.DynamicProxy
             return false;
         }
 
-        public int GetHashCode(IInterceptorSelector obj)
+        public int GetHashCode(T obj)
         {
             return obj.GetType().GetHashCode();
         }

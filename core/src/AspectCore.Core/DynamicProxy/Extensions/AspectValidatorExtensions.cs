@@ -18,17 +18,17 @@ namespace AspectCore.DynamicProxy
             }
             var typeInfo = type.GetTypeInfo();
 
-            if (typeInfo.IsValueType)
+
+            if (typeInfo.IsNonAspect()
+                || typeInfo.IsProxyType()
+                || typeInfo.IsValueType
+                || typeInfo.IsEnum
+                || !typeInfo.IsVisible())
             {
                 return false;
             }
 
-            if (typeInfo.GetReflector().IsDefined<NonAspectAttribute>() || typeInfo.GetReflector().IsDefined<DynamicallyAttribute>())
-            {
-                return false;
-            }
-
-            if (!typeInfo.IsVisible())
+            if (typeInfo.IsClass && !typeInfo.CanInherited())
             {
                 return false;
             }

@@ -24,32 +24,12 @@ namespace AspectCore.Extensions.DependencyInjection
                 return false;
             }
 
-            if (descriptor.ServiceType.IsGenericTypeDefinition)
-            {
-                return false;
-            }
+            //if (descriptor.ServiceType.IsGenericTypeDefinition)
+            //{
+            //    return false;
+            //}
 
             implementationType = GetImplementationType(descriptor);
-
-            if (descriptor.ServiceType.GetTypeInfo().IsClass)
-            {
-                if (descriptor.ImplementationType == null)
-                {
-                    return false;
-                }
-                if (implementationType == typeof(object))
-                {
-                    return false;
-                }
-                if (!implementationType.GetTypeInfo().IsVisible())
-                {
-                    return false;
-                }
-                if (!CanInherited(implementationType.GetTypeInfo()))
-                {
-                    return false;
-                }
-            }
 
             if (implementationType == null || implementationType == typeof(object))
             {
@@ -60,35 +40,25 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 return false;
             }
-           
-            return true;
 
-            bool CanInherited(TypeInfo typeInfo)
+            if (descriptor.ServiceType.GetTypeInfo().IsClass)
             {
-                if (typeInfo == null)
-                {
-                    throw new ArgumentNullException(nameof(typeInfo));
-                }
-
-                if (!typeInfo.IsClass || typeInfo.IsSealed)
+                if (descriptor.ImplementationType == null)
                 {
                     return false;
                 }
-
-                if (typeInfo.GetReflector().IsDefined<NonAspectAttribute>() || typeInfo.GetReflector().IsDefined<DynamicallyAttribute>())
+              
+                if (!implementationType.GetTypeInfo().IsVisible())
                 {
                     return false;
                 }
-
-                if (typeInfo.IsNested)
+                if (!implementationType.GetTypeInfo().CanInherited())
                 {
-                    return typeInfo.IsNestedPublic && typeInfo.DeclaringType.GetTypeInfo().IsPublic;
-                }
-                else
-                {
-                    return typeInfo.IsPublic;
+                    return false;
                 }
             }
+
+            return true;
         }
 
         private Type GetImplementationType(ServiceDescriptor descriptor)

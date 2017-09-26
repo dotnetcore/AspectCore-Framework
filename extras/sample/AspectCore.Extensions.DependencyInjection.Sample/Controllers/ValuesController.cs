@@ -18,7 +18,6 @@ namespace AspectCore.Extensions.DependencyInjection.Sample.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            var ms = this.GetType().GetMethods();
             return ApiResult(() => _valueService.GetAll());
         }
 

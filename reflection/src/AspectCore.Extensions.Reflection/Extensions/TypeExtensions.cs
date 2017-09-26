@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace AspectCore.Extensions.Reflection
 {
     public static class TypeExtensions
     {
+        private static readonly ConcurrentDictionary<TypeInfo, bool> isTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
+        private static readonly ConcurrentDictionary<TypeInfo, bool> isValueTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
 
-        public static MethodInfo GetMethod(this TypeInfo typeInfo, MethodSignature signature)
+        public static MethodInfo GetMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
             if (typeInfo == null)
             {
@@ -17,7 +21,7 @@ namespace AspectCore.Extensions.Reflection
                 FirstOrDefault(m => new MethodSignature(m) == signature);
         }
 
-        public static MethodInfo GetDeclaredMethod(this TypeInfo typeInfo, MethodSignature signature)
+        public static MethodInfo GetDeclaredMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
             if (typeInfo == null)
             {
@@ -84,6 +88,10 @@ namespace AspectCore.Extensions.Reflection
 
         public static bool IsVisible(this TypeInfo typeInfo)
         {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
             if (typeInfo.IsNested)
             {
                 if (!typeInfo.DeclaringType.GetTypeInfo().IsVisible())
@@ -115,22 +123,31 @@ namespace AspectCore.Extensions.Reflection
             return true;
         }
 
-        public static Type MakeDefType(this TypeInfo byRefTypeInfo)
+        public static bool IsTask(this TypeInfo typeInfo)
         {
-            if (byRefTypeInfo == null)
+            if (typeInfo == null)
             {
-                throw new ArgumentNullException(nameof(byRefTypeInfo));
+                throw new ArgumentNullException(nameof(typeInfo));
             }
-            if (!byRefTypeInfo.IsByRef)
+            return typeInfo.AsType() == typeof(Task);
+        }
+
+        public static bool IsTaskWithResult(this TypeInfo typeInfo)
+        {
+            if (typeInfo == null)
             {
-                throw new ArgumentException($"Type {byRefTypeInfo} is not passed by reference.");
+                throw new ArgumentNullException(nameof(typeInfo));
             }
+            return isTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && typeof(Task).GetTypeInfo().IsAssignableFrom(Info));
+        }
 
-            var assemblyQualifiedName = byRefTypeInfo.AssemblyQualifiedName;
-            var index = assemblyQualifiedName.IndexOf('&');
-            assemblyQualifiedName = assemblyQualifiedName.Remove(index, 1);
-
-            return byRefTypeInfo.Assembly.DefinedTypes.Single(x => x.AssemblyQualifiedName == assemblyQualifiedName).AsType();
+        public static bool IsValueTask(this TypeInfo typeInfo)
+        {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
+            return isValueTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && Info.GetGenericTypeDefinition() == typeof(ValueTask<>));
         }
     }
 }

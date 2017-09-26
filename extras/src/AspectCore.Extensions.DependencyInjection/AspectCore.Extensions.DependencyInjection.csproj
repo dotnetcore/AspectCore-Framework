@@ -17,6 +17,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
   </ItemGroup>
 </Project>

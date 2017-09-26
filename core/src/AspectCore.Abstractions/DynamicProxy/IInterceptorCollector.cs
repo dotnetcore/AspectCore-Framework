@@ -6,6 +6,6 @@ namespace AspectCore.DynamicProxy
     [NonAspect]
     public interface IInterceptorCollector
     {
-        IEnumerable<IInterceptor> Collect(MethodInfo method);
+        IEnumerable<IInterceptor> Collect(MethodInfo serviceMethod, MethodInfo implementationMethod);
     }
 }

@@ -1,40 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
+using AspectCore.Injector;
 using Castle.Core;
 using Castle.Core.Configuration;
-using AspectCore.DynamicProxy;
-using AspectCore.Injector;
 using Castle.MicroKernel;
-using Castle.MicroKernel.Lifestyle;
+using Castle.MicroKernel.Registration;
 
 namespace AspectCore.Extensions.Windsor
 {
+    [NonAspect]
     public class AspectCoreFacility : IFacility
     {
         private IKernel _kernel;
 
         private readonly IAspectConfiguration _aspectConfiguration;
-        private readonly IEnumerable<ServiceDefinition> _services;
 
-        public AspectCoreFacility(IAspectConfiguration aspectConfiguration, ServiceDefinition services)
+        public AspectCoreFacility(IAspectConfiguration aspectConfiguration)
         {
-            _kernel.BeginScope();
+            _aspectConfiguration = aspectConfiguration ?? new AspectConfiguration();
         }
 
         public void Init(IKernel kernel, IConfiguration facilityConfig)
         {
             _kernel = kernel;
-
             kernel.ComponentModelCreated += Kernel_ComponentModelCreated;
+            
+            kernel.Register(
+                Component.For(typeof(ManyEnumerable<>)).ImplementedBy(typeof(ManyEnumerable<>)).LifestyleTransient(),
+                Component.For<IProxyGenerator>().ImplementedBy<ProxyGenerator>().LifestyleScoped(),
+                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),
+                //Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),         
+                Component.For<IProxyTypeGenerator>().ImplementedBy<ProxyTypeGenerator>().LifestyleSingleton(),
+                Component.For<IInterceptorSelector>().ImplementedBy<ConfigureInterceptorSelector>().LifestyleSingleton(),
+                Component.For<IInterceptorSelector>().ImplementedBy<AttributeInterceptorSelector>().LifestyleSingleton(),
+                Component.For<IScopeResolverFactory>().ImplementedBy<WindsorScopeResolverFactory>().LifestyleScoped(),
+                Component.For<IAspectBuilderFactory>().ImplementedBy<AspectBuilderFactory>().LifestyleSingleton(),
+                Component.For<IInterceptorCollector>().ImplementedBy<InterceptorCollector>().LifestyleSingleton(),
+                Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleScoped(),
+                Component.For<IAspectCachingProvider>().ImplementedBy<AspectCachingProvider>().LifestyleSingleton(),
+                Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleScoped(),
+                Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(), 
+                Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleScoped(),
+                Component.For<IParameterInterceptorSelector>().ImplementedBy<ParameterInterceptorSelector>().LifestyleScoped(),
+                Component.For<IAdditionalInterceptorSelector>().ImplementedBy<AttributeAdditionalInterceptorSelector>().LifestyleSingleton(),
+                Component.For<IAspectConfiguration>().Instance(_aspectConfiguration).LifestyleSingleton()
+                );
+            kernel.Register(Component.For<AspectCoreInterceptor>());
         }
 
         private void Kernel_ComponentModelCreated(ComponentModel model)
         {
-            model.Interceptors.AddIfNotInCollection(InterceptorReference.ForType<AspectCoreInterceptor>());
+            var aspectValidator = new AspectValidatorBuilder(_aspectConfiguration).Build();
+            if (aspectValidator.Validate(model.Implementation) || model.Services.Any(x => aspectValidator.Validate(x)))
+            {
+                model.Interceptors.AddIfNotInCollection(InterceptorReference.ForType<AspectCoreInterceptor>());
+            }
         }
 
         public void Terminate()

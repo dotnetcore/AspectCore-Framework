@@ -76,8 +76,8 @@ namespace AspectCore.Injector
 
             //add DynamicProxy services   
             Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();
-            Singletons.AddType<IInterceptorSelector, TypeInterceptorSelector>();
-            Singletons.AddType<IInterceptorSelector, MethodInterceptorSelector>();
+            Singletons.AddType<IInterceptorSelector, AttributeInterceptorSelector>();
+            Singletons.AddType<IAdditionalInterceptorSelector, AttributeAdditionalInterceptorSelector>();
             if (!Contains(typeof(IInterceptorCollector)))
                 Singletons.AddType<IInterceptorCollector, InterceptorCollector>();
             if (!Contains(typeof(IAspectValidatorBuilder)))

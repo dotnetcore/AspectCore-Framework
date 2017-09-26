@@ -36,7 +36,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             //方式一步骤2.调用IServiceContainer.Configure配置全局拦截器
             container.Configure(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
             });
 
             return container.Build();
@@ -49,7 +49,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
             ////方式二步骤1.services.AddDynamicProxy添加动态代理服务和配置全局拦截器
             //services.AddDynamicProxy(config =>
             //{
-            //    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
+            //    config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
             //});
             ////方式二步骤2.调用services.BuildAspectCoreServiceProvider构建动态代理服务解析器
             //return services.BuildAspectCoreServiceProvider();
@@ -68,7 +68,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
         //{
         //    serviceContainer.Configure(config =>
         //    {
-        //        config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("AspectCore.Extensions.DependencyInjection.*"));
+        //        config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
         //    });
         //}
 

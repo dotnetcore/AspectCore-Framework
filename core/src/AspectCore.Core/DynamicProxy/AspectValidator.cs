@@ -34,7 +34,7 @@ namespace AspectCore.DynamicProxy
 
             foreach (var interfaceTypeInfo in declaringTypeInfo.GetInterfaces().Select(x => x.GetTypeInfo()))
             {
-                var interfaceMethod = interfaceTypeInfo.GetMethod(new MethodSignature(method));
+                var interfaceMethod = interfaceTypeInfo.GetMethodBySignature(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
                     if (Validate(interfaceMethod))
@@ -50,7 +50,7 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            var baseMethod = baseType.GetTypeInfo().GetMethod(new MethodSignature(method));
+            var baseMethod = baseType.GetTypeInfo().GetMethodBySignature(new MethodSignature(method));
             return baseMethod != null && Validate(baseMethod);
         }
     }

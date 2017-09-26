@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Collections.Concurrent;
-using System.Text;
+using System.Reflection;
 
 namespace AspectCore.Extensions.Reflection
 {

@@ -14,7 +14,5 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>  
-    <NETStandardImplicitPackageVersion>1.6.1</NETStandardImplicitPackageVersion>
-    <NETStandardLibraryNETFrameworkVersion>1.6.1</NETStandardLibraryNETFrameworkVersion>
   </PropertyGroup>
 </Project>

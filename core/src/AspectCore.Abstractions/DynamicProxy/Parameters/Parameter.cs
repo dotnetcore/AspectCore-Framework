@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 namespace AspectCore.DynamicProxy.Parameters
 {
@@ -8,6 +9,22 @@ namespace AspectCore.DynamicProxy.Parameters
         protected readonly int _index;
 
         public string Name { get; }
+
+        public Type Type { get; }
+
+        public Type RawType
+        {
+            get
+            {
+                if (IsRef)
+                {
+                    return Type.GetElementType();
+                }
+                return Type;
+            }
+        }
+
+        public bool IsRef { get; }
 
         public virtual object Value
         {
@@ -28,6 +45,8 @@ namespace AspectCore.DynamicProxy.Parameters
             _context = context;
             _index = index;
             Name = parameterInfo.Name;
+            Type = parameterInfo.ParameterType;
+            IsRef = Type.IsByRef;
             ParameterInfo = parameterInfo;
         }
     }

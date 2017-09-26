@@ -8,6 +8,7 @@ using CastleIntercrptor = Castle.DynamicProxy.IInterceptor;
 
 namespace AspectCore.Extensions.Windsor
 {
+    [NonAspect]
     public class AspectCoreInterceptor : CastleIntercrptor
     {
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
@@ -34,12 +35,12 @@ namespace AspectCore.Extensions.Windsor
                 return;
             }
             var proxyTypeInfo = invocation.Proxy.GetType().GetTypeInfo();
-            var builderFactory = new CastleAspectBuilderFactory(_aspectBuilderFactory, ctx =>
+            var builderFactory = new WindsorAspectBuilderFactory(_aspectBuilderFactory, ctx =>
             {
                 invocation.Proceed();
                 return Task.FromResult(0);
             });
-            var proxyMethod = proxyTypeInfo.GetMethod(new MethodSignature(invocation.Method)) ?? proxyTypeInfo.GetExplicitMethod(invocation.Method);
+            var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);
             var activator = new AspectActivatorFactory(_aspectContextFactory, builderFactory).Create();
             var activatorContext = new AspectActivatorContext(invocation.Method, invocation.MethodInvocationTarget, proxyMethod, invocation.InvocationTarget, invocation.Proxy, invocation.Arguments);
             var reflector = InterceptUtils.GetInvokeReflector(invocation.Method);

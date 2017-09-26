@@ -17,11 +17,13 @@ namespace AspectCore.Extensions.Autofac.Sample
             //调用Populate扩展方法在Autofac中注册已经注册到ServiceContainer中的服务（如果有）。注：此方法调用应在RegisterDynamicProxy之前
             containerBuilder.Populate(serviceContaniner);
 
+            var configuration = serviceContaniner.Configuration;
+
             //调用RegisterDynamicProxy扩展方法在Autofac中注册动态代理服务和动态代理配置
-            containerBuilder.RegisterDynamicProxy(config =>
-            {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForService("*Service"));
-            });
+            containerBuilder.RegisterDynamicProxy(configuration, config =>
+             {
+                 config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForService("*Service"));
+             });
 
             var container = containerBuilder.Build();
 

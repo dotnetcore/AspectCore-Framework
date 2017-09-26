@@ -15,6 +15,7 @@ namespace AspectCore.DynamicProxy.Parameters
                 _context.ReturnValue = value;
             }
         }
+
         internal ReturnParameter(AspectContext context, ParameterInfo reflector)
             : base(context, -1, reflector)
         {

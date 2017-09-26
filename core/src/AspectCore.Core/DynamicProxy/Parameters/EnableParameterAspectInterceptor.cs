@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy.Parameters
 {
-    public class EnableParameterAspectInterceptor : InterceptorAttribute
+    public class EnableParameterAspectInterceptor : AbstractInterceptorAttribute
     {
         public override int Order { get; set; } = -9;
 

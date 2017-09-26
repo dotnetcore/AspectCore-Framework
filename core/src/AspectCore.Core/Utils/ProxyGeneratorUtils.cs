@@ -29,9 +29,9 @@ namespace AspectCore.Utils
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
-            if (!interfaceType.GetTypeInfo().IsAccessibility())
+            if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
             {
-                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the visible conditions.");
             }
 
             lock (_lock)
@@ -48,9 +48,9 @@ namespace AspectCore.Utils
 
         internal static Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
-            if (!interfaceType.GetTypeInfo().IsAccessibility())
+            if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
             {
-                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{interfaceType}' failed because the type does not satisfy the visible conditions.");
             }
 
             lock (_lock)
@@ -67,9 +67,9 @@ namespace AspectCore.Utils
 
         internal static Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
-            if (!serviceType.GetTypeInfo().IsAccessibility())
+            if (!serviceType.GetTypeInfo().IsVisible() || !serviceType.GetTypeInfo().IsClass)
             {
-                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the conditions of the generate proxy class.");
+                throw new InvalidOperationException($"Validate '{serviceType}' failed because the type does not satisfy the visible conditions.");
             }
             if (!implType.GetTypeInfo().CanInherited())
             {
@@ -319,13 +319,7 @@ namespace AspectCore.Utils
                     ParameterBuilderUtils.DefineParameters(constructor, constructorBuilder);
 
                     var ilGen = constructorBuilder.GetILGenerator();
-                    ilGen.EmitThis();
-                    for (var i = 2; i <= parameters.Length; i++)
-                    {
-                        ilGen.EmitLoadArg(i);
-                    }
-                    ilGen.Emit(OpCodes.Call, constructor);
-
+                    
                     ilGen.EmitThis();
                     ilGen.EmitLoadArg(1);
                     ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
@@ -333,6 +327,13 @@ namespace AspectCore.Utils
                     ilGen.EmitThis();
                     ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.Target]);
+
+                    ilGen.EmitThis();
+                    for (var i = 2; i <= parameters.Length; i++)
+                    {
+                        ilGen.EmitLoadArg(i);
+                    }
+                    ilGen.Emit(OpCodes.Call, constructor);
 
                     ilGen.Emit(OpCodes.Ret);
                 }
@@ -389,7 +390,7 @@ namespace AspectCore.Utils
             {
                 foreach (var method in serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => !x.IsPropertyBinding()))
                 {
-                    if (method.IsAccessibility() && !ignores.Contains(method.Name))
+                    if (method.IsVisibleAndVirtual() && !ignores.Contains(method.Name))
                         DefineClassMethod(method, implType, typeDesc);
                 }
                 foreach (var item in additionalInterfaces)
@@ -410,7 +411,7 @@ namespace AspectCore.Utils
 
             internal static MethodBuilder DefineExplicitMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
-                var methodBuilder = DefineMethod(method, method.GetFullName(), ExplicitMethodAttributes, implType, typeDesc);
+                var methodBuilder = DefineMethod(method, method.GetName(), ExplicitMethodAttributes, implType, typeDesc);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
@@ -456,7 +457,13 @@ namespace AspectCore.Utils
                 //define paramters
                 ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
-                if (typeDesc.GetProperty<IAspectValidator>().Validate(method))
+                var implementationMethod = implType.GetTypeInfo().GetMethodBySignature(method);
+                if (implementationMethod == null)
+                {
+                    throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
+                }
+
+                if (typeDesc.GetProperty<IAspectValidator>().Validate(method)|| typeDesc.GetProperty<IAspectValidator>().Validate(implementationMethod))
                 {
                     EmitProxyMethodBody();
                 }
@@ -477,13 +484,8 @@ namespace AspectCore.Utils
                         ilGen.EmitLoadArg(i);
                     }
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(method)) ?? implType.GetTypeInfo().GetExplicitMethod(method);    
-                    if (implMethod == null)
-                    {
-                        throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
-                    }
 
-                    ilGen.Emit(implMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implMethod);
+                    ilGen.Emit(implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implementationMethod);
                     ilGen.Emit(OpCodes.Ret);
                 }
 
@@ -527,7 +529,7 @@ namespace AspectCore.Utils
                                 ilGen.Emit(OpCodes.Ldloc, parameters);
                                 ilGen.EmitInt(i);
                                 ilGen.Emit(OpCodes.Ldelem_Ref);
-                                ilGen.EmitConvertFromObject(parameterTypes[i].GetTypeInfo().MakeDefType());
+                                ilGen.EmitConvertFromObject(parameterTypes[i].GetElementType());
                                 ilGen.EmitStRef(parameterTypes[i]);
                             }
                         }
@@ -544,29 +546,22 @@ namespace AspectCore.Utils
                 {
                     var serviceMethod = method;
 
-                    var implMethod = implType.GetTypeInfo().GetMethod(new MethodSignature(serviceMethod)) ?? implType.GetTypeInfo().GetExplicitMethod(method); ;
-
-                    if (implMethod == null)
-                    {
-                        throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
-                    }
-
                     var methodConstants = typeDesc.MethodConstants;
 
                     if (method.IsGenericMethodDefinition)
                     {
                         ilGen.EmitMethod(serviceMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
-                        ilGen.EmitMethod(implMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                        ilGen.EmitMethod(implementationMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                         ilGen.EmitMethod(methodBuilder.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                     }
                     else
                     {
                         methodConstants.AddMethod($"service{serviceMethod.GetDisplayName()}", serviceMethod);
-                        methodConstants.AddMethod($"imp{implMethod.GetDisplayName()}", implMethod);
+                        methodConstants.AddMethod($"impl{implementationMethod.GetDisplayName()}", implementationMethod);
                         methodConstants.AddMethod($"proxy{serviceMethod.GetDisplayName()}", methodBuilder);
 
                         methodConstants.LoadMethod(ilGen, $"service{serviceMethod.GetDisplayName()}");
-                        methodConstants.LoadMethod(ilGen, $"imp{implMethod.GetDisplayName()}");
+                        methodConstants.LoadMethod(ilGen, $"impl{implementationMethod.GetDisplayName()}");
                         methodConstants.LoadMethod(ilGen, $"proxy{serviceMethod.GetDisplayName()}");
                     }
 
@@ -589,7 +584,7 @@ namespace AspectCore.Utils
                         if (parameterTypes[i].IsByRef)
                         {
                             ilGen.EmitLdRef(parameterTypes[i]);
-                            ilGen.EmitConvertToObject(parameterTypes[i].GetTypeInfo().MakeDefType());
+                            ilGen.EmitConvertToObject(parameterTypes[i].GetElementType());
                         }
                         else
                         {
@@ -651,7 +646,7 @@ namespace AspectCore.Utils
             {
                 foreach (var property in serviceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    if (property.IsAccessibility())
+                    if (property.IsVisibleAndVirtual())
                     {
                         var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
                         DefineClassPropertyMethod(builder, property, implType, typeDesc);
@@ -953,8 +948,8 @@ namespace AspectCore.Utils
 
         private class FieldBuilderUtils
         {
-            public const string ActivatorFactory = "activatorFactory";
-            public const string Target = "targetInstance";
+            public const string ActivatorFactory = "_activatorFactory";
+            public const string Target = "_implementation";
 
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
