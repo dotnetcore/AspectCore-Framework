@@ -17,11 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Autof
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "references", "references", "{FA9E353F-695D-49FC-A0CA-654829134AB5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Core", "..\Core\src\AspectCore.Core\AspectCore.Core.csproj", "{B7ECA271-0B98-45BE-A9DF-C6F4C066DF14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Core", "..\core\src\AspectCore.Core\AspectCore.Core.csproj", "{B7ECA271-0B98-45BE-A9DF-C6F4C066DF14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Abstractions", "..\Core\src\AspectCore.Abstractions\AspectCore.Abstractions.csproj", "{ECF5F6E2-660C-4FC4-BB04-73761DB75658}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Abstractions", "..\core\src\AspectCore.Abstractions\AspectCore.Abstractions.csproj", "{ECF5F6E2-660C-4FC4-BB04-73761DB75658}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Reflection", "..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj", "{AD8942CF-ED17-4DAF-BC3B-20EF8DD8C74F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Reflection", "..\reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj", "{AD8942CF-ED17-4DAF-BC3B-20EF8DD8C74F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{E933A059-A6AC-46AC-928D-33656D7FE93A}"
 EndProject
