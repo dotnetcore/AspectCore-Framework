@@ -24,10 +24,10 @@ namespace AspectCore.Extensions.DependencyInjection
                 return false;
             }
 
-            //if (descriptor.ServiceType.IsGenericTypeDefinition)
-            //{
-            //    return false;
-            //}
+            if (descriptor.ServiceType.IsGenericTypeDefinition)
+            {
+                return false;
+            }
 
             implementationType = GetImplementationType(descriptor);
 
