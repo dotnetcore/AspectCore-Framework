@@ -18,9 +18,9 @@ namespace AspectCore.DynamicProxy
             {
                 return false;
             }
-            if (method.IsFinal)
+            if (method.IsFinal && !method.Attributes.HasFlag(MethodAttributes.Virtual | MethodAttributes.NewSlot))
             {
-                return method.Attributes.HasFlag(MethodAttributes.Virtual | MethodAttributes.NewSlot);
+                return false;
             }
             if (!method.IsVisibleAndVirtual())
             {
