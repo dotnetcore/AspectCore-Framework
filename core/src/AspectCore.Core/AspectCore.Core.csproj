@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
+    <ProjectReference Include="..\..\..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
     <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
   </ItemGroup>
 

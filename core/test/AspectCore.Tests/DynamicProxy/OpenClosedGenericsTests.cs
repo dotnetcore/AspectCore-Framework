@@ -28,7 +28,7 @@ namespace AspectCore.Tests.DynamicProxy
             var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
             var proxyType = proxyTypeGenerator.CreateInterfaceProxyType(typeof(IFakeOpenGenericService<>));
             var instance = Activator.CreateInstance(proxyType.MakeGenericType(typeof(PocoClass)), new object[] { null });
-            var field = instance.GetType().GetTypeInfo().GetField("targetInstance", BindingFlags.Instance | BindingFlags.NonPublic);
+            var field = instance.GetType().GetTypeInfo().GetField("_implementation", BindingFlags.Instance | BindingFlags.NonPublic);
             var targetInstance = field.GetValue(instance);
             Assert.NotEqual(instance, targetInstance);
             Assert.NotEqual(instance.GetType(), targetInstance.GetType());
@@ -51,7 +51,7 @@ namespace AspectCore.Tests.DynamicProxy
             var proxyTypeGenerator = new ProxyTypeGenerator(validatorBuilder);
             var proxyType = proxyTypeGenerator.CreateInterfaceProxyType(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>));
             var instance = Activator.CreateInstance(proxyType.MakeGenericType(typeof(PocoClass)), new object[] { null, new FakeOpenGenericService<PocoClass>(null) });
-            var field = instance.GetType().GetTypeInfo().GetField("targetInstance", BindingFlags.Instance | BindingFlags.NonPublic);
+            var field = instance.GetType().GetTypeInfo().GetField("_implementation", BindingFlags.Instance | BindingFlags.NonPublic);
             var targetInstance = field.GetValue(instance);
             Assert.NotEqual(instance, targetInstance);
             Assert.NotEqual(instance.GetType(), targetInstance.GetType());
