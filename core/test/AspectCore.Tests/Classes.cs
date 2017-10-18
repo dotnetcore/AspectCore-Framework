@@ -212,4 +212,9 @@ namespace AspectCore.Tests
             Assert.Equal(100, result);
         }
     }
+
+    public class FakeProperty
+    {
+        public string Val { get; set; }
+    }
 }
