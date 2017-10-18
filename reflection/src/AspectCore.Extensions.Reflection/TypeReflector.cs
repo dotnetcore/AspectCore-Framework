@@ -44,11 +44,19 @@ namespace AspectCore.Extensions.Reflection
 
         private static string GetFullDisplayName(TypeInfo typeInfo)
         {
-            var name = $"{typeInfo.Namespace}." + typeInfo.Name.Replace('+', '.');
+            var name = typeInfo.Name.Replace('+', '.');
             if (typeInfo.IsGenericParameter)
             {
                 return name;
             }
+            if (!typeInfo.IsNested)
+            {
+                name = $"{typeInfo.Namespace}." + name;
+            }
+            else
+            {
+                name= $"{GetFullDisplayName(typeInfo.DeclaringType.GetTypeInfo())}.{name}";
+            }          
             if (typeInfo.IsGenericType)
             {
                 var arguments = typeInfo.IsGenericTypeDefinition
@@ -62,9 +70,7 @@ namespace AspectCore.Extensions.Reflection
                 }
                 name += ">";
             }
-            if (!typeInfo.IsNested)
-                return name;
-            return $"{GetFullDisplayName(typeInfo.DeclaringType.GetTypeInfo())}.{name}";
+            return name;
         }
     }
 }
