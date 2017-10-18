@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Benchmark", "per
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Tests", "test\AspectCore.Tests\AspectCore.Tests.csproj", "{726CA767-41EF-4E8F-BF01-D40CEDCF0684}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Reflection", "..\Reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj", "{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Reflection", "..\reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj", "{A71D5C7A-739E-46BE-AC53-6E33D66F8E0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.IoC.Benchmarks", "performance\AspectCore.IoC.Benchmarks\AspectCore.IoC.Benchmarks.csproj", "{281690D7-9F71-474E-A000-62A57BBF3B93}"
 EndProject
