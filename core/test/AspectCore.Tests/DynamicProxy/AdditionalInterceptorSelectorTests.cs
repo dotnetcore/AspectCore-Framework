@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using Xunit;
+using AspectCore.Injector;
 
 namespace AspectCore.Tests.DynamicProxy
 {
@@ -11,6 +12,17 @@ namespace AspectCore.Tests.DynamicProxy
         {
             var proxy = ProxyGenerator.CreateInterfaceProxy<IService, Service>();
             var val = proxy.GetValue("le");
+            Assert.Equal("lemon", val);
+        }
+
+        [Fact]
+        public void ImplementationMethodFromInjector_Test()
+        {
+            var container = new ServiceContainer();
+            container.AddType<IService, Service>();
+            var resolver = container.Build();
+            var service = resolver.Resolve<IService>();
+            var val = service.GetValue("le");
             Assert.Equal("lemon", val);
         }
 
