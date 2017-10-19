@@ -27,12 +27,12 @@ namespace AspectCore.Extensions.Windsor
         {
             _kernel = kernel;
             kernel.ComponentModelCreated += Kernel_ComponentModelCreated;
-            
+
             kernel.Register(
+                Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),
                 Component.For(typeof(ManyEnumerable<>)).ImplementedBy(typeof(ManyEnumerable<>)).LifestyleTransient(),
                 Component.For<IProxyGenerator>().ImplementedBy<ProxyGenerator>().LifestyleScoped(),
-                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),
-                //Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),         
+                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().Named("ServiceResolver").LifestyleScoped(),         
                 Component.For<IProxyTypeGenerator>().ImplementedBy<ProxyTypeGenerator>().LifestyleSingleton(),
                 Component.For<IInterceptorSelector>().ImplementedBy<ConfigureInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IInterceptorSelector>().ImplementedBy<AttributeInterceptorSelector>().LifestyleSingleton(),
@@ -49,6 +49,7 @@ namespace AspectCore.Extensions.Windsor
                 Component.For<IAspectConfiguration>().Instance(_aspectConfiguration).LifestyleSingleton()
                 );
             kernel.Register(Component.For<AspectCoreInterceptor>());
+            kernel.Resolver.AddSubResolver(new CompatibleCollectionResolver(kernel));
         }
 
         private void Kernel_ComponentModelCreated(ComponentModel model)
