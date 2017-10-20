@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\..\build\common.props" />
+  <Import Project="..\..\..\build\net45.props" />
+
+  <PropertyGroup>
+    <Description>Interceptor and dynamicProxy support for Autofac via AspectCore Framework.</Description>
+    <AssemblyTitle>AspectCore.Extensions.Autofac</AssemblyTitle>
+    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <AssemblyName>AspectCore.Extensions.Autofac</AssemblyName>
+    <PackageId>AspectCore.Extensions.Autofac</PackageId>
+    <PackageTags>DynamicProxy;Aop;Autofac;AspectCore</PackageTags>
+    <PackageReleaseNotes>Interceptor and dynamicProxy support for Autofac via AspectCore Framework.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
+  </ItemGroup>
+
+</Project>
