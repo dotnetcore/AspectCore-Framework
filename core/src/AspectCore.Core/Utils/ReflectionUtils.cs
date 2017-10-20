@@ -198,6 +198,7 @@ namespace AspectCore.DynamicProxy
             {
                 return invocation;
             }
+
             displayName = $"{declaringType.GetReflector().FullDisplayName}.{method.Name}";
             return typeInfo.GetMethodBySignature(
                 new MethodSignature(method, displayName));

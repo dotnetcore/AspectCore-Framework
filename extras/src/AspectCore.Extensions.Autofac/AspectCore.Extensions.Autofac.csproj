@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
   </ItemGroup>
 
 </Project>

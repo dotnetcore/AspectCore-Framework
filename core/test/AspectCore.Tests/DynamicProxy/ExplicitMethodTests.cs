@@ -14,11 +14,10 @@ namespace AspectCore.Tests.DynamicProxy
         [Fact]
         public void Find_ExplicitMethod()
         {
-            var method = typeof(IFakeExplicitMethod<int>).GetMethod("Method");
-            var m = method.MakeGenericMethod(typeof(string));
-            var t = m.DeclaringType;
+            var method = typeof(IFakeExplicitMethod<int>).GetMethods().First();
+            method = method.MakeGenericMethod(typeof(string));
             var explicitMethod = typeof(FakeExplicitMethod).GetTypeInfo().GetMethodBySignature(method);
-            var d = explicitMethod.GetReflector().DisplayName;
+            Assert.NotNull(explicitMethod);
         }
 
         public interface IFakeExplicitMethod<T>

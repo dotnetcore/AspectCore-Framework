@@ -1,27 +1,24 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using Xunit;
-using AspectCore.Injector;
+using Autofac;
+using AspectCore.Extensions.Autofac;
 
-namespace AspectCore.Tests.DynamicProxy
+namespace AspectCore1.Extensions.Autofac.Test
 {
-    public class AdditionalInterceptorSelectorTests : DynamicProxyTestBase
+   public class AdditionalInterceptorSelectorTests
     {
         [Fact]
         public void ImplementationMethod_Test()
         {
-            var proxy = ProxyGenerator.CreateInterfaceProxy<IService, Service>();
-            var val = proxy.GetValue("le");
-            Assert.Equal("lemon", val);
-        }
-
-        [Fact]
-        public void ImplementationMethodFromInjector_Test()
-        {
-            var container = new ServiceContainer();
-            container.AddType<IService, Service>();
-            var resolver = container.Build();
-            var service = resolver.Resolve<IService>();
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>();
+            var provider = builder.Build();
+            var service = provider.Resolve<IService>();
             var val = service.GetValue("le");
             Assert.Equal("lemon", val);
         }

@@ -13,9 +13,9 @@ namespace AspectCore.Extensions.Windsor
         private readonly IKernelInternal _kernel;
         private readonly ILifetimeScope _scope;
 
-        public WindsorScopedServiceResolver(IWindsorContainer windsorContainer, ILifetimeScope scope)
+        public WindsorScopedServiceResolver(IKernel kernel, ILifetimeScope scope)
         {
-            _kernel = windsorContainer?.Kernel as IKernelInternal;
+            _kernel = kernel as IKernelInternal;
             if (_kernel == null)
                 throw new ArgumentException(string.Format("The kernel must implement {0}", typeof(IKernelInternal)));
             _scope = scope;

@@ -57,12 +57,10 @@ namespace AspectCore.DynamicProxy
 
             return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(GetKey(serviceMethod, implementationMethod), key =>
             {
-                return HandleInjector(
-                    CollectFromService(serviceMethod).
+               return HandleInjector(CollectFromService(serviceMethod).
                     Concat(CollectFromAdditionalSelector(serviceMethod, implementationMethod)).
                     HandleSort().
-                    HandleMultiple()).
-                    ToArray();
+                    HandleMultiple()).ToArray();
             });
         }
 
@@ -133,11 +131,14 @@ namespace AspectCore.DynamicProxy
 
         private IEnumerable<IInterceptor> HandleInjector(IEnumerable<IInterceptor> interceptors)
         {
-            foreach (var interceptor in interceptors.Where(x => PropertyInjectionUtils.Required(x)))
+            foreach (var interceptor in interceptors)
             {
-                _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
+                if (PropertyInjectionUtils.Required(interceptor))
+                {
+                    _propertyInjectorFactory.Create(interceptor.GetType()).Invoke(interceptor);
+                }
+                yield return interceptor;
             }
-            return interceptors;
         }
     }
 

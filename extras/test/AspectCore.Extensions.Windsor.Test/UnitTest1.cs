@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
+using AspectCore.Extensions.Windsor;
+using Castle.MicroKernel.Lifestyle;
 using Xunit;
 
-namespace AspectCore.Extensions.Windsor.Test
+namespace AspectCore.Extension.Windsor.Test
 {
     public class UnitTest1
     {
@@ -13,6 +15,7 @@ namespace AspectCore.Extensions.Windsor.Test
             Castle.Windsor.IWindsorContainer windsorContainer = new Castle.Windsor.WindsorContainer();
             windsorContainer.AddAspectCoreFacility();
             windsorContainer.Register(Castle.MicroKernel.Registration.Component.For<IService>().ImplementedBy<Service>());
+            windsorContainer.BeginScope();
             var s = windsorContainer.Resolve<IService>();
             s.Foo();
         }

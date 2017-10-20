@@ -1,27 +1,23 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
+using AspectCore.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using AspectCore.Injector;
 
-namespace AspectCore.Tests.DynamicProxy
+namespace AspectCore1.Extensions.DependencyInjection.Test
 {
-    public class AdditionalInterceptorSelectorTests : DynamicProxyTestBase
+    public class AdditionalInterceptorSelectorTests
     {
         [Fact]
         public void ImplementationMethod_Test()
         {
-            var proxy = ProxyGenerator.CreateInterfaceProxy<IService, Service>();
-            var val = proxy.GetValue("le");
-            Assert.Equal("lemon", val);
-        }
-
-        [Fact]
-        public void ImplementationMethodFromInjector_Test()
-        {
-            var container = new ServiceContainer();
-            container.AddType<IService, Service>();
-            var resolver = container.Build();
-            var service = resolver.Resolve<IService>();
+            var services = new ServiceCollection();
+            services.AddTransient<IService, Service>();
+            var provider = services.BuildAspectCoreServiceProvider();
+            var service = provider.GetService<IService>();
             var val = service.GetValue("le");
             Assert.Equal("lemon", val);
         }

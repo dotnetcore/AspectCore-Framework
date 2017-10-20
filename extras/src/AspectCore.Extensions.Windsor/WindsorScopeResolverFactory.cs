@@ -10,16 +10,16 @@ namespace AspectCore.Extensions.Windsor
     [NonAspect]
     internal sealed class WindsorScopeResolverFactory : IScopeResolverFactory
     {
-        private readonly IWindsorContainer _windsorContainer;
+        private readonly IKernel _kernel;
 
-        public WindsorScopeResolverFactory(IWindsorContainer  windsorContainer)
+        public WindsorScopeResolverFactory(IKernel kernel)
         {
-            _windsorContainer = windsorContainer ?? throw new ArgumentNullException(nameof(windsorContainer));
+            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
         }
 
         public IServiceResolver CreateScope()
         {
-            return new WindsorScopedServiceResolver(_windsorContainer, new DefaultLifetimeScope());
+            return new WindsorScopedServiceResolver(_kernel, new DefaultLifetimeScope());
         }
     }
 }

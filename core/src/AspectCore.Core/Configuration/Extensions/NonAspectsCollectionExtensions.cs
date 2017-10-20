@@ -55,8 +55,6 @@ namespace AspectCore.Configuration
         private static NonAspectPredicateCollection AddMicrosoft(this NonAspectPredicateCollection collection)
         {        
             collection.AddNamespace("Microsoft.*");
-            collection.AddNamespace("Microsoft.CodeAnalysis.Razor");
-            collection.AddNamespace("Microsoft.CodeAnalysis.Razor.*");
             return collection;
         }
 
@@ -70,6 +68,7 @@ namespace AspectCore.Configuration
         private static NonAspectPredicateCollection AddAspNetCore(this NonAspectPredicateCollection collection)
         {
             collection.AddNamespace("Microsoft.AspNetCore.*");
+            collection.AddNamespace("Microsoft.AspNetCore.Razor.Language");
             collection.AddNamespace("Microsoft.AspNet.*");
             collection.AddNamespace("Microsoft.Extensions.*");
             collection.AddNamespace("Microsoft.ApplicationInsights.*");

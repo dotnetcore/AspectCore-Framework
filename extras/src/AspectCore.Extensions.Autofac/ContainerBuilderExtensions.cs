@@ -88,7 +88,7 @@ namespace AspectCore.Extensions.Autofac
                 return;
             }
             var aspectValidator = new AspectValidatorBuilder(e.Context.Resolve<IAspectConfiguration>()).Build();
-            if (services.All(x => !aspectValidator.Validate(x)))
+            if (services.All(x => !aspectValidator.Validate(x)) && !aspectValidator.Validate(limitType))
             {
                 return;
             }
