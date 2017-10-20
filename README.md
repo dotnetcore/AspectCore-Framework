@@ -5,4 +5,4 @@ AspectCore is an Aspect-Oriented Programming based cross platform framework for 
   
 Core support for aspect-interceptor,dependency injection integration , web applications , data validation , and more.   
   
-You can read documentation for AspectCore at [blogs](http://www.cnblogs.com/liuhaoyang/p/aspectcore-introduction-1.html).
+You can read documentation for AspectCore at [blogs](http://www.cnblogs.com/liuhaoyang/category/938337.html).
