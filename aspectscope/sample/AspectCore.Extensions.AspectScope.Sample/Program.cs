@@ -18,27 +18,54 @@ namespace AspectScope.Sample
             serviceContainer.AddType<IC, C>();
 
             var r = serviceContainer.Build();
-            var a = r.Resolve<IA>();
-            a.Foo();
-            a.Foo();
+            r.Resolve<IA>().None();
+            r.Resolve<IB>().None();
+            r.Resolve<IC>().None();
+            r.Resolve<IA>().Nested();
+            r.Resolve<IB>().Nested();
+            r.Resolve<IC>().Nested();
+            r.Resolve<IA>().Aspect();
+            r.Resolve<IB>().Aspect();
+            r.Resolve<IC>().Aspect();
             Console.ReadKey();
         }
     }
 
-    [ScopeIntercept]
+    
     public interface IA
     {
-        void Foo();
+        [ScopeIntercept(Scope=Scope.None)]
+        void None();
+
+        [ScopeIntercept(Scope = Scope.Nested)]
+        void Nested();
+
+        [ScopeIntercept(Scope = Scope.Aspect)]
+        void Aspect();
     }
-    [ScopeIntercept]
+
     public interface IB
     {
-        void Foo();
+        [ScopeIntercept(Scope = Scope.None)]
+        void None();
+
+        [ScopeIntercept(Scope = Scope.Nested)]
+        void Nested();
+
+        [ScopeIntercept(Scope = Scope.Aspect)]
+        void Aspect();
     }
-    [ScopeIntercept(Scope =Scope.Nested)]
+
     public interface IC
     {
-        void Foo();
+        [ScopeIntercept(Scope = Scope.None)]
+        void None();
+
+        [ScopeIntercept(Scope = Scope.Nested)]
+        void Nested();
+
+        [ScopeIntercept(Scope = Scope.Aspect)]
+        void Aspect();
     }
 
     public class A : IA
@@ -51,11 +78,20 @@ namespace AspectScope.Sample
             this.b = b;
             this.c = c;
         }
-        public void Foo()
+
+        public void Aspect()
         {
-            Console.WriteLine("A");
-            b.Foo();
-            c.Foo();
+            b.Aspect();
+        }
+
+        public void Nested()
+        {
+            b.Nested();
+        }
+
+        public void None()
+        {
+            b.None();
         }
     }
 
@@ -68,18 +104,34 @@ namespace AspectScope.Sample
             this.c = c;
         }
 
-        public void Foo()
+        public void None()
         {
-            Console.WriteLine("B");
-            c.Foo();
+            c.None();
+        }
+
+        public void Nested()
+        {
+            c.Nested();
+        }
+
+        public void Aspect()
+        {
+            c.Aspect();
         }
     }
 
     public class C : IC
     {
-        public void Foo()
+        public void None()
         {
-            Console.WriteLine("C");
+        }
+
+        public void Nested()
+        {
+        }
+
+        public void Aspect()
+        {
         }
     }
 
