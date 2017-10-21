@@ -51,7 +51,11 @@ namespace AspectCore.DynamicProxy
                     invoke.GetAwaiter().GetResult();
                 }
                 var result = context.ReturnValue;
-                if (result is Task<TResult> resultTask)
+                if (result == null)
+                {
+                    return default(Task<TResult>);
+                }
+                else if (result is Task<TResult> resultTask)
                 {
                     return resultTask;
                 }
