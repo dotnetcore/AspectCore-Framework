@@ -23,7 +23,7 @@ namespace AspectCore.Extensions.AspectScope
             {
                 if (interceptor is IScopeInterceptor scopedInterceptor)
                 {
-                    if (!_aspectContextScheduler.TryRelate(context as ScopeAspectContext, scopedInterceptor))
+                    if (!_aspectContextScheduler.TryRelate(context, scopedInterceptor))
                         continue;
                 }
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);

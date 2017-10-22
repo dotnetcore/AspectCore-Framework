@@ -4,18 +4,31 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.Extensions.AspectScope
 {
     [NonAspect]
-    public sealed class ScopeAspectContextFactory : AspectContextFactory
+    public sealed class ScopeAspectContextFactory : IAspectContextFactory
     {
-        private readonly IAspectScheduler _aspectContextScheduler;
+        private readonly IAspectScheduler _aspectScheduler;
+        private readonly AspectContextFactory _aspectContextFactory;
 
-        public ScopeAspectContextFactory(IServiceProvider serviceProvider, IAspectScheduler aspectContextScheduler) : base(serviceProvider)
+        public ScopeAspectContextFactory(IServiceProvider serviceProvider, IAspectScheduler aspectContextScheduler)
         {
-            _aspectContextScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
+            _aspectScheduler = aspectContextScheduler ?? throw new ArgumentNullException(nameof(aspectContextScheduler));
+            _aspectContextFactory = new AspectContextFactory(serviceProvider);
         }
 
-        public override AspectContext CreateContext(AspectActivatorContext activatorContext)
+        public AspectContext CreateContext(AspectActivatorContext activatorContext)
         {
-            return new ScopeAspectContext(base.CreateContext(activatorContext), _aspectContextScheduler);
+            var aspectContext = _aspectContextFactory.CreateContext(activatorContext);
+            if (!_aspectScheduler.TryEnter(aspectContext))
+            {
+                throw new InvalidOperationException("Error occurred in the schedule AspectContext.");
+            }
+            return aspectContext;
+        }
+
+        public void ReleaseContext(AspectContext aspectContext)
+        {
+            _aspectContextFactory.ReleaseContext(aspectContext);
+            _aspectScheduler.Release(aspectContext);
         }
     }
 }

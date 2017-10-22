@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using AspectCore.DynamicProxy;
 
@@ -10,7 +12,7 @@ namespace AspectCore.Extensions.AspectScope
     [NonAspect]
     public sealed class ScopeAspectScheduler : IAspectScheduler
     {
-        private readonly ConcurrentDictionary<ScopeAspectContext, object> _scopedContexts = new ConcurrentDictionary<ScopeAspectContext, object>();
+        private readonly ConcurrentDictionary<MethodInfo, AspectEntry> _entries = new ConcurrentDictionary<MethodInfo, AspectEntry>();
         private readonly IInterceptorCollector _interceptorCollector;
         private int _idx = 0;
 
@@ -21,17 +23,25 @@ namespace AspectCore.Extensions.AspectScope
 
         public AspectContext[] GetCurrentContexts()
         {
-            return _scopedContexts.Keys.Where(x => x.RuntimeContext != null).OrderBy(x => x.Id).ToArray();
+            var invokes = SchedulerHelpers.GetInvokeMethods();
+            if (invokes.Length == 0)
+            {
+                return Array.Empty<AspectContext>();
+            }
+            var entry = GetAspectEntry(invokes.Last());
+            return entry.Contexts.ToArray();
         }
 
         public bool TryEnter(AspectContext context)
         {
-            if (context is ScopeAspectContext scopedContext)
+            var invokes = SchedulerHelpers.GetInvokeMethods();
+            if (invokes.Length == 0)
             {
-                scopedContext.Id = Interlocked.Increment(ref _idx);
-                return _scopedContexts.TryAdd(scopedContext, null);
+                return false;
             }
-            return false;
+            var entry = GetAspectEntry(invokes.Last());
+            entry.Contexts.Add(context);
+            return true;
         }
 
         public bool TryRelate(AspectContext context, IInterceptor interceptor)
@@ -40,23 +50,15 @@ namespace AspectCore.Extensions.AspectScope
             {
                 return false;
             }
-            if (!(context is ScopeAspectContext scopedContext))
-            {
-                return false;
-            }
             if (!(interceptor is IScopeInterceptor scopedInterceptor))
             {
                 return true;
-            }
-            if (!_scopedContexts.ContainsKey(scopedContext))
-            {
-                return false;
             }
             if (scopedInterceptor.Scope == Scope.None)
             {
                 return true;
             }
-            var currentContexts = GetCurrentScopedContexts(scopedContext).ToArray();
+            var currentContexts = GetCurrentContextsInternal(context).ToArray();
             if (currentContexts.Length == 0)
             {
                 return true;
@@ -73,9 +75,9 @@ namespace AspectCore.Extensions.AspectScope
 
             return true;
 
-            IEnumerable<AspectContext> GetCurrentScopedContexts(ScopeAspectContext ctx)
+            IEnumerable<AspectContext> GetCurrentContextsInternal(AspectContext ctx)
             {
-                foreach (var current in GetCurrentContexts().OfType<ScopeAspectContext>().OrderBy(x => x.Id))
+                foreach (var current in GetCurrentContexts())
                 {
                     if (current == ctx)
                         break;
@@ -94,9 +96,37 @@ namespace AspectCore.Extensions.AspectScope
 
         public void Release(AspectContext context)
         {
-            if (_scopedContexts.TryRemove(context as ScopeAspectContext, out _))
+            var invokes = SchedulerHelpers.GetInvokeMethods();
+            if (invokes.Length == 0)
             {
-                Interlocked.Decrement(ref _idx);
+                return;
+            }
+            var entry = GetAspectEntry(invokes.Last());
+            entry.Contexts.Remove(context);
+        }
+
+        private AspectEntry GetAspectEntry(MethodInfo aspectInvoke)
+        {
+            return _entries.GetOrAdd(aspectInvoke, invoke => new AspectEntry(invoke));
+        }
+
+        private class AspectEntry
+        {
+            private readonly MethodInfo _aspectInvoke;
+            private readonly List<AspectContext> _contexts;
+
+            public List<AspectContext> Contexts
+            {
+                get
+                {
+                    return _contexts;
+                }
+            }
+
+            public AspectEntry(MethodInfo aspectInvoke)
+            {
+                _aspectInvoke = aspectInvoke;
+                _contexts = new List<AspectContext>();
             }
         }
     }
