@@ -159,7 +159,7 @@ namespace AspectCore.Utils
         private class ProxyNameUtils
         {
             private static readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
-            private static readonly Dictionary<Tuple<Type,Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
+            private static readonly Dictionary<Tuple<Type, Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
 
             private static string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
             {
@@ -319,7 +319,7 @@ namespace AspectCore.Utils
                     ParameterBuilderUtils.DefineParameters(constructor, constructorBuilder);
 
                     var ilGen = constructorBuilder.GetILGenerator();
-                    
+
                     ilGen.EmitThis();
                     ilGen.EmitLoadArg(1);
                     ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
@@ -463,7 +463,11 @@ namespace AspectCore.Utils
                     throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                 }
 
-                if (typeDesc.GetProperty<IAspectValidator>().Validate(method)|| typeDesc.GetProperty<IAspectValidator>().Validate(implementationMethod))
+                if (method.IsNonAspect())
+                {
+                    EmitMethodBody();
+                }
+                else if (typeDesc.GetProperty<IAspectValidator>().Validate(method, true) || typeDesc.GetProperty<IAspectValidator>().Validate(implementationMethod, false))
                 {
                     EmitProxyMethodBody();
                 }
@@ -471,6 +475,7 @@ namespace AspectCore.Utils
                 {
                     EmitMethodBody();
                 }
+
                 return methodBuilder;
 
                 void EmitMethodBody()
@@ -918,7 +923,7 @@ namespace AspectCore.Utils
                         {
                             constructorArgs[i] = customAttributeData.ConstructorArguments[i].Value;
                         }
-                       
+
                     }
                     var namedProperties = customAttributeData.NamedArguments
                             .Where(n => !n.IsField)
