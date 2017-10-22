@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    public abstract class AspectContext : IDisposable
+    public abstract class AspectContext
     {
         public abstract IDictionary<string, object> AdditionalData { get; }
 
@@ -31,14 +31,5 @@ namespace AspectCore.DynamicProxy
         public abstract Task Invoke(AspectDelegate next);
 
         public abstract Task Complete();
-
-        protected virtual void Dispose(bool disposing)
-        {
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
     }
 }

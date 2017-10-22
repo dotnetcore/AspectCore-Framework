@@ -18,7 +18,8 @@ namespace AspectCore.DynamicProxy
 
         public TResult Invoke<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext(activatorContext))
+            var context = _aspectContextFactory.CreateContext(activatorContext);
+            try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -33,11 +34,16 @@ namespace AspectCore.DynamicProxy
                 }
                 return (TResult)context.ReturnValue;
             }
+            finally
+            {
+                _aspectContextFactory.ReleaseContext(context);
+            }
         }
 
         public Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext(activatorContext))
+            var context = _aspectContextFactory.CreateContext(activatorContext);
+            try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -72,11 +78,16 @@ namespace AspectCore.DynamicProxy
                     throw context.InvocationException(new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'."));
                 }
             }
+            finally
+            {
+                _aspectContextFactory.ReleaseContext(context);
+            }
         }
 
         public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
         {
-            using (var context = _aspectContextFactory.CreateContext(activatorContext))
+            var context = _aspectContextFactory.CreateContext(activatorContext);
+            try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
@@ -90,6 +101,10 @@ namespace AspectCore.DynamicProxy
                     invoke.GetAwaiter().GetResult();
                 }
                 return (ValueTask<TResult>)context.ReturnValue;
+            }
+            finally
+            {
+                _aspectContextFactory.ReleaseContext(context);
             }
         }
     }

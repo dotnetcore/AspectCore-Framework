@@ -23,5 +23,10 @@ namespace AspectCore.DynamicProxy
                 activatorContext.ProxyInstance,
                 activatorContext.Parameters ?? emptyParameters);
         }
+
+        public void ReleaseContext(AspectContext aspectContext)
+        {
+            (aspectContext as IDisposable)?.Dispose();
+        }
     }
 }
