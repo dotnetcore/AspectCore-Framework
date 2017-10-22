@@ -29,6 +29,11 @@ namespace AspectCore.Extensions.Autofac
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
             configuration = configuration ?? new AspectConfiguration();
+
+            configuration.NonAspectPredicates.
+                AddNamespace("Autofac").
+                AddNamespace("Autofac.*");
+
             configure?.Invoke(configuration);
 
             containerBuilder.RegisterInstance<IAspectConfiguration>(configuration).SingleInstance();
@@ -83,12 +88,12 @@ namespace AspectCore.Extensions.Autofac
                 return;
             }
             var services = e.Component.Services.Select(x => ((IServiceWithType)x).ServiceType).ToList();
-            if (services.Any(x => !x.GetTypeInfo().CanInherited()))
+            if (!services.All(x => x.GetTypeInfo().CanInherited()))
             {
                 return;
             }
             var aspectValidator = new AspectValidatorBuilder(e.Context.Resolve<IAspectConfiguration>()).Build();
-            if (services.All(x => !aspectValidator.Validate(x)) && !aspectValidator.Validate(limitType))
+            if (services.All(x => !aspectValidator.Validate(x, true)) && !aspectValidator.Validate(limitType, false))
             {
                 return;
             }

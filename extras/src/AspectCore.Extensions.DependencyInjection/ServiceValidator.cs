@@ -19,6 +19,11 @@ namespace AspectCore.Extensions.DependencyInjection
         {
             implementationType = null;
 
+            if (descriptor.ServiceType.GetTypeInfo().IsNonAspect())
+            {
+                return false;
+            }
+
             if (descriptor.ServiceType.IsGenericTypeDefinition)
             {
                 return false;
@@ -52,7 +57,7 @@ namespace AspectCore.Extensions.DependencyInjection
                     return false;
                 }
             }
-            return _aspectValidator.Validate(descriptor.ServiceType) || _aspectValidator.Validate(implementationType);
+            return _aspectValidator.Validate(descriptor.ServiceType, true) || _aspectValidator.Validate(implementationType, false);
         }
 
         private Type GetImplementationType(ServiceDescriptor descriptor)

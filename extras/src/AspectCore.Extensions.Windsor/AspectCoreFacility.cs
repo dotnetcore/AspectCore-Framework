@@ -32,7 +32,7 @@ namespace AspectCore.Extensions.Windsor
                 Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),
                 Component.For(typeof(ManyEnumerable<>)).ImplementedBy(typeof(ManyEnumerable<>)).LifestyleTransient(),
                 Component.For<IProxyGenerator>().ImplementedBy<ProxyGenerator>().LifestyleScoped(),
-                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().Named("ServiceResolver").LifestyleScoped(),         
+                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().Named("ServiceResolver").LifestyleScoped(),
                 Component.For<IProxyTypeGenerator>().ImplementedBy<ProxyTypeGenerator>().LifestyleSingleton(),
                 Component.For<IInterceptorSelector>().ImplementedBy<ConfigureInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IInterceptorSelector>().ImplementedBy<AttributeInterceptorSelector>().LifestyleSingleton(),
@@ -42,7 +42,7 @@ namespace AspectCore.Extensions.Windsor
                 Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleScoped(),
                 Component.For<IAspectCachingProvider>().ImplementedBy<AspectCachingProvider>().LifestyleSingleton(),
                 Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleScoped(),
-                Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(), 
+                Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(),
                 Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleScoped(),
                 Component.For<IParameterInterceptorSelector>().ImplementedBy<ParameterInterceptorSelector>().LifestyleScoped(),
                 Component.For<IAdditionalInterceptorSelector>().ImplementedBy<AttributeAdditionalInterceptorSelector>().LifestyleSingleton(),
@@ -55,7 +55,7 @@ namespace AspectCore.Extensions.Windsor
         private void Kernel_ComponentModelCreated(ComponentModel model)
         {
             var aspectValidator = new AspectValidatorBuilder(_aspectConfiguration).Build();
-            if (aspectValidator.Validate(model.Implementation) || model.Services.Any(x => aspectValidator.Validate(x)))
+            if (aspectValidator.Validate(model.Implementation, false) || model.Services.Any(x => aspectValidator.Validate(x, true)))
             {
                 model.Interceptors.AddIfNotInCollection(InterceptorReference.ForType<AspectCoreInterceptor>());
             }
