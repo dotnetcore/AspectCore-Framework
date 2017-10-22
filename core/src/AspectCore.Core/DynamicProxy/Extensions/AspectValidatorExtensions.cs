@@ -6,7 +6,7 @@ namespace AspectCore.DynamicProxy
 {
     public static class AspectValidatorExtensions
     {
-        public static bool Validate(this IAspectValidator aspectValidator, Type type)
+        public static bool Validate(this IAspectValidator aspectValidator, Type type, bool isStrictValidation)
         {
             if (aspectValidator == null)
             {
@@ -35,7 +35,7 @@ namespace AspectCore.DynamicProxy
 
             foreach (var method in typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                if (aspectValidator.Validate(method))
+                if (aspectValidator.Validate(method, isStrictValidation))
                 {
                     return true;
                 }
@@ -43,7 +43,7 @@ namespace AspectCore.DynamicProxy
 
             foreach (var interfaceType in typeInfo.GetInterfaces())
             {
-                if (aspectValidator.Validate(interfaceType))
+                if (aspectValidator.Validate(interfaceType, isStrictValidation))
                 {
                     return true;
                 }
@@ -56,7 +56,7 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
-            return aspectValidator.Validate(baseType);
+            return aspectValidator.Validate(baseType, isStrictValidation);
         }
     }
 }

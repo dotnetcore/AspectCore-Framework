@@ -14,14 +14,15 @@ namespace AspectCore.DynamicProxy
             _aspectValidationDelegate = aspectValidationDelegate;
         }
 
-        public bool Validate(MethodInfo method)
+        public bool Validate(MethodInfo method, bool isStrictValidation)
         {
             if (method == null)
             {
                 return false;
             }
 
-            if (_aspectValidationDelegate(method))
+            var context = new AspectValidationContext { Method = method, StrictValidation = isStrictValidation };
+            if (_aspectValidationDelegate(context))
             {
                 return true;
             }
@@ -37,7 +38,7 @@ namespace AspectCore.DynamicProxy
                 var interfaceMethod = interfaceTypeInfo.GetMethodBySignature(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
-                    if (Validate(interfaceMethod))
+                    if (Validate(interfaceMethod, isStrictValidation))
                     {
                         return true;
                     }
@@ -51,7 +52,7 @@ namespace AspectCore.DynamicProxy
             }
 
             var baseMethod = baseType.GetTypeInfo().GetMethodBySignature(new MethodSignature(method));
-            return baseMethod != null && Validate(baseMethod);
+            return baseMethod != null && Validate(baseMethod, isStrictValidation);
         }
     }
 }

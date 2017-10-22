@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
-            return methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
+            return methodInfo.DeclaringType.GetTypeInfo().IsNonAspect() || methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
         internal static bool IsCallvirt(this MethodInfo methodInfo)
