@@ -14,7 +14,7 @@ namespace AspectCore.Extensions.AspectScope
             }
             services.AddType<IAspectScheduler, ScopeAspectScheduler>(Lifetime.Scoped);
             services.AddType<IAspectContextFactory, ScopeAspectContextFactory>(Lifetime.Scoped);
-            services.AddType<IAspectBuilderFactory, ScopeAspectBuilderFactory>(Lifetime.Singleton);
+            services.AddType<IAspectBuilderFactory, ScopeAspectBuilderFactory>(Lifetime.Scoped);
             return services;
         }
     }

@@ -13,138 +13,22 @@ namespace AspectScope.Sample
     {
         static void Main(string[] args)
         {
-            //Current();
-          
-            //IServiceContainer serviceContainer = new ServiceContainer();
-            //serviceContainer.AddAspectScope();
-            //serviceContainer.AddType<IA, A>();
-            //serviceContainer.AddType<IB, B>();
-            //serviceContainer.AddType<IC, C>();
-            //var r = serviceContainer.Build();
+            IServiceContainer serviceContainer = new ServiceContainer();
+            serviceContainer.AddAspectScope();
+            serviceContainer.AddType<IA, A>();
+            serviceContainer.AddType<IB, B>();
+            serviceContainer.AddType<IC, C>();
+            var r = serviceContainer.Build();
             Task.WaitAll(
-                Task.Run(() => { /*r.Resolve<IA>().None();*/ Current(); }),
-                Task.Run(() => { /*r.Resolve<IB>().None();*/ Current(); }),
-                Task.Run(() => { /*r.Resolve<IC>().None();*/ Current(); }),
-                Task.Run(() => { /*r.Resolve<IA>().Nested(); */Current(); }),
-                Task.Run(() => {/* r.Resolve<IB>().Nested();*/ Current(); }),
-                Task.Run(() => {/* r.Resolve<IC>().Nested();*/ Current(); }),
-                Task.Run(() => { /*r.Resolve<IA>().Aspect();*/ Current(); }),
-                Task.Run(() => { /*r.Resolve<IB>().Aspect();*/ Current(); }),
-                Task.Run(() => { /*r.Resolve<IC>().Aspect();*/ Current(); }));
-            //r.Resolve<IA>().None();
-            //r.Resolve<IB>().None();
-            //r.Resolve<IC>().None();
-            //r.Resolve<IA>().Nested();
-            //r.Resolve<IB>().Nested();
-            //r.Resolve<IC>().Nested();
-            //r.Resolve<IA>().Aspect();
-            //r.Resolve<IB>().Aspect();
-            //r.Resolve<IC>().Aspect();
-            //IServiceContainer serviceContainer = new ServiceContainer();
-            //serviceContainer.AddAspectScope();
-            //serviceContainer.AddType<IA, A>();
-            //serviceContainer.AddType<IB, B>();
-            //serviceContainer.AddType<IC, C>();
-            //var r = serviceContainer.Build();
-
-            //Task.WaitAll(
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IA>().None();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IB>().None();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IC>().None();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IA>().Nested();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IB>().Nested();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IC>().Nested();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IA>().Aspect();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        r.Resolve<IB>().Aspect();
-            //    }),
-            //    Task.Run(() =>
-            //    {
-            //        //IServiceContainer serviceContainer = new ServiceContainer();
-            //        //serviceContainer.AddAspectScope();
-            //        //serviceContainer.AddType<IA, A>();
-            //        //serviceContainer.AddType<IB, B>();
-            //        //serviceContainer.AddType<IC, C>();
-            //        //var r = serviceContainer.Build();
-            //        System.Diagnostics.StackFrame stackTrace = new System.Diagnostics.StackFrame();
-            //        System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace();
-            //        var frames = trace.GetFrames();
-            //        Console.WriteLine(frames[0].GetMethod() == stackTrace.GetMethod());
-            //        var m = System.Reflection.MethodBase.GetCurrentMethod();
-            //        Console.WriteLine(m);
-            //        Console.WriteLine(stackTrace.GetMethod());
-            //        r.Resolve<IC>().Aspect();
-            //    }));
+                Task.Run(() => { r.CreateScope().Resolve<IA>().None(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IB>().None(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IC>().None(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IA>().Nested(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IB>().Nested(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IC>().Nested(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IA>().Aspect(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IB>().Aspect(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IC>().Aspect(); }));
 
             IServiceContainer serviceContainer1 = new ServiceContainer();
             serviceContainer1.AddAspectScope();
@@ -164,17 +48,8 @@ namespace AspectScope.Sample
             r1.Resolve<IA>().Aspect();
             r1.Resolve<IB>().Aspect();
             r1.Resolve<IC>().Aspect();
-           
-
 
             Console.ReadKey();
-        }
-
-        public static void Current()
-        {
-            StackTrace stackTrace = new StackTrace();
-         Console.WriteLine(   stackTrace.GetHashCode());
-            
         }
     }
 
@@ -288,10 +163,7 @@ namespace AspectScope.Sample
 
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-            var scheduler = (IAspectScheduler)context.ServiceProvider.GetService(typeof(IAspectScheduler));
-            var count = scheduler.GetCurrentContexts().Count();
-            Console.WriteLine(count);
-            //Console.WriteLine("trace id: {0} . execute method : {1}.{2}", GetTraceId(context), context.ServiceMethod.DeclaringType, context.ServiceMethod.Name);
+            Console.WriteLine("trace id: {0} . execute method : {1}.{2}", GetTraceId(context), context.ServiceMethod.DeclaringType, context.ServiceMethod.Name);
             return context.Invoke(next);
         }
 
