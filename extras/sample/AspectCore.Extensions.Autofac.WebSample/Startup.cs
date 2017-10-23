@@ -30,7 +30,7 @@ namespace AspectCore.Extensions.Autofac.WebSample
      
             builder.RegisterDynamicProxy(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("Microsoft.*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
             });
 
             builder.Populate(services);

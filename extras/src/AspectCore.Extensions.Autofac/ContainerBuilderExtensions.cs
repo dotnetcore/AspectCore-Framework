@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Configuration;
@@ -15,6 +16,18 @@ namespace AspectCore.Extensions.Autofac
     public static class ContainerBuilderExtensions
     {
         #region RegisterDynamicProxy
+        private static readonly List<string> excepts = new List<string>
+        {
+            "Microsoft.Extensions.Logging",
+            "Microsoft.Extensions.Options",
+            "System",
+            "System.*",
+            "IHttpContextAccessor",
+            "ITelemetryInitializer",
+            "IHostingEnvironment",
+            "Autofac.*",
+            "Autofac"
+        };
 
         public static ContainerBuilder RegisterDynamicProxy(this ContainerBuilder containerBuilder, Action<IAspectConfiguration> configure = null)
         {
@@ -84,6 +97,10 @@ namespace AspectCore.Extensions.Autofac
             }
             var limitType = e.Instance.GetType();
             if (!limitType.GetTypeInfo().CanInherited())
+            {
+                return;
+            }
+            if (excepts.Any(x => limitType.Name.Matches(x)) || excepts.Any(x => limitType.Namespace.Matches(x)))
             {
                 return;
             }
