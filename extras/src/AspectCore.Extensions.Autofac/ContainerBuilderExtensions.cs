@@ -105,7 +105,7 @@ namespace AspectCore.Extensions.Autofac
                 return;
             }
             var services = e.Component.Services.Select(x => ((IServiceWithType)x).ServiceType).ToList();
-            if (!services.All(x => x.GetTypeInfo().CanInherited()))
+            if (!services.All(x => x.GetTypeInfo().CanInherited()) || services.All(x => x.GetTypeInfo().IsNonAspect()))
             {
                 return;
             }

@@ -34,12 +34,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(typeInfo));
             }
 
-            if (typeInfo.IsValueType || typeInfo.IsEnum || typeInfo.IsSealed)
-            {
-                return false;
-            }
-
-            if (typeInfo.IsNonAspect() || typeInfo.IsProxyType())
+            if (typeInfo.IsValueType || typeInfo.IsEnum || typeInfo.IsSealed || typeInfo.IsProxyType())
             {
                 return false;
             }
