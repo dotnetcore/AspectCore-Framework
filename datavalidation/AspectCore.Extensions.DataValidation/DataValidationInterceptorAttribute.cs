@@ -10,7 +10,7 @@ namespace AspectCore.Extensions.DataValidation
     {
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
-
+            var dataValidator
             throw new NotImplementedException();
         }
     }
