@@ -2,8 +2,7 @@
 
 namespace AspectCore.Extensions.DataValidation
 {
-    public class Class1
+    public class SkipValidationAttribute : Attribute
     {
-        public virtual 
     }
 }
