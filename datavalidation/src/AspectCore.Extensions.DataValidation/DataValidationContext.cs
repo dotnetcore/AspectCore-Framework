@@ -11,8 +11,6 @@ namespace AspectCore.Extensions.DataValidation
 
         public AspectContext AspectContext { get; }
 
-        public IDataState DataState { get; }
-
         public DataValidationContext(AspectContext aspectContext)
         {
             AspectContext = aspectContext;
