@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>DataAnnotations.Sample</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\src\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
+    <ProjectReference Include="..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\src\AspectCore.Extensions.DataAnnotations\AspectCore.Extensions.DataAnnotations.csproj" />
+    <ProjectReference Include="..\src\AspectCore.Extensions.DataValidation\AspectCore.Extensions.DataValidation.csproj" />
+  </ItemGroup>
+
+</Project>

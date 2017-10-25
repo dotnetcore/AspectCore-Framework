@@ -7,14 +7,14 @@ namespace AspectCore.Extensions.DataValidation
 {
     public sealed class DataValidationContext
     {
-        public IEnumerable<DataValidationDescriptor> DataValidationDescriptors { get; }
+        public IEnumerable<DataMetaData> DataMetaDatas { get; }
 
         public AspectContext AspectContext { get; }
 
         public DataValidationContext(AspectContext aspectContext)
         {
             AspectContext = aspectContext;
-            DataValidationDescriptors = aspectContext.GetParameters().Select(param => new DataValidationDescriptor(param)).ToArray();
+            DataMetaDatas = aspectContext.GetParameters().Select(param => new DataMetaData(param)).ToArray();
         }
     }
 }

@@ -40,7 +40,8 @@ namespace AspectCore.Extensions.DataValidation
 
         private void CheckResolved<T>(T service)
         {
-            throw new InvalidOperationException($"No instance for type '{typeof(T)}' has been resolved.");
+            if (service == null)
+                throw new InvalidOperationException($"No instance for type '{typeof(T)}' has been resolved.");
         }
     }
 }

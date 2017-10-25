@@ -1,47 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+using System.Linq;
+using System.Reflection;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.DataValidation;
-using System.Linq;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Extensions.DataAnnotations
 {
     [NonAspect]
     public class AnnotationDataValidator : IDataValidator
     {
-        public void Validate(DataValidationContext context)
+        private readonly IPropertyValidator _propertyValidator;
+
+        public AnnotationDataValidator(IPropertyValidator propertyValidator)
         {
-            foreach (var descriptor in context.DataValidationDescriptors)
-                Validate(descriptor, context.AspectContext.ServiceProvider);
+            _propertyValidator = propertyValidator ?? throw new ArgumentNullException(nameof(propertyValidator));
         }
 
-        private void Validate(DataValidationDescriptor dataValidationDescriptor, IServiceProvider serviceProvider)
+        public void Validate(DataValidationContext context)
         {
-            var skip = dataValidationDescriptor.Attributes.FirstOrDefault(x => x is SkipValidationAttribute);
+            foreach (var descriptor in context.DataMetaDatas)
+            {
+                Validate(descriptor, context.AspectContext);
+            }
+        }
+
+        private void Validate(DataMetaData dataMetaData, AspectContext aspectContext)
+        {
+            var skip = dataMetaData.Attributes.FirstOrDefault(x => x is SkipValidationAttribute);
             if (skip != null)
             {
-                dataValidationDescriptor.State = DataValidationState.Skipped;
+                dataMetaData.State = DataValidationState.Skipped;
                 return;
             }
-            dataValidationDescriptor.State = DataValidationState.Valid;   
-            foreach (var attribute in dataValidationDescriptor.Attributes)
+            foreach (var property in dataMetaData.Type.GetTypeInfo().GetProperties())
             {
-                if (attribute is ValidationAttribute validation)
-                {
-                    var validationContext = new ValidationContext(dataValidationDescriptor.Value, serviceProvider, null)
-                    {
-                        MemberName = dataValidationDescriptor.MemberName,
-                        DisplayName = dataValidationDescriptor.DisplayName
-                    };
-                    var result = validation.GetValidationResult(dataValidationDescriptor.Value, validationContext);
-                    if (result != ValidationResult.Success)
-                    {
-                        dataValidationDescriptor.State = DataValidationState.Invalid;
-                        dataValidationDescriptor.Errors.Add(new DataValidationError(dataValidationDescriptor.MemberName, result.ErrorMessage));
-                    }
-                }
+                if (!property.CanRead)
+                    continue;
+                var propertyValidationContext = new PropertyValidationContext(new PropertyMetaData(property, dataMetaData.Value), aspectContext);
+                var results = _propertyValidator.Validate(propertyValidationContext).ToList();
+                dataMetaData.State = results.Count == 0 ? DataValidationState.Valid : DataValidationState.Invalid;
+                results.ForEach(result => dataMetaData.Errors.Add(result));
             }
         }
     }

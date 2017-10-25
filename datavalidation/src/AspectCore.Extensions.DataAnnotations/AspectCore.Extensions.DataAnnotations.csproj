@@ -14,10 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\src\AspectCore.Core\AspectCore.Core.csproj" />
     <ProjectReference Include="..\AspectCore.Extensions.DataValidation\AspectCore.Extensions.DataValidation.csproj" />
   </ItemGroup>
 

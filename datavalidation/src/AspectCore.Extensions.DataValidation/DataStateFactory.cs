@@ -7,9 +7,9 @@ namespace AspectCore.Extensions.DataValidation
         public IDataState CreateDataState(DataValidationContext dataValidationContext)
         {
             var dataValidationErrors = new DataValidationErrorCollection();
-            foreach (var error in dataValidationContext.DataValidationDescriptors.SelectMany(x => x.Errors))
+            foreach (var error in dataValidationContext.DataMetaDatas.SelectMany(x => x.Errors))
                 dataValidationErrors.Add(error);
-            var isValid = dataValidationContext.DataValidationDescriptors.All(x => x.State != DataValidationState.Invalid);
+            var isValid = dataValidationContext.DataMetaDatas.All(x => x.State != DataValidationState.Invalid);
             return new DataState(isValid, dataValidationErrors);
         }
     }
