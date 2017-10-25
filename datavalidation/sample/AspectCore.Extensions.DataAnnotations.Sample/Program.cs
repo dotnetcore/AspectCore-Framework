@@ -14,7 +14,7 @@ namespace DataAnnotations.Sample
             //var validationResults = new List<ValidationResult>();
             //var context = new ValidationContext(target, null, null);
             //var isValid = Validator.TryValidateObject(target, context, validationResults, true);
-
+            
             var services = new ServiceContainer();        
             services.AddType<IAccountService, AccountService>();
 

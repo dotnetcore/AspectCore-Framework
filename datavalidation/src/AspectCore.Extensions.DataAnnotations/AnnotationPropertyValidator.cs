@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.DataAnnotations
             {
                 if (attribute is ValidationAttribute validation)
                 {
-                    var validationContext = new ValidationContext(propertyMetaData.Container ?? propertyMetaData.Value, propertyValidationContext.AspectContext.ServiceProvider, null)
+                    var validationContext = new ValidationContext(propertyMetaData.Container ?? propertyMetaData.Value, null, null)
                     {
                         MemberName = propertyMetaData.MemberName,
                         DisplayName = propertyMetaData.DisplayName
