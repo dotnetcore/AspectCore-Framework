@@ -12,9 +12,9 @@ namespace AspectCore.Extensions.AspectScope
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            services.AddType<IAspectScheduler, ScopeAspectScheduler>(Lifetime.Singleton);
+            services.AddType<IAspectScheduler, ScopeAspectScheduler>(Lifetime.Scoped);
             services.AddType<IAspectContextFactory, ScopeAspectContextFactory>(Lifetime.Scoped);
-            services.AddType<IAspectBuilderFactory, ScopeAspectBuilderFactory>(Lifetime.Singleton);
+            services.AddType<IAspectBuilderFactory, ScopeAspectBuilderFactory>(Lifetime.Scoped);
             return services;
         }
     }

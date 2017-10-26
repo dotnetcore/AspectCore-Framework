@@ -34,19 +34,5 @@ namespace AspectCore.DynamicProxy
             var serviceResolver = _serviceContainer.Build();
             return new DisposedProxyGenerator(serviceResolver);
         }
-
-        private class EqualityComparer : IEqualityComparer<IInterceptorSelector>
-        {
-            public bool Equals(IInterceptorSelector x, IInterceptorSelector y)
-            {
-                if (x == null || y == null) return false;
-                return x.GetType().Equals(y.GetType());
-            }
-
-            public int GetHashCode(IInterceptorSelector obj)
-            {
-                return obj.GetType().GetHashCode();
-            }
-        }
     }
 }

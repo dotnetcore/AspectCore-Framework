@@ -7,6 +7,6 @@ namespace AspectCore.DynamicProxy
     {
         int Order { get; }
 
-        bool Invoke(MethodInfo method, AspectValidationDelegate next);
+        bool Invoke(AspectValidationContext context, AspectValidationDelegate next);
     }
 }

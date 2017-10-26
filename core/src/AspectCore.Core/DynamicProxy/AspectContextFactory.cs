@@ -3,7 +3,7 @@
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    public class AspectContextFactory : IAspectContextFactory
+    public sealed class AspectContextFactory : IAspectContextFactory
     {
         private static readonly object[] emptyParameters = new object[0];
         private readonly IServiceProvider _serviceProvider;
@@ -13,7 +13,7 @@ namespace AspectCore.DynamicProxy
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public virtual AspectContext CreateContext(AspectActivatorContext activatorContext)
+        public AspectContext CreateContext(AspectActivatorContext activatorContext)
         {
             return new RuntimeAspectContext(_serviceProvider,
                 activatorContext.ServiceMethod,
@@ -22,6 +22,11 @@ namespace AspectCore.DynamicProxy
                 activatorContext.TargetInstance,
                 activatorContext.ProxyInstance,
                 activatorContext.Parameters ?? emptyParameters);
+        }
+
+        public void ReleaseContext(AspectContext aspectContext)
+        {
+            (aspectContext as IDisposable)?.Dispose();
         }
     }
 }

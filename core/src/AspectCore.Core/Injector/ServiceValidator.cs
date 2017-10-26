@@ -16,7 +16,12 @@ namespace AspectCore.Injector
         internal bool TryValidate(ServiceDefinition definition, out Type implementationType)
         {
             implementationType = null;
-       
+
+            if (definition.ServiceType.GetTypeInfo().IsNonAspect())
+            {
+                return false;
+            }
+
             implementationType = definition.GetImplementationType();
 
             if (implementationType == null || implementationType == typeof(object))
@@ -41,7 +46,7 @@ namespace AspectCore.Injector
                 }
             }
 
-            return _aspectValidator.Validate(definition.ServiceType) || _aspectValidator.Validate(implementationType);
+            return _aspectValidator.Validate(definition.ServiceType, true) || _aspectValidator.Validate(implementationType, false);
         }
     }
 }

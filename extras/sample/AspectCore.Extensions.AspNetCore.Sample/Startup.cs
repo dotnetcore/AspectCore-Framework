@@ -44,7 +44,7 @@ namespace AspectCore.Extensions.AspNetCore.Sample
 
             services.AddDynamicProxy(config =>
             {
-                config.AddMethodExecuteLogger(Predicates.ForService("*"));
+                config.AddMethodExecuteLogging(Predicates.ForService("*"));
             });
 
             return services.ToServiceContainer().Build();

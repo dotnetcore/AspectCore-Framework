@@ -27,13 +27,13 @@ namespace AspectCore.Extensions.Autofac.WebSample
             services.AddTransient<IValuesService, ValuesService>();
 
             ContainerBuilder builder = new ContainerBuilder();
-
-            builder.Populate(services);
-
+     
             builder.RegisterDynamicProxy(config =>
             {
                 config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
             });
+
+            builder.Populate(services);
 
             var container = builder.Build();
 

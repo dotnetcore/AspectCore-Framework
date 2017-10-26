@@ -11,6 +11,7 @@ namespace AspectCore.DynamicProxy
     public sealed class ProxyTypeGenerator : IProxyTypeGenerator
     {
         private readonly IAspectValidator _aspectValidator;
+        private readonly ProxyGeneratorUtils _proxyGeneratorUtils;
 
         public ProxyTypeGenerator(IAspectValidatorBuilder aspectValidatorBuilder)
         {
@@ -19,6 +20,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(aspectValidatorBuilder));
             }
             _aspectValidator = aspectValidatorBuilder.Build();
+            _proxyGeneratorUtils = new ProxyGeneratorUtils();
         }
 
         public Type CreateClassProxyType(Type serviceType, Type implementationType)
@@ -31,7 +33,7 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
             }
-            return ProxyGeneratorUtils.CreateClassProxy(serviceType, implementationType, GetInterfaces(implementationType).ToArray(), _aspectValidator);
+            return _proxyGeneratorUtils.CreateClassProxy(serviceType, implementationType, GetInterfaces(implementationType).ToArray(), _aspectValidator);
         }
 
         public Type CreateInterfaceProxyType(Type serviceType)
@@ -45,7 +47,7 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
             }
-            return ProxyGeneratorUtils.CreateInterfaceProxy(serviceType, GetInterfaces(serviceType, serviceType).ToArray(), _aspectValidator);
+            return _proxyGeneratorUtils.CreateInterfaceProxy(serviceType, GetInterfaces(serviceType, serviceType).ToArray(), _aspectValidator);
         }
 
         public Type CreateInterfaceProxyType(Type serviceType, Type implementationType)
@@ -59,7 +61,7 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
             }
-            return ProxyGeneratorUtils.CreateInterfaceProxy(serviceType, implementationType, GetInterfaces(implementationType, serviceType).ToArray(), _aspectValidator);
+            return _proxyGeneratorUtils.CreateInterfaceProxy(serviceType, implementationType, GetInterfaces(implementationType, serviceType).ToArray(), _aspectValidator);
         }
 
         private IEnumerable<Type> GetInterfaces(Type type, params Type[] exceptInterfaces)

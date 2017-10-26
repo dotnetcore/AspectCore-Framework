@@ -10,7 +10,7 @@ using AspectCore.Utils;
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    internal sealed class RuntimeAspectContext : AspectContext
+    internal sealed class RuntimeAspectContext : AspectContext,IDisposable
     {
         private volatile IDictionary<string, object> _data;
         private IServiceProvider _serviceProvider;
@@ -71,38 +71,6 @@ namespace AspectCore.DynamicProxy
             Parameters = parameters;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (_disposedValue)
-            {
-                return;
-            }
-
-            if (!disposing)
-            {
-                return;
-            }
-
-            if (_data == null)
-            {
-                _disposedValue = true;
-                return;
-            }
-
-            foreach (var key in _data.Keys.ToArray())
-            {
-                _data.TryGetValue(key, out object value);
-
-                var disposable = value as IDisposable;
-
-                disposable?.Dispose();
-
-                _data.Remove(key);
-            }
-
-            _disposedValue = true;
-        }
-
         public override Task Complete()
         {
             if (_implementation == null || _implementationMethod == null)
@@ -128,6 +96,33 @@ namespace AspectCore.DynamicProxy
         public override Task Invoke(AspectDelegate next)
         {
             return next(this);
+        }
+
+        public void Dispose()
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
+            if (_data == null)
+            {
+                _disposedValue = true;
+                return;
+            }
+
+            foreach (var key in _data.Keys.ToArray())
+            {
+                _data.TryGetValue(key, out object value);
+
+                var disposable = value as IDisposable;
+
+                disposable?.Dispose();
+
+                _data.Remove(key);
+            }
+
+            _disposedValue = true;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace AspectCore.Extensions.AspNetCore
 {
     public static class ConfigurationExtensions
     {
-        public static IAspectConfiguration AddMethodExecuteLogger(this IAspectConfiguration configuration, params AspectPredicate[] predicates)
+        public static IAspectConfiguration AddMethodExecuteLogging(this IAspectConfiguration configuration, params AspectPredicate[] predicates)
         {
             if (configuration == null)
             {

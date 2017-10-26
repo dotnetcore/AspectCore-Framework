@@ -8,16 +8,16 @@ namespace AspectCore.DynamicProxy
     {
         public int Order { get; } = 13;
 
-        public bool Invoke(MethodInfo method, AspectValidationDelegate next)
+        public bool Invoke(AspectValidationContext context, AspectValidationDelegate next)
         {
-            var declaringType = method.DeclaringType.GetTypeInfo();
+            var declaringType = context.Method.DeclaringType.GetTypeInfo();
 
-            if (IsAttributeAspect(declaringType) || IsAttributeAspect(method))
+            if (IsAttributeAspect(declaringType) || IsAttributeAspect(context.Method))
             {
                 return true;
             }
 
-            return next(method);
+            return next(context);
         }
 
         private bool IsAttributeAspect(MemberInfo member)

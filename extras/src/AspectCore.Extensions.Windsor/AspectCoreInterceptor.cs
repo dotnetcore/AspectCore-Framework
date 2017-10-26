@@ -25,7 +25,7 @@ namespace AspectCore.Extensions.Windsor
 
         public void Intercept(IInvocation invocation)
         {
-            if (!_aspectValidator.Validate(invocation.Method))
+            if (!_aspectValidator.Validate(invocation.Method, true))
             {
                 invocation.Proceed();
                 return;

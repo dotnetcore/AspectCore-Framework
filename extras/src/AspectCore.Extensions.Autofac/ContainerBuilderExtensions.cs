@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Configuration;
@@ -15,6 +16,18 @@ namespace AspectCore.Extensions.Autofac
     public static class ContainerBuilderExtensions
     {
         #region RegisterDynamicProxy
+        private static readonly List<string> excepts = new List<string>
+        {
+            "Microsoft.Extensions.Logging",
+            "Microsoft.Extensions.Options",
+            "System",
+            "System.*",
+            "IHttpContextAccessor",
+            "ITelemetryInitializer",
+            "IHostingEnvironment",
+            "Autofac.*",
+            "Autofac"
+        };
 
         public static ContainerBuilder RegisterDynamicProxy(this ContainerBuilder containerBuilder, Action<IAspectConfiguration> configure = null)
         {
@@ -29,6 +42,11 @@ namespace AspectCore.Extensions.Autofac
                 throw new ArgumentNullException(nameof(containerBuilder));
             }
             configuration = configuration ?? new AspectConfiguration();
+
+            configuration.NonAspectPredicates.
+                AddNamespace("Autofac").
+                AddNamespace("Autofac.*");
+
             configure?.Invoke(configuration);
 
             containerBuilder.RegisterInstance<IAspectConfiguration>(configuration).SingleInstance();
@@ -82,13 +100,17 @@ namespace AspectCore.Extensions.Autofac
             {
                 return;
             }
+            if (excepts.Any(x => limitType.Name.Matches(x)) || excepts.Any(x => limitType.Namespace.Matches(x)))
+            {
+                return;
+            }
             var services = e.Component.Services.Select(x => ((IServiceWithType)x).ServiceType).ToList();
-            if (services.Any(x => !x.GetTypeInfo().CanInherited()))
+            if (!services.All(x => x.GetTypeInfo().CanInherited()) || services.All(x => x.GetTypeInfo().IsNonAspect()))
             {
                 return;
             }
             var aspectValidator = new AspectValidatorBuilder(e.Context.Resolve<IAspectConfiguration>()).Build();
-            if (services.All(x => !aspectValidator.Validate(x)) && !aspectValidator.Validate(limitType))
+            if (services.All(x => !aspectValidator.Validate(x, true)) && !aspectValidator.Validate(limitType, false))
             {
                 return;
             }
