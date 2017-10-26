@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Views.Manage
+namespace AspNetCore.Sample.Views.Manage
 {
     public static class ManageNavPages
     {

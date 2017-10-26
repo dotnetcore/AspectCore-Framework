@@ -1,9 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.AspectScope;
+using AspectCore.Extensions.AspNetCore.Filters;
+using AspectCore.Extensions.DataAnnotations;
+using AspectCore.Extensions.DataValidation;
+using AspectCore.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AspectCore.Extensions.AspNetCore
 {
@@ -15,9 +20,31 @@ namespace AspectCore.Extensions.AspNetCore
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            services.AddScoped<IAspectScheduler, ScopeAspectScheduler>();
-            services.AddScoped<IAspectContextFactory, ScopeAspectContextFactory>();
-            services.AddScoped<IAspectBuilderFactory, ScopeAspectBuilderFactory>();
+            services.Replace(ServiceDescriptor.Scoped<IAspectScheduler, ScopeAspectScheduler>());
+            services.Replace(ServiceDescriptor.Scoped<IAspectContextFactory, ScopeAspectContextFactory>());
+            services.Replace(ServiceDescriptor.Scoped<IAspectBuilderFactory, ScopeAspectBuilderFactory>());
+            return services;
+        }
+
+        public static IServiceCollection AddDataAnnotations(this IServiceCollection services, params AspectPredicate[] predicates)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+            services.Replace(ServiceDescriptor.Transient<IDataValidator, AnnotationDataValidator>());
+            services.Replace(ServiceDescriptor.Transient<IPropertyValidator, AnnotationPropertyValidator>());
+            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.TryAddTransient<IDataStateFactory, DataStateFactory>();
+            services.AddDynamicProxy(config =>
+            {
+                config.Interceptors.AddTyped<DataValidationInterceptorAttribute>(predicates);
+                config.Interceptors.AddTyped<ModelBindingAdapterAttribute>(predicates);
+            });
+            services.AddMvc(config =>
+            {
+                config.Filters.Add<ModelStateAdapterAttribute>();
+            });
             return services;
         }
     }

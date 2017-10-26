@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Models.AccountViewModels
+namespace AspNetCore.Sample.Models.AccountViewModels
 {
     public class LoginWithRecoveryCodeViewModel
     {

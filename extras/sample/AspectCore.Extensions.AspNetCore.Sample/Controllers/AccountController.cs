@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using AspectCore.Extensions.AspNetCore.Sample.Models;
-using AspectCore.Extensions.AspNetCore.Sample.Models.AccountViewModels;
-using AspectCore.Extensions.AspNetCore.Sample.Services;
+using AspNetCore.Sample.Models;
+using AspNetCore.Sample.Models.AccountViewModels;
+using AspNetCore.Sample.Services;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Controllers
+namespace AspNetCore.Sample.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]

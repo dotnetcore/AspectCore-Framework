@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AspectCore.Configuration;
+using AspectCore.Extensions.AspNetCore;
+using AspectCore.Extensions.DependencyInjection;
+using AspectCore.Injector;
+using AspNetCore.Sample.Data;
+using AspNetCore.Sample.Models;
+using AspNetCore.Sample.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AspectCore.Extensions.AspNetCore.Sample.Data;
-using AspectCore.Extensions.AspNetCore.Sample.Models;
-using AspectCore.Extensions.AspNetCore.Sample.Services;
-using AspectCore.Extensions.DependencyInjection;
-using AspectCore.Extensions.AspectScope;
-using AspectCore.Injector;
-using AspectCore.Configuration;
 
-namespace AspectCore.Extensions.AspNetCore.Sample
+namespace AspNetCore.Sample
 {
     public class Startup
     {
@@ -44,8 +41,12 @@ namespace AspectCore.Extensions.AspNetCore.Sample
 
             services.AddDynamicProxy(config =>
             {
-                config.AddMethodExecuteLogging(Predicates.ForService("*"));
+                config.AddMethodExecuteLogging(/*Predicates.ForService("*")*/);
             });
+
+            services.AddDataAnnotations();
+
+            services.AddTransient<IBookService, BookService>();
 
             return services.ToServiceContainer().Build();
         }
