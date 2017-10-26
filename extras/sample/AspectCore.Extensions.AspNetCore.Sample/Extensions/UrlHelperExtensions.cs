@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AspectCore.Extensions.AspNetCore.Sample.Controllers;
+using AspNetCore.Sample.Controllers;
 
 namespace Microsoft.AspNetCore.Mvc
 {

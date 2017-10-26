@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.Sample.Models;
 
 namespace AspNetCore.Sample.Services
 {
-    public interface IEmailSender
+    public interface IBookService
     {
-        Task SendEmailAsync(string email, string subject, string message);
+        void Create(CreateBookDto dto);
     }
 }

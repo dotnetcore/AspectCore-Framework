@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using AspectCore.Extensions.AspNetCore.Sample.Models;
+using AspNetCore.Sample.Models;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Controllers
+namespace AspNetCore.Sample.Controllers
 {
     public class HomeController : Controller
     {

@@ -7,7 +7,7 @@ namespace AspectCore.Extensions.DataAnnotations
 {
     public static class ServiceContainerExtensions
     {
-        public static IServiceContainer AddDataAnnotations(this IServiceContainer services)
+        public static IServiceContainer AddDataAnnotations(this IServiceContainer services, params AspectPredicate[] predicates)
         {
             if (services == null)
             {
@@ -16,7 +16,7 @@ namespace AspectCore.Extensions.DataAnnotations
             services.AddType<IDataValidator, AnnotationDataValidator>();
             services.AddType<IPropertyValidator, AnnotationPropertyValidator>();
             services.AddType<IDataStateFactory, DataStateFactory>();
-            services.Configuration.Interceptors.AddTyped<DataValidationInterceptorAttribute>();
+            services.Configuration.Interceptors.AddTyped<DataValidationInterceptorAttribute>(predicates);
             return services;
         }
     }

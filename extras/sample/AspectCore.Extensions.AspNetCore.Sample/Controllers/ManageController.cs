@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using AspectCore.Extensions.AspNetCore.Sample.Models;
-using AspectCore.Extensions.AspNetCore.Sample.Models.ManageViewModels;
-using AspectCore.Extensions.AspNetCore.Sample.Services;
+using AspNetCore.Sample.Models;
+using AspNetCore.Sample.Models.ManageViewModels;
+using AspNetCore.Sample.Services;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Controllers
+namespace AspNetCore.Sample.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]
@@ -495,7 +495,7 @@ namespace AspectCore.Extensions.AspNetCore.Sample.Controllers
         {
             return string.Format(
                 AuthenicatorUriFormat,
-                _urlEncoder.Encode("AspectCore.Extensions.AspNetCore.Sample"),
+                _urlEncoder.Encode("AspNetCore.Sample"),
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }

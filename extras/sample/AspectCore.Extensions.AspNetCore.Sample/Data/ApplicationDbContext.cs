@@ -4,10 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using AspectCore.Extensions.AspNetCore.Sample.Models;
+using AspNetCore.Sample.Models;
+using AspectCore.DynamicProxy;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Data
+namespace AspNetCore.Sample.Data
 {
+    //todo fix ApplicationDbContext proxy
+    [NonAspect]
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
