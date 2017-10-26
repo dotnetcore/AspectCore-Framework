@@ -217,4 +217,24 @@ namespace AspectCore.Tests
     {
         public string Val { get; set; }
     }
+
+    public interface IFakeExplicitImplementation
+    {
+        string GetVal();
+
+        string GetVal_NonAspect();
+    }
+
+    public class FakeExplicitImplementation : IFakeExplicitImplementation
+    {
+        string IFakeExplicitImplementation.GetVal()
+        {
+            return "lemon";
+        }
+        
+        string IFakeExplicitImplementation.GetVal_NonAspect()
+        {
+            return "lemon";
+        }
+    }
 }

@@ -44,7 +44,7 @@ namespace AspNetCore.Sample
                 config.AddMethodExecuteLogging(/*Predicates.ForService("*")*/);
             });
 
-            services.AddDataAnnotations();
+            //services.AddDataAnnotations();
 
             services.AddTransient<IBookService, BookService>();
 

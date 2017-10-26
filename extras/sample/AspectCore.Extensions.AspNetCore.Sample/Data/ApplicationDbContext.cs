@@ -10,7 +10,6 @@ using AspectCore.DynamicProxy;
 namespace AspNetCore.Sample.Data
 {
     //todo fix ApplicationDbContext proxy
-    [NonAspect]
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

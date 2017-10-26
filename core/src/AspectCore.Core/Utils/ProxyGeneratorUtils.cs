@@ -486,13 +486,13 @@ namespace AspectCore.Utils
                     var parameters = method.GetParameterTypes();
                     ilGen.EmitThis();
                     ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
+                    ilGen.EmitCastToType(implementationMethod.DeclaringType.GetTypeInfo(), method.DeclaringType.GetTypeInfo());
                     for (int i = 1; i <= parameters.Length; i++)
                     {
                         ilGen.EmitLoadArg(i);
                     }
-
-
-                    ilGen.Emit(implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implementationMethod);
+                    var callOpCode = implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call;
+                    ilGen.Emit(callOpCode, implementationMethod.IsExplicit() ? method : implementationMethod);
                     ilGen.Emit(OpCodes.Ret);
                 }
 

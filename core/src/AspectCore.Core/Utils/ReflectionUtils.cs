@@ -75,12 +75,26 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
+            if (methodInfo.IsExplicit())
+            {
+                return true;
+            }
             var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
             if (typeInfo.IsClass)
             {
                 return false;
             }
             return true;
+        }
+
+        internal static bool IsExplicit(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+            return methodInfo.Attributes.HasFlag(MethodAttributes.Private | MethodAttributes.Final |
+                                                 MethodAttributes.Virtual);
         }
 
         internal static string GetDisplayName(this PropertyInfo member)
