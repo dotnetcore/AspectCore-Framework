@@ -45,6 +45,7 @@ namespace AspectCore.Extensions.AspNetCore
                 config.Filters.Add<ModelStateAdapterAttribute>();
             });
             services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IHttpContextFactory, HttpContextFactory>();
             return services;
         }
     }

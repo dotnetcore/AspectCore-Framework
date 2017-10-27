@@ -237,7 +237,7 @@ namespace AspectCore.Utils
                 //define private field
                 var fieldTable = FieldBuilderUtils.DefineFields(serviceType, typeBuilder);
 
-                return new TypeDesc(typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
+                return new TypeDesc(serviceType, typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
             }
         }
 
@@ -484,18 +484,70 @@ namespace AspectCore.Utils
                 {
                     var ilGen = methodBuilder.GetILGenerator();
                     var parameters = method.GetParameterTypes();
-                    ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
-                    ilGen.EmitCastToType(implementationMethod.DeclaringType.GetTypeInfo(), method.DeclaringType.GetTypeInfo());
-                    for (int i = 1; i <= parameters.Length; i++)
+                    if (typeDesc.ServiceType.GetTypeInfo().IsInterface || !implementationMethod.IsExplicit())
                     {
-                        ilGen.EmitLoadArg(i);
+                        ilGen.EmitThis();
+                        ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
+                        for (int i = 1; i <= parameters.Length; i++)
+                        {
+                            ilGen.EmitLoadArg(i);
+                        }
+                        var callOpCode = implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call;
+                        ilGen.Emit(callOpCode, implementationMethod.IsExplicit() ? method : implementationMethod);
                     }
-                    var callOpCode = implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call;
-                    ilGen.Emit(callOpCode, implementationMethod.IsExplicit() ? method : implementationMethod);
+                    else
+                    {
+                        var reflectorLocal = ilGen.DeclareLocal(typeof(MethodReflector));
+                        var argsLocal = ilGen.DeclareLocal(typeof(object[]));
+                        var returnLocal = ilGen.DeclareLocal(typeof(object));
+                        ilGen.EmitMethod(implementationMethod);
+                        ilGen.Emit(OpCodes.Call, MethodUtils.GetMethodReflector);
+                        ilGen.Emit(OpCodes.Stloc, reflectorLocal);
+                        ilGen.EmitInt(parameters.Length);
+                        ilGen.Emit(OpCodes.Newarr, typeof(object));
+                        for (var i = 0; i < parameters.Length; i++)
+                        {
+                            ilGen.Emit(OpCodes.Dup);
+                            ilGen.EmitInt(i);
+                            ilGen.EmitLoadArg(i + 1);
+                            if (parameters[i].IsByRef)
+                            {
+                                ilGen.EmitLdRef(parameters[i]);
+                                ilGen.EmitConvertToObject(parameters[i].GetElementType());
+                            }
+                            else
+                            {
+                                ilGen.EmitConvertToObject(parameters[i]);
+                            }
+                            ilGen.Emit(OpCodes.Stelem_Ref);
+                        }
+                        ilGen.Emit(OpCodes.Stloc, argsLocal);
+                        ilGen.Emit(OpCodes.Ldloc, reflectorLocal);
+                        ilGen.EmitThis();
+                        ilGen.Emit(OpCodes.Ldloc, argsLocal);
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.ReflectorInvoke);
+                        ilGen.Emit(OpCodes.Stloc, returnLocal);
+                        for (var i = 0; i < parameters.Length; i++)
+                        {
+                            if (parameters[i].IsByRef)
+                            {
+                                ilGen.EmitLoadArg(i + 1);
+                                ilGen.Emit(OpCodes.Ldloc, argsLocal);
+                                ilGen.EmitInt(i);
+                                ilGen.Emit(OpCodes.Ldelem_Ref);
+                                ilGen.EmitConvertFromObject(parameters[i].GetElementType());
+                                ilGen.EmitStRef(parameters[i]);
+                            }
+                        }
+                        if (!method.IsVoid())
+                        {
+                            ilGen.Emit(OpCodes.Ldloc, returnLocal);
+                            ilGen.EmitConvertFromObject(method.ReturnType);
+                        }
+                    }
                     ilGen.Emit(OpCodes.Ret);
                 }
-
+                
                 void EmitProxyMethodBody()
                 {
                     var ilGen = methodBuilder.GetILGenerator();
@@ -1041,9 +1093,12 @@ namespace AspectCore.Utils
             public MethodConstantTable MethodConstants { get; }
 
             public Dictionary<string, object> Properties { get; }
+            
+            public Type ServiceType { get;}
 
-            public TypeDesc(TypeBuilder typeBuilder, FieldTable fields, MethodConstantTable methodConstants)
+            public TypeDesc(Type serviceType, TypeBuilder typeBuilder, FieldTable fields, MethodConstantTable methodConstants)
             {
+                ServiceType = serviceType;
                 Builder = typeBuilder;
                 Fields = fields;
                 MethodConstants = methodConstants;

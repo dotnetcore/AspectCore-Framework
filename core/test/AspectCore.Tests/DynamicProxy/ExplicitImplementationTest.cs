@@ -10,17 +10,19 @@ namespace AspectCore.Tests.DynamicProxy
         public void ExplicitImplementation_NonAspect_Test()
         {
             var service =
-                ProxyGenerator.CreateInterfaceProxy<IFakeExplicitImplementation, FakeExplicitImplementation>();
-            var result = service.GetVal_NonAspect();
+                ProxyGenerator.CreateClassProxy<FakeExplicitImplementation>();
+            var result = ((IFakeExplicitImplementation)service).GetVal_NonAspect();
             Assert.Equal("lemon", result);
+            var result2 = ((IFakeExplicitImplementation)service).GetVal2();
+            Assert.Equal(1, result2);
         }
         
         [Fact]
         public void ExplicitImplementation_Aspect_Test()
         {
             var service =
-                ProxyGenerator.CreateInterfaceProxy<IFakeExplicitImplementation, FakeExplicitImplementation>();
-            var result = service.GetVal();
+                ProxyGenerator.CreateClassProxy<FakeExplicitImplementation>();
+            var result = ((IFakeExplicitImplementation)service).GetVal();
             Assert.Equal("lemon", result);
         }
 

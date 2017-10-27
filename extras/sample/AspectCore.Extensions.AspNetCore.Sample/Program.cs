@@ -14,7 +14,14 @@ namespace AspNetCore.Sample
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            try
+            {
+                BuildWebHost(args).Run();
+            }
+           catch(Exception ex)
+           {
+                Console.WriteLine(ex);
+           }
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

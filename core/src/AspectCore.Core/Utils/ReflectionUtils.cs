@@ -97,6 +97,11 @@ namespace AspectCore.DynamicProxy
                                                  MethodAttributes.Virtual);
         }
 
+        internal static bool IsVoid(this MethodInfo methodInfo)
+        {
+            return methodInfo.ReturnType == typeof(void);
+        }
+
         internal static string GetDisplayName(this PropertyInfo member)
         {
             if (member == null)

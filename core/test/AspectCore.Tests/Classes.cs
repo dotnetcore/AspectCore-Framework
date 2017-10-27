@@ -26,7 +26,6 @@ namespace AspectCore.Tests
         void Foo();
     }
 
-
     public class Transient : ServiceBase, ITransient, IDelegateTransient
     {
         public virtual void Foo()
@@ -223,6 +222,8 @@ namespace AspectCore.Tests
         string GetVal();
 
         string GetVal_NonAspect();
+
+        int GetVal2();
     }
 
     public class FakeExplicitImplementation : IFakeExplicitImplementation
@@ -231,7 +232,12 @@ namespace AspectCore.Tests
         {
             return "lemon";
         }
-        
+
+        int IFakeExplicitImplementation.GetVal2()
+        {
+            return 1;
+        }
+
         string IFakeExplicitImplementation.GetVal_NonAspect()
         {
             return "lemon";
