@@ -41,7 +41,7 @@ namespace AspNetCore.Sample
 
             services.AddDynamicProxy(config =>
             {
-                config.AddMethodExecuteLogging(/*Predicates.ForService("*")*/);
+                config.AddMethodExecuteLogging(m =>/* m.DeclaringType != typeof(Microsoft.AspNetCore.Http.IHttpContextFactory) &&*/ m.DeclaringType != typeof(Microsoft.AspNetCore.Http.IHttpContextAccessor));
             });
 
             services.AddDataAnnotations();

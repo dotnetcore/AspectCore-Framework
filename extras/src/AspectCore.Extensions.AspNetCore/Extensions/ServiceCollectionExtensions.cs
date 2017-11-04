@@ -33,8 +33,7 @@ namespace AspectCore.Extensions.AspNetCore
                 throw new ArgumentNullException(nameof(services));
             }
             services.Replace(ServiceDescriptor.Transient<IDataValidator, AnnotationDataValidator>());
-            services.Replace(ServiceDescriptor.Transient<IPropertyValidator, AnnotationPropertyValidator>());
-            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.Replace(ServiceDescriptor.Transient<IPropertyValidator, AnnotationPropertyValidator>());     
             services.TryAddTransient<IDataStateFactory, DataStateFactory>();
             services.AddDynamicProxy(config =>
             {
@@ -45,6 +44,8 @@ namespace AspectCore.Extensions.AspNetCore
             {
                 config.Filters.Add<ModelStateAdapterAttribute>();
             });
+            services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IHttpContextFactory, HttpContextFactory>();
             return services;
         }
     }
