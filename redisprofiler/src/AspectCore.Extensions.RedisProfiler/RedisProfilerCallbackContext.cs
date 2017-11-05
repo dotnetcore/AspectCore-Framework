@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AspectCore.Extensions.RedisProfiler
 {
-    public class RedisProfilerCallbackContext
+    public sealed class RedisProfilerCallbackContext
     {
 
     }

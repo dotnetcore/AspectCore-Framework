@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
+using AspectCore.Injector;
 using StackExchange.Redis;
 
 namespace AspectCore.Extensions.RedisProfiler
 {
-    public class DatabaseProxyInterceptor : AbstractInterceptor
+    public sealed class DatabaseProxyInterceptor : AbstractInterceptor
     {
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
@@ -14,7 +15,7 @@ namespace AspectCore.Extensions.RedisProfiler
                 var database = (IDatabase)context.ReturnValue;
                 if (!database.IsProxy())
                 {
-                    var proxyGenerator = (IProxyGenerator)context.ServiceProvider.GetService(typeof(IProxyGenerator));
+                    var proxyGenerator = context.ServiceProvider.Resolve<IProxyGenerator>();
                     context.ReturnValue = proxyGenerator.CreateInterfaceProxy<IDatabase>(database);
                 }
             }

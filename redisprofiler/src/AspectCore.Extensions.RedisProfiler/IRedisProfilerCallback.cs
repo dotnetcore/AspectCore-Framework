@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.RedisProfiler
 {
+    [NonAspect]
     public interface IRedisProfilerCallback
     {
-        Task ExecuteAsync(RedisProfilerCallbackContext callbackContext);
+        Task Invoke(RedisProfilerCallbackContext callbackContext);
     }
 }
