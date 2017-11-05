@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.Injector;
 using StackExchange.Redis;
@@ -18,7 +19,8 @@ namespace AspectCore.Extensions.RedisProfiler
             connectionMultiplexer.BeginProfiling(profilerContext);
             await context.Invoke(next);
             var profiledCommands = connectionMultiplexer.FinishProfiling(profilerContext);
-            redisProfilerCallbackHandler.HandleAsync(null);
+            redisProfilerCallbackHandler.HandleAsync(new RedisProfilerCallbackHandlerContext(
+                profiledCommands.Select(x => RedisProfiledCommand.Create(x.Command, x.EndPoint, x.Db, x.CommandCreated, x.ElapsedTime)).ToArray()));
             AspectRedisDatabaseProfilerContext.Context = null;
         }
     }

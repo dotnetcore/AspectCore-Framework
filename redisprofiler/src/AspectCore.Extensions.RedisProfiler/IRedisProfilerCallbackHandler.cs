@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.RedisProfiler
@@ -12,8 +9,3 @@ namespace AspectCore.Extensions.RedisProfiler
         Task HandleAsync(RedisProfilerCallbackHandlerContext profilerContext);
     }
 }
-
-//var callbacks = context.ServiceProvider.ResolveMany<IRedisProfilerCallback>();
-//var callbackContext = new RedisProfilerCallbackContext();
-//foreach (var callback in callbacks)
-//    callback.Invoke(callbackContext);
