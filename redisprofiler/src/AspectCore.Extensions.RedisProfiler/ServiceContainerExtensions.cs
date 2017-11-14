@@ -22,7 +22,7 @@ namespace AspectCore.Extensions.RedisProfiler
             services.AddType<IRedisProfilerCallbackHandler, RedisProfilerCallbackHandler>();
             services.Configure(config =>
             {
-                config.Interceptors.AddTyped<ServerProxyInterceptor>(
+                config.Interceptors.AddTyped<RedisProfilerInterceptor>(
                     Predicates.ForService(typeof(IRedis).FullName),
                     Predicates.ForService(typeof(IRedisAsync).FullName),
                     Predicates.ForService(typeof(IDatabase).FullName),

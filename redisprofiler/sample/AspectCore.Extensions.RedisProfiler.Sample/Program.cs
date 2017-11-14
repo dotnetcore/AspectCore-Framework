@@ -16,24 +16,15 @@ namespace RedisProfiler.Sample
         {
             var services = new ServiceContainer();
 
-            var connection = ConnectionMultiplexer.Connect("192.168.227.147:6379,allowAdmin=true");      
+            var connection = ConnectionMultiplexer.Connect("localhost:6379,allowAdmin=true");
             services.AddInstance<IConnectionMultiplexer>(connection);
 
             #region AddRedisProfiler
 
-            connection.RegisterProfiler(new AspectRedisDatabaseProfiler());
+            services.AddRedisProfiler(connection);
+
             services.AddType<IRedisProfilerCallback, ConsoleProfilerCallback>(Lifetime.Singleton);
-            services.AddType<IRedisProfilerCallbackHandler, RedisProfilerCallbackHandler>();
-            services.Configure(config =>
-            {
-                config.Interceptors.AddTyped<DatabaseProxyInterceptor>(
-                    Predicates.ForMethod("StackExchange.Redis.IConnectionMultiplexer", "GetDatabase"));
-                config.Interceptors.AddTyped<RedisProfilerInterceptor>(
-                    Predicates.ForService("StackExchange.Redis.IDatabase"),
-                    Predicates.ForService("StackExchange.Redis.IDatabaseAsync"),
-                    Predicates.ForService("StackExchange.Redis.IRedis"),
-                    Predicates.ForService("StackExchange.Redis.IRedisAsync"));
-            });
+
             #endregion
 
             var resolver = services.Build();
@@ -53,6 +44,17 @@ namespace RedisProfiler.Sample
 
             db.HashGetAll("hashtest");
 
+            var subscriber = multiplexer.GetSubscriber();
+
+            subscriber.Subscribe("test", (rc, rv) =>
+            {
+                Console.WriteLine("{0}-{1}", rc, rv);
+            });
+
+            subscriber.Publish("test", "Publish test");
+
+            subscriber.Unsubscribe("test");
+
             Console.ReadKey();
         }
     }
@@ -62,7 +64,7 @@ namespace RedisProfiler.Sample
         private readonly LineProtocolClient _lineProtocolClient;
         public ConsoleProfilerCallback()
         {
-            _lineProtocolClient = new LineProtocolClient(new Uri("http://192.168.227.147:8086"), "redis_profiler");
+            _lineProtocolClient = new LineProtocolClient(new Uri("http://localhost.:8186"), "redis_profiler");
         }
 
         public async Task Invoke(RedisProfilerCallbackContext callbackContext)
