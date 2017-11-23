@@ -76,7 +76,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var method = typeof(MethodFakes).GetMethod("GetString");
             var reflector = method.GetReflector();
             var displayName = reflector.DisplayName;
-            Assert.Equal("GetString(Object)", displayName);
+            Assert.Equal("String GetString(Object)", displayName);
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var method = typeof(MethodFakes).GetMethod("GetStringByRef");
             var reflector = method.GetReflector();
             var displayName = reflector.DisplayName;
-            Assert.Equal("GetStringByRef(Object,String&)", displayName);
+            Assert.Equal("Void GetStringByRef(Object,String&)", displayName);
         }
 
         [Fact]
@@ -94,12 +94,12 @@ namespace AspectCore.Extensions.Reflection.Test
             var method = typeof(MethodFakes).GetMethod("GetValue2");
             var reflector = method.GetReflector();
             var displayName = reflector.DisplayName;
-            Assert.Equal("GetValue2<T>()", displayName);
+            Assert.Equal("T GetValue2<T>()", displayName);
 
             method = typeof(MethodFakes<>).GetMethod("GetString");
             reflector = method.GetReflector();
             displayName = reflector.DisplayName;
-            Assert.Equal("GetString(T)", displayName);
+            Assert.Equal("String GetString(T)", displayName);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var method = typeof(MethodFakes).GetMethod("GetValue2").MakeGenericMethod(typeof(string));
             var reflector = method.GetReflector();
             var displayName = reflector.DisplayName;
-            Assert.Equal("GetValue2<String>()", displayName);
+            Assert.Equal("String GetValue2<String>()", displayName);
         }
     }
 
