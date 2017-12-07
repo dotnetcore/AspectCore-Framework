@@ -15,6 +15,7 @@ One of the easiest ways to contribute is to participate in discussions and discu
 ## Contributors
 * [Savorboard](https://github.com/yuleyule66)  
 * [AlexLEWIS](https://github.com/alexinea)
+* [Konrad Banaszek](https://github.com/thecorrado)
 
 ## License
 [MIT](https://github.com/dotnetcore/AspectCore-Framework/blob/master/LICENSE)
