@@ -12,5 +12,9 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 ## Contribute
 One of the easiest ways to contribute is to participate in discussions and discuss issues. You can also contribute by submitting pull requests with code changes.
 
+## Contributors
+* [Savorboard](https://github.com/yuleyule66)  
+* [AlexLEWIS](https://github.com/alexinea)
+
 ## License
 [MIT](https://github.com/dotnetcore/AspectCore-Framework/blob/master/LICENSE)
