@@ -20,7 +20,8 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 ## Who is using
 * [Util](https://github.com/dotnetcore/Util)
 * [shriek-fx](https://github.com/ElderJames/shriek-fx)   
-* [Bing](https://github.com/jianxuanbing/Bing)
+* [Bing(jianxuanbing)](https://github.com/jianxuanbing/Bing)
+* [DotnetSpider](https://github.com/dotnetcore/DotnetSpider)
 
 ## Contributors
 * [Savorboard](https://github.com/yuleyule66)  
