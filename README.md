@@ -7,7 +7,15 @@ Core support for aspect-interceptor,dependency injection integration , web appli
   
 ## Docs
 [IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
-[Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)  
+[Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
+
+## Components
+* [Ioc & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
+* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection) 
+* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
+* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
+* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
+* [Application Metrics](https://github.com/dotnetcore/AspectCore-Metrics)   
 
 ## Who is using
 * [Util](https://github.com/dotnetcore/Util)
