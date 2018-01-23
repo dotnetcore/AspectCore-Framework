@@ -10,7 +10,7 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
 
 ## Components
-* [Ioc & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
+* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
 * [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection) 
 * [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
 * [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
