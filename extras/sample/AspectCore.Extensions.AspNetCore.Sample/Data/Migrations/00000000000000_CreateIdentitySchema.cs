@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Data.Migrations
+namespace AspNetCore.Sample.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

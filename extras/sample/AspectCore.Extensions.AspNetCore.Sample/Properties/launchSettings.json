@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "AspectCore.Extensions.AspNetCore.Sample": {
+    "AspNetCore.Sample": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

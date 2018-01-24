@@ -13,7 +13,7 @@ namespace AspectCore.Extensions.Reflection
         private readonly Func<Attribute> _invoker;
         private readonly Type _attributeType;
 
-        internal readonly int[] _tokens;
+        internal readonly HashSet<RuntimeTypeHandle> _tokens;
 
         public Type AttributeType => _attributeType;
 
@@ -81,17 +81,14 @@ namespace AspectCore.Extensions.Reflection
             return (Func<Attribute>)dynamicMethod.CreateDelegate(typeof(Func<Attribute>));
         }
 
-        private int[] GetAttrTokens(Type attributeType)
+        private HashSet<RuntimeTypeHandle> GetAttrTokens(Type attributeType)
         {
-            var tokenList = new List<int>();
+            var tokenSet = new HashSet<RuntimeTypeHandle>();
             for (var attr = attributeType; attr != typeof(object); attr = attr.GetTypeInfo().BaseType)
             {
-                tokenList.Add(attr.GetTypeInfo().MetadataToken);
+                tokenSet.Add(attr.TypeHandle);
             }
-            var tokens = new int[tokenList.Count];
-            tokenList.CopyTo(tokens);
-            Array.Sort(tokens);
-            return tokens;
+            return tokenSet;
         }
 
         public Attribute Invoke()

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using AspectCore.DynamicProxy;
 
@@ -10,9 +12,9 @@ namespace AspectCore.Extensions.AspectScope
     [NonAspect]
     public sealed class ScopeAspectScheduler : IAspectScheduler
     {
-        private readonly ConcurrentDictionary<ScopeAspectContext, object> _scopedContexts = new ConcurrentDictionary<ScopeAspectContext, object>();
+        private readonly ConcurrentDictionary<AspectContext, int> _entries = new ConcurrentDictionary<AspectContext, int>();
         private readonly IInterceptorCollector _interceptorCollector;
-        private int _idx = 0;
+        private int _version;
 
         public ScopeAspectScheduler(IInterceptorCollector interceptorCollector)
         {
@@ -21,17 +23,12 @@ namespace AspectCore.Extensions.AspectScope
 
         public AspectContext[] GetCurrentContexts()
         {
-            return _scopedContexts.Keys.Where(x => x.RuntimeContext != null).OrderBy(x => x.Id).ToArray();
+            return _entries.OrderBy(x => x.Value).Select(x => x.Key).ToArray();
         }
 
         public bool TryEnter(AspectContext context)
         {
-            if (context is ScopeAspectContext scopedContext)
-            {
-                scopedContext.Id = Interlocked.Increment(ref _idx);
-                return _scopedContexts.TryAdd(scopedContext, null);
-            }
-            return false;
+            return _entries.TryAdd(context, Interlocked.Increment(ref _version));
         }
 
         public bool TryRelate(AspectContext context, IInterceptor interceptor)
@@ -40,23 +37,15 @@ namespace AspectCore.Extensions.AspectScope
             {
                 return false;
             }
-            if (!(context is ScopeAspectContext scopedContext))
-            {
-                return false;
-            }
             if (!(interceptor is IScopeInterceptor scopedInterceptor))
             {
                 return true;
-            }
-            if (!_scopedContexts.ContainsKey(scopedContext))
-            {
-                return false;
             }
             if (scopedInterceptor.Scope == Scope.None)
             {
                 return true;
             }
-            var currentContexts = GetCurrentScopedContexts(scopedContext).ToArray();
+            var currentContexts = GetCurrentContextsInternal(context).ToArray();
             if (currentContexts.Length == 0)
             {
                 return true;
@@ -73,9 +62,9 @@ namespace AspectCore.Extensions.AspectScope
 
             return true;
 
-            IEnumerable<AspectContext> GetCurrentScopedContexts(ScopeAspectContext ctx)
+            IEnumerable<AspectContext> GetCurrentContextsInternal(AspectContext ctx)
             {
-                foreach (var current in GetCurrentContexts().OfType<ScopeAspectContext>().OrderBy(x => x.Id))
+                foreach (var current in GetCurrentContexts())
                 {
                     if (current == ctx)
                         break;
@@ -94,10 +83,10 @@ namespace AspectCore.Extensions.AspectScope
 
         public void Release(AspectContext context)
         {
-            if (_scopedContexts.TryRemove(context as ScopeAspectContext, out _))
+            if(_entries.TryRemove(context, out _))
             {
-                Interlocked.Decrement(ref _idx);
+                Interlocked.Decrement(ref _version);
             }
-        }
+        }   
     }
 }

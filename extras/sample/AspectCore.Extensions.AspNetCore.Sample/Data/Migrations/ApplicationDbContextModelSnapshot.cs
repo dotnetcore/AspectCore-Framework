@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Data.Migrations
+namespace AspNetCore.Sample.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -125,7 +125,7 @@ namespace AspectCore.Extensions.AspNetCore.Sample.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("AspectCore.Extensions.AspNetCore.Sample.Models.ApplicationUser", b =>
+            modelBuilder.Entity("AspNetCore.Sample.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id");
 
@@ -184,7 +184,7 @@ namespace AspectCore.Extensions.AspNetCore.Sample.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("AspectCore.Extensions.AspNetCore.Sample.Models.ApplicationUser")
+                    b.HasOne("AspNetCore.Sample.Models.ApplicationUser")
                         .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -192,7 +192,7 @@ namespace AspectCore.Extensions.AspNetCore.Sample.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("AspectCore.Extensions.AspNetCore.Sample.Models.ApplicationUser")
+                    b.HasOne("AspNetCore.Sample.Models.ApplicationUser")
                         .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -205,7 +205,7 @@ namespace AspectCore.Extensions.AspNetCore.Sample.Data.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("AspectCore.Extensions.AspNetCore.Sample.Models.ApplicationUser")
+                    b.HasOne("AspNetCore.Sample.Models.ApplicationUser")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

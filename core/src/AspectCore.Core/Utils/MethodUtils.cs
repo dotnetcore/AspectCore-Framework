@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using AspectCore.DynamicProxy;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Utils
 {
@@ -22,6 +23,10 @@ namespace AspectCore.Utils
         internal static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.Single();
 
         internal static readonly MethodInfo GetParameters = typeof(AspectActivatorContext).GetTypeInfo().GetMethod("get_Parameters");
+
+        internal static readonly MethodInfo GetMethodReflector = GetMethod<Func<MethodInfo, MethodReflector>>(m => ReflectorExtensions.GetReflector(m));
+
+        internal static readonly MethodInfo ReflectorInvoke = GetMethod<Func<MethodReflector, object, object[], object>>((r, i, a) => r.Invoke(i, a));
 
         private static MethodInfo GetMethod<T>(Expression<T> expression)
         {

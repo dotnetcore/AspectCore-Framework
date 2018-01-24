@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Models.ManageViewModels
+namespace AspNetCore.Sample.Models.ManageViewModels
 {
     public class EnableAuthenticatorViewModel
     {

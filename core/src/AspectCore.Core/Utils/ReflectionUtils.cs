@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -33,12 +34,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(typeInfo));
             }
 
-            if (typeInfo.IsValueType || typeInfo.IsEnum || typeInfo.IsSealed)
-            {
-                return false;
-            }
-
-            if (typeInfo.IsNonAspect() || typeInfo.IsProxyType())
+            if (typeInfo.IsValueType || typeInfo.IsEnum || typeInfo.IsSealed || typeInfo.IsProxyType())
             {
                 return false;
             }
@@ -70,7 +66,7 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
-            return methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
+            return methodInfo.DeclaringType.GetTypeInfo().IsNonAspect() || methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
         internal static bool IsCallvirt(this MethodInfo methodInfo)
@@ -79,12 +75,31 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
+            if (methodInfo.IsExplicit())
+            {
+                return true;
+            }
             var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
             if (typeInfo.IsClass)
             {
                 return false;
             }
             return true;
+        }
+
+        internal static bool IsExplicit(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+            return methodInfo.Attributes.HasFlag(MethodAttributes.Private | MethodAttributes.Final |
+                                                 MethodAttributes.Virtual);
+        }
+
+        internal static bool IsVoid(this MethodInfo methodInfo)
+        {
+            return methodInfo.ReturnType == typeof(void);
         }
 
         internal static string GetDisplayName(this PropertyInfo member)

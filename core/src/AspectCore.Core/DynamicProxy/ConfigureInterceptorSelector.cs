@@ -20,10 +20,20 @@ namespace AspectCore.DynamicProxy
 
         public IEnumerable<IInterceptor> Select(MethodInfo method)
         {
-            return _aspectConfiguration.Interceptors
-                .Where(x => x.CanCreated(method))
-                .Select(x => x.CreateInstance(_serviceProvider))
-                .OfType<IInterceptor>();
+            //todo fix nonaspect
+            foreach (var interceptorFactory in _aspectConfiguration.Interceptors)
+            {
+                if (interceptorFactory.Predicates.Length != 0)
+                {
+                    if (interceptorFactory.CanCreated(method))
+                        yield return interceptorFactory.CreateInstance(_serviceProvider);
+                }
+                else
+                {
+                    if (!_aspectConfiguration.NonAspectPredicates.Any(x => x(method)))
+                        yield return interceptorFactory.CreateInstance(_serviceProvider);
+                }
+            }
         }
     }
 }

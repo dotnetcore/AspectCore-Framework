@@ -1,6 +1,6 @@
 using System;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Models
+namespace AspNetCore.Sample.Models
 {
     public class ErrorViewModel
     {

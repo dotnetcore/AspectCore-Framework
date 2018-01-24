@@ -16,18 +16,20 @@ namespace AspectCore.Utils
     {
         private const string ProxyNameSpace = "AspectCore.DynamicGenerated";
         private const string ProxyAssemblyName = "AspectCore.DynamicProxy.Generator";
-        private static readonly ModuleBuilder _moduleBuilder;
-        private static readonly Dictionary<string, Type> _definedTypes;
-        private static readonly object _lock = new object();
+        private readonly ModuleBuilder _moduleBuilder;
+        private readonly Dictionary<string, Type> _definedTypes;
+        private readonly object _lock = new object();
+        private readonly ProxyNameUtils _proxyNameUtils;
 
-        static ProxyGeneratorUtils()
+        public ProxyGeneratorUtils()
         {
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(ProxyAssemblyName), AssemblyBuilderAccess.RunAndCollect);
             _moduleBuilder = asmBuilder.DefineDynamicModule("core");
             _definedTypes = new Dictionary<string, Type>();
+            _proxyNameUtils = new ProxyNameUtils();
         }
 
-        internal static Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        internal Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
             {
@@ -36,7 +38,7 @@ namespace AspectCore.Utils
 
             lock (_lock)
             {
-                var name = ProxyNameUtils.GetInterfaceImplTypeFullName(interfaceType);
+                var name = _proxyNameUtils.GetInterfaceImplTypeFullName(interfaceType);
                 if (!_definedTypes.TryGetValue(name, out Type type))
                 {
                     type = CreateInterfaceImplInternal(name, interfaceType, additionalInterfaces, aspectValidator);
@@ -46,7 +48,7 @@ namespace AspectCore.Utils
             }
         }
 
-        internal static Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        internal Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
             {
@@ -55,7 +57,7 @@ namespace AspectCore.Utils
 
             lock (_lock)
             {
-                var name = ProxyNameUtils.GetProxyTypeName(interfaceType, implType);
+                var name = _proxyNameUtils.GetProxyTypeName(interfaceType, implType);
                 if (!_definedTypes.TryGetValue(name, out Type type))
                 {
                     type = CreateInterfaceProxyInternal(name, interfaceType, implType, additionalInterfaces, aspectValidator);
@@ -65,7 +67,7 @@ namespace AspectCore.Utils
             }
         }
 
-        internal static Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        internal Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!serviceType.GetTypeInfo().IsVisible() || !serviceType.GetTypeInfo().IsClass)
             {
@@ -78,7 +80,7 @@ namespace AspectCore.Utils
 
             lock (_lock)
             {
-                var name = ProxyNameUtils.GetProxyTypeName(serviceType, implType);
+                var name = _proxyNameUtils.GetProxyTypeName(serviceType, implType);
                 if (!_definedTypes.TryGetValue(name, out Type type))
                 {
                     type = CreateClassProxyInternal(name, serviceType, implType, additionalInterfaces, aspectValidator);
@@ -88,7 +90,7 @@ namespace AspectCore.Utils
             }
         }
 
-        private static Type CreateInterfaceImplInternal(string name, Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        private Type CreateInterfaceImplInternal(string name, Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaceTypes = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
             var implTypeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Public, typeof(object), interfaceTypes);
@@ -103,7 +105,7 @@ namespace AspectCore.Utils
 
             var implType = implTypeBuilder.CreateTypeInfo().AsType();
 
-            var typeDesc = TypeBuilderUtils.DefineType(ProxyNameUtils.GetProxyTypeName(ProxyNameUtils.GetInterfaceImplTypeName(interfaceType), interfaceType, implType),
+            var typeDesc = TypeBuilderUtils.DefineType(_moduleBuilder, _proxyNameUtils.GetProxyTypeName(_proxyNameUtils.GetInterfaceImplTypeName(interfaceType), interfaceType, implType),
                 interfaceType, typeof(object), interfaceTypes);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
@@ -118,11 +120,11 @@ namespace AspectCore.Utils
             return typeDesc.Compile();
         }
 
-        private static Type CreateInterfaceProxyInternal(string name, Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        private Type CreateInterfaceProxyInternal(string name, Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
 
-            var typeDesc = TypeBuilderUtils.DefineType(name, interfaceType, typeof(object), interfaces);
+            var typeDesc = TypeBuilderUtils.DefineType(_moduleBuilder, name, interfaceType, typeof(object), interfaces);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 
@@ -137,11 +139,11 @@ namespace AspectCore.Utils
             return typeDesc.Compile();
         }
 
-        private static Type CreateClassProxyInternal(string name, Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
+        private Type CreateClassProxyInternal(string name, Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = additionalInterfaces.Distinct().ToArray();
 
-            var typeDesc = TypeBuilderUtils.DefineType(name, serviceType, implType, interfaces);
+            var typeDesc = TypeBuilderUtils.DefineType(_moduleBuilder, name, serviceType, implType, interfaces);
 
             typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
 
@@ -158,10 +160,10 @@ namespace AspectCore.Utils
 
         private class ProxyNameUtils
         {
-            private static readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
-            private static readonly Dictionary<Tuple<Type,Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
+            private readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
+            private readonly Dictionary<Tuple<Type, Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
 
-            private static string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
+            private string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
             {
                 ProxyNameIndex nameIndex;
                 if (!_indexs.TryGetValue(className, out nameIndex))
@@ -181,7 +183,7 @@ namespace AspectCore.Utils
                 return index;
             }
 
-            public static string GetInterfaceImplTypeName(Type interfaceType)
+            public string GetInterfaceImplTypeName(Type interfaceType)
             {
                 var className = interfaceType.GetReflector().DisplayName;
                 if (className.StartsWith("I", StringComparison.Ordinal))
@@ -191,18 +193,18 @@ namespace AspectCore.Utils
                 return className /*+ "Impl"*/;
             }
 
-            public static string GetInterfaceImplTypeFullName(Type interfaceType)
+            public string GetInterfaceImplTypeFullName(Type interfaceType)
             {
                 var className = GetInterfaceImplTypeName(interfaceType);
                 return $"{ProxyNameSpace}.{className}{GetProxyTypeIndex(className, interfaceType, interfaceType)}";
             }
 
-            public static string GetProxyTypeName(Type serviceType, Type implType)
+            public string GetProxyTypeName(Type serviceType, Type implType)
             {
                 return $"{ProxyNameSpace}.{implType.GetReflector().DisplayName}{GetProxyTypeIndex(implType.GetReflector().DisplayName, serviceType, implType)}";
             }
 
-            public static string GetProxyTypeName(string className, Type serviceType, Type implType)
+            public string GetProxyTypeName(string className, Type serviceType, Type implType)
             {
                 return $"{ProxyNameSpace}.{className}{GetProxyTypeIndex(className, serviceType, implType)}";
             }
@@ -220,10 +222,10 @@ namespace AspectCore.Utils
 
         private class TypeBuilderUtils
         {
-            public static TypeDesc DefineType(string name, Type serviceType, Type parentType, Type[] interfaces)
+            public static TypeDesc DefineType(ModuleBuilder moduleBuilder, string name, Type serviceType, Type parentType, Type[] interfaces)
             {
                 //define proxy type for interface service
-                var typeBuilder = _moduleBuilder.DefineType(name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, parentType, interfaces);
+                var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, parentType, interfaces);
 
                 //define genericParameter
                 GenericParameterUtils.DefineGenericParameter(serviceType, typeBuilder);
@@ -235,7 +237,7 @@ namespace AspectCore.Utils
                 //define private field
                 var fieldTable = FieldBuilderUtils.DefineFields(serviceType, typeBuilder);
 
-                return new TypeDesc(typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
+                return new TypeDesc(serviceType, typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
             }
         }
 
@@ -319,7 +321,7 @@ namespace AspectCore.Utils
                     ParameterBuilderUtils.DefineParameters(constructor, constructorBuilder);
 
                     var ilGen = constructorBuilder.GetILGenerator();
-                    
+
                     ilGen.EmitThis();
                     ilGen.EmitLoadArg(1);
                     ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
@@ -463,7 +465,11 @@ namespace AspectCore.Utils
                     throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                 }
 
-                if (typeDesc.GetProperty<IAspectValidator>().Validate(method)|| typeDesc.GetProperty<IAspectValidator>().Validate(implementationMethod))
+                if (method.IsNonAspect())
+                {
+                    EmitMethodBody();
+                }
+                else if (typeDesc.GetProperty<IAspectValidator>().Validate(method, true) || typeDesc.GetProperty<IAspectValidator>().Validate(implementationMethod, false))
                 {
                     EmitProxyMethodBody();
                 }
@@ -471,24 +477,77 @@ namespace AspectCore.Utils
                 {
                     EmitMethodBody();
                 }
+
                 return methodBuilder;
 
                 void EmitMethodBody()
                 {
                     var ilGen = methodBuilder.GetILGenerator();
                     var parameters = method.GetParameterTypes();
-                    ilGen.EmitThis();
-                    ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
-                    for (int i = 1; i <= parameters.Length; i++)
+                    if (typeDesc.ServiceType.GetTypeInfo().IsInterface || !implementationMethod.IsExplicit())
                     {
-                        ilGen.EmitLoadArg(i);
+                        ilGen.EmitThis();
+                        ilGen.Emit(OpCodes.Ldfld, typeDesc.Fields[FieldBuilderUtils.Target]);
+                        for (int i = 1; i <= parameters.Length; i++)
+                        {
+                            ilGen.EmitLoadArg(i);
+                        }
+                        var callOpCode = implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call;
+                        ilGen.Emit(callOpCode, implementationMethod.IsExplicit() ? method : implementationMethod);
                     }
-
-
-                    ilGen.Emit(implementationMethod.IsCallvirt() ? OpCodes.Callvirt : OpCodes.Call, implementationMethod);
+                    else
+                    {
+                        var reflectorLocal = ilGen.DeclareLocal(typeof(MethodReflector));
+                        var argsLocal = ilGen.DeclareLocal(typeof(object[]));
+                        var returnLocal = ilGen.DeclareLocal(typeof(object));
+                        ilGen.EmitMethod(implementationMethod);
+                        ilGen.Emit(OpCodes.Call, MethodUtils.GetMethodReflector);
+                        ilGen.Emit(OpCodes.Stloc, reflectorLocal);
+                        ilGen.EmitInt(parameters.Length);
+                        ilGen.Emit(OpCodes.Newarr, typeof(object));
+                        for (var i = 0; i < parameters.Length; i++)
+                        {
+                            ilGen.Emit(OpCodes.Dup);
+                            ilGen.EmitInt(i);
+                            ilGen.EmitLoadArg(i + 1);
+                            if (parameters[i].IsByRef)
+                            {
+                                ilGen.EmitLdRef(parameters[i]);
+                                ilGen.EmitConvertToObject(parameters[i].GetElementType());
+                            }
+                            else
+                            {
+                                ilGen.EmitConvertToObject(parameters[i]);
+                            }
+                            ilGen.Emit(OpCodes.Stelem_Ref);
+                        }
+                        ilGen.Emit(OpCodes.Stloc, argsLocal);
+                        ilGen.Emit(OpCodes.Ldloc, reflectorLocal);
+                        ilGen.EmitThis();
+                        ilGen.Emit(OpCodes.Ldloc, argsLocal);
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.ReflectorInvoke);
+                        ilGen.Emit(OpCodes.Stloc, returnLocal);
+                        for (var i = 0; i < parameters.Length; i++)
+                        {
+                            if (parameters[i].IsByRef)
+                            {
+                                ilGen.EmitLoadArg(i + 1);
+                                ilGen.Emit(OpCodes.Ldloc, argsLocal);
+                                ilGen.EmitInt(i);
+                                ilGen.Emit(OpCodes.Ldelem_Ref);
+                                ilGen.EmitConvertFromObject(parameters[i].GetElementType());
+                                ilGen.EmitStRef(parameters[i]);
+                            }
+                        }
+                        if (!method.IsVoid())
+                        {
+                            ilGen.Emit(OpCodes.Ldloc, returnLocal);
+                            ilGen.EmitConvertFromObject(method.ReturnType);
+                        }
+                    }
                     ilGen.Emit(OpCodes.Ret);
                 }
-
+                
                 void EmitProxyMethodBody()
                 {
                     var ilGen = methodBuilder.GetILGenerator();
@@ -918,7 +977,7 @@ namespace AspectCore.Utils
                         {
                             constructorArgs[i] = customAttributeData.ConstructorArguments[i].Value;
                         }
-                       
+
                     }
                     var namedProperties = customAttributeData.NamedArguments
                             .Where(n => !n.IsField)
@@ -1034,9 +1093,12 @@ namespace AspectCore.Utils
             public MethodConstantTable MethodConstants { get; }
 
             public Dictionary<string, object> Properties { get; }
+            
+            public Type ServiceType { get;}
 
-            public TypeDesc(TypeBuilder typeBuilder, FieldTable fields, MethodConstantTable methodConstants)
+            public TypeDesc(Type serviceType, TypeBuilder typeBuilder, FieldTable fields, MethodConstantTable methodConstants)
             {
+                ServiceType = serviceType;
                 Builder = typeBuilder;
                 Fields = fields;
                 MethodConstants = methodConstants;

@@ -8,13 +8,20 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace AspectCore.Extensions.AspNetCore.Sample
+namespace AspNetCore.Sample
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            try
+            {
+                BuildWebHost(args).Run();
+            }
+           catch(Exception ex)
+           {
+                Console.WriteLine(ex);
+           }
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

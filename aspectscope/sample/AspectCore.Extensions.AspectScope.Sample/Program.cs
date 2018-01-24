@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.AspectScope;
@@ -16,17 +18,37 @@ namespace AspectScope.Sample
             serviceContainer.AddType<IA, A>();
             serviceContainer.AddType<IB, B>();
             serviceContainer.AddType<IC, C>();
-
             var r = serviceContainer.Build();
-            r.Resolve<IA>().None();
-            r.Resolve<IB>().None();
-            r.Resolve<IC>().None();
-            r.Resolve<IA>().Nested();
-            r.Resolve<IB>().Nested();
-            r.Resolve<IC>().Nested();
-            r.Resolve<IA>().Aspect();
-            r.Resolve<IB>().Aspect();
-            r.Resolve<IC>().Aspect();
+            Task.WaitAll(
+                Task.Run(() => { r.CreateScope().Resolve<IA>().None(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IB>().None(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IC>().None(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IA>().Nested(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IB>().Nested(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IC>().Nested(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IA>().Aspect(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IB>().Aspect(); }),
+            Task.Run(() => { r.CreateScope().Resolve<IC>().Aspect(); }));
+
+            IServiceContainer serviceContainer1 = new ServiceContainer();
+            serviceContainer1.AddAspectScope();
+            serviceContainer1.AddType<IA, A>();
+            serviceContainer1.AddType<IB, B>();
+            serviceContainer1.AddType<IC, C>();
+
+            Console.WriteLine();
+
+            var r1 = serviceContainer1.Build();
+            r1.Resolve<IA>().None();
+            r1.Resolve<IB>().None();
+            r1.Resolve<IC>().None();
+            r1.Resolve<IA>().Nested();
+            r1.Resolve<IB>().Nested();
+            r1.Resolve<IC>().Nested();
+            r1.Resolve<IA>().Aspect();
+            r1.Resolve<IB>().Aspect();
+            r1.Resolve<IC>().Aspect();
+
             Console.ReadKey();
         }
     }

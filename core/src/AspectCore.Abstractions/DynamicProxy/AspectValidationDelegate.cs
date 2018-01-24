@@ -2,5 +2,5 @@
 
 namespace AspectCore.DynamicProxy
 {
-    public delegate bool AspectValidationDelegate(MethodInfo method);
+    public delegate bool AspectValidationDelegate(AspectValidationContext context);
 }

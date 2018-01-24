@@ -1,8 +1,36 @@
-# AspectCore Framework
+## AspectCore Framework
 [![Member project of .NET China Foundation](https://github.com/dotnetcore/Home/blob/master/icons/member-project-of-netchina.png)](https://github.com/dotnetcore)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dotnetcore/AspectCore/blob/dev/LICENSE)  
 AspectCore is an Aspect-Oriented Programming based cross platform framework for .NET Core and .NET Framework.  
   
 Core support for aspect-interceptor,dependency injection integration , web applications , data validation , and more.   
-  
-You can read documentation for AspectCore at [blogs](http://www.cnblogs.com/liuhaoyang/category/938337.html).
+
+## Docs
+[IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
+[Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
+
+## Components
+* [Application Metrics](https://github.com/dotnetcore/AspectCore-Metrics)   
+* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
+* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
+* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
+* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection)
+* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
+
+## Who is using
+* [Bing(jianxuanbing)](https://github.com/jianxuanbing/Bing)
+* [DotnetSpider](https://github.com/dotnetcore/DotnetSpider)
+* [EasyCaching](https://github.com/catcherwong/EasyCaching)
+* [shriek-fx](https://github.com/ElderJames/shriek-fx)   
+* [Util](https://github.com/dotnetcore/Util)
+
+## Contributors
+* [Savorboard](https://github.com/yuleyule66)  
+* [AlexLEWIS](https://github.com/alexinea)
+* [Konrad Banaszek](https://github.com/thecorrado)
+
+## Contribute
+One of the easiest ways to contribute is to participate in discussions and discuss issues. You can also contribute by submitting pull requests with code changes.
+
+## License
+[MIT](https://github.com/dotnetcore/AspectCore-Framework/blob/master/LICENSE)

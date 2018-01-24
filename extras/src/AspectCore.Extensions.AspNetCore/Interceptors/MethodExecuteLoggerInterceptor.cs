@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
 using Microsoft.Extensions.Logging;
@@ -9,21 +11,22 @@ namespace AspectCore.Extensions.AspNetCore
 {
     public class MethodExecuteLoggerInterceptor : AbstractInterceptor
     {
-        private static readonly HashSet<string> excepts = new HashSet<string>
+        private static readonly List<string> excepts = new List<string>
         {
             "Microsoft.Extensions.Logging",
             "Microsoft.Extensions.Options",
             "IServiceProvider",
             "IHttpContextAccessor",
             "ITelemetryInitializer",
-            "IHostingEnvironment"
+            "IHostingEnvironment",
+            "Autofac.*",
+            "Autofac"
         };
-
 
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
             var serviceType = context.ServiceMethod.DeclaringType;
-            if (excepts.Contains(serviceType.Name) || excepts.Contains(serviceType.Namespace) || context.Implementation is ILogger)
+            if (excepts.Any(x => serviceType.Name.Matches(x)) || excepts.Any(x => serviceType.Namespace.Matches(x)) || context.Implementation is ILogger)
             {
                 await context.Invoke(next);
                 return;

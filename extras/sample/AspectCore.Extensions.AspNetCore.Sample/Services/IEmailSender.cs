@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Services
+namespace AspNetCore.Sample.Services
 {
     public interface IEmailSender
     {

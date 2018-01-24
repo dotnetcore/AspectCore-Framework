@@ -1,4 +1,4 @@
-﻿@using AspectCore.Extensions.AspNetCore.Sample.Views.Manage
+﻿@using AspNetCore.Sample.Views.Manage
 @inject SignInManager<ApplicationUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();

@@ -79,30 +79,40 @@ namespace AspectCore.DynamicProxy
         private IEnumerable<IInterceptor> CollectFromInherited(MethodInfo method)
         {
             var typeInfo = method.DeclaringType.GetTypeInfo();
-            var list = new List<IInterceptor>();
+            var interceptors = new List<IInterceptor>();
             if (!typeInfo.IsClass)
             {
-                return list;
+                return interceptors;
             }
             foreach (var interfaceType in typeInfo.GetInterfaces())
             {
                 var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethodBySignature(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
-                    list.AddRange(CollectFromService(interfaceMethod).Where(x => x.Inherited));
+                    interceptors.AddRange(CollectFromService(interfaceMethod).Where(x => x.Inherited));
                 }
             }
+            interceptors.AddRange(CollectFromBase(method));
+            return interceptors;
+        }
+
+        private IEnumerable<IInterceptor> CollectFromBase(MethodInfo method)
+        {
+            var typeInfo = method.DeclaringType.GetTypeInfo();
+            var interceptors = new List<IInterceptor>();
             var baseType = typeInfo.BaseType;
             if (baseType == typeof(object) || baseType == null)
             {
-                return list;
+                return interceptors;
             }
             var baseMethod = baseType.GetTypeInfo().GetMethodBySignature(new MethodSignature(method));
             if (baseMethod != null)
             {
-                list.AddRange(CollectFromService(baseMethod).Where(x => x.Inherited));
+                interceptors.AddRange(CollectFromBase(baseMethod).Where(x => x.Inherited));
+                interceptors.AddRange(CollectFromSelector(baseMethod).Where(x => x.Inherited));
             }
-            return list;
+
+            return interceptors;
         }
 
         private IEnumerable<IInterceptor> CollectFromSelector(MethodInfo method)

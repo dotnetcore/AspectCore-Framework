@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using AspectCore.Extensions.AspNetCore.Sample.Services;
+using AspNetCore.Sample.Services;
 
-namespace AspectCore.Extensions.AspNetCore.Sample.Services
+namespace AspNetCore.Sample.Services
 {
     public static class EmailSenderExtensions
     {

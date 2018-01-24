@@ -12,7 +12,7 @@ namespace AspectCore.DynamicProxy
 
         internal static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
-        internal static void AwaitIfAsync(this AspectContext aspectContext, object returnValue)
+        public static void AwaitIfAsync(this AspectContext aspectContext, object returnValue)
         {
             if (returnValue == null)
             {
@@ -32,7 +32,7 @@ namespace AspectCore.DynamicProxy
             }
         }
 
-        internal static AspectInvocationException InvocationException(this AspectContext aspectContext, Exception exception)
+        public static AspectInvocationException InvocationException(this AspectContext aspectContext, Exception exception)
         {
             if (exception is AspectInvocationException aspectInvocationException)
             {

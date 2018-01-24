@@ -36,6 +36,12 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
+
+            if (typeInfo.AsType() == typeof(void))
+            {
+                return null;
+            }
+
             switch (Type.GetTypeCode(typeInfo.AsType()))
             {
                 case TypeCode.Object:
