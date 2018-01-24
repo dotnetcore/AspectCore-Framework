@@ -10,18 +10,19 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
 
 ## Components
-* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
-* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection) 
-* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
-* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
-* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
 * [Application Metrics](https://github.com/dotnetcore/AspectCore-Metrics)   
+* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
+* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
+* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
+* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection)
+* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
 
 ## Who is using
-* [Util](https://github.com/dotnetcore/Util)
-* [shriek-fx](https://github.com/ElderJames/shriek-fx)   
 * [Bing(jianxuanbing)](https://github.com/jianxuanbing/Bing)
 * [DotnetSpider](https://github.com/dotnetcore/DotnetSpider)
+* [EasyCaching](https://github.com/catcherwong/EasyCaching)
+* [shriek-fx](https://github.com/ElderJames/shriek-fx)   
+* [Util](https://github.com/dotnetcore/Util)
 
 ## Contributors
 * [Savorboard](https://github.com/yuleyule66)  
