@@ -4,7 +4,7 @@
 AspectCore is an Aspect-Oriented Programming based cross platform framework for .NET Core and .NET Framework.  
   
 Core support for aspect-interceptor,dependency injection integration , web applications , data validation , and more.   
-  
+
 ## Docs
 [IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
 [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
