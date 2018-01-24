@@ -4,10 +4,30 @@
 AspectCore is an Aspect-Oriented Programming based cross platform framework for .NET Core and .NET Framework.  
   
 Core support for aspect-interceptor,dependency injection integration , web applications , data validation , and more.   
-  
+
 ## Docs
 [IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
-[Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)  
+[Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
+
+## Components
+* [Application Metrics](https://github.com/dotnetcore/AspectCore-Metrics)   
+* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
+* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
+* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
+* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection)
+* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
+
+## Who is using
+* [Bing(jianxuanbing)](https://github.com/jianxuanbing/Bing)
+* [DotnetSpider](https://github.com/dotnetcore/DotnetSpider)
+* [EasyCaching](https://github.com/catcherwong/EasyCaching)
+* [shriek-fx](https://github.com/ElderJames/shriek-fx)   
+* [Util](https://github.com/dotnetcore/Util)
+
+## Contributors
+* [Savorboard](https://github.com/yuleyule66)  
+* [AlexLEWIS](https://github.com/alexinea)
+* [Konrad Banaszek](https://github.com/thecorrado)
 
 ## Contribute
 One of the easiest ways to contribute is to participate in discussions and discuss issues. You can also contribute by submitting pull requests with code changes.
