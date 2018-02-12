@@ -129,6 +129,20 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        private static NonAspectPredicateCollection AddIdentityServer4(this NonAspectPredicateCollection collection)
+        {
+            collection.AddNamespace("IdentityServer4");
+            collection.AddNamespace("IdentityServer4.*");
+            return collection;
+        }
+
+        private static NonAspectPredicateCollection AddButterfly(this NonAspectPredicateCollection collection)
+        {
+            collection.AddNamespace("Butterfly");
+            collection.AddNamespace("Butterfly.*");
+            return collection;
+        }
+
         internal static NonAspectPredicateCollection AddDefault(this NonAspectPredicateCollection collection)
         {
             return collection.
@@ -140,7 +154,9 @@ namespace AspectCore.Configuration
                 AddAspNetCore().
                 AddEntityFramework().
                 AddOwin().
-                AddPageGenerator();
+                AddPageGenerator().
+                AddIdentityServer4().
+                AddButterfly();
         }
     }
 }
