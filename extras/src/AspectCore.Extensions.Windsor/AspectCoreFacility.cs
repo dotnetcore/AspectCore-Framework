@@ -14,9 +14,8 @@ namespace AspectCore.Extensions.Windsor
     [NonAspect]
     public class AspectCoreFacility : IFacility
     {
-        private IKernel _kernel;
-
         private readonly IAspectConfiguration _aspectConfiguration;
+        private IKernel _kernel;
 
         public AspectCoreFacility(IAspectConfiguration aspectConfiguration)
         {
@@ -25,31 +24,34 @@ namespace AspectCore.Extensions.Windsor
 
         public void Init(IKernel kernel, IConfiguration facilityConfig)
         {
-            _kernel = kernel;
-            kernel.ComponentModelCreated += Kernel_ComponentModelCreated;
-
+            if (!kernel.HasComponent(typeof(IServiceProvider)))
+                kernel.Register(Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleSingleton());
             kernel.Register(
-                Component.For<IServiceProvider>().ImplementedBy<WindsorServiceResolver>().LifestyleScoped(),
                 Component.For(typeof(ManyEnumerable<>)).ImplementedBy(typeof(ManyEnumerable<>)).LifestyleTransient(),
                 Component.For<IProxyGenerator>().ImplementedBy<ProxyGenerator>().LifestyleScoped(),
-                Component.For<IServiceResolver>().ImplementedBy<WindsorServiceResolver>().Named("ServiceResolver").LifestyleScoped(),
                 Component.For<IProxyTypeGenerator>().ImplementedBy<ProxyTypeGenerator>().LifestyleSingleton(),
                 Component.For<IInterceptorSelector>().ImplementedBy<ConfigureInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IInterceptorSelector>().ImplementedBy<AttributeInterceptorSelector>().LifestyleSingleton(),
-                Component.For<IScopeResolverFactory>().ImplementedBy<WindsorScopeResolverFactory>().LifestyleScoped(),
                 Component.For<IAspectBuilderFactory>().ImplementedBy<AspectBuilderFactory>().LifestyleSingleton(),
                 Component.For<IInterceptorCollector>().ImplementedBy<InterceptorCollector>().LifestyleSingleton(),
-                Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleScoped(),
+                Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleSingleton(),
                 Component.For<IAspectCachingProvider>().ImplementedBy<AspectCachingProvider>().LifestyleSingleton(),
-                Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleScoped(),
+                Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleSingleton(),
                 Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(),
-                Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleScoped(),
-                Component.For<IParameterInterceptorSelector>().ImplementedBy<ParameterInterceptorSelector>().LifestyleScoped(),
+                Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleSingleton(),
+                Component.For<IParameterInterceptorSelector>().ImplementedBy<ParameterInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IAdditionalInterceptorSelector>().ImplementedBy<AttributeAdditionalInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IAspectConfiguration>().Instance(_aspectConfiguration).LifestyleSingleton()
                 );
             kernel.Register(Component.For<AspectCoreInterceptor>());
+            kernel.ComponentModelCreated += Kernel_ComponentModelCreated;
             kernel.Resolver.AddSubResolver(new CompatibleCollectionResolver(kernel));
+            _kernel = kernel;
+        }
+
+        public void Terminate()
+        {
+            _kernel.ComponentModelCreated -= Kernel_ComponentModelCreated;
         }
 
         private void Kernel_ComponentModelCreated(ComponentModel model)
@@ -58,14 +60,6 @@ namespace AspectCore.Extensions.Windsor
             if (aspectValidator.Validate(model.Implementation, false) || model.Services.Any(x => aspectValidator.Validate(x, true)))
             {
                 model.Interceptors.AddIfNotInCollection(InterceptorReference.ForType<AspectCoreInterceptor>());
-            }
-        }
-
-        public void Terminate()
-        {
-            if (_kernel != null)
-            {
-                _kernel.ComponentModelCreated -= Kernel_ComponentModelCreated;
             }
         }
     }
