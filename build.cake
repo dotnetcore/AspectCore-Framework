@@ -28,7 +28,10 @@ Task("Restore")
 			return args;
 		}
 	};
-	DotNetCoreRestore(settings);
+	foreach (var project in build.ProjectFiles)
+	{
+		DotNetCoreRestore(project.FullPath, settings);
+	}
 });
 
 Task("Build")
