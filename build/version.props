@@ -1,9 +1,9 @@
 <Project>
-  <PropertyGroup>
-    <VersionPrefix>0.3.0</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
-    <Version>$(VersionPrefix)$(VersionSuffix)</Version>
-    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
-    <FileVersion>$(VersionPrefix).0</FileVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<VersionMajor>0</VersionMajor>
+		<VersionMinor>3</VersionMinor>
+		<VersionPatch>1</VersionPatch>
+		<VersionQuality></VersionQuality>
+		<VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
+	</PropertyGroup>
 </Project>
