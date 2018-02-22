@@ -8,7 +8,7 @@ namespace AspectCore.Extensions.Hosting
 {
     public static class HostBuilderExtensions
     {
-        public static IHostBuilder UseAspectCore(this IHostBuilder hostBuilder, Action<IServiceContainer> configureDelegate)
+        public static IHostBuilder ConfigureAspectCoreContainer(this IHostBuilder hostBuilder, Action<IServiceContainer> configureDelegate)
         {
             if (hostBuilder == null)
             {
@@ -22,7 +22,7 @@ namespace AspectCore.Extensions.Hosting
             return hostBuilder;
         }
 
-        public static IHostBuilder UseAspectCore(this IHostBuilder hostBuilder, Action<IServiceCollection> configureDelegate)
+        public static IHostBuilder ConfigureAspectCore(this IHostBuilder hostBuilder, Action<IServiceCollection> configureDelegate)
         {
             if (hostBuilder == null)
             {
@@ -36,7 +36,7 @@ namespace AspectCore.Extensions.Hosting
             return hostBuilder;
         }
 
-        public static IHostBuilder UseAspectCore(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceContainer> configureDelegate)
+        public static IHostBuilder ConfigureAspectCoreContainer(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceContainer> configureDelegate)
         {
             if (hostBuilder == null)
             {
@@ -50,7 +50,7 @@ namespace AspectCore.Extensions.Hosting
             return hostBuilder;
         }
 
-        public static IHostBuilder UseAspectCore(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        public static IHostBuilder ConfigureAspectCore(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
             if (hostBuilder == null)
             {

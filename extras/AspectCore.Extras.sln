@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Depen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Extensions.Hosting", "src\AspectCore.Extensions.Hosting\AspectCore.Extensions.Hosting.csproj", "{96DC1BED-E5E0-4E68-AF04-05115BE39B7A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCore.Extensions.Hosting.Tests", "test\AspectCore.Extensions.Hosting.Tests\AspectCore.Extensions.Hosting.Tests.csproj", "{9547A839-70F0-4FAA-B574-9A61082FE567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,10 @@ Global
 		{96DC1BED-E5E0-4E68-AF04-05115BE39B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96DC1BED-E5E0-4E68-AF04-05115BE39B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96DC1BED-E5E0-4E68-AF04-05115BE39B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9547A839-70F0-4FAA-B574-9A61082FE567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9547A839-70F0-4FAA-B574-9A61082FE567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9547A839-70F0-4FAA-B574-9A61082FE567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9547A839-70F0-4FAA-B574-9A61082FE567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -155,6 +161,7 @@ Global
 		{C58CDC63-4DFA-42DB-BCB1-CAC220EAED04} = {FA9E353F-695D-49FC-A0CA-654829134AB5}
 		{EBCFF74A-4787-4A3E-A83D-0DC0329CFD2E} = {E933A059-A6AC-46AC-928D-33656D7FE93A}
 		{96DC1BED-E5E0-4E68-AF04-05115BE39B7A} = {EF35FB72-D934-45A8-9856-E60EA2623135}
+		{9547A839-70F0-4FAA-B574-9A61082FE567} = {BA3DCC4B-D8B9-4761-AAD9-4B1363140049}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7A2B7A3-2AF0-4769-8E22-4FAA41E80591}
