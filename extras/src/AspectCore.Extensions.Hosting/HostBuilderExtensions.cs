@@ -1,4 +1,5 @@
 ﻿using System;
+using AspectCore.Configuration;
 using AspectCore.Extensions.DependencyInjection;
 using AspectCore.Injector;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,21 +15,7 @@ namespace AspectCore.Extensions.Hosting
             {
                 throw new ArgumentNullException(nameof(hostBuilder));
             }
-            hostBuilder.UseAspectCore();
-            if (configureDelegate != null)
-            {
-                hostBuilder.ConfigureContainer(configureDelegate);
-            }
-            return hostBuilder;
-        }
-
-        public static IHostBuilder ConfigureAspectCore(this IHostBuilder hostBuilder, Action<IServiceCollection> configureDelegate)
-        {
-            if (hostBuilder == null)
-            {
-                throw new ArgumentNullException(nameof(hostBuilder));
-            }
-            hostBuilder.UseAspectCore();
+            hostBuilder.ConfigureAspectCoreContainer();
             if (configureDelegate != null)
             {
                 hostBuilder.ConfigureContainer(configureDelegate);
@@ -42,7 +29,7 @@ namespace AspectCore.Extensions.Hosting
             {
                 throw new ArgumentNullException(nameof(hostBuilder));
             }
-            hostBuilder.UseAspectCore();
+            hostBuilder.ConfigureAspectCoreContainer();
             if (configureDelegate != null)
             {
                 hostBuilder.ConfigureContainer(configureDelegate);
@@ -50,23 +37,52 @@ namespace AspectCore.Extensions.Hosting
             return hostBuilder;
         }
 
-        public static IHostBuilder ConfigureAspectCore(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        public static IHostBuilder ConfigureAspectCoreContainer(this IHostBuilder hostBuilder)
+        {
+            return hostBuilder.UseServiceProviderFactory(new AspectCoreServiceProviderFactory());
+        }
+
+        public static IHostBuilder ConfigureDynamicProxy(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceCollection, IAspectConfiguration> configureDelegate)
         {
             if (hostBuilder == null)
             {
                 throw new ArgumentNullException(nameof(hostBuilder));
             }
-            hostBuilder.UseAspectCore();
-            if (configureDelegate != null)
+            if (configureDelegate == null)
             {
-                hostBuilder.ConfigureContainer(configureDelegate);
+                throw new ArgumentNullException(nameof(configureDelegate));
             }
+            hostBuilder.UseServiceProviderFactory(new DynamicProxyServiceProviderFactory());
+
+            hostBuilder.ConfigureServices((host, services) =>
+            {
+                services.AddDynamicProxy(config =>
+                {
+                    configureDelegate(host, services, config);
+                });
+            });
+
             return hostBuilder;
         }
 
-        public static IHostBuilder UseAspectCore(this IHostBuilder hostBuilder)
+        public static IHostBuilder ConfigureDynamicProxy(this IHostBuilder hostBuilder, Action<IServiceCollection, IAspectConfiguration> configureDelegate)
         {
-            return hostBuilder.UseServiceProviderFactory(new AspectCoreServiceProviderFactory());
+            if (hostBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(hostBuilder));
+            }
+            hostBuilder.UseServiceProviderFactory(new DynamicProxyServiceProviderFactory());
+            if (configureDelegate != null)
+            {
+                hostBuilder.ConfigureServices(services =>
+                {
+                    services.AddDynamicProxy(config =>
+                    {
+                        configureDelegate(services, config);
+                    });
+                });
+            }
+            return hostBuilder;
         }
     }
 }

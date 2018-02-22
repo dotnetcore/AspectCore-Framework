@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AspectCore.Extensions.Hosting.Tests
+namespace Extensions.Hosting.Tests
 {
     public interface IService
     {

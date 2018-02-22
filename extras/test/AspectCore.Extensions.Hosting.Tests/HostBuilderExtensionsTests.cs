@@ -1,10 +1,10 @@
-using System;
+using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
+using AspectCore.Injector;
+using Extensions.Hosting.Tests;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
-using AspectCore.Extensions.Hosting;
-using AspectCore.Injector;
-using Microsoft.Extensions.DependencyInjection;
-using AspectCore.Extensions.DependencyInjection;
 
 namespace AspectCore.Extensions.Hosting.Tests
 {
@@ -14,22 +14,48 @@ namespace AspectCore.Extensions.Hosting.Tests
         public void UserAspectCore_Container()
         {
             var hostBuilder = new HostBuilder();
-            hostBuilder.UseAspectCore();
+            hostBuilder.ConfigureAspectCoreContainer();
             var host = hostBuilder.Build();
             Assert.IsAssignableFrom<IServiceResolver>((host.Services as IServiceResolver));
         }
 
         [Fact]
-        public void ConfigureAspectCore()
+        public void UseAspectCore_Configure()
         {
             var hostBuilder = new HostBuilder();
-            hostBuilder.ConfigureAspectCore(services =>
+            hostBuilder.ConfigureAspectCoreContainer(container =>
             {
-                services.AddTransient<IService, Service>();
-                services.AddDynamicProxy();
+                container.AddType<IService, Service>();
+                container.Configure(config =>
+                {
+                    config.Interceptors.AddDelegate(async (ctx, next) =>
+                    {
+                        await next(ctx);
+                        ctx.ReturnValue = "proxy";
+                    });
+                });
             });
             var host = hostBuilder.Build();
-            Assert.IsAssignableFrom<IServiceResolver>((host.Services as IServiceResolver));
+            var service = host.Services.GetService<IService>();
+            Assert.True(service.IsProxy());
+        }
+
+        [Fact]
+        public void ConfigureDynamicProxy()
+        {
+            var hostBuilder = new HostBuilder();
+            hostBuilder.ConfigureDynamicProxy((services, config) =>
+            {
+                services.AddTransient<IService, Service>();
+                config.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await next(ctx);
+                    ctx.ReturnValue = "proxy";
+                });
+            });
+            var host = hostBuilder.Build();
+            var service = host.Services.GetService<IService>();
+            Assert.True(service.IsProxy());
         }
     }
 }
