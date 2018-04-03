@@ -25,10 +25,6 @@ namespace AspectCore.DynamicProxy
                     var innerException = task.Exception?.InnerException;
                     throw aspectContext.InvocationException(innerException);
                 }
-                if (!task.IsCompleted)
-                {
-                    task.GetAwaiter().GetResult();
-                }
             }
         }
 

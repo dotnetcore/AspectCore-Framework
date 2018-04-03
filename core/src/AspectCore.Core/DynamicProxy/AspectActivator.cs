@@ -28,10 +28,7 @@ namespace AspectCore.DynamicProxy
                     var innerException = invoke.Exception?.InnerException;
                     throw context.InvocationException(innerException);
                 }
-                if (!invoke.IsCompleted)
-                {
-                    invoke.GetAwaiter().GetResult();
-                }
+            
                 return (TResult)context.ReturnValue;
             }
             finally
@@ -52,10 +49,7 @@ namespace AspectCore.DynamicProxy
                     var innerException = invoke.Exception?.InnerException;
                     throw context.InvocationException(innerException);
                 }
-                if (!invoke.IsCompleted)
-                {
-                    invoke.GetAwaiter().GetResult();
-                }
+              
                 var result = context.ReturnValue;
                 if (result == null)
                 {
@@ -67,10 +61,6 @@ namespace AspectCore.DynamicProxy
                 }
                 else if (result is Task task)
                 {
-                    if (!task.IsCompleted)
-                    {
-                        task.GetAwaiter().GetResult();
-                    }
                     return TaskUtils<TResult>.CompletedTask;
                 }
                 else
@@ -96,10 +86,7 @@ namespace AspectCore.DynamicProxy
                     var innerException = invoke.Exception?.InnerException;
                     throw context.InvocationException(innerException);
                 }
-                if (!invoke.IsCompleted)
-                {
-                    invoke.GetAwaiter().GetResult();
-                }
+              
                 return (ValueTask<TResult>)context.ReturnValue;
             }
             finally

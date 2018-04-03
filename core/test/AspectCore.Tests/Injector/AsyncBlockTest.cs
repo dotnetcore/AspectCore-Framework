@@ -32,7 +32,7 @@ namespace AspectCore.Tests.Injector
         }
     }
 
-    public class AsyncInjectionTest : InjectorTestBase
+    public class AsyncBlockTest : InjectorTestBase
     {
 
         [Fact]
@@ -43,12 +43,15 @@ namespace AspectCore.Tests.Injector
             var proxyGenerator = builder.Build();
             var proxy = proxyGenerator.CreateInterfaceProxy<IService1, Service1>();
             // IService proxy = new Service();
-
-            Console.WriteLine($"{DateTime.Now}:start");
+            var startTime = DateTime.Now;
+            Console.WriteLine($"{startTime}:start");
 
             var val = proxy.GetValue("le");
 
-            Console.WriteLine($"{DateTime.Now}:should return immediately");
+            var endTime = DateTime.Now;
+
+            Assert.True((endTime - startTime).TotalSeconds < 2);
+            Console.WriteLine($"{endTime}:should return immediately");
             Console.WriteLine($"{DateTime.Now}:{val.Result}");
         }
     }
