@@ -8,11 +8,7 @@ environment:
   BuildEnvironment: appveyor
 skip_commits:
   files:
-    - docs/*
     - LICENSE
-    - README.md
-    - .travis.yml
-    - .gitignore
 build_script:
 - ps: ./build.ps1
 test: off
