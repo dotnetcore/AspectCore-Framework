@@ -19,8 +19,8 @@ namespace AspectCore.Extensions.Windsor.Test
         public async Task AsProxy_Test()
         {
             var container = CreateWindsorContainer();
-            container.Register(Component.For<IService>().ImplementedBy<Service>().LifestyleTransient());
-            var proxyService = container.Resolve<IService>();
+            container.Register(Component.For<ICacheService>().ImplementedBy<CacheService>().LifestyleTransient());
+            var proxyService = container.Resolve<ICacheService>();
             Assert.Equal(proxyService.Get(1), proxyService.Get(1));
             Assert.Equal(await proxyService.GetAsync(2), await proxyService.GetAsync(2));
         }
@@ -29,10 +29,10 @@ namespace AspectCore.Extensions.Windsor.Test
         public void AsProxyWithParamter_Test()
         {
             var container = CreateWindsorContainer();
-            container.Register(Component.For<IService>().ImplementedBy<Service>().LifestyleTransient(),
+            container.Register(Component.For<ICacheService>().ImplementedBy<CacheService>().LifestyleTransient(),
                 Component.For<IController>().ImplementedBy<Controller>().LifestyleTransient());
 
-            var proxyService = container.Resolve<IService>();
+            var proxyService = container.Resolve<ICacheService>();
             Assert.Equal(proxyService.Get(1), proxyService.Get(1));
 
             var proxyController = container.Resolve<IController>();

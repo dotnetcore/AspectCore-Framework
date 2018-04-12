@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Extensions.Windsor.Test.Fakes
 {
-    public class Service : IService
+    public class CacheService : ICacheService
     {
         public Model Get(int id)
         {

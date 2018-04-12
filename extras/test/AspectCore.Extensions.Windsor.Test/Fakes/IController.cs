@@ -3,7 +3,7 @@
     [CacheInterceptor]
     public interface IController
     {
-        IService Service { get; }
+        ICacheService Service { get; }
         Model Execute();
     }
 }

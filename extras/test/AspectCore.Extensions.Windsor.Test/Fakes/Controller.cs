@@ -2,9 +2,9 @@
 {
     public class Controller : IController
     {
-        public IService Service { get; }
+        public ICacheService Service { get; }
 
-        public Controller(IService service)
+        public Controller(ICacheService service)
         {
             Service = service;
         }

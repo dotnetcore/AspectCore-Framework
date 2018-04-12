@@ -2,7 +2,7 @@
 
 namespace AspectCore.Extensions.Windsor.Test.Fakes
 {
-    public interface IService
+    public interface ICacheService
     {
         [CacheInterceptor]
         Model Get(int id);
