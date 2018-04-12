@@ -28,13 +28,7 @@ namespace AspectCore.DynamicProxy
                     throw context.InvocationException(task.Exception);
                 else if (!task.IsCompleted)
                 {
-                    // if you get here, 
-                    // it means there are some async codes, which are still running, 
-                    // in the context of a sync method.
-                    // I don't know how to do to run the codes properly
-                    // without causing potential deadlocks.
-                    // Just Wait here.
-                    task.Wait();
+                    task.GetAwaiter().GetResult();
                 }
                 return (TResult)context.ReturnValue;
             }
