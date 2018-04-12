@@ -7,9 +7,9 @@ using Castle.MicroKernel.Registration;
 using Xunit;
 using AspectCore.Configuration;
 
-namespace AspectCore.Extension.Windsor.Test
+namespace AspectCore.Extensions.Windsor.Test
 {
-    public class UnitTest1
+    public class ScopedServiceTests
     {
         [Fact]
         public void Test1()

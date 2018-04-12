@@ -147,7 +147,8 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(methodInfo));
             }
-            return typeof(Task).GetTypeInfo().IsTaskWithResult();
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsTaskWithResult();
         }
 
         public static bool IsReturnValueTask(this MethodInfo methodInfo)

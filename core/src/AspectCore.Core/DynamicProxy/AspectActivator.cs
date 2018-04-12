@@ -1,4 +1,5 @@
-﻿ using System;
+﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using AspectCore.Utils;
 
@@ -22,14 +23,24 @@ namespace AspectCore.DynamicProxy
             try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                var invoke = aspectBuilder.Build()(context);
-                if (invoke.IsFaulted)
+                var task = aspectBuilder.Build()(context);
+                if (task.IsFaulted)
+                    throw context.InvocationException(task.Exception);
+                else if (!task.IsCompleted)
                 {
-                    var innerException = invoke.Exception?.InnerException;
-                    throw context.InvocationException(innerException);
+                    // if you get here, 
+                    // it means there are some async codes, which are still running, 
+                    // in the context of a sync method.
+                    // I don't know how to do to run the codes properly
+                    // without causing potential deadlocks.
+                    // Just Wait here.
+                    task.Wait();
                 }
-            
                 return (TResult)context.ReturnValue;
+            }
+            catch (Exception ex)
+            {
+                throw context.InvocationException(ex);
             }
             finally
             {
@@ -37,36 +48,32 @@ namespace AspectCore.DynamicProxy
             }
         }
 
-        public Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
+        public async Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
         {
             var context = _aspectContextFactory.CreateContext(activatorContext);
             try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                var invoke = aspectBuilder.Build()(context);
-                if (invoke.IsFaulted)
-                {
-                    var innerException = invoke.Exception?.InnerException;
-                    throw context.InvocationException(innerException);
-                }
-              
+                await aspectBuilder.Build()(context);
                 var result = context.ReturnValue;
-                if (result == null)
+                if (result is Task<TResult> taskWithResult)
                 {
-                    return default(Task<TResult>);
-                }
-                else if (result is Task<TResult> resultTask)
-                {
-                    return resultTask;
+                    return await taskWithResult;
                 }
                 else if (result is Task task)
                 {
-                    return TaskUtils<TResult>.CompletedTask;
+                    await task;
+                    return default(TResult);
                 }
                 else
                 {
-                    throw context.InvocationException(new InvalidCastException($"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'."));
+                    throw context.InvocationException(new InvalidCastException(
+                        $"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'."));
                 }
+            }
+            catch (Exception ex)
+            {
+                throw context.InvocationException(ex);
             }
             finally
             {
@@ -74,20 +81,18 @@ namespace AspectCore.DynamicProxy
             }
         }
 
-        public ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
+        public async ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
         {
             var context = _aspectContextFactory.CreateContext(activatorContext);
             try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                var invoke = aspectBuilder.Build()(context);
-                if (invoke.IsFaulted)
-                {
-                    var innerException = invoke.Exception?.InnerException;
-                    throw context.InvocationException(innerException);
-                }
-              
-                return (ValueTask<TResult>)context.ReturnValue;
+                await aspectBuilder.Build()(context);
+                return await (ValueTask<TResult>)context.ReturnValue;
+            }
+            catch (Exception ex)
+            {
+                throw context.InvocationException(ex);
             }
             finally
             {
