@@ -21,13 +21,13 @@ namespace AspectCore.DynamicProxy
             if (context.StrictValidation)
             {
                 var method = context.Method;
-                if (_aspectConfiguration.Interceptors.Where(x => x.Predicates.Length != 0).Any(x => x.CanCreated(method)))
-                {
-                    return true;
-                }
                 if (_aspectConfiguration.NonAspectPredicates.Any(x => x(method)))
                 {
                     return false;
+                }
+                if (_aspectConfiguration.Interceptors.Where(x => x.Predicates.Length != 0).Any(x => x.CanCreated(method)))
+                {
+                    return true;
                 }
                 if (_aspectConfiguration.Interceptors.Where(x => x.Predicates.Length == 0).Any(x => x.CanCreated(method)))
                 {
