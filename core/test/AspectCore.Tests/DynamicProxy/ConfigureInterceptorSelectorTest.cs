@@ -13,7 +13,7 @@ namespace AspectCore.Tests.DynamicProxy
         {
             var service = ProxyGenerator.CreateClassProxy<FakeSelectService>();
             var result = service.GetVal(0);
-            Assert.Equal(1, result);
+            Assert.Equal(3, result);
         }
         
         protected override void Configure(IAspectConfiguration configuration)
@@ -44,7 +44,7 @@ namespace AspectCore.Tests.DynamicProxy
     }
 }
 
-namespace AspectCore.DynamicProxy
+namespace AspectCore.Tests.DynamicProxy
 {
     public class FakeSelectService
     {
