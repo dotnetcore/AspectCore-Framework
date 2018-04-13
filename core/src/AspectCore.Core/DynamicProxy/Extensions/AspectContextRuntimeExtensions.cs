@@ -89,7 +89,8 @@ namespace AspectCore.DynamicProxy
             }
             else if (valueTypeInfo.IsValueTask())
             {
-                result = value;
+                // Is there better solution to unwrap ?
+                result = (object)(await (dynamic)value);
             }
             else if (value is Task)
             {
