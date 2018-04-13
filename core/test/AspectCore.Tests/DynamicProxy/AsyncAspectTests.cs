@@ -21,7 +21,7 @@ namespace AspectCore.Tests.DynamicProxy
         public void Async_Test()
         {
             var proxy = ProxyGenerator.CreateClassProxy<FakeAsyncClass>();
-            var result = proxy.DynAsync(100);
+            var result = proxy.Async(100);
             Assert.IsAssignableFrom<Task<int>>(result);
         }
     }

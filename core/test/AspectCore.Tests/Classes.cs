@@ -179,7 +179,7 @@ namespace AspectCore.Tests
         }
 
         [AsyncTestInterceptor]
-        public virtual Task Async(int value)
+        public virtual Task<int> Async(int value)
         {
             return Task.Run<int>(async () =>
             {
