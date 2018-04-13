@@ -74,9 +74,6 @@ namespace AspectCore.Extensions.Windsor.Test
     {
         public static IEnumerable<object[]> GetNumbers()
         {
-            yield return new object[] { -100 };
-            yield return new object[] { -1 };
-            yield return new object[] { 0 };
             yield return new object[] { 1 };
             yield return new object[] { 10 };
             yield return new object[] { 100 };
