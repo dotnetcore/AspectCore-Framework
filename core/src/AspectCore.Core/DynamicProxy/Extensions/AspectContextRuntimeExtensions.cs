@@ -59,7 +59,7 @@ namespace AspectCore.DynamicProxy
             return false;
         }
 
-        public static object UnwrapAsyncReturnValue(this AspectContext aspectContext)
+        public static Task<object> UnwrapAsyncReturnValue(this AspectContext aspectContext)
         {
             if (aspectContext == null)
             {
@@ -78,25 +78,18 @@ namespace AspectCore.DynamicProxy
             return Unwrap(returnValue, returnTypeInfo);
         }
 
-        private static object Unwrap(object value, TypeInfo valueTypeInfo)
+        private static async Task<object> Unwrap(object value, TypeInfo valueTypeInfo)
         {
-
-
             object result = null;
 
             if (valueTypeInfo.IsTaskWithResult())
             {
-                var resultReflector = valueTypeInfo.GetProperty("Result").GetReflector();
-                result = resultReflector.GetValue(value);
+                // Is there better solution to unwrap ?
+                result = (object) (await (dynamic) value);
             }
             else if (valueTypeInfo.IsValueTask())
             {
                 result = value;
-            }
-
-            else if (value is Task<Task> task)
-            {
-                return task.Result;
             }
             else if (value is Task)
             {
