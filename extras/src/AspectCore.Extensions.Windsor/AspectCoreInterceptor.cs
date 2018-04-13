@@ -35,11 +35,11 @@ namespace AspectCore.Extensions.Windsor
                 return;
             }
             var proxyTypeInfo = invocation.Proxy.GetType().GetTypeInfo();
-            var builderFactory = new WindsorAspectBuilderFactory(_aspectBuilderFactory, async ctx =>
+            var builderFactory = new WindsorAspectBuilderFactory(_aspectBuilderFactory, ctx =>
             {
                 invocation.Proceed();
-                // await ctx.AwaitIfAsync(invocation.ReturnValue);
                 ctx.ReturnValue = invocation.ReturnValue;
+                return Task.FromResult(0);
             });
             var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);
             var activator = new AspectActivatorFactory(_aspectContextFactory, builderFactory).Create();
