@@ -191,23 +191,23 @@ namespace AspectCore.Tests
 
     public class AsyncTestInterceptor : AbstractInterceptorAttribute
     {
-        public async override Task Invoke(AspectContext context, AspectDelegate next)
+        public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             Assert.True(context.IsAsync());
             await context.Invoke(next);
-            var result = context.UnwrapAsyncReturnValue();
+            var result = await context.UnwrapAsyncReturnValue();
             Assert.Equal(100, result);
         }
     }
 
     public class DynAsyncTestInterceptor : AbstractInterceptorAttribute
     {
-        public async override Task Invoke(AspectContext context, AspectDelegate next)
+        public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             Assert.False(context.IsAsync());
             await context.Invoke(next);
             Assert.True(context.IsAsync());
-            var result = context.UnwrapAsyncReturnValue();
+            var result = await context.UnwrapAsyncReturnValue();
             Assert.Equal(100, result);
         }
     }

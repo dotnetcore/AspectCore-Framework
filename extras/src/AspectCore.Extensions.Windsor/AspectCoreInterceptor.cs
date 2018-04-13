@@ -38,6 +38,7 @@ namespace AspectCore.Extensions.Windsor
             var builderFactory = new WindsorAspectBuilderFactory(_aspectBuilderFactory, ctx =>
             {
                 invocation.Proceed();
+                ctx.ReturnValue = invocation.ReturnValue;
                 return Task.FromResult(0);
             });
             var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);
