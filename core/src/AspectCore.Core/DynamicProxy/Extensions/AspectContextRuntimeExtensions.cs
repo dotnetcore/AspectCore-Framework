@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
@@ -12,7 +13,7 @@ namespace AspectCore.DynamicProxy
 
         internal static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
-        public static void AwaitIfAsync(this AspectContext aspectContext, object returnValue)
+        public static async Task AwaitIfAsync(this AspectContext aspectContext, object returnValue)
         {
             if (returnValue == null)
             {
@@ -20,10 +21,13 @@ namespace AspectCore.DynamicProxy
             }
             if (returnValue is Task task)
             {
-                if (task.IsFaulted)
+                try
                 {
-                    var innerException = task.Exception?.InnerException;
-                    throw aspectContext.InvocationException(innerException);
+                    await task;
+                }
+                catch (Exception ex)
+                {
+                    throw aspectContext.InvocationException(ex);
                 }
             }
         }
@@ -55,7 +59,7 @@ namespace AspectCore.DynamicProxy
             return false;
         }
 
-        public static object UnwrapAsyncReturnValue(this AspectContext aspectContext)
+        public static Task<object> UnwrapAsyncReturnValue(this AspectContext aspectContext)
         {
             if (aspectContext == null)
             {
@@ -74,25 +78,18 @@ namespace AspectCore.DynamicProxy
             return Unwrap(returnValue, returnTypeInfo);
         }
 
-        private static object Unwrap(object value, TypeInfo valueTypeInfo)
+        private static async Task<object> Unwrap(object value, TypeInfo valueTypeInfo)
         {
-
-
             object result = null;
 
             if (valueTypeInfo.IsTaskWithResult())
             {
-                var resultReflector = valueTypeInfo.GetProperty("Result").GetReflector();
-                result = resultReflector.GetValue(value);
+                // Is there better solution to unwrap ?
+                result = (object) (await (dynamic) value);
             }
             else if (valueTypeInfo.IsValueTask())
             {
                 result = value;
-            }
-
-            else if (value is Task<Task> task)
-            {
-                return task.Result;
             }
             else if (value is Task)
             {

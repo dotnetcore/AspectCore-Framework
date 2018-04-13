@@ -71,17 +71,17 @@ namespace AspectCore.DynamicProxy
             Parameters = parameters;
         }
 
-        public override Task Complete()
+        public override async Task Complete()
         {
             if (_implementation == null || _implementationMethod == null)
             {
-                return Break();
+                await Break();
+                return;
             }
             var reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(_implementationMethod, method => method.GetReflector(CallOptions.Call));
             var returnValue = reflector.Invoke(_implementation, Parameters);
-            AspectContextRuntimeExtensions.AwaitIfAsync(this, returnValue);
+            await this.AwaitIfAsync(returnValue);
             ReturnValue = returnValue;
-            return TaskUtils.CompletedTask;
         }
 
         public override Task Break()
