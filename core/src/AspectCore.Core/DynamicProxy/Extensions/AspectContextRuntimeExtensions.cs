@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection;
+using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
@@ -12,7 +13,7 @@ namespace AspectCore.DynamicProxy
 
         internal static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
-        public static void AwaitIfAsync(this AspectContext aspectContext, object returnValue)
+        public static async Task AwaitIfAsync(this AspectContext aspectContext, object returnValue)
         {
             if (returnValue == null)
             {
@@ -20,10 +21,13 @@ namespace AspectCore.DynamicProxy
             }
             if (returnValue is Task task)
             {
-                if (task.IsFaulted)
+                try
                 {
-                    var innerException = task.Exception?.InnerException;
-                    throw aspectContext.InvocationException(innerException);
+                    await task;
+                }
+                catch (Exception ex)
+                {
+                    throw aspectContext.InvocationException(ex);
                 }
             }
         }

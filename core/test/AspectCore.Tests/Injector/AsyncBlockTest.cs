@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace AspectCore.Tests.Injector
 {
@@ -34,6 +35,12 @@ namespace AspectCore.Tests.Injector
 
     public class AsyncBlockTest : InjectorTestBase
     {
+        private readonly ITestOutputHelper _output;
+
+        public AsyncBlockTest(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         [Fact]
         public void AsyncBlock()
@@ -44,15 +51,18 @@ namespace AspectCore.Tests.Injector
             var proxy = proxyGenerator.CreateInterfaceProxy<IService1, Service1>();
             // IService proxy = new Service();
             var startTime = DateTime.Now;
-            Console.WriteLine($"{startTime}:start");
+            _output.WriteLine($"{startTime}:start");
 
             var val = proxy.GetValue("le");
 
             var endTime = DateTime.Now;
 
             Assert.True((endTime - startTime).TotalSeconds < 2);
-            Console.WriteLine($"{endTime}:should return immediately");
-            Console.WriteLine($"{DateTime.Now}:{val.Result}");
+            _output.WriteLine($"{endTime}:should return immediately");
+            var result = val.Result;
+            var resultTime = DateTime.Now;
+            _output.WriteLine($"{resultTime}:{result}");
+            Assert.True((resultTime - startTime).TotalSeconds > 2);
         }
     }
 }
