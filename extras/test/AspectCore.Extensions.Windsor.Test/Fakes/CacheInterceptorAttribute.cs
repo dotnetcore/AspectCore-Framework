@@ -39,8 +39,8 @@ namespace AspectCore.Extensions.Windsor.Test.Fakes
             }
             else if(context.ReturnValue is Task<Model> task && task.IsCompleted)
             {
-                var obj = task.Result;
-                _cache[obj.Id] = task.Result;
+                var obj = await task;
+                _cache[obj.Id] = obj;
             }
         }
     }
