@@ -15,7 +15,7 @@ namespace AspectCoreTest.Windsor
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             await context.Invoke(next);
-            await Task.Delay(1000); // 此处模拟一个真.异步方法，用于测试线程上下文切换
+            await Task.Delay(100); // 此处模拟一个真.异步方法，用于测试线程上下文切换
 
             if (context.ReturnValue is Task<int> task)
             {
@@ -56,14 +56,14 @@ namespace AspectCoreTest.Windsor
         [AsyncIncreament]
         public virtual async Task<int> GetAsyncWithTask(int num)
         {
-            await Task.Delay(1000);
+            await Task.Delay(100);
             return num;
         }
 
         [AsyncIncreament]
         public virtual async ValueTask<int> GetAsyncWithValueTask(int num)
         {
-            await Task.Delay(1000);
+            await Task.Delay(100);
             return num;
         }
     }
