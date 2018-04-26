@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Windsor;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Xunit;
-using AspectCore.Configuration;
 
-namespace AspectCore.Extensions.Windsor.Test
+namespace AspectCoreTest.Windsor
 {
     public class ScopedServiceTests
     {

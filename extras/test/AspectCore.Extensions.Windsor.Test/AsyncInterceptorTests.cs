@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
-using AspectCore.Extensions.Windsor.Test.Fakes;
-using Castle.Core;
+using AspectCore.Extensions.Windsor;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Xunit;
 
-namespace AspectCore.Extensions.Windsor.Test
+namespace AspectCoreTest.Windsor
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class AsyncIncreamentAttribute : AbstractInterceptorAttribute
@@ -17,7 +15,7 @@ namespace AspectCore.Extensions.Windsor.Test
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             await context.Invoke(next);
-            await Task.Delay(1000); // 此处模拟一个真.异步方法，用于测试线程上下文切换
+            await Task.Delay(100); // 此处模拟一个真.异步方法，用于测试线程上下文切换
 
             if (context.ReturnValue is Task<int> task)
             {
@@ -58,14 +56,14 @@ namespace AspectCore.Extensions.Windsor.Test
         [AsyncIncreament]
         public virtual async Task<int> GetAsyncWithTask(int num)
         {
-            await Task.Delay(1000);
+            await Task.Delay(100);
             return num;
         }
 
         [AsyncIncreament]
         public virtual async ValueTask<int> GetAsyncWithValueTask(int num)
         {
-            await Task.Delay(1000);
+            await Task.Delay(100);
             return num;
         }
     }
