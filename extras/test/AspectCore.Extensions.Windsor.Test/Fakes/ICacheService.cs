@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace AspectCore.Extensions.Windsor.Test.Fakes
+namespace AspectCoreTest.Windsor.Fakes
 {
     public interface ICacheService
     {

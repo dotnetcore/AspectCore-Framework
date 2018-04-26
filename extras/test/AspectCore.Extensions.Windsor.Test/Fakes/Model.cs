@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace AspectCore.Extensions.Windsor.Test.Fakes
+namespace AspectCoreTest.Windsor.Fakes
 {
     public class Model
     {
