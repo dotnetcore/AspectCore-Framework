@@ -36,7 +36,7 @@ namespace AspectCore.Tests.Injector
     {
 
         [Fact]
-        public void AsyncBlock()
+        public async Task AsyncBlock()
         {
             var builder = new ProxyGeneratorBuilder();
             builder.Configure(_ => { });
@@ -52,7 +52,8 @@ namespace AspectCore.Tests.Injector
 
             Assert.True((endTime - startTime).TotalSeconds < 2);
             Console.WriteLine($"{endTime}:should return immediately");
-            Console.WriteLine($"{DateTime.Now}:{val.Result}");
+            var result = await val;
+            Console.WriteLine($"{DateTime.Now}:{result}");
         }
     }
 }

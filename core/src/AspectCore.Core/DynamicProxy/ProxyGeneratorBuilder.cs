@@ -17,13 +17,13 @@ namespace AspectCore.DynamicProxy
             _serviceContainer = new ServiceContainer(_configuration);
         }
 
-        public ProxyGeneratorBuilder Configure(Action<IAspectConfiguration> options)
+        public ProxyGeneratorBuilder Configure(Action<IAspectConfiguration> options = null)
         {
             options?.Invoke(_configuration);
             return this;
         }
 
-        public ProxyGeneratorBuilder ConfigureService(Action<IServiceContainer> options)
+        public ProxyGeneratorBuilder ConfigureService(Action<IServiceContainer> options = null)
         {
             options?.Invoke(_serviceContainer);
             return this;
