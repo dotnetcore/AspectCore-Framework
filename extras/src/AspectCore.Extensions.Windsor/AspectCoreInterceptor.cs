@@ -25,20 +25,21 @@ namespace AspectCore.Extensions.Windsor
 
         public void Intercept(IInvocation invocation)
         {
+            invocation.Proceed();
             if (!_aspectValidator.Validate(invocation.Method, true) && !_aspectValidator.Validate(invocation.MethodInvocationTarget, false))
             {
-                invocation.Proceed();
                 return;
             }
             if (invocation.Proxy == null)
             {
                 return;
             }
+
+            var returnValue = invocation.ReturnValue;
             var proxyTypeInfo = invocation.Proxy.GetType().GetTypeInfo();
             var builderFactory = new WindsorAspectBuilderFactory(_aspectBuilderFactory, ctx =>
             {
-                invocation.Proceed();
-                ctx.ReturnValue = invocation.ReturnValue;
+                ctx.ReturnValue = returnValue;
                 return Task.FromResult(0);
             });
             var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);

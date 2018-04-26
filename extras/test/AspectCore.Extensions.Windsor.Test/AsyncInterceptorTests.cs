@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
-using AspectCore.Extensions.Windsor.Test.Fakes;
-using Castle.Core;
+using AspectCore.Extensions.Windsor;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Xunit;
 
-namespace AspectCore.Extensions.Windsor.Test
+namespace AspectCoreTest.Windsor
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class AsyncIncreamentAttribute : AbstractInterceptorAttribute
