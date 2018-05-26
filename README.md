@@ -1,6 +1,6 @@
 ## AspectCore Framework
 [![Build status](https://ci.appveyor.com/api/projects/status/1awhaosnfcjbad77?svg=true)](https://ci.appveyor.com/project/liuhaoyang/aspectcore-framework)
-[![Member project of .NET China Foundation](https://github.com/dotnetcore/Home/blob/master/icons/member-project-of-netchina.png)](https://github.com/dotnetcore)
+[![Member project of .NET Core Community](https://img.shields.io/badge/member%20project%20of-NCC-9e20c9.svg)](https://github.com/dotnetcore)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dotnetcore/AspectCore/blob/dev/LICENSE)  
 AspectCore is an Aspect-Oriented Programming based cross platform framework for .NET Core and .NET Framework.  
   
@@ -10,8 +10,7 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 [IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
 [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
 
-## Components
-* [Application Metrics](https://github.com/dotnetcore/AspectCore-Metrics)   
+## Components  
 * [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
 * [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
 * [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
