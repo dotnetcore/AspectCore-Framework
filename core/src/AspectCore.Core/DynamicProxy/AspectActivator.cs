@@ -25,8 +25,8 @@ namespace AspectCore.DynamicProxy
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var task = aspectBuilder.Build()(context);
                 if (task.IsFaulted)
-                    throw context.InvocationException(task.Exception);
-                else if (!task.IsCompleted)
+                    throw context.InvocationException(task.Exception.InnerException);
+                if (!task.IsCompleted)
                 {
                     task.GetAwaiter().GetResult();
                 }

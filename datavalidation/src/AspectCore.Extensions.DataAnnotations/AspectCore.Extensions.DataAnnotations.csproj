@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\..\build\common.props" />
-  <Import Project="..\..\..\build\net45.props" />
 
   <PropertyGroup>
     <Description>DataAnnotations extension system for AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.DataAnnotations</AssemblyTitle>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.DataAnnotations</AssemblyName>
     <PackageId>AspectCore.Extensions.DataAnnotations</PackageId>
     <PackageTags>DataValidation;DataAnnotations;AspectCore;AOP</PackageTags>

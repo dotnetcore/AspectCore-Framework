@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\..\build\common.props" />
-  <Import Project="..\..\..\build\net45.props" />
 
   <PropertyGroup>
     <Description>DataValidation extension system for AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.DataValidation</AssemblyTitle>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.DataValidation</AssemblyName>
     <PackageId>AspectCore.Extensions.DataValidation</PackageId>
     <PackageTags>DataValidation;AspectCore;AOP</PackageTags>

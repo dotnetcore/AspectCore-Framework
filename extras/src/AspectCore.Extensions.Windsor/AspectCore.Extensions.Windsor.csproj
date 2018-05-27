@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <Import Project="..\..\..\build\common.props" />
-  <Import Project="..\..\..\build\net45.props" />
 
   <PropertyGroup>
     <Description>Interceptor and dynamicProxy support for Castle.Windsor via AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.Windsor</AssemblyTitle>
-    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
     <AssemblyName>AspectCore.Extensions.Windsor</AssemblyName>
     <PackageId>AspectCore.Extensions.Windsor</PackageId>
     <PackageTags>DynamicProxy;Aop;Windsor;AspectCore</PackageTags>
