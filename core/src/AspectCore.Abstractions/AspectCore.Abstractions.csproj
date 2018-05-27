@@ -1,24 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\..\build\common.props" />
-  <Import Project="..\..\..\build\net45.props" />
-  
+
   <PropertyGroup>
     <Description>The abstract design of the AspectCore framework.</Description>
     <AssemblyTitle>AspectCore.Abstractions</AssemblyTitle>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AssemblyName>AspectCore.Abstractions</AssemblyName>
     <PackageId>AspectCore.Abstractions</PackageId>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
     <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

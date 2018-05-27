@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-    <NETStandardImplicitPackageVersion>1.6.1</NETStandardImplicitPackageVersion>
-    <NETStandardLibraryNETFrameworkVersion>1.6.1</NETStandardLibraryNETFrameworkVersion>
-  </PropertyGroup>
-</Project>

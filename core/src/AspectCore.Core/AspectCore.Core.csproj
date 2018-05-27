@@ -1,43 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <Import Project="..\..\..\build\common.props" />
-  <Import Project="..\..\..\build\net45.props" />
-
   <PropertyGroup>
     <Description>The implementation of the AspectCore framework.</Description>
-    <AssemblyTitle>AspectCore.Core</AssemblyTitle> 
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
+    <AssemblyTitle>AspectCore.Core</AssemblyTitle>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Core</AssemblyName>
     <PackageId>AspectCore.Core</PackageId>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
     <PackageReleaseNotes>The implementation of the AspectCore framework.</PackageReleaseNotes>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.6|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6</DefineConstants>
-    <LangVersion>default</LangVersion>
-  </PropertyGroup>
-
   <ItemGroup>
-    <Compile Remove="DynamicProxy\Enhances\**" />
-    <EmbeddedResource Remove="DynamicProxy\Enhances\**" />
-    <None Remove="DynamicProxy\Enhances\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0-rc1" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
     <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
   </ItemGroup>
-
 </Project>
