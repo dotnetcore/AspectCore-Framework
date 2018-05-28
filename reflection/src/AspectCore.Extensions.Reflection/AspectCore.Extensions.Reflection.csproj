@@ -1,29 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <Import Project="..\..\..\build\common.props" />
-  <Import Project="..\..\..\build\net45.props" />
-      
   <PropertyGroup>
     <Description>Reflection extension system for AspectCore Framework.</Description>
     <AssemblyTitle>AspectCore.Extensions.Reflection</AssemblyTitle>
-    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Extensions.Reflection</AssemblyName>
     <PackageId>AspectCore.Extensions.Reflection</PackageId>
     <PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
     <PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Include="MethodReflector.DisplayName.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
-  </ItemGroup>
-
 </Project>
