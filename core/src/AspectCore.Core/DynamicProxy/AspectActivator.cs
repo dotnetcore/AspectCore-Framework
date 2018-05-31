@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using AspectCore.Core.Utils;
 using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
@@ -28,7 +29,9 @@ namespace AspectCore.DynamicProxy
                     throw context.InvocationException(task.Exception.InnerException);
                 if (!task.IsCompleted)
                 {
-                    task.GetAwaiter().GetResult();
+                    // try to avoid potential deadlocks.
+                    NoSyncContextScope.Run(task);
+                    // task.GetAwaiter().GetResult();
                 }
                 return (TResult)context.ReturnValue;
             }

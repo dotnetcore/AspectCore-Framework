@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Reflection;
@@ -14,6 +15,9 @@ namespace AspectCore.Extensions.Windsor
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
         private readonly IAspectContextFactory _aspectContextFactory;
         private readonly IAspectValidator _aspectValidator;
+        private const string IndexFieldName = "currentInterceptorIndex";
+        private static readonly FieldInfo _indexFieldInfo = typeof(AbstractInvocation).GetField(IndexFieldName, 
+                                                                    BindingFlags.Instance | BindingFlags.NonPublic);
 
         public AspectCoreInterceptor(IAspectBuilderFactory aspectBuilderFactory,
             IAspectContextFactory aspectContextFactory, IAspectValidatorBuilder aspectValidatorBuilder)
@@ -34,9 +38,12 @@ namespace AspectCore.Extensions.Windsor
             {
                 return;
             }
+
+            var index = _indexFieldInfo.GetValue(invocation);
             var proxyTypeInfo = invocation.Proxy.GetType().GetTypeInfo();
             var builderFactory = new WindsorAspectBuilderFactory(_aspectBuilderFactory, ctx =>
             {
+                _indexFieldInfo.SetValue(invocation, index);
                 invocation.Proceed();
                 ctx.ReturnValue = invocation.ReturnValue;
                 return Task.FromResult(0);

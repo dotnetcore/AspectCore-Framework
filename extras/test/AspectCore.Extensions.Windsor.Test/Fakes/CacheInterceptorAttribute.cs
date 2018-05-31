@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
 
-namespace AspectCore.Extensions.Windsor.Test.Fakes
+namespace AspectCoreTest.Windsor.Fakes
 {
     public class CacheInterceptorAttribute : AbstractInterceptorAttribute
     {

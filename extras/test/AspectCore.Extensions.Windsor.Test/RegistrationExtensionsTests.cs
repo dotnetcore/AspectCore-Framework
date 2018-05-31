@@ -1,12 +1,11 @@
-﻿using System.Reflection;
-using System.Threading.Tasks;
-using AspectCore.DynamicProxy;
-using AspectCore.Extensions.Windsor.Test.Fakes;
+﻿using System.Threading.Tasks;
+using AspectCore.Extensions.Windsor;
+using AspectCoreTest.Windsor.Fakes;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Xunit;
 
-namespace AspectCore.Extensions.Windsor.Test
+namespace AspectCoreTest.Windsor
 {
     public class RegistrationExtensionsTests
     {

@@ -1,4 +1,4 @@
-﻿namespace AspectCore.Extensions.Windsor.Test.Fakes
+﻿namespace AspectCoreTest.Windsor.Fakes
 {
     public class Controller : IController
     {
