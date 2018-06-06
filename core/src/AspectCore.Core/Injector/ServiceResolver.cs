@@ -46,6 +46,11 @@ namespace AspectCore.Injector
 
             var definition = _serviceTable.TryGetService(serviceType);
 
+            return ResolveDefinition(definition);
+        }
+
+        internal object ResolveDefinition(ServiceDefinition definition)
+        {
             if (definition == null)
             {
                 return null;

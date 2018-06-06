@@ -34,6 +34,40 @@ namespace AspectCore.Tests.Injector
             Assert.NotNull(many);
             Assert.Equal(0, many.Count());
         }
+        
+        [Fact]
+        public void Resolve_Enumerable_Lifetime()
+        {
+            var many = ServiceResolver.Resolve<IEnumerable<IService>>().ToArray();
+            var many1 = ServiceResolver.Resolve<IEnumerable<IService>>().ToArray();
+            Assert.NotEqual(many[0], many1[0]);
+            Assert.Equal(many[1], many1[1]);
+            Assert.Equal(many[2], many1[2]);
+            using (var scope = ServiceResolver.CreateScope())
+            {
+                var many2 = scope.Resolve<IEnumerable<IService>>().ToArray();
+                Assert.NotEqual(many[0], many2[0]);
+                Assert.Equal(many[1], many2[1]);
+                Assert.NotEqual(many[2], many2[2]);
+            }
+        }
+        
+        [Fact]
+        public void Resolve_Many_Lifetime()
+        {
+            var many = ServiceResolver.ResolveMany<IService>().ToArray();
+            var many1 = ServiceResolver.ResolveMany<IService>().ToArray();
+            Assert.NotEqual(many[0], many1[0]);
+            Assert.Equal(many[1], many1[1]);
+            Assert.Equal(many[2], many1[2]);
+            using (var scope = ServiceResolver.CreateScope())
+            {
+                var many2 = scope.Resolve<IEnumerable<IService>>().ToArray();
+                Assert.NotEqual(many[0], many2[0]);
+                Assert.Equal(many[1], many2[1]);
+                Assert.NotEqual(many[2], many2[2]);
+            }
+        }
 
         protected override void ConfigureService(IServiceContainer serviceContainer)
         {
