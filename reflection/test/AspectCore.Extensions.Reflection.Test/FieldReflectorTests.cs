@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Xunit;
 
 namespace AspectCore.Extensions.Reflection.Test
@@ -87,15 +88,37 @@ namespace AspectCore.Extensions.Reflection.Test
             var fieldValue = fieldReflector.GetValue(fakes);
             Assert.Equal(100, fieldValue);
         }
+
+        [Fact]
+        public void Enum_Get()
+        {
+            var refactor = typeof(State).GetField(nameof(State.Start)).GetReflector();
+            var value = refactor.GetStaticValue();
+            Assert.Equal(State.Start, value);
+        }
+        
+        [Fact]
+        public void Enum_Underlying_Get()
+        {
+            var refactor = typeof(Day).GetField(nameof(Day.Sun)).GetReflector();
+            var value = refactor.GetStaticValue();
+            Assert.Equal(Day.Sun, value);
+        }
+        
+        [Fact]
+        public void Enum_Flag_Get()
+        {
+            var refactor = typeof(Attributes).GetField(nameof(Attributes.NonPublic)).GetReflector();
+            var value = refactor.GetStaticValue();
+            Assert.Equal(Attributes.NonPublic, value);
+        }
     }
 
     public class FieldFakes
     {
-        [AttributeFakes]
-        public static string StaticFiled;
+        [AttributeFakes] public static string StaticFiled;
 
-        [AttributeFakes1(100)]
-        public string InstanceField;
+        [AttributeFakes1(100)] public string InstanceField;
 
         public int StructField;
     }
@@ -105,7 +128,7 @@ namespace AspectCore.Extensions.Reflection.Test
         [AttributeFakes2(typeof(FieldFakes<>), Name = "Lemon", Obj = null)]
         public static T StaticFiled;
 
-        [AttributeFakes3(typeof(int), typeof(long), Ids = new int[] { 1, 2, 3 })]
+        [AttributeFakes3(typeof(int), typeof(long), Ids = new int[] {1, 2, 3})]
         public T InstanceField;
     }
 
@@ -114,5 +137,31 @@ namespace AspectCore.Extensions.Reflection.Test
         public string ClassField;
 
         public int StructField;
+    }
+
+    public enum State
+    {
+        Start,
+        Stop
+    }
+
+    public enum Day : short
+    {
+        Sat = 1,
+        Sun,
+        Mon,
+        Tue,
+        Wed,
+        Thu,
+        Fri
+    }
+
+    [Flags]
+    public enum Attributes
+    {
+        Private = 1,
+        Protected = 2,
+        Public = 4,
+        NonPublic = Private | Protected
     }
 }

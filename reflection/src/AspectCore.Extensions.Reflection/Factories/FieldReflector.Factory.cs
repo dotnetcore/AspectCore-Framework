@@ -11,6 +11,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(reflectionInfo));
             }
+
             return ReflectorCacheUtils<FieldInfo, FieldReflector>.GetOrAdd(reflectionInfo, CreateInternal);
 
             FieldReflector CreateInternal(FieldInfo field)
@@ -19,10 +20,17 @@ namespace AspectCore.Extensions.Reflection
                 {
                     return new OpenGenericFieldReflector(field);
                 }
+
+                if (field.DeclaringType.IsEnum)
+                {
+                    return new EnumFieldReflector(field);
+                }
+
                 if (field.IsStatic)
                 {
                     return new StaticFieldReflector(field);
                 }
+
                 return new FieldReflector(field);
             }
         }
