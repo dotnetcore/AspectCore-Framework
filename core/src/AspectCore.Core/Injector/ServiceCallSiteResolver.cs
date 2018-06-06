@@ -11,19 +11,19 @@ namespace AspectCore.Injector
     internal class ServiceCallSiteResolver
     {
         private readonly ConstructorCallSiteResolver _constructorCallSiteResolver;
-        private readonly ConcurrentDictionary<ServiceDefinition, Func<IServiceResolver, object>> _resolvedCallSites;
+        private readonly ConcurrentDictionary<ServiceDefinition, Func<ServiceResolver, object>> _resolvedCallSites;
         public ServiceCallSiteResolver(ServiceTable serviceTable)
         {
             _constructorCallSiteResolver = new ConstructorCallSiteResolver(serviceTable);
-            _resolvedCallSites = new ConcurrentDictionary<ServiceDefinition, Func<IServiceResolver, object>>();
+            _resolvedCallSites = new ConcurrentDictionary<ServiceDefinition, Func<ServiceResolver, object>>();
         }
 
-        internal Func<IServiceResolver, object> Resolve(ServiceDefinition service)
+        internal Func<ServiceResolver, object> Resolve(ServiceDefinition service)
         {
             return _resolvedCallSites.GetOrAdd(service, ResolvePropertyInject);
         }
 
-        internal Func<IServiceResolver, object> ResolvePropertyInject(ServiceDefinition service)
+        internal Func<ServiceResolver, object> ResolvePropertyInject(ServiceDefinition service)
         {
             var callSite = ResolveInternal(service);
             if (!service.RequiredPropertyInjection())
@@ -44,7 +44,7 @@ namespace AspectCore.Injector
             };
         }
 
-        internal Func<IServiceResolver, object> ResolveInternal(ServiceDefinition service)
+        internal Func<ServiceResolver, object> ResolveInternal(ServiceDefinition service)
         {
             switch (service)
             {
@@ -65,40 +65,40 @@ namespace AspectCore.Injector
             };
         }
 
-        private Func<IServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefintion manyEnumerableServiceDefintion)
+        private Func<ServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefintion manyEnumerableServiceDefintion)
         {
-            var elementResolvers = manyEnumerableServiceDefintion.ServiceDefinitions.Select(x => Resolve(x)).ToArray();
+            var elementDefinitions = manyEnumerableServiceDefintion.ServiceDefinitions.ToArray();
             var elementType = manyEnumerableServiceDefintion.ElementType;
             return resolver =>
             {
-                var length = elementResolvers.Length;
+                var length = elementDefinitions.Length;
                 var instance = Array.CreateInstance(elementType, length);
                 for (var i = 0; i < length; i++)
                 {
-                    instance.SetValue(elementResolvers[i](resolver), i);
+                    instance.SetValue(resolver.ResolveDefinition(elementDefinitions[i]), i);
                 }
                 return ActivatorUtils.CreateManyEnumerable(elementType, instance);
             };
         }
 
-        private Func<IServiceResolver, object> ResolveEnumerableService(EnumerableServiceDefintion enumerableServiceDefintion)
+        private Func<ServiceResolver, object> ResolveEnumerableService(EnumerableServiceDefintion enumerableServiceDefintion)
         {
-            var elementResolvers = enumerableServiceDefintion.ServiceDefinitions.Select(x => Resolve(x)).ToArray();
+            var elementDefinitions = enumerableServiceDefintion.ServiceDefinitions.ToArray();
             var elementType = enumerableServiceDefintion.ElementType;
             return resolver =>
             {
-                var length = elementResolvers.Length;
+                var length = elementDefinitions.Length;
                 var instance = Array.CreateInstance(elementType, length);
                 for (var i = 0; i < length; i++)
                 {
-                    var element = elementResolvers[i](resolver);
+                    var element = resolver.ResolveDefinition(elementDefinitions[i]);
                     instance.SetValue(element, i);
                 }
                 return instance;
             };
         }
 
-        private Func<IServiceResolver, object> ResolveProxyService(ProxyServiceDefinition proxyServiceDefinition)
+        private Func<ServiceResolver, object> ResolveProxyService(ProxyServiceDefinition proxyServiceDefinition)
         {
             if (proxyServiceDefinition.ServiceType.GetTypeInfo().IsClass)
             {
@@ -110,7 +110,7 @@ namespace AspectCore.Injector
             return resolver => reflector.Invoke(resolver.ResolveRequired<IAspectActivatorFactory>(), serviceResolver(resolver));
         }
 
-        private Func<IServiceResolver, object> ResolveTypeService(TypeServiceDefinition typeServiceDefinition)
+        private Func<ServiceResolver, object> ResolveTypeService(TypeServiceDefinition typeServiceDefinition)
         {
             var callSite = _constructorCallSiteResolver.Resolve(typeServiceDefinition.ImplementationType);
             if (callSite == null)
