@@ -9,6 +9,7 @@
     <PackageId>AspectCore.Extensions.DataAnnotations</PackageId>
     <PackageTags>DataValidation;DataAnnotations;AspectCore;AOP</PackageTags>
     <PackageReleaseNotes>DataAnnotations extension system for AspectCore Framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

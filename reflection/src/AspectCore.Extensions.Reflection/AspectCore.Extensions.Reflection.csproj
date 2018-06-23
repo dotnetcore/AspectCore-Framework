@@ -8,6 +8,7 @@
     <PackageId>AspectCore.Extensions.Reflection</PackageId>
     <PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
     <PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />

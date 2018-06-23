@@ -9,6 +9,7 @@
     <PackageId>AspectCore.Extensions.Windsor</PackageId>
     <PackageTags>DynamicProxy;Aop;Windsor;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for Castle.Windsor via AspectCore Framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
