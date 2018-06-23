@@ -9,6 +9,7 @@
     <PackageId>AspectCore.Extensions.DataValidation</PackageId>
     <PackageTags>DataValidation;AspectCore;AOP</PackageTags>
     <PackageReleaseNotes>DataValidation extension system for AspectCore Framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

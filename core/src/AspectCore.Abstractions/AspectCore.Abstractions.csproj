@@ -9,6 +9,7 @@
     <PackageId>AspectCore.Abstractions</PackageId>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
     <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
