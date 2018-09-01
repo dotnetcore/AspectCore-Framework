@@ -7,6 +7,8 @@ using AspectCore.Configuration;
 using AspectCore.Injector;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
@@ -14,6 +16,11 @@ namespace AspectCore.Extensions.DependencyInjection
     {
         public static IServiceProvider BuildAspectCoreServiceProvider(this IServiceCollection services)
         {
+            return services.AddDynamicProxyCore().BuildServiceProvider(false);
+        }
+        public static IServiceCollection AddDynamicProxyCore(this IServiceCollection services)
+        {
+            services.BuildServiceProvider(false);
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
@@ -24,8 +31,7 @@ namespace AspectCore.Extensions.DependencyInjection
             var serviceValidator = new ServiceValidator(serviceProvider.GetRequiredService<IAspectValidatorBuilder>());
             var proxyTypeGenerator = serviceProvider.GetRequiredService<IProxyTypeGenerator>();
 
-            var dynamicProxyServices = new ServiceCollection();
-
+            IServiceCollection dynamicProxyServices = new ServiceCollection();
             foreach (var service in services)
             {
                 if (serviceValidator.TryValidate(service, out Type implementationType))
@@ -36,8 +42,9 @@ namespace AspectCore.Extensions.DependencyInjection
 
             serviceProvider.Dispose();
 
-            return dynamicProxyServices.BuildServiceProvider(false);
+            return dynamicProxyServices;
         }
+
 
         private static ServiceDescriptor MakeProxyService(ServiceDescriptor descriptor, Type implementationType, IProxyTypeGenerator proxyTypeGenerator)
         {
