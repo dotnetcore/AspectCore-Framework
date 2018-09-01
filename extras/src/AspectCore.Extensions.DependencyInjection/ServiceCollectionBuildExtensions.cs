@@ -20,7 +20,6 @@ namespace AspectCore.Extensions.DependencyInjection
         }
         public static IServiceCollection AddDynamicProxyCore(this IServiceCollection services)
         {
-            services.BuildServiceProvider(false);
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
