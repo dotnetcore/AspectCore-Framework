@@ -25,6 +25,7 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 * [shriek-fx](https://github.com/ElderJames/shriek-fx)   
 * [Util](https://github.com/dotnetcore/Util)
 * [Zxw.Framework.NetCore](https://github.com/VictorTzeng/Zxw.Framework.NetCore)
+* [Tars.Net](https://github.com/TarsNET)
 
 ## Contributors
 * [Savorboard](https://github.com/yuleyule66)  
