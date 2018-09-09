@@ -7,18 +7,17 @@
     <AssemblyTitle>AspectCore.Abstractions</AssemblyTitle>
     <AssemblyName>AspectCore.Abstractions</AssemblyName>
     <PackageId>AspectCore.Abstractions</PackageId>
-    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
+    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
     <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
   </ItemGroup>
   
 </Project>

@@ -6,17 +6,17 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Core</AssemblyName>
     <PackageId>AspectCore.Core</PackageId>
-    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
+    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
     <PackageReleaseNotes>The implementation of the AspectCore framework.</PackageReleaseNotes>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0-rc1" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\reflection\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
     <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.3.0" />
   </ItemGroup>
 </Project>
