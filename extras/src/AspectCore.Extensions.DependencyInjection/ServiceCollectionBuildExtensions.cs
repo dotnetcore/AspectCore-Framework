@@ -22,20 +22,20 @@ namespace AspectCore.Extensions.DependencyInjection
 
         public static ServiceProvider BuildDynamicProxyServiceProvider(this IServiceCollection services)
         {
-            return services.AddDynamicProxyCore().BuildServiceProvider();
+            return services.WeaveDynamicProxyService().BuildServiceProvider();
         }
 
         public static ServiceProvider BuildDynamicProxyServiceProvider(this IServiceCollection services, bool validateScopes)
         {
-            return services.AddDynamicProxyCore().BuildServiceProvider(validateScopes);
+            return services.WeaveDynamicProxyService().BuildServiceProvider(validateScopes);
         }
 
         public static ServiceProvider BuildDynamicProxyServiceProvider(this IServiceCollection services, ServiceProviderOptions options)
         {
-            return services.AddDynamicProxyCore().BuildServiceProvider(options);
+            return services.WeaveDynamicProxyService().BuildServiceProvider(options);
         }
 
-        public static IServiceCollection AddDynamicProxyCore(this IServiceCollection services)
+        public static IServiceCollection WeaveDynamicProxyService(this IServiceCollection services)
         {
             if (services == null)
             {
@@ -50,7 +50,7 @@ namespace AspectCore.Extensions.DependencyInjection
             IServiceCollection dynamicProxyServices = new ServiceCollection();
             foreach (var service in services)
             {
-                if (serviceValidator.TryValidate(service, out Type implementationType))
+                if (serviceValidator.TryValidate(service, out var implementationType))
                     dynamicProxyServices.Add(MakeProxyService(service, implementationType, proxyTypeGenerator));
                 else
                     dynamicProxyServices.Add(service);
