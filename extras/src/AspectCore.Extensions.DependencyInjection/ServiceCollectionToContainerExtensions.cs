@@ -8,12 +8,25 @@ namespace AspectCore.Extensions.DependencyInjection
 {
     public static class ServiceCollectionToContainerExtensions
     {
+        public static IServiceProvider BuildAspectInjectorProvider(this IServiceCollection services)
+        {
+            return BuildAspectInjectorProvider(services, null);
+        }
+
+        public static IServiceProvider BuildAspectInjectorProvider(this IServiceCollection services, Action<IServiceContainer> additional)
+        {
+            var container = services.ToServiceContainer();
+            additional?.Invoke(container);
+            return container.Build();
+        }
+
         public static IServiceContainer ToServiceContainer(this IServiceCollection services)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
+
             services.AddScoped<ISupportRequiredService, SupportRequiredService>();
             services.AddScoped<IServiceScopeFactory, ServiceScopeFactory>();
             return new ServiceContainer(services.AddAspectCoreContainer().Select(Replace));
@@ -24,7 +37,8 @@ namespace AspectCore.Extensions.DependencyInjection
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
-            }         
+            }
+
             services.TryAddSingleton<IServiceProviderFactory<IServiceContainer>, AspectCoreServiceProviderFactory>();
             return services;
         }

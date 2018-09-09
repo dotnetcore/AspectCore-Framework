@@ -14,10 +14,27 @@ namespace AspectCore.Extensions.DependencyInjection
 {
     public static class ServiceCollectionBuildExtensions
     {
+        [Obsolete("Use BuildAspectInjectorProvider to return AspectCore Injector, or Use BuildDynamicProxyServiceProvider to return MSDI ServiceProvider.", true)]
         public static IServiceProvider BuildAspectCoreServiceProvider(this IServiceCollection services)
         {
-            return services.AddDynamicProxyCore().BuildServiceProvider(false);
+            return services.BuildDynamicProxyServiceProvider();
         }
+
+        public static ServiceProvider BuildDynamicProxyServiceProvider(this IServiceCollection services)
+        {
+            return services.AddDynamicProxyCore().BuildServiceProvider();
+        }
+
+        public static ServiceProvider BuildDynamicProxyServiceProvider(this IServiceCollection services, bool validateScopes)
+        {
+            return services.AddDynamicProxyCore().BuildServiceProvider(validateScopes);
+        }
+
+        public static ServiceProvider BuildDynamicProxyServiceProvider(this IServiceCollection services, ServiceProviderOptions options)
+        {
+            return services.AddDynamicProxyCore().BuildServiceProvider(options);
+        }
+
         public static IServiceCollection AddDynamicProxyCore(this IServiceCollection services)
         {
             if (services == null)
@@ -44,37 +61,36 @@ namespace AspectCore.Extensions.DependencyInjection
             return dynamicProxyServices;
         }
 
-
         private static ServiceDescriptor MakeProxyService(ServiceDescriptor descriptor, Type implementationType, IProxyTypeGenerator proxyTypeGenerator)
         {
             var serviceTypeInfo = descriptor.ServiceType.GetTypeInfo();
             if (serviceTypeInfo.IsClass)
             {
                 return ServiceDescriptor.Describe(
-                  descriptor.ServiceType,
-                  proxyTypeGenerator.CreateClassProxyType(descriptor.ServiceType, implementationType),
-                  descriptor.Lifetime);
+                    descriptor.ServiceType,
+                    proxyTypeGenerator.CreateClassProxyType(descriptor.ServiceType, implementationType),
+                    descriptor.Lifetime);
             }
             else if (serviceTypeInfo.IsGenericTypeDefinition)
             {
                 return ServiceDescriptor.Describe(
-                descriptor.ServiceType,
-                proxyTypeGenerator.CreateClassProxyType(implementationType, implementationType),
-                descriptor.Lifetime);
+                    descriptor.ServiceType,
+                    proxyTypeGenerator.CreateClassProxyType(implementationType, implementationType),
+                    descriptor.Lifetime);
             }
             else
             {
                 var proxyType = proxyTypeGenerator.CreateInterfaceProxyType(descriptor.ServiceType, implementationType);
                 return ServiceDescriptor.Describe(
-                  descriptor.ServiceType,
-                  CreateFactory(descriptor, proxyType),
-                  descriptor.Lifetime);
+                    descriptor.ServiceType,
+                    CreateFactory(descriptor, proxyType),
+                    descriptor.Lifetime);
             }
         }
 
         private static Func<IServiceProvider, object> CreateFactory(ServiceDescriptor descriptor, Type proxyType)
         {
-            var proxyConstructor = proxyType.GetTypeInfo().GetConstructor(new Type[] { typeof(IAspectActivatorFactory), descriptor.ServiceType });
+            var proxyConstructor = proxyType.GetTypeInfo().GetConstructor(new Type[] {typeof(IAspectActivatorFactory), descriptor.ServiceType});
             var reflector = proxyConstructor.GetReflector();
             if (descriptor.ImplementationInstance != null)
             {
