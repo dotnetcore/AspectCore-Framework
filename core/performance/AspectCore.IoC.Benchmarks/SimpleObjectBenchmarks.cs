@@ -60,32 +60,32 @@ namespace AspectCore.IoC.Benchmarks
             dryIocContainer.Register(typeof(IRepository<>), typeof(Repository<>));
         }
 
-        //[Benchmark]
+        [Benchmark]
         public IUserService AspectCoreIoC()
         {
             return serviceResolver.Resolve<IUserService>();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public IUserService MicrosoftDependencyInjection()
         {
             return serviceProvider.GetService<IUserService>();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public IUserService Autofac()
         {
             return autofacContainer.Resolve<IUserService>();
         }
 
-        //[Benchmark]
+        [Benchmark]
         public IUserService ZkWebIoC()
         {
             return zkWebContainer.Resolve<IUserService>(ZKWebStandard.Ioc.IfUnresolved.Throw, null);
         }
 
 
-        //[Benchmark]
+        [Benchmark]
         public IUserService DryIoC()
         {
             return dryIocContainer.Resolve<IUserService>();

@@ -26,16 +26,21 @@ namespace AspectCore.Injector
 
         private Func<ServiceResolver, object> ResolveCallback(ServiceDefinition service)
         {
-            if (service.ServiceType.GetReflector().IsDefined<NonCallback>())
+            var callSite = ResolveInternal(service);
+            if (!service.RequiredResolveCallback())
             {
-                return ResolveInternal(service);
+                return callSite;
             }
             
             return resolver =>
             {
-                var instance = ResolveInternal(service)(resolver);
-                var callbacks = resolver.ResolveMany<IServiceResolveCallback>();
-                return callbacks.Aggregate(instance, (current, callback) => callback.Invoke(resolver, current, service));
+                var instance = callSite(resolver);
+                var callbacks = resolver.ServiceResolveCallbacks;
+                for (var i = 0; i < callbacks.Length; i++)
+                {
+                    instance = callbacks[i].Invoke(resolver, instance, service);
+                }
+                return instance;
             };
         }
 
