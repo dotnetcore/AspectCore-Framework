@@ -33,7 +33,8 @@ namespace AspectCore.Injector
             _serviceTable = root._serviceTable;
             _resolvedSingletonServices = root._resolvedSingletonServices;
             _serviceCallSiteResolver = root._serviceCallSiteResolver;
-            _resolvedScopedServices = new ConcurrentDictionary<ServiceDefinition, object>();    
+            _resolvedScopedServices = new ConcurrentDictionary<ServiceDefinition, object>();  
+            ServiceResolveCallbacks = this.ResolveMany<IServiceResolveCallback>().ToArray();
         }
 
         public object GetService(Type serviceType)
