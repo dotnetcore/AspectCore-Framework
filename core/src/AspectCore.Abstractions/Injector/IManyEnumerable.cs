@@ -4,7 +4,7 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
-    [NonAspect]
+    [NonAspect, NonCallback]
     public interface IManyEnumerable<out T> : IEnumerable<T>, IEnumerable
     {
     }

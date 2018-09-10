@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using AspectCore.DynamicProxy;
 
 namespace AspectCore.Injector
 {
     [NonAspect]
-    internal class ServiceResolver : IServiceResolver
+    internal sealed class ServiceResolver : IServiceResolver,IServiceResolveCallbackProvider
     {
-        private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedScopedServcies;
-        private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedSingletonServcies;
+        private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedScopedServices;
+        private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedSingletonServices;
         private readonly ServiceTable _serviceTable;
         private readonly ServiceCallSiteResolver _serviceCallSiteResolver;
         internal readonly ServiceResolver _root;
@@ -18,18 +19,22 @@ namespace AspectCore.Injector
         {
             _serviceTable = new ServiceTable(serviceContainer.Configuration);
             _serviceTable.Populate(serviceContainer);
-            _resolvedScopedServcies = new ConcurrentDictionary<ServiceDefinition, object>();
-            _resolvedSingletonServcies = new ConcurrentDictionary<ServiceDefinition, object>();
+            _resolvedScopedServices = new ConcurrentDictionary<ServiceDefinition, object>();
+            _resolvedSingletonServices = new ConcurrentDictionary<ServiceDefinition, object>();
             _serviceCallSiteResolver = new ServiceCallSiteResolver(_serviceTable);
+            ServiceResolveCallbacks = this.ResolveMany<IServiceResolveCallback>().ToArray();
         }
+
+        public IServiceResolveCallback[] ServiceResolveCallbacks { get; }
 
         public ServiceResolver(ServiceResolver root)
         {
             _root = root;
             _serviceTable = root._serviceTable;
-            _resolvedSingletonServcies = root._resolvedSingletonServcies;
+            _resolvedSingletonServices = root._resolvedSingletonServices;
             _serviceCallSiteResolver = root._serviceCallSiteResolver;
-            _resolvedScopedServcies = new ConcurrentDictionary<ServiceDefinition, object>();    
+            _resolvedScopedServices = new ConcurrentDictionary<ServiceDefinition, object>();  
+            ServiceResolveCallbacks = this.ResolveMany<IServiceResolveCallback>().ToArray();
         }
 
         public object GetService(Type serviceType)
@@ -59,9 +64,9 @@ namespace AspectCore.Injector
             switch (definition.Lifetime)
             {
                 case Lifetime.Singleton:
-                    return _resolvedSingletonServcies.GetOrAdd(definition, d => _serviceCallSiteResolver.Resolve(d)(_root ?? this));
+                    return _resolvedSingletonServices.GetOrAdd(definition, d => _serviceCallSiteResolver.Resolve(d)(_root ?? this));
                 case Lifetime.Scoped:
-                    return _resolvedScopedServcies.GetOrAdd(definition, d => _serviceCallSiteResolver.Resolve(d)(this));
+                    return _resolvedScopedServices.GetOrAdd(definition, d => _serviceCallSiteResolver.Resolve(d)(this));
                 default:
                     return _serviceCallSiteResolver.Resolve(definition)(this);
             }
@@ -70,7 +75,7 @@ namespace AspectCore.Injector
         #region IDisposable Support
         private bool disposedValue = false;
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -78,13 +83,13 @@ namespace AspectCore.Injector
                 {
                     if (_root == null || _root == this)
                     {
-                        foreach (var singleton in _resolvedSingletonServcies.Where(x => x.Value != this))
+                        foreach (var singleton in _resolvedSingletonServices.Where(x => x.Value != this))
                         {
                             var disposable = singleton.Value as IDisposable;
                             disposable?.Dispose();
                         }
                     }
-                    foreach (var scoped in _resolvedScopedServcies.Where(x => x.Value != this))
+                    foreach (var scoped in _resolvedScopedServices.Where(x => x.Value != this))
                     {
                         var disposable = scoped.Value as IDisposable;
                         disposable?.Dispose();

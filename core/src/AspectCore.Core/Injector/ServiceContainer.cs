@@ -73,6 +73,9 @@ namespace AspectCore.Injector
             Singletons.AddInstance<IAspectConfiguration>(_configuration);
             if (!Contains(typeof(ITransientServiceAccessor<>)))
                 Singletons.AddType(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
+            
+            //add service resolve callbacks
+            Scopeds.AddType<IServiceResolveCallback, PropertyInjectorCallback>();
 
             //add DynamicProxy services   
             Singletons.AddType<IInterceptorSelector, ConfigureInterceptorSelector>();

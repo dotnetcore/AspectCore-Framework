@@ -16,7 +16,7 @@ namespace AspectCore1.Extensions.DependencyInjection.Test
         {
             var services = new ServiceCollection();
             services.AddTransient<IService, Service>();
-            var provider = services.BuildAspectCoreServiceProvider();
+            var provider = services.BuildAspectInjectorProvider();
             var service = provider.GetService<IService>();
             var val = service.GetValue("le");
             Assert.Equal("lemon", val);

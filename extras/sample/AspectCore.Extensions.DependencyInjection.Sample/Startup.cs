@@ -34,7 +34,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
                 config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
             });
             //方式二步骤2.调用services.BuildAspectCoreServiceProvider构建动态代理服务解析器
-            return services.BuildAspectCoreServiceProvider();
+            return services.BuildAspectInjectorProvider();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

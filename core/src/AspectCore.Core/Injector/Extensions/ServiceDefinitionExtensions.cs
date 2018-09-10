@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace AspectCore.Injector
 {
     internal static class ServiceDefinitionExtensions
     {
+        private static readonly ConcurrentDictionary<ServiceDefinition, bool> _callbackMap = new ConcurrentDictionary<ServiceDefinition, bool>();
+        
         internal static Type GetImplementationType(this ServiceDefinition serviceDefinition)
         {
             if (serviceDefinition is TypeServiceDefinition typeServiceDefinition)
@@ -59,6 +62,11 @@ namespace AspectCore.Injector
             }
             var serviceTypeInfo = serviceDefinition.ServiceType.GetTypeInfo();
             return serviceTypeInfo.IsGenericType && serviceTypeInfo.GetGenericTypeDefinition() == typeof(IManyEnumerable<>);
+        }
+
+        internal static bool RequiredResolveCallback(this ServiceDefinition serviceDefinition)
+        {
+            return _callbackMap.GetOrAdd(serviceDefinition, service => !service.ServiceType.GetReflector().IsDefined<NonCallback>());
         }
     }
 }

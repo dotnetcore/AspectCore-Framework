@@ -14,7 +14,7 @@ namespace AspectCore.Extensions.DependencyInjection.Test
                 config.Interceptors.AddDelegate((ctx, next) => next(ctx));
             });
 
-            return serviceCollection.BuildAspectCoreServiceProvider();
+            return serviceCollection.BuildDynamicProxyServiceProvider();
         }
     }
 }

@@ -12,6 +12,7 @@ namespace AspectCore.Injector
     {
         private readonly ConstructorCallSiteResolver _constructorCallSiteResolver;
         private readonly ConcurrentDictionary<ServiceDefinition, Func<ServiceResolver, object>> _resolvedCallSites;
+
         public ServiceCallSiteResolver(ServiceTable serviceTable)
         {
             _constructorCallSiteResolver = new ConstructorCallSiteResolver(serviceTable);
@@ -20,31 +21,30 @@ namespace AspectCore.Injector
 
         internal Func<ServiceResolver, object> Resolve(ServiceDefinition service)
         {
-            return _resolvedCallSites.GetOrAdd(service, ResolvePropertyInject);
+            return _resolvedCallSites.GetOrAdd(service, ResolveCallback);
         }
 
-        internal Func<ServiceResolver, object> ResolvePropertyInject(ServiceDefinition service)
+        private Func<ServiceResolver, object> ResolveCallback(ServiceDefinition service)
         {
             var callSite = ResolveInternal(service);
-            if (!service.RequiredPropertyInjection())
+            if (!service.RequiredResolveCallback())
             {
                 return callSite;
             }
+            
             return resolver =>
             {
                 var instance = callSite(resolver);
-                if (instance == null)
+                var callbacks = resolver.ServiceResolveCallbacks;
+                for (var i = 0; i < callbacks.Length; i++)
                 {
-                    return null;
+                    instance = callbacks[i].Invoke(resolver, instance, service);
                 }
-                var injectorFactory = resolver.Resolve<IPropertyInjectorFactory>();
-                var injector = injectorFactory.Create(instance.GetType());
-                injector.Invoke(instance);
                 return instance;
             };
         }
 
-        internal Func<ServiceResolver, object> ResolveInternal(ServiceDefinition service)
+        private Func<ServiceResolver, object> ResolveInternal(ServiceDefinition service)
         {
             switch (service)
             {
@@ -56,13 +56,15 @@ namespace AspectCore.Injector
                     return delegateServiceDefinition.ImplementationDelegate;
                 case TypeServiceDefinition typeServiceDefinition:
                     return ResolveTypeService(typeServiceDefinition);
-                case ManyEnumerableServiceDefintion manyEnumerableServiceDefintion:
-                    return ResolveManyEnumerableService(manyEnumerableServiceDefintion);
-                case EnumerableServiceDefintion enumerableServiceDefintion:
-                    return ResolveEnumerableService(enumerableServiceDefintion);
+                case ManyEnumerableServiceDefintion manyEnumerableServiceDefinition:
+                    return ResolveManyEnumerableService(manyEnumerableServiceDefinition);
+                case EnumerableServiceDefintion enumerableServiceDefinition:
+                    return ResolveEnumerableService(enumerableServiceDefinition);
                 default:
                     return resolver => null;
-            };
+            }
+
+            ;
         }
 
         private Func<ServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefintion manyEnumerableServiceDefintion)
@@ -77,6 +79,7 @@ namespace AspectCore.Injector
                 {
                     instance.SetValue(resolver.ResolveDefinition(elementDefinitions[i]), i);
                 }
+
                 return ActivatorUtils.CreateManyEnumerable(elementType, instance);
             };
         }
@@ -94,6 +97,7 @@ namespace AspectCore.Injector
                     var element = resolver.ResolveDefinition(elementDefinitions[i]);
                     instance.SetValue(element, i);
                 }
+
                 return instance;
             };
         }
@@ -104,7 +108,8 @@ namespace AspectCore.Injector
             {
                 return ResolveTypeService(proxyServiceDefinition.ClassProxyServiceDefinition);
             }
-            var proxyConstructor = proxyServiceDefinition.ProxyType.GetTypeInfo().GetConstructor(new Type[] { typeof(IAspectActivatorFactory), proxyServiceDefinition.ServiceType });
+
+            var proxyConstructor = proxyServiceDefinition.ProxyType.GetTypeInfo().GetConstructor(new Type[] {typeof(IAspectActivatorFactory), proxyServiceDefinition.ServiceType});
             var reflector = proxyConstructor.GetReflector();
             var serviceResolver = Resolve(proxyServiceDefinition.ServiceDefinition);
             return resolver => reflector.Invoke(resolver.ResolveRequired<IAspectActivatorFactory>(), serviceResolver(resolver));
@@ -115,8 +120,10 @@ namespace AspectCore.Injector
             var callSite = _constructorCallSiteResolver.Resolve(typeServiceDefinition.ImplementationType);
             if (callSite == null)
             {
-                throw new InvalidOperationException($"Failed to create instance of type '{typeServiceDefinition.ServiceType}'. Possible reason is cannot match the best constructor of type '{typeServiceDefinition.ImplementationType}'.");
+                throw new InvalidOperationException(
+                    $"Failed to create instance of type '{typeServiceDefinition.ServiceType}'. Possible reason is cannot match the best constructor of type '{typeServiceDefinition.ImplementationType}'.");
             }
+
             return callSite;
         }
     }
