@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using AspectCore.Injector;
 using AspectCore.Extensions.Reflection;
@@ -12,7 +11,7 @@ namespace AspectCore.Extensions.Configuration
 
         public object Invoke(IServiceResolver resolver, object instance, ServiceDefinition service)
         {
-            if (instance == null)
+            if (instance == null || instance is IConfiguration)
             {
                 return instance;
             }
@@ -22,18 +21,22 @@ namespace AspectCore.Extensions.Configuration
             foreach (var field in instanceType.GetFields(_flags))
             {
                 var reflector = field.GetReflector();
-                var configurationBinding = reflector.GetCustomAttribute<ConfigurationBinding>();
-                if (configurationBinding != null)
+                var configurationMetadata = reflector.GetCustomAttribute<ConfigurationMetadataAttribute>();
+                if (configurationMetadata == null)
                 {
-                    var fieldValue = Activator.CreateInstance(field.FieldType);
-                    configuration.Bind(configurationBinding.Section, fieldValue);
-                    reflector.SetValue(instance, fieldValue);
                     continue;
                 }
-                var configurationValue = reflector.GetCustomAttribute<ConfigurationValue>();
-                if (configurationValue != null)
+
+                var section = configurationMetadata.GetSection();
+                if (configurationMetadata.Type == ConfigurationBindType.Value)
                 {
-                    reflector.SetValue(instance, configuration.GetValue(field.FieldType, configurationValue.Key));
+                    var key = section == null ? configurationMetadata.Key : section + ":" + configurationMetadata.Key;
+                    reflector.SetValue(instance, configuration.GetValue(field.FieldType, key));
+                }
+                else
+                {
+                    var configurationSection = section == null ? configuration : configuration.GetSection(section);
+                    reflector.SetValue(instance, configurationSection.Get(field.FieldType));
                 }
             }
 
