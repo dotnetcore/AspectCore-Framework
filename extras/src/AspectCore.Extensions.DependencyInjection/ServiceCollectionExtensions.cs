@@ -43,7 +43,7 @@ namespace AspectCore.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(services));
             }
 
-            //services.ConfigureDynamicProxy();
+            services.ConfigureDynamicProxy();
 
             services.TryAddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>));
             services.TryAddScoped<IServiceResolver, MsdiServiceResolver>();
