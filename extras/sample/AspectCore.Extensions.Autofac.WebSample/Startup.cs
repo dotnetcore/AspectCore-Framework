@@ -1,6 +1,6 @@
 ﻿using System;
 using AspectCore.Configuration;
-using AspectCore.Extensions.Autofac;
+using AspectCoreExtensions.Autofac.WebSample;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -30,7 +30,7 @@ namespace AspectCore.Extensions.Autofac.WebSample
      
             builder.RegisterDynamicProxy(config =>
             {
-                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>(Predicates.ForNameSpace("*"));
+                config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
             });
 
             builder.Populate(services);

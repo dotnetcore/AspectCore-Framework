@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AspectCoreExtensions.Autofac.WebSample;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspectCore.Extensions.Autofac.WebSample.Controllers

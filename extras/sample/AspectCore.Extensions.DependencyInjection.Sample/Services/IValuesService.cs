@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AspectCore.Extensions.DependencyInjection.Sample.Services
+namespace AspectCoreExtensions.DependencyInjection.Sample.Services
 {
     public interface IValuesService
     {
