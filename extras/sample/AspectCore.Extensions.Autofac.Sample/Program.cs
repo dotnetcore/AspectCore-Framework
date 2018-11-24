@@ -1,9 +1,11 @@
 ﻿using System;
 using AspectCore.Configuration;
+using AspectCore.Extensions.Autofac;
+using AspectCore.Extensions.Autofac.Sample;
 using AspectCore.Injector;
 using Autofac;
 
-namespace AspectCore.Extensions.Autofac.Sample
+namespace AspectCoreExtensions.Sample
 {
     class Program
     {
@@ -30,8 +32,6 @@ namespace AspectCore.Extensions.Autofac.Sample
             var taskService = container.Resolve<ITaskService>();
 
             taskService.Run();
-
-            Console.ReadKey();
         }
     }
 
