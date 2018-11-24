@@ -25,7 +25,7 @@ namespace AspectCore.Extensions.DependencyInjection
             }
 
             var configurationService = services.LastOrDefault(x => x.ServiceType == typeof(IAspectConfiguration) && x.ImplementationInstance != null);
-            var configuration = (IAspectConfiguration)configurationService?.ImplementationInstance ?? new AspectConfiguration();
+            var configuration = (IAspectConfiguration) configurationService?.ImplementationInstance ?? new AspectConfiguration();
             configure?.Invoke(configuration);
 
             if (configurationService == null)
@@ -59,6 +59,7 @@ namespace AspectCore.Extensions.DependencyInjection
             services.TryAddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
             services.TryAddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
             services.TryAddSingleton<IAspectCachingProvider, AspectCachingProvider>();
+            services.TryAddSingleton<IAspectExceptionWrapper, AspectExceptionWrapper>();
 
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, AttributeInterceptorSelector>();

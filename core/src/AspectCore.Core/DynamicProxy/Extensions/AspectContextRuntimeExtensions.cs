@@ -13,32 +13,22 @@ namespace AspectCore.DynamicProxy
 
         internal static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
+        public static Task AwaitIfAsync(this AspectContext aspectContext)
+        {
+            return AwaitIfAsync(aspectContext, aspectContext.ReturnValue);
+        }
+
         public static async Task AwaitIfAsync(this AspectContext aspectContext, object returnValue)
         {
             if (returnValue == null)
             {
                 return;
             }
+
             if (returnValue is Task task)
             {
-                try
-                {
-                    await task;
-                }
-                catch (Exception ex)
-                {
-                    throw aspectContext.InvocationException(ex);
-                }
+                await task;
             }
-        }
-
-        public static AspectInvocationException InvocationException(this AspectContext aspectContext, Exception exception)
-        {
-            if (exception is AspectInvocationException aspectInvocationException)
-            {
-                return aspectInvocationException;
-            }
-            return new AspectInvocationException(aspectContext, exception);
         }
 
         public static bool IsAsync(this AspectContext aspectContext)
@@ -47,16 +37,24 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(aspectContext));
             }
+
             var isAsyncFromMetaData = isAsyncCache.GetOrAdd(aspectContext.ServiceMethod, IsAsyncFromMetaData);
             if (isAsyncFromMetaData)
             {
                 return true;
             }
+
             if (aspectContext.ReturnValue != null)
             {
                 return IsAsyncType(aspectContext.ReturnValue.GetType().GetTypeInfo());
             }
+
             return false;
+        }
+
+        public static async Task<T> UnwrapAsyncReturnValue<T>(this AspectContext aspectContext)
+        {
+            return (T) await UnwrapAsyncReturnValue(aspectContext);
         }
 
         public static Task<object> UnwrapAsyncReturnValue(this AspectContext aspectContext)
@@ -65,15 +63,18 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(aspectContext));
             }
+
             if (!aspectContext.IsAsync())
             {
                 throw new AspectInvocationException(aspectContext, new InvalidOperationException("This operation only support asynchronous method."));
             }
+
             var returnValue = aspectContext.ReturnValue;
             if (returnValue == null)
             {
                 return null;
             }
+
             var returnTypeInfo = returnValue.GetType().GetTypeInfo();
             return Unwrap(returnValue, returnTypeInfo);
         }
@@ -90,7 +91,7 @@ namespace AspectCore.DynamicProxy
             else if (valueTypeInfo.IsValueTask())
             {
                 // Is there better solution to unwrap ?
-                result = (object)(await (dynamic)value);
+                result = (object) (await (dynamic) value);
             }
             else if (value is Task)
             {
@@ -111,6 +112,7 @@ namespace AspectCore.DynamicProxy
             {
                 return Unwrap(result, resultTypeInfo);
             }
+
             return result;
         }
 
@@ -120,6 +122,7 @@ namespace AspectCore.DynamicProxy
             {
                 return true;
             }
+
             if (method.IsDefined(typeof(AsyncAspectAttribute), true))
             {
                 if (method.ReturnType == typeof(object))
@@ -127,6 +130,7 @@ namespace AspectCore.DynamicProxy
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -137,14 +141,17 @@ namespace AspectCore.DynamicProxy
             {
                 return true;
             }
+
             if (typeInfo.IsTaskWithResult())
             {
                 return true;
             }
+
             if (typeInfo.IsValueTask())
             {
                 return true;
             }
+
             return false;
         }
     }

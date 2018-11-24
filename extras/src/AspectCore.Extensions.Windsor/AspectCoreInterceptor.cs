@@ -15,16 +15,20 @@ namespace AspectCore.Extensions.Windsor
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
         private readonly IAspectContextFactory _aspectContextFactory;
         private readonly IAspectValidator _aspectValidator;
+        private readonly IAspectExceptionWrapper _aspectExceptionWrapper;
         private const string IndexFieldName = "currentInterceptorIndex";
-        private static readonly FieldInfo _indexFieldInfo = typeof(AbstractInvocation).GetField(IndexFieldName, 
-                                                                    BindingFlags.Instance | BindingFlags.NonPublic);
+
+        private static readonly FieldInfo _indexFieldInfo = typeof(AbstractInvocation).GetField(IndexFieldName,
+            BindingFlags.Instance | BindingFlags.NonPublic);
 
         public AspectCoreInterceptor(IAspectBuilderFactory aspectBuilderFactory,
-            IAspectContextFactory aspectContextFactory, IAspectValidatorBuilder aspectValidatorBuilder)
+            IAspectContextFactory aspectContextFactory, IAspectValidatorBuilder aspectValidatorBuilder,
+            IAspectExceptionWrapper aspectExceptionWrapper)
         {
             _aspectBuilderFactory = aspectBuilderFactory ?? throw new ArgumentNullException(nameof(aspectBuilderFactory));
             _aspectContextFactory = aspectContextFactory ?? throw new ArgumentNullException(nameof(aspectContextFactory));
             _aspectValidator = aspectValidatorBuilder?.Build() ?? throw new ArgumentNullException(nameof(aspectValidatorBuilder));
+            _aspectExceptionWrapper = aspectExceptionWrapper ?? throw new ArgumentNullException(nameof(aspectExceptionWrapper));
         }
 
         public void Intercept(IInvocation invocation)
@@ -34,6 +38,7 @@ namespace AspectCore.Extensions.Windsor
                 invocation.Proceed();
                 return;
             }
+
             if (invocation.Proxy == null)
             {
                 return;
@@ -49,8 +54,9 @@ namespace AspectCore.Extensions.Windsor
                 return Task.FromResult(0);
             });
             var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);
-            var activator = new AspectActivatorFactory(_aspectContextFactory, builderFactory).Create();
-            var activatorContext = new AspectActivatorContext(invocation.Method, invocation.MethodInvocationTarget, proxyMethod, invocation.InvocationTarget, invocation.Proxy, invocation.Arguments);
+            var activator = new AspectActivatorFactory(_aspectContextFactory, builderFactory, _aspectExceptionWrapper).Create();
+            var activatorContext = new AspectActivatorContext(invocation.Method, invocation.MethodInvocationTarget, proxyMethod, invocation.InvocationTarget, invocation.Proxy,
+                invocation.Arguments);
             var reflector = InterceptUtils.GetInvokeReflector(invocation.Method);
             invocation.ReturnValue = reflector.Invoke(activator, activatorContext);
         }

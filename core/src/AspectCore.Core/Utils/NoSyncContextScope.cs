@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace AspectCore.Core.Utils
 {
-    public static class NoSyncContextScope
+    internal static class NoSyncContextScope
     {
         // See: https://stackoverflow.com/questions/28305968/use-task-run-in-synchronous-method-to-avoid-deadlock-waiting-on-async-method
-        public static IDisposable Enter()
+        private static IDisposable Enter()
         {
             var context = SynchronizationContext.Current;
             SynchronizationContext.SetSynchronizationContext(null);

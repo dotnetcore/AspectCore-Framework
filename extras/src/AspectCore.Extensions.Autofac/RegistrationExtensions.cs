@@ -55,8 +55,7 @@ namespace AspectCore.Extensions.Autofac
                 }
                 else
                 {
-                    var instanceService = service as InstanceServiceDefinition;
-                    if (instanceService != null)
+                    if (service is InstanceServiceDefinition instanceService)
                     {
                         builder.
                             RegisterInstance(instanceService.ImplementationInstance).

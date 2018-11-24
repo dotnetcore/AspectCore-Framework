@@ -11,5 +11,7 @@ namespace AspectCore.Configuration
         InterceptorCollection Interceptors { get; }
 
         NonAspectPredicateCollection NonAspectPredicates { get; }
+
+        bool ThrowAspectException { get; set; }
     }
 }
