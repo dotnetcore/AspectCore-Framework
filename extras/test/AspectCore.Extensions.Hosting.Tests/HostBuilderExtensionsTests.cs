@@ -14,16 +14,17 @@ namespace AspectCore.Extensions.Hosting.Tests
         public void UserAspectCore_Container()
         {
             var hostBuilder = new HostBuilder();
-            hostBuilder.ConfigureAspectCoreContainer();
+            hostBuilder.ConfigureAspectInjector();
             var host = hostBuilder.Build();
             Assert.IsAssignableFrom<IServiceResolver>((host.Services as IServiceResolver));
+            host.Dispose();
         }
 
         [Fact]
         public void UseAspectCore_Configure()
         {
             var hostBuilder = new HostBuilder();
-            hostBuilder.ConfigureAspectCoreContainer(container =>
+            hostBuilder.ConfigureAspectInjector(container =>
             {
                 container.AddType<IService, Service>();
                 container.Configure(config =>

@@ -81,6 +81,7 @@ namespace AspectCore.Injector
             {
                 if (disposing)
                 {
+                    disposedValue = true;
                     if (_root == null || _root == this)
                     {
                         foreach (var singleton in _resolvedSingletonServices.Where(x => x.Value != this))
@@ -95,7 +96,6 @@ namespace AspectCore.Injector
                         disposable?.Dispose();
                     }
                 }
-                disposedValue = true;
             }
         }
 
