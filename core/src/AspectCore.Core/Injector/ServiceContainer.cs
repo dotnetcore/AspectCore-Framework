@@ -100,7 +100,7 @@ namespace AspectCore.Injector
             if (!Contains(typeof(IAspectCachingProvider)))
                 Singletons.AddType<IAspectCachingProvider, AspectCachingProvider>();
             if (!Contains(typeof(IAspectExceptionWrapper)))
-                Singletons.AddType<IAspectExceptionWrapper, IAspectExceptionWrapper>();
+                Singletons.AddType<IAspectExceptionWrapper, AspectExceptionWrapper>();
         }
 
         public int Count => _collection.Count;
