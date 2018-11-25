@@ -36,13 +36,14 @@ namespace AspectCore.Extensions.Windsor
                 Component.For<IInterceptorCollector>().ImplementedBy<InterceptorCollector>().LifestyleSingleton(),
                 Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleSingleton(),
                 Component.For<IAspectCachingProvider>().ImplementedBy<AspectCachingProvider>().LifestyleSingleton(),
+                Component.For<IAspectExceptionWrapper>().ImplementedBy<AspectExceptionWrapper>().LifestyleSingleton(),
                 Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleSingleton(),
                 Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(),
                 Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleSingleton(),
                 Component.For<IParameterInterceptorSelector>().ImplementedBy<ParameterInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IAdditionalInterceptorSelector>().ImplementedBy<AttributeAdditionalInterceptorSelector>().LifestyleSingleton(),
                 Component.For<IAspectConfiguration>().Instance(_aspectConfiguration).LifestyleSingleton()
-                );
+            );
             kernel.Register(Component.For<AspectCoreInterceptor>());
             kernel.ComponentModelCreated += Kernel_ComponentModelCreated;
             kernel.Resolver.AddSubResolver(new CompatibleCollectionResolver(kernel));

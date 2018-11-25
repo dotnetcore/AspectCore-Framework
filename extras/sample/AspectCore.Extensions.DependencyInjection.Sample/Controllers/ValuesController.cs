@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using AspectCore.Extensions.DependencyInjection.Sample.Services;
+using AspectCoreExtensions.DependencyInjection.Sample.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspectCore.Extensions.DependencyInjection.Sample.Controllers

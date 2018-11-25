@@ -99,6 +99,8 @@ namespace AspectCore.Injector
                 Scopeds.AddType<IParameterInterceptorSelector, ParameterInterceptorSelector>();
             if (!Contains(typeof(IAspectCachingProvider)))
                 Singletons.AddType<IAspectCachingProvider, AspectCachingProvider>();
+            if (!Contains(typeof(IAspectExceptionWrapper)))
+                Singletons.AddType<IAspectExceptionWrapper, AspectExceptionWrapper>();
         }
 
         public int Count => _collection.Count;

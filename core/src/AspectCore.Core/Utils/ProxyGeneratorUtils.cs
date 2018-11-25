@@ -1053,7 +1053,6 @@ namespace AspectCore.Utils
 
             public void AddMethod(string name, MethodInfo method)
             {
-                name = name.GetHashCode().ToString();
                 if (!_fields.ContainsKey(name))
                 {
                     var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.InitOnly | FieldAttributes.Assembly);
@@ -1068,7 +1067,6 @@ namespace AspectCore.Utils
 
             public void LoadMethod(ILGenerator ilGen, string name)
             {
-                name = name.GetHashCode().ToString();
                 if (_fields.TryGetValue(name, out FieldBuilder field))
                 {
                     ilGen.Emit(OpCodes.Ldsfld, field);

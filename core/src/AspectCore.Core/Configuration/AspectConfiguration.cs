@@ -10,8 +10,11 @@ namespace AspectCore.Configuration
 
         public NonAspectPredicateCollection NonAspectPredicates { get; }
 
+        public bool ThrowAspectException { get; set; }
+
         public AspectConfiguration()
         {
+            ThrowAspectException = true;
             ValidationHandlers = new AspectValidationHandlerCollection().AddDefault(this);
             Interceptors = new InterceptorCollection();
             NonAspectPredicates = new NonAspectPredicateCollection().AddDefault();

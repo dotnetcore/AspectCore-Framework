@@ -9,7 +9,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample.DynamicProxy
 {
     public class MethodExecuteLoggerInterceptor : AbstractInterceptor
     {
-        public async override Task Invoke(AspectContext context, AspectDelegate next)
+        public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             await next(context);
