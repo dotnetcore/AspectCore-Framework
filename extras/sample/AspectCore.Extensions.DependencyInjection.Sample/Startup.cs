@@ -26,7 +26,7 @@ namespace AspectCore.Extensions.DependencyInjection.Sample
 
             services.AddTransient<IValuesService, ValuesService>();
 
-            services.AddDynamicProxy(config =>
+            services.ConfigureDynamicProxy(config =>
             {
                 config.Interceptors.AddTyped<MethodExecuteLoggerInterceptor>();
             });
