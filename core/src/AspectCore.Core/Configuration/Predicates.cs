@@ -11,8 +11,6 @@ namespace AspectCore.Configuration
                 throw new ArgumentNullException(nameof(nameSpace));
             }
 
-            ;
-
             return method => method.DeclaringType.Namespace.Matches(nameSpace);
         }
 
