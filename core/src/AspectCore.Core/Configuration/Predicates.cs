@@ -9,7 +9,7 @@ namespace AspectCore.Configuration
             if (nameSpace == null)
             {
                 throw new ArgumentNullException(nameof(nameSpace));
-            };
+            }
 
             return method => method.DeclaringType.Namespace.Matches(nameSpace);
         }
@@ -27,6 +27,7 @@ namespace AspectCore.Configuration
                 {
                     return true;
                 }
+
                 var declaringType = method.DeclaringType;
                 var fullName = declaringType.FullName ?? $"{declaringType.Name}.{declaringType.Name}";
                 return fullName.Matches(service);
@@ -56,6 +57,26 @@ namespace AspectCore.Configuration
             }
 
             return methodInfo => ForService(service)(methodInfo) && methodInfo.Name.Matches(method);
+        }
+
+        public static AspectPredicate Implement(Type baseOrInterfaceType)
+        {
+            if (baseOrInterfaceType == null)
+            {
+                throw new ArgumentNullException(nameof(baseOrInterfaceType));
+            }
+
+            if (!(baseOrInterfaceType.IsClass || baseOrInterfaceType.IsInterface))
+            {
+                throw new ArgumentException("The base type must be class or interface.");
+            }
+
+            if (baseOrInterfaceType.IsSealed)
+            {
+                throw new ArgumentException("The base type is not allowed to be Sealed.");
+            }
+            
+            return methodInfo => baseOrInterfaceType.IsAssignableFrom(methodInfo.DeclaringType);
         }
     }
 }
