@@ -6,9 +6,6 @@ branches:
 environment:
   BUILDING_ON_PLATFORM: win
   BuildEnvironment: appveyor
-skip_commits:
-  files:
-    - LICENSE
 build_script:
 - ps: ./build.ps1
 test: off
