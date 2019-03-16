@@ -121,17 +121,17 @@ public IServiceProvider ConfigureServices(IServiceCollection services)
 
 ### 性能
 Autofac是目前.net/.net core较为流行的IoC容器之一，我们把Autofac(4.6.2版本)作为性能对比测试目标。分别从解析简单对象，属性注入和构造器注入三个方面对比性能。  
-Benckmark类编写如下：
+Benchmark类编写如下：
 
 ```
 [AllStatisticsColumn]
 [MemoryDiagnoser]
-public class Benckmarks
+public class Benchmarks
 {
     private readonly IServiceResolver serviceResolver;
     private readonly IContainer container;
 
-    public Benckmarks()
+    public Benchmarks()
     {
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterType<Logger>().As<ILogger>().InstancePerDependency();
