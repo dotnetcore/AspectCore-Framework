@@ -4,7 +4,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dotnetcore/AspectCore/blob/dev/LICENSE)  
 AspectCore is an Aspect-Oriented Programming based cross platform framework for .NET Core and .NET Framework.  
   
-Core support for aspect-interceptor,dependency injection integration , web applications , data validation , and more.   
+Core support for aspect-interceptor, dependency injection integration, web applications, data validation, and more.
 
 ## Nuget Packages
 
@@ -25,8 +25,8 @@ Core support for aspect-interceptor,dependency injection integration , web appli
 | AspectCore.Extensions.Hosting  | [![nuget](https://img.shields.io/nuget/v/AspectCore.Extensions.Hosting.svg?style=flat-square)](https://www.nuget.org/packages/AspectCore.Extensions.Hosting) | [![myget](https://img.shields.io/myget/aspectcore/vpre/AspectCore.Extensions.Hosting.svg?style=flat-square)](https://www.myget.org/feed/aspectcore/package/nuget/AspectCore.Extensions.Hosting) | [![stats](https://img.shields.io/nuget/dt/AspectCore.Extensions.Hosting.svg?style=flat-square)](https://www.nuget.org/stats/packages/AspectCore.Extensions.Hosting?groupby=Version) |
 
 ## Docs
-[IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
-[Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
+* [IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
+* [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
 
 ## Components  
 * [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
