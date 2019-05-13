@@ -46,7 +46,8 @@ namespace AspectCore.Extensions.DataAnnotations
             }
             foreach (var property in dataMetaData.Type.GetTypeInfo().GetProperties())
             {
-                if (!property.CanRead)
+                //property.GetIndexParameters().Length > 0 ；Indicates that the attribute is an indexer
+                if (!property.CanRead || property.GetIndexParameters().Length > 0)
                     continue;
                 var propertyValidationContext = new PropertyValidationContext(new PropertyMetaData(property, dataMetaData.Value), aspectContext);
                 var results = _propertyValidator.Validate(propertyValidationContext).ToList();
