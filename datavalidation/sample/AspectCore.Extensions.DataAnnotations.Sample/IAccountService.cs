@@ -8,12 +8,16 @@ namespace DataAnnotations.Sample
     public interface IAccountService
     {
         void Register(RegisterInput input);
+        string TestString(string a);
     }
 
     public class AccountService : IAccountService
     {
         public IDataState DataState { get; set; }
-
+        public string TestString(string str)
+        {
+            return str;
+        }
         public void Register(RegisterInput input)
         {
             if (DataState.IsValid)

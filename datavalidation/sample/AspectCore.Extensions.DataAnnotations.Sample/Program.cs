@@ -23,6 +23,7 @@ namespace DataAnnotations.Sample
             var serviceResolver = services.Build();
             var accountService = serviceResolver.Resolve<IAccountService>();
 
+            var result = accountService.TestString("test");
             accountService.Register(new RegisterInput { Name = null, Email = null });
             accountService.Register(new RegisterInput { Name = "lemon", Email = "lemon", Password = "****" });
             accountService.Register(new RegisterInput { Name = "lemon", Email = "lemon@lemon.com", Password = "****" });
