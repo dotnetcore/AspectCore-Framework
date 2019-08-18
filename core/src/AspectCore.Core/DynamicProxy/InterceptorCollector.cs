@@ -60,7 +60,7 @@ namespace AspectCore.DynamicProxy
                return HandleInjector(CollectFromService(serviceMethod).
                     Concat(CollectFromAdditionalSelector(serviceMethod, implementationMethod)).
                     HandleSort().
-                    HandleMultiple()).ToArray();
+                    HandleMultiple()).Distinct().ToArray();
             });
         }
 

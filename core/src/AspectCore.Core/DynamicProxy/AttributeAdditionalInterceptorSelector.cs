@@ -10,16 +10,23 @@ namespace AspectCore.DynamicProxy
     {
         public IEnumerable<IInterceptor> Select(MethodInfo serviceMethod, MethodInfo implementationMethod)
         {
+            if (serviceMethod == implementationMethod)
+            {
+                yield break;
+            }
+
             foreach (var attribute in implementationMethod.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
             {
                 if (attribute is IInterceptor interceptor)
                     yield return interceptor;
             }
+
             foreach (var attribute in implementationMethod.GetReflector().GetCustomAttributes())
             {
                 if (attribute is IInterceptor interceptor)
                     yield return interceptor;
             }
+
             if (!serviceMethod.DeclaringType.GetTypeInfo().IsClass)
             {
                 foreach (var interceptor in SelectFromBase(implementationMethod))
@@ -36,6 +43,7 @@ namespace AspectCore.DynamicProxy
             {
                 return interceptors;
             }
+
             var baseMethod = baseType.GetTypeInfo().GetMethodBySignature(new MethodSignature(implementationMethod));
             if (baseMethod != null)
             {
@@ -44,13 +52,16 @@ namespace AspectCore.DynamicProxy
                     if (attribute is IInterceptor interceptor && interceptor.Inherited)
                         interceptors.Add(interceptor);
                 }
+
                 foreach (var attribute in baseMethod.GetReflector().GetCustomAttributes())
                 {
                     if (attribute is IInterceptor interceptor && interceptor.Inherited)
                         interceptors.Add(interceptor);
                 }
+
                 interceptors.AddRange(SelectFromBase(baseMethod).Where(x => x.Inherited));
             }
+
             return interceptors;
         }
     }
