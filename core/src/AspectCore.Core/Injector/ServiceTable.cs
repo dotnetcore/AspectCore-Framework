@@ -55,7 +55,11 @@ namespace AspectCore.Injector
                 {
                     case Type enumerable when enumerable == typeof(IEnumerable<>):
                     case Type manyEnumerable when manyEnumerable == typeof(IManyEnumerable<>):
-                        return ContainsLinked(serviceType.GetTypeInfo().GetGenericArguments()[0]) ? true : true;
+                        if (ContainsLinked(serviceType.GetTypeInfo().GetGenericArguments()[0]))
+                        {
+                            return true;
+                        }
+                        break;
                     case Type genericTypeDefinition when _linkedGenericServiceDefinitions.ContainsKey(genericTypeDefinition):
                         return true;
                     default:
@@ -90,7 +94,7 @@ namespace AspectCore.Injector
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
                 return value.Last.Value;
-            }    
+            }
             if (serviceType.IsConstructedGenericType)
             {
                 switch (serviceType.GetGenericTypeDefinition())

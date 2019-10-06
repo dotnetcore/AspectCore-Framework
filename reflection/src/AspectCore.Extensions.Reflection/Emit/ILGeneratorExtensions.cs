@@ -564,7 +564,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Ldc_R4, value);
         }
 
-        public static void EmitArray(this ILGenerator ilGenerator, Array items,Type elementType)
+        public static void EmitArray(this ILGenerator ilGenerator, Array items, Type elementType)
         {
             ilGenerator.EmitInt(items.Length);
             ilGenerator.Emit(OpCodes.Newarr, elementType);
@@ -674,7 +674,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
-        public static void EmitLdRef(this ILGenerator ilGenerator,Type type)
+        public static void EmitLdRef(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
             {
@@ -842,7 +842,7 @@ namespace AspectCore.Extensions.Reflection.Emit
         private static void EmitNullableToReferenceConversion(this ILGenerator ilGenerator, TypeInfo typeFrom)
         {
             // We've got a conversion from nullable to Object, ValueType, Enum, etc.  Just box it so that
-            // we get the nullable semantics.  
+            // we get the nullable semantics.
             ilGenerator.Emit(OpCodes.Box, typeFrom.AsType());
         }
 
@@ -1095,8 +1095,9 @@ namespace AspectCore.Extensions.Reflection.Emit
                 case TypeCode.Decimal:
                 case TypeCode.String:
                     return true;
+                default:
+                    return false;
             }
-            return false;
         }
         #endregion
     }
