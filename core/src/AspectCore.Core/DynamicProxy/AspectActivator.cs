@@ -13,7 +13,8 @@ namespace AspectCore.DynamicProxy
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
         private readonly IAspectExceptionWrapper _aspectExceptionWrapper;
 
-        public AspectActivator(IAspectContextFactory aspectContextFactory, IAspectBuilderFactory aspectBuilderFactory, IAspectExceptionWrapper aspectExceptionWrapper)
+        public AspectActivator(IAspectContextFactory aspectContextFactory, IAspectBuilderFactory aspectBuilderFactory,
+            IAspectExceptionWrapper aspectExceptionWrapper)
         {
             _aspectContextFactory = aspectContextFactory;
             _aspectBuilderFactory = aspectBuilderFactory;
@@ -54,21 +55,29 @@ namespace AspectCore.DynamicProxy
             try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                await aspectBuilder.Build()(context);
-                var result = context.ReturnValue;
-                if (result is Task<TResult> taskWithResult)
+                var task = aspectBuilder.Build()(context);
+
+                if (task.IsFaulted)
                 {
-                    return await taskWithResult;
+                    throw _aspectExceptionWrapper.Wrap(context, task.Exception.InnerException);
                 }
-                else if (result is Task task)
+
+                if (!task.IsCompleted)
                 {
                     await task;
-                    return default(TResult);
                 }
-                else
+
+                switch (context.ReturnValue)
                 {
-                    throw _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
-                        $"Unable to cast object of type '{result.GetType()}' to type '{typeof(Task<TResult>)}'."));
+                    case null:
+                        return default(TResult);
+                    case Task<TResult> taskWithResult:
+                        return taskWithResult.Result;
+                    case Task _:
+                        return default(TResult);
+                    default:
+                        throw _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
+                            $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(Task<TResult>)}'."));
                 }
             }
             catch (Exception ex)
@@ -87,8 +96,30 @@ namespace AspectCore.DynamicProxy
             try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                await aspectBuilder.Build()(context);
-                return await (ValueTask<TResult>) context.ReturnValue;
+                var invoke = aspectBuilder.Build()(context);
+                
+                if (invoke.IsFaulted)
+                {
+                    throw _aspectExceptionWrapper.Wrap(context, invoke.Exception.InnerException);
+                }
+                
+                if (!invoke.IsCompleted)
+                {
+                    await invoke;
+                }
+
+                switch (context.ReturnValue)
+                {
+                    case null:
+                        return default(TResult);
+                    case ValueTask<TResult> taskWithResult:
+                        return taskWithResult.Result;
+                    case ValueTask task:
+                        return default(TResult);
+                    default:
+                        throw _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
+                            $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(ValueTask<TResult>)}'."));
+                }
             }
             catch (Exception ex)
             {
