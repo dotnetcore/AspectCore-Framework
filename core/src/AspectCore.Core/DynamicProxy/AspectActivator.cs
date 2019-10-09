@@ -55,16 +55,16 @@ namespace AspectCore.DynamicProxy
             try
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
-                var task = aspectBuilder.Build()(context);
+                var invoke = aspectBuilder.Build()(context);
 
-                if (task.IsFaulted)
+                if (invoke.IsFaulted)
                 {
-                    throw _aspectExceptionWrapper.Wrap(context, task.Exception.InnerException);
+                    throw _aspectExceptionWrapper.Wrap(context, invoke.Exception?.InnerException);
                 }
 
-                if (!task.IsCompleted)
+                if (!invoke.IsCompleted)
                 {
-                    await task;
+                    await invoke;
                 }
 
                 switch (context.ReturnValue)
@@ -100,7 +100,7 @@ namespace AspectCore.DynamicProxy
                 
                 if (invoke.IsFaulted)
                 {
-                    throw _aspectExceptionWrapper.Wrap(context, invoke.Exception.InnerException);
+                    throw _aspectExceptionWrapper.Wrap(context, invoke.Exception?.InnerException);
                 }
                 
                 if (!invoke.IsCompleted)
