@@ -13,21 +13,29 @@ namespace AspectCore.DynamicProxy
 
         internal static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
-        public static Task AwaitIfAsync(this AspectContext aspectContext)
+        public static ValueTask AwaitIfAsync(this AspectContext aspectContext)
         {
             return AwaitIfAsync(aspectContext, aspectContext.ReturnValue);
         }
 
-        public static async Task AwaitIfAsync(this AspectContext aspectContext, object returnValue)
+        public static async ValueTask AwaitIfAsync(this AspectContext aspectContext, object returnValue)
         {
-            if (returnValue == null)
+            switch (returnValue)
             {
-                return;
-            }
-
-            if (returnValue is Task task)
-            {
-                await task;
+                case null:
+                    break;
+                case Task task:
+                    await task;
+                    break;
+                case ValueTask valueTask:
+                    await valueTask;
+                    break;
+                default:
+                    if (returnValue.GetType().GetTypeInfo().IsValueTaskWithResult())
+                    {
+                        await (dynamic) returnValue;
+                    }
+                    break;
             }
         }
 
@@ -88,7 +96,7 @@ namespace AspectCore.DynamicProxy
                 // Is there better solution to unwrap ?
                 result = (object) (await (dynamic) value);
             }
-            else if (valueTypeInfo.IsValueTask())
+            else if (valueTypeInfo.IsValueTaskWithResult())
             {
                 // Is there better solution to unwrap ?
                 result = (object) (await (dynamic) value);
@@ -148,6 +156,11 @@ namespace AspectCore.DynamicProxy
             }
 
             if (typeInfo.IsValueTask())
+            {
+                return true;
+            }
+
+            if (typeInfo.IsValueTaskWithResult())
             {
                 return true;
             }

@@ -699,6 +699,10 @@ namespace AspectCore.Utils
                         var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
                         ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeValueTask.MakeGenericMethod(returnType));
                     }
+                    else if(method.ReturnType == typeof(ValueTask))
+                    {
+                        ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeValueTask.MakeGenericMethod(typeof(object)));
+                    }
                     else
                     {
                         ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(method.ReturnType));

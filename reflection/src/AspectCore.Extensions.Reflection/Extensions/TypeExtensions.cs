@@ -146,8 +146,17 @@ namespace AspectCore.Extensions.Reflection
             }
             return isTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && typeof(Task).GetTypeInfo().IsAssignableFrom(Info));
         }
-
+        
         public static bool IsValueTask(this TypeInfo typeInfo)
+        {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
+            return typeInfo.AsType() == typeof(ValueTask);
+        }
+
+        public static bool IsValueTaskWithResult(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
