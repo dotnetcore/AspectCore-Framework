@@ -468,19 +468,26 @@ namespace AspectCore.Utils
                         throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                     }
                     var @interface = interfaces.Where(f => f.GetCustomAttribute(typeof(AbstractInterceptorAttribute)) != null).ToArray();
-                    foreach (var item in @interface)
+                    if (@interface.Length > 0)
                     {
-                        implementationMethod = item.GetTypeInfo().GetMethodBySignature(method);
-                        if (implementationMethod != null)
+                        foreach (var item in @interface)
                         {
-                            break;
+                            implementationMethod = item.GetTypeInfo().GetMethodBySignature(method);
+                            if (implementationMethod != null) break;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in interfaces)
+                        {
+                            implementationMethod = item.GetTypeInfo().GetMethodBySignature(method);
+                            if (implementationMethod != null) break;
                         }
                     }
                     if (implementationMethod == null)
                     {
                         throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                     }
-                    //implementationMethod = implType.GetInterfaces()[0].GetTypeInfo().GetMethodBySignature(method);
                 }
 
                 if (method.IsNonAspect())
