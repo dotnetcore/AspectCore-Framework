@@ -158,7 +158,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(methodInfo));
             }
             var returnType = methodInfo.ReturnType.GetTypeInfo();
-            return returnType.IsValueTask();
+            return returnType.IsValueTaskWithResult();
         }
 
         public static bool IsVisibleAndVirtual(this PropertyInfo property)
