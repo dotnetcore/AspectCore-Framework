@@ -37,10 +37,10 @@ public class BuildParameters
 
 	private void InitializeCore()
 	{
-		Projects = Context.GetDirectories("./*/src/*");
-		TestProjects = Context.GetDirectories("./*/test/*");
-		ProjectFiles = Context.GetFiles("./*/src/*/*.csproj");
-		TestProjectFiles = Context.GetFiles("./*/test/*/*.csproj");
+		Projects = Context.GetDirectories("./src/*");
+		TestProjects = Context.GetDirectories("./tests/*");
+		ProjectFiles = Context.GetFiles("./src/*/*.csproj");
+		TestProjectFiles = Context.GetFiles("./tests/*/*.csproj");
 
 		var buildSystem = Context.BuildSystem();
 		if (!buildSystem.IsLocalBuild)
