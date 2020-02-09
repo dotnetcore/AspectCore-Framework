@@ -10,7 +10,7 @@ namespace AspectCoreTest.LightInject
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             await context.Invoke(next);
-            await Task.Delay(100); // 此处模拟一个真.异步方法，用于测试线程上下文切换
+            await Task.Delay(100); // Simulate a TRUE asynchronous method here for testing thread context switching.
 
             if (context.ReturnValue is Task<int> task)
             {

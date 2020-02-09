@@ -10,26 +10,32 @@ namespace AspectCore.Extensions.LightInject
     [NonAspect]
     internal class LightInjectServiceResolver : IServiceResolver
     {
-        private readonly IServiceContainer _container;
+        private readonly IServiceFactory _serviceFactory;
+        private bool _isDisposed = false;
 
-        public LightInjectServiceResolver(IServiceContainer container)
+        public LightInjectServiceResolver(IServiceFactory serviceFactory)
         {
-            _container = container;
+            _serviceFactory = serviceFactory;
         }
 
         public object GetService(Type serviceType)
         {
-            return _container.TryGetInstance(serviceType);
+            return _serviceFactory.TryGetInstance(serviceType);
         }
 
         public void Dispose()
         {
-            _container.Dispose();
+            if (_isDisposed) return;
+            _isDisposed = true; 
+            // To avoid dispose more than one time
+            // And this code block must be before "Dispose"
+            var d = _serviceFactory as IDisposable;
+            d?.Dispose();
         }
 
         public object Resolve(Type serviceType)
         {
-            return _container.TryGetInstance(serviceType);
+            return _serviceFactory.TryGetInstance(serviceType);
         }
     }
 }
