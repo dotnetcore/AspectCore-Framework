@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -572,7 +573,7 @@ namespace AspectCore.Utils
                     }
                     ilGen.Emit(OpCodes.Ret);
                 }
-                
+
                 void EmitProxyMethodBody()
                 {
                     var ilGen = methodBuilder.GetILGenerator();
@@ -699,7 +700,7 @@ namespace AspectCore.Utils
                         var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
                         ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeValueTask.MakeGenericMethod(returnType));
                     }
-                    else if(method.ReturnType == typeof(ValueTask))
+                    else if (method.ReturnType == typeof(ValueTask))
                     {
                         ilGen.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeValueTask.MakeGenericMethod(typeof(object)));
                     }
@@ -994,33 +995,22 @@ namespace AspectCore.Utils
                     var attributeTypeInfo = customAttributeData.AttributeType.GetTypeInfo();
                     var constructor = customAttributeData.Constructor;
                     //var constructorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value).ToArray();
-                    var constructorArgs = new object[customAttributeData.ConstructorArguments.Count];
-                    for (var i = 0; i < constructorArgs.Length; i++)
-                    {
-                        if (customAttributeData.ConstructorArguments[i].ArgumentType.IsArray)
-                        {
-                            constructorArgs[i] = ((IEnumerable<CustomAttributeTypedArgument>)customAttributeData.ConstructorArguments[i].Value).
-                        Select(x => x.Value).ToArray();
-                        }
-                        else
-                        {
-                            constructorArgs[i] = customAttributeData.ConstructorArguments[i].Value;
-                        }
-
-                    }
+                    var constructorArgs = customAttributeData.ConstructorArguments
+                        .Select(ReadAttributeValue)
+                        .ToArray();
                     var namedProperties = customAttributeData.NamedArguments
                             .Where(n => !n.IsField)
                             .Select(n => attributeTypeInfo.GetProperty(n.MemberName))
                             .ToArray();
                     var propertyValues = customAttributeData.NamedArguments
                              .Where(n => !n.IsField)
-                             .Select(n => n.TypedValue.Value)
+                             .Select(n => ReadAttributeValue(n.TypedValue))
                              .ToArray();
                     var namedFields = customAttributeData.NamedArguments.Where(n => n.IsField)
                              .Select(n => attributeTypeInfo.GetField(n.MemberName))
                              .ToArray();
                     var fieldValues = customAttributeData.NamedArguments.Where(n => n.IsField)
-                             .Select(n => n.TypedValue.Value)
+                             .Select(n => ReadAttributeValue(n.TypedValue))
                              .ToArray();
                     return new CustomAttributeBuilder(customAttributeData.Constructor, constructorArgs
                        , namedProperties
@@ -1031,6 +1021,21 @@ namespace AspectCore.Utils
                     return new CustomAttributeBuilder(customAttributeData.Constructor,
                         customAttributeData.ConstructorArguments.Select(c => c.Value).ToArray());
                 }
+            }
+
+            private static object ReadAttributeValue(CustomAttributeTypedArgument argument)
+            {
+                var value = argument.Value;
+                if (argument.ArgumentType.GetTypeInfo().IsArray == false)
+                {
+                    return value;
+                }
+                //special case for handling arrays in attributes
+                //the actual type of "value" is ReadOnlyCollection<CustomAttributeTypedArgument>.
+                var arguments = ((IEnumerable<CustomAttributeTypedArgument>)value)
+                    .Select(m => m.Value)
+                    .ToArray();
+                return arguments;
             }
         }
 
@@ -1120,8 +1125,8 @@ namespace AspectCore.Utils
             public MethodConstantTable MethodConstants { get; }
 
             public Dictionary<string, object> Properties { get; }
-            
-            public Type ServiceType { get;}
+
+            public Type ServiceType { get; }
 
             public TypeDesc(Type serviceType, TypeBuilder typeBuilder, FieldTable fields, MethodConstantTable methodConstants)
             {
