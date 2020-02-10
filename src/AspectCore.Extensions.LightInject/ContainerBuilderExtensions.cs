@@ -1,24 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using AspectCore.Configuration;
+using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
-using AspectCore.DependencyInjection;
 using LightInject;
 using IServiceContainer = LightInject.IServiceContainer;
 
 namespace AspectCore.Extensions.LightInject
 {
-    public enum RegistryType
-    {
-        ByType,
-        ByInstance,
-        ByFactory
-    }
-
     public static class ContainerBuilderExtensions
     {
         private static readonly string[] _nonAspect =
@@ -38,9 +30,14 @@ namespace AspectCore.Extensions.LightInject
             "IHostingEnvironment",
         }.Concat(_nonAspect).ToArray();
 
+        public static IServiceContainer RegisterDynamicProxy(this IServiceContainer containerBuilder, Action<IAspectConfiguration> configure = null)
+        {
+            RegisterDynamicProxy(containerBuilder, null, configure);
+            return containerBuilder;
+        }
+
         public static IServiceContainer RegisterDynamicProxy(this IServiceContainer container,
-            IAspectConfiguration aspectConfig = null,
-            Action<IAspectConfiguration> configure = null)
+            IAspectConfiguration aspectConfig, Action<IAspectConfiguration> configure = null)
         {
             if (container == null)
             {
@@ -55,63 +52,75 @@ namespace AspectCore.Extensions.LightInject
 
             configure?.Invoke(aspectConfig);
 
-            container.RegisterInstance<IAspectConfiguration>(aspectConfig)
-                .Register(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>))
-                .RegisterInstance<IServiceContainer>(container)
-                .Register<IServiceProvider, LightInjectServiceResolver>()
-                .Register<IServiceResolver, LightInjectServiceResolver>()
-                .Register<IAspectContextFactory, AspectContextFactory>()
-                .Register<IAspectActivatorFactory, AspectActivatorFactory>()
-                .Register<IProxyGenerator, ProxyGenerator>()
-                .Register<IParameterInterceptorSelector, ParameterInterceptorSelector>()
-                .Register<IPropertyInjectorFactory, PropertyInjectorFactory>()
-                .Register<IInterceptorCollector, InterceptorCollector>()
-                .Register<IInterceptorSelector, ConfigureInterceptorSelector>()
-                .Register<IInterceptorSelector, AttributeInterceptorSelector>()
-                .Register<IAdditionalInterceptorSelector, AttributeAdditionalInterceptorSelector>()
-                .Register<IAspectValidatorBuilder, AspectValidatorBuilder>()
-                .Register<IAspectBuilderFactory, AspectBuilderFactory>()
-                .Register<IProxyTypeGenerator, ProxyTypeGenerator>()
-                .Register<IAspectCachingProvider, AspectCachingProvider>()
-                .Register<IAspectExceptionWrapper, AspectExceptionWrapper>();
+            container.AddSingleton<IServiceFactory>(container);
+            container.AddSingleton<IServiceContainer>(container);
+            
+            container.AddSingleton<IAspectConfiguration>(aspectConfig)
+                .AddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>))
+                .AddSingleton<IServiceProvider, LightInjectServiceResolver>()
+                .AddSingleton<IServiceResolver, LightInjectServiceResolver>()
+                .AddSingleton<IScopeResolverFactory, LightInjectScopeResolverFactory>()
+                .AddSingleton<IAspectContextFactory, AspectContextFactory>()
+                .AddSingleton<IAspectActivatorFactory, AspectActivatorFactory>()
+                .AddSingleton<IProxyGenerator, ProxyGenerator>()
+                .AddSingleton<IParameterInterceptorSelector, ParameterInterceptorSelector>()
+                .AddSingleton<IPropertyInjectorFactory, PropertyInjectorFactory>()
+                .AddSingleton<IInterceptorCollector, InterceptorCollector>()
+                .AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>(nameof(ConfigureInterceptorSelector))
+                .AddSingleton<IInterceptorSelector, AttributeInterceptorSelector>(nameof(AttributeInterceptorSelector)) // To register multiple services, you should set a name for each implement type.
+                .AddSingleton<IAdditionalInterceptorSelector, AttributeAdditionalInterceptorSelector>()
+                .AddSingleton<IAspectValidatorBuilder, AspectValidatorBuilder>()
+                .AddSingleton<IAspectBuilderFactory, AspectBuilderFactory>()
+                .AddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>()
+                .AddSingleton<IAspectCachingProvider, AspectCachingProvider>()
+                .AddSingleton<IAspectExceptionWrapper, AspectExceptionWrapper>();
 
-            container.Decorate(aspectConfig.CreateDecorator());
+            var aspectValidator = new AspectValidatorBuilder(aspectConfig).Build();
+            container.Decorate(aspectValidator.CreateDecorator(container));
 
             return container;
         }
 
-        private static RegistryType GetRegistryType(this ServiceRegistration registration)
-        {
-            if (registration.FactoryExpression != null) return RegistryType.ByFactory;
-            else if (registration.Value != null) return RegistryType.ByInstance;
-            else return RegistryType.ByType;
-        }
+        private static readonly ConcurrentDictionary<Delegate, Type> _factoryMap
+            = new ConcurrentDictionary<Delegate, Type>();
 
-        private static Type GetImplType(this ServiceRegistration registration)
+        private static Type GetImplType(this ServiceRegistration registration, IServiceFactory factory)
         {
-            switch (registration.GetRegistryType())
+            if (registration.FactoryExpression != null) // ByFactory
             {
-                case RegistryType.ByType: return registration.ImplementingType;
-                case RegistryType.ByInstance: return registration.Value.GetType();
-                case RegistryType.ByFactory: return registration.FactoryExpression.Method.ReturnType;
-                default: throw new ArgumentOutOfRangeException();
+                return _factoryMap.GetOrAdd(registration.FactoryExpression, k =>
+                {
+                    // In order to get the real type, we have to create a instance here.
+                    var obj = registration.FactoryExpression.DynamicInvoke(factory);
+                    if (obj is IDisposable disposable)
+                        disposable.Dispose();
+                    return obj.GetType();
+                });
+            }
+            else if (registration.Value != null) // ByInstance
+            {
+                return registration.Value.GetType();
+            }
+            else // ByType
+            {
+                return registration.ImplementingType;
             }
         }
-        
-        private static DecoratorRegistration CreateDecorator(this IAspectConfiguration aspectConfiguration)
+
+        private static DecoratorRegistration CreateDecorator(this IAspectValidator aspectValidator, IServiceFactory factory)
         {
-            var reg = new DecoratorRegistration()
+            var registration = new DecoratorRegistration()
             {
-                CanDecorate = s => CanDecorate(s, aspectConfiguration),
+                CanDecorate = s => CanDecorate(s, aspectValidator, factory),
                 ImplementingTypeFactory = CreateProxyType
             };
-            return reg;
+            return registration;
         }
 
         private static Type CreateProxyType(IServiceFactory factory, ServiceRegistration registration)
         {
             var serviceType = registration.ServiceType.GetTypeInfo();
-            var implType = registration.GetImplType();
+            var implType = registration.GetImplType(factory);
             var proxyTypeGenerator = factory.GetInstance<IProxyTypeGenerator>();
 
             if (serviceType.IsClass)
@@ -128,16 +137,17 @@ namespace AspectCore.Extensions.LightInject
             }
         }
 
-        private static bool CanDecorate(ServiceRegistration registration, IAspectConfiguration aspectConfiguration)
+        private static bool CanDecorate(ServiceRegistration registration, IAspectValidator aspectValidator, IServiceFactory factory)
         {
             var serviceType = registration.ServiceType.GetTypeInfo();
-            var implType = registration.GetImplType().GetTypeInfo();
+            var implType = registration.GetImplType(factory).GetTypeInfo();
 
             if (implType.IsProxy() || !implType.CanInherited())
             {
                 return false;
             }
-            if (_excepts.Any(x => implType.Name.Matches(x)) || _excepts.Any(x => implType.Namespace.Matches(x)))
+            if (_excepts.Any(x => implType.Name.Matches(x))
+                || implType.Namespace != null && _excepts.Any(x => implType.Namespace.Matches(x)))
             {
                 return false;
             }
@@ -146,7 +156,6 @@ namespace AspectCore.Extensions.LightInject
                 return false;
             }
 
-            var aspectValidator = new AspectValidatorBuilder(aspectConfiguration).Build();
             if (!aspectValidator.Validate(serviceType, true) && !aspectValidator.Validate(implType, false))
             {
                 return false;
