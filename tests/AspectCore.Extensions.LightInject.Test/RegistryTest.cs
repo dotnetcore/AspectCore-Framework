@@ -30,7 +30,7 @@ namespace AspectCoreTest.LightInject
         }
 
         [Fact]
-        public void TestRegisterByInterface()
+        public void Register_Interface()
         {
             var container = CreateContainer();
             container.Register<IService, Service>(new PerRequestLifeTime());
@@ -39,7 +39,7 @@ namespace AspectCoreTest.LightInject
         }
 
         [Fact]
-        public void TestRegisterBySelf()
+        public void Register_Self()
         {
             var container = CreateContainer();
             container.Register<Service>(new PerRequestLifeTime());
@@ -48,7 +48,7 @@ namespace AspectCoreTest.LightInject
         }
 
         [Fact]
-        public void TestRegisterByInstance()
+        public void Register_Instance()
         {
             var container = CreateContainer();
             var service = new Service();
@@ -65,7 +65,7 @@ namespace AspectCoreTest.LightInject
         }
 
         [Fact]
-        public void TestRegisterByFactory()
+        public void Register_Factory()
         {
             var container = CreateContainer();
             container.Register<IService>(s => new Service(), new PerRequestLifeTime());
@@ -78,6 +78,28 @@ namespace AspectCoreTest.LightInject
             Assert.Equal(Result + 1, obj.Foo());
 
             Assert.NotSame(inter, obj);
+        }
+
+        [Fact]
+        public void Register_Factory_Transient_AreDifferent()
+        {
+            var container = CreateContainer();
+            container.Register<IService>(s => new Service());
+
+            var service1 = container.GetInstance<IService>();
+            var service2 = container.GetInstance<IService>();
+            Assert.False(ReferenceEquals(service1, service2));
+        }
+
+        [Fact]
+        public void Register_Factory_Singleton_AreSame()
+        {
+            var container = CreateContainer();
+            container.Register<IService>(s => new Service(), new PerContainerLifetime());
+
+            var service1 = container.GetInstance<IService>();
+            var service2 = container.GetInstance<IService>();
+            Assert.True(ReferenceEquals(service1, service2));
         }
     }
 }
