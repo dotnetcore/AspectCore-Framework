@@ -995,11 +995,9 @@ namespace AspectCore.Utils
                     var attributeTypeInfo = customAttributeData.AttributeType.GetTypeInfo();
                     var constructor = customAttributeData.Constructor;
                     //var constructorArgs = customAttributeData.ConstructorArguments.Select(c => c.Value).ToArray();
-                    var constructorArgs = new object[customAttributeData.ConstructorArguments.Count];
-                    for (var i = 0; i < constructorArgs.Length; i++)
-                    {
-                        constructorArgs[i] = ReadAttributeValue(customAttributeData.ConstructorArguments[i]);
-                    }
+                    var constructorArgs = customAttributeData.ConstructorArguments
+                        .Select(ReadAttributeValue)
+                        .ToArray();
                     var namedProperties = customAttributeData.NamedArguments
                             .Where(n => !n.IsField)
                             .Select(n => attributeTypeInfo.GetProperty(n.MemberName))
