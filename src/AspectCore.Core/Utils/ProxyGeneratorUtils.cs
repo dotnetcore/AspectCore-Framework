@@ -900,17 +900,6 @@ namespace AspectCore.Utils
                 }
             }
 
-            private static bool HasDefaultValueSafely(ParameterInfo parameter)
-            {
-                return (parameter.Attributes & ParameterAttributes.HasDefault) != 0;
-            }
-
-            private static bool IsNullableType(Type type)
-            {
-                return type.GetTypeInfo().IsGenericType &&
-                       type.GetGenericTypeDefinition() == typeof(Nullable<>);
-            }
-
             // Code from https://github.com/castleproject/Core/blob/master/src/Castle.Core/DynamicProxy/Generators/Emitters/MethodEmitter.cs
             private static void CopyDefaultValueConstant(ParameterInfo from, ParameterBuilder to)
             {
@@ -959,7 +948,7 @@ namespace AspectCore.Utils
                 {
                     var parameterType = from.ParameterType;
                     var parameterNonNullableType = parameterType;
-                    var isNullableType = IsNullableType(parameterType);
+                    var isNullableType = parameterType.IsNullableType();
 
                     if (defaultValue == null)
                     {

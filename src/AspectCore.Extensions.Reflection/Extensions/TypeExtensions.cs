@@ -164,5 +164,11 @@ namespace AspectCore.Extensions.Reflection
             }
             return isValueTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && Info.GetGenericTypeDefinition() == typeof(ValueTask<>));
         }
+
+        public static bool IsNullableType(this Type type)
+        {
+            return type.GetTypeInfo().IsGenericType &&
+                   type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
     }
 }
