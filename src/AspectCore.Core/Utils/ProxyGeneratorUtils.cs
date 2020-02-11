@@ -907,10 +907,6 @@ namespace AspectCore.Utils
             // Code from https://github.com/castleproject/Core/blob/master/src/Castle.Core/DynamicProxy/Generators/Emitters/MethodEmitter.cs
             private static void CopyDefaultValueConstant(ParameterInfo from, ParameterBuilder to)
             {
-                Debug.Assert(from != null);
-                Debug.Assert(to != null);
-                Debug.Assert((from.Attributes & ParameterAttributes.HasDefault) != 0);
-
                 object defaultValue;
                 try
                 {

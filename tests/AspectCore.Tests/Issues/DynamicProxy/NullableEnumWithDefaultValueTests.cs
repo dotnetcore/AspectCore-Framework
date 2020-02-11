@@ -32,14 +32,12 @@ namespace AspectCore.Tests.Issues.DynamicProxy
             True
         }
 
-        [Theory]
-        [InlineData(Bool.True)]
-        [InlineData(Bool.False)]
-        public void ClassProxy_Test(Bool input)
+        [Fact]
+        public void ClassProxy_Test()
         {
             var service = ProxyGenerator.CreateClassProxy<Service>();
-            var output = service.Get(input);
-            Assert.Equal(input == Bool.True, output);
+            var output = service.Get();
+            Assert.True(output);
         }
     }
 }
