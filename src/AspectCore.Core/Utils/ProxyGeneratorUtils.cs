@@ -860,11 +860,10 @@ namespace AspectCore.Utils
                 var parameters = targetMethod.GetParameters();
                 if (parameters.Length > 0)
                 {
-                    var paramOffset = 1;   // 1
-                    for (var i = 0; i < parameters.Length; i++)
+                    const int paramOffset = 1; // 1
+                    foreach (var parameter in parameters)
                     {
-                        var parameter = parameters[i];
-                        var parameterBuilder = methodBuilder.DefineParameter(i + paramOffset, parameter.Attributes, parameter.Name);
+                        var parameterBuilder = methodBuilder.DefineParameter(parameter.Position + paramOffset, parameter.Attributes, parameter.Name);
                         if (parameter.HasDefaultValue)
                         {
                             if (!(parameter.ParameterType.GetTypeInfo().IsValueType && parameter.DefaultValue == null))
