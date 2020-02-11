@@ -107,7 +107,7 @@ namespace AspectCore.Tests.DynamicProxy
         public void OptionalNullableMethodParameter_DateTime_UseExplicitValue_Test(DateTime input)
         {
             var service = ProxyGenerator.CreateClassProxy<Service>();
-            Assert.Equal(default, service.GetDateTimeWithDefaultDefault());
+            Assert.Equal(input, service.GetDateTimeWithDefaultDefault(input));
         }
     }
 }
