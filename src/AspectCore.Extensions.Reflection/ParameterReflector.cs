@@ -25,10 +25,10 @@ namespace AspectCore.Extensions.Reflection
         {
             _reflectionInfo = reflectionInfo ?? throw new ArgumentNullException(nameof(reflectionInfo));
             _customAttributeReflectors = _reflectionInfo.CustomAttributes.Select(data => CustomAttributeReflector.Create(data)).ToArray();
-            HasDeflautValue = reflectionInfo.HasDefaultValue;
+            HasDeflautValue = reflectionInfo.HasDefaultValueByAttributes();
             if (HasDeflautValue)
             {
-                DefalutValue = reflectionInfo.DefaultValue;
+                DefalutValue = reflectionInfo.DefaultValueSafely();
             }
             Position = reflectionInfo.Position;
             ParameterType = reflectionInfo.ParameterType;

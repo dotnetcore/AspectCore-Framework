@@ -14,6 +14,9 @@ namespace AspectCore.Tests.DynamicProxy
         public static IEnumerable<object[]> DecimalCases { get; } =
             new decimal[] { 1.23m, 1, 0, -1 }.Select(m => new object[] { m });
 
+        public static IEnumerable<object[]> DateTimeCases { get; } =
+            new DateTime[] { default, new DateTime(2000, 1, 1), }.Select(m => new object[] { m });
+
         public class Interceptor : AbstractInterceptorAttribute
         {
             public override Task Invoke(AspectContext context, AspectDelegate next)
@@ -30,6 +33,7 @@ namespace AspectCore.Tests.DynamicProxy
             [Interceptor] public virtual int GetIntWithDefaultOne(int value = 1) => value;
             [Interceptor] public virtual decimal GetDecimalWithDefaultZero(decimal value = 0) => value;
             [Interceptor] public virtual decimal GetDecimalWithDefaultOne(decimal value = 1) => value;
+            [Interceptor] public virtual DateTime GetDateTimeWithDefaultDefault(DateTime value = default) => value;
         }
 
         public enum Bool
@@ -89,6 +93,21 @@ namespace AspectCore.Tests.DynamicProxy
             var service = ProxyGenerator.CreateClassProxy<Service>();
             Assert.Equal(input, service.GetDecimalWithDefaultOne(input));
             Assert.Equal(input, service.GetDecimalWithDefaultZero(input));
+        }
+
+        [Fact]
+        public void OptionalNullableMethodParameter_DateTime_UseDefaultValue_Test()
+        {
+            var service = ProxyGenerator.CreateClassProxy<Service>();
+            Assert.Equal(default, service.GetDateTimeWithDefaultDefault());
+        }
+
+        [Theory]
+        [MemberData(nameof(DateTimeCases))]
+        public void OptionalNullableMethodParameter_DateTime_UseExplicitValue_Test(DateTime input)
+        {
+            var service = ProxyGenerator.CreateClassProxy<Service>();
+            Assert.Equal(default, service.GetDateTimeWithDefaultDefault());
         }
     }
 }

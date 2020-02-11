@@ -864,9 +864,12 @@ namespace AspectCore.Utils
                     foreach (var parameter in parameters)
                     {
                         var parameterBuilder = methodBuilder.DefineParameter(parameter.Position + paramOffset, parameter.Attributes, parameter.Name);
-                        if (parameter.HasDefaultValue)
+                        // if (parameter.HasDefaultValue) // parameter.HasDefaultValue will throw a FormatException when parameter is DateTime type with default value
+                        if (parameter.HasDefaultValueByAttributes())
                         {
-                            if (!(parameter.ParameterType.GetTypeInfo().IsValueType && parameter.DefaultValue == null))
+                            // if (!(parameter.ParameterType.GetTypeInfo().IsValueType && parameter.DefaultValue == null)) 
+                            // we can comment above line safely, and CopyDefaultValueConstant will handle this case.
+                            // parameter.DefaultValue will throw a FormatException when parameter is DateTime type with default value
                             {
                                 // parameterBuilder.SetConstant(parameter.DefaultValue);
                                 try
@@ -895,6 +898,11 @@ namespace AspectCore.Utils
                 {
                     returnParameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
                 }
+            }
+
+            private static bool HasDefaultValueSafely(ParameterInfo parameter)
+            {
+                return (parameter.Attributes & ParameterAttributes.HasDefault) != 0;
             }
 
             private static bool IsNullableType(Type type)
