@@ -69,13 +69,9 @@ namespace AspectCore.Extensions.Autofac
             containerBuilder.RegisterType<AspectCachingProvider>().As<IAspectCachingProvider>().SingleInstance();
             containerBuilder.RegisterType<AspectExceptionWrapper>().As<IAspectExceptionWrapper>().SingleInstance();
             
-            containerBuilder.RegisterCallback(registry =>
+            containerBuilder.RegisterCallback(registryBuilder =>
             {
-                foreach (var registration in registry.Registrations)
-                {
-                    registration.Activating += ComponentRegistration_Activating;
-                }
-                registry.Registered += Registry_Registered;
+                registryBuilder.Registered += Registry_Registered;
             });
 
             return containerBuilder;
