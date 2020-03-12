@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Columns;
 
 namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
 {

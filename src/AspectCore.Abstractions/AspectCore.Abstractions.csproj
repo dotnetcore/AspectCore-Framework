@@ -9,15 +9,15 @@
     <PackageId>AspectCore.Abstractions</PackageId>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
     <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
   </PropertyGroup>
   
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
   </ItemGroup>
   
 </Project>

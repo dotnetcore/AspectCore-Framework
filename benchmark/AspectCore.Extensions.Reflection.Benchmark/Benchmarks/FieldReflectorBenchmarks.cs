@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection.Benchmark.Fakes;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Columns;
 
 namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
 {
