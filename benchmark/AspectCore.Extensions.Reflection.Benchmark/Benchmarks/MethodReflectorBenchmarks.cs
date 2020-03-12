@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection.Benchmark.Fakes;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Columns;
-using BenchmarkDotNet.Attributes.Jobs;
+using BenchmarkDotNet.Jobs;
 
 namespace AspectCore.Extensions.Reflection.Benchmark
 {
-    [CoreJob]
+    [SimpleJob(RuntimeMoniker.NetCoreApp20)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp30)]
     [AllStatisticsColumn]
     public class MethodReflectorBenchmarks
     {
