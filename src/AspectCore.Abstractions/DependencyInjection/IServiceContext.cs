@@ -20,6 +20,8 @@ namespace AspectCore.DependencyInjection
 
         void Add(ServiceDefinition item);
 
+        bool Remove(ServiceDefinition item);
+
         bool Contains(Type serviceType);
     }
 }

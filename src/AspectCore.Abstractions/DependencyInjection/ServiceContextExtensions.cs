@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AspectCore.DependencyInjection
 {
@@ -62,5 +63,26 @@ namespace AspectCore.DependencyInjection
             serviceContext.Add(new DelegateServiceDefinition(typeof(TService), implementationDelegate, lifetime));
             return serviceContext;
         }
+
+        public static IServiceContext RemoveAll<TService>(this IServiceContext serviceContext) where TService : class
+        {
+            return RemoveAll(serviceContext, typeof(TService));
+        }
+
+        public static IServiceContext RemoveAll(this IServiceContext serviceContext, Type serviceType)
+        {
+            var serviceDefinitions = new List<ServiceDefinition>();
+            foreach (var serviceDefinition in serviceContext)
+            {
+                if (serviceDefinition.ServiceType == serviceType)
+                {
+                    serviceDefinitions.Add(serviceDefinition);
+                }
+            }
+
+            serviceDefinitions.ForEach(t => serviceContext.Remove(t));
+            return serviceContext;
+        }
+
     }
 }
