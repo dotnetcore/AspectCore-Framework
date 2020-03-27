@@ -115,6 +115,8 @@ namespace AspectCore.DependencyInjection
 
         public void Add(ServiceDefinition item) => _collection.Add(item);
 
+        public bool Remove(ServiceDefinition item) => _collection.Remove(item);
+
         public bool Contains(Type serviceType) => _collection.Any(x => x.ServiceType == serviceType);
 
         public IEnumerator<ServiceDefinition> GetEnumerator() => _collection.GetEnumerator();
