@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+  
+  <PropertyGroup>
+    <Description>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</Description>
+    <AssemblyTitle>AspectCore.Extensions.DependencyInjection</AssemblyTitle>
+    <AssemblyName>AspectCore.Extensions.DependencyInjection</AssemblyName>
+    <PackageId>AspectCore.Extensions.DependencyInjection</PackageId>
+    <PackageTags>DynamicProxy;Aop;DependencyInjection;AspectCore</PackageTags>
+    <PackageReleaseNotes>Interceptor and dynamicProxy support for Microsoft.Extensions.DependencyInjection via AspectCore Framework.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />
+  </ItemGroup>
+</Project>

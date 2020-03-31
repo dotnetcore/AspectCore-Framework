@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <Description>The implementation of the AspectCore framework.</Description>
+    <AssemblyTitle>AspectCore.Core</AssemblyTitle>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>AspectCore.Core</AssemblyName>
+    <PackageId>AspectCore.Core</PackageId>
+    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
+    <PackageReleaseNotes>The implementation of the AspectCore framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
+    <ProjectReference Include="..\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
+  </ItemGroup>
+</Project>

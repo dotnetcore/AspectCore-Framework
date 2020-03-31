@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <Description>The abstract design of the AspectCore framework.</Description>
+    <AssemblyTitle>AspectCore.Abstractions</AssemblyTitle>
+    <AssemblyName>AspectCore.Abstractions</AssemblyName>
+    <PackageId>AspectCore.Abstractions</PackageId>
+    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
+    <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
+  </ItemGroup>
+  
+</Project>

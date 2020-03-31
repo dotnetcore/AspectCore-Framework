@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+  
+  <PropertyGroup>
+    <Description>Interceptor and dynamicProxy support for LightInject via AspectCore Framework.</Description>	
+    <PackageTags>DynamicProxy;Aop;LightInject;AspectCore</PackageTags>
+    <PackageReleaseNotes>Interceptor and dynamicProxy support for LightInject via AspectCore Framework.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>	
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="LightInject" Version="6.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />
+  </ItemGroup>
+</Project>
+

@@ -29,11 +29,11 @@ Core support for aspect-interceptor, dependency injection integration, web appli
 * [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
 
 ## Components  
-* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.Autofac)
-* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/datavalidation)
-* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/core)
-* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/extras/src/AspectCore.Extensions.DependencyInjection)
-* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/reflection)   
+* [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/src/AspectCore.Extensions.Autofac)
+* [DataValidation](https://github.com/dotnetcore/AspectCore-Framework/tree/master/src/AspectCore.Extensions.DataValidation)
+* [IoC & DynamicProxy](https://github.com/dotnetcore/AspectCore-Framework/tree/master/src/AspectCore.Core)
+* [Microsoft.Extensions.DependencyInjection Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/src/AspectCore.Extensions.DependencyInjection)
+* [Reflection](https://github.com/dotnetcore/AspectCore-Framework/tree/master/src/AspectCore.Extensions.Reflection)   
 
 ## Who is using
 * [ButterflyAPM Client](https://github.com/ButterflyAPM/butterfly-csharp)

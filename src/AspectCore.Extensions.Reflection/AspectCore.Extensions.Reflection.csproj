@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+  <PropertyGroup>
+    <Description>Reflection extension system for AspectCore Framework.</Description>
+    <AssemblyTitle>AspectCore.Extensions.Reflection</AssemblyTitle>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <AssemblyName>AspectCore.Extensions.Reflection</AssemblyName>
+    <PackageId>AspectCore.Extensions.Reflection</PackageId>
+    <PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
+    <PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+
+  </ItemGroup>
+</Project>
