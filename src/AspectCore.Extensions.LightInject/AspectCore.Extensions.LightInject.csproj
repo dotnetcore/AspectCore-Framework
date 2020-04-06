@@ -10,7 +10,7 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LightInject" Version="6.2.1" />
+    <PackageReference Include="LightInject" Version="6.3.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />
