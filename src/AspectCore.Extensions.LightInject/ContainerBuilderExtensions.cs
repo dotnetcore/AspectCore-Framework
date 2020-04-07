@@ -76,26 +76,16 @@ namespace AspectCore.Extensions.LightInject
                 .AddSingleton<IAspectExceptionWrapper, AspectExceptionWrapper>();
 
             var aspectValidator = new AspectValidatorBuilder(aspectConfig).Build();
-            container.Decorate(aspectValidator.CreateDecorator(container));
+            container.Decorate(aspectValidator.CreateDecorator());
 
             return container;
         }
-
-        private static readonly ConcurrentDictionary<Delegate, Type> _factoryMap
-            = new ConcurrentDictionary<Delegate, Type>();
-
-        private static Type GetImplType(this ServiceRegistration registration, IServiceFactory factory)
+        
+        private static Type GetImplType(this ServiceRegistration registration)
         {
             if (registration.FactoryExpression != null) // ByFactory
             {
-                return _factoryMap.GetOrAdd(registration.FactoryExpression, k =>
-                {
-                    // In order to get the real type, we have to create a instance here.
-                    var obj = registration.FactoryExpression.DynamicInvoke(factory);
-                    if (obj is IDisposable disposable)
-                        disposable.Dispose();
-                    return obj.GetType();
-                });
+                return registration.FactoryExpression.Method.ReturnType;
             }
             else if (registration.Value != null) // ByInstance
             {
@@ -107,11 +97,11 @@ namespace AspectCore.Extensions.LightInject
             }
         }
 
-        private static DecoratorRegistration CreateDecorator(this IAspectValidator aspectValidator, IServiceFactory factory)
+        private static DecoratorRegistration CreateDecorator(this IAspectValidator aspectValidator)
         {
             var registration = new DecoratorRegistration()
             {
-                CanDecorate = s => CanDecorate(s, aspectValidator, factory),
+                CanDecorate = s => CanDecorate(s, aspectValidator),
                 ImplementingTypeFactory = CreateProxyType
             };
             return registration;
@@ -120,7 +110,7 @@ namespace AspectCore.Extensions.LightInject
         private static Type CreateProxyType(IServiceFactory factory, ServiceRegistration registration)
         {
             var serviceType = registration.ServiceType.GetTypeInfo();
-            var implType = registration.GetImplType(factory);
+            var implType = registration.GetImplType();
             var proxyTypeGenerator = factory.GetInstance<IProxyTypeGenerator>();
 
             if (serviceType.IsClass)
@@ -137,10 +127,10 @@ namespace AspectCore.Extensions.LightInject
             }
         }
 
-        private static bool CanDecorate(ServiceRegistration registration, IAspectValidator aspectValidator, IServiceFactory factory)
+        private static bool CanDecorate(ServiceRegistration registration, IAspectValidator aspectValidator)
         {
             var serviceType = registration.ServiceType.GetTypeInfo();
-            var implType = registration.GetImplType(factory).GetTypeInfo();
+            var implType = registration.GetImplType().GetTypeInfo();
 
             if (implType.IsProxy() || !implType.CanInherited())
             {
