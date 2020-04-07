@@ -8,6 +8,7 @@ using AspectCore.DynamicProxy.Parameters;
 using AspectCore.DependencyInjection;
 using Autofac;
 using Autofac.Core;
+using Autofac.Core.Activators.Delegate;
 using Autofac.Core.Activators.Reflection;
 using AParameter = Autofac.Core.Parameter;
 
@@ -68,7 +69,7 @@ namespace AspectCore.Extensions.Autofac
             containerBuilder.RegisterType<ProxyTypeGenerator>().As<IProxyTypeGenerator>().SingleInstance();
             containerBuilder.RegisterType<AspectCachingProvider>().As<IAspectCachingProvider>().SingleInstance();
             containerBuilder.RegisterType<AspectExceptionWrapper>().As<IAspectExceptionWrapper>().SingleInstance();
-            
+
             containerBuilder.RegisterCallback(registryBuilder =>
             {
                 registryBuilder.Registered += Registry_Registered;
@@ -88,7 +89,7 @@ namespace AspectCore.Extensions.Autofac
             {
                 return;
             }
-            if (!(e.Component.Activator is ReflectionActivator))
+            if (!(e.Component.Activator is ReflectionActivator || e.Component.Activator is DelegateActivator))
             {
                 return;
             }
