@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AspectCore.Configuration;
 using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
@@ -11,14 +12,22 @@ namespace AspectCoreTest.Autofac.Issues
     // https://github.com/dotnetcore/AspectCore-Framework/issues/208
     public class AddDelegateThenUseInterceptorTests
     {
-        public interface ITaskService
+        public interface ITaskService : IDisposable
         {
             int Run();
+            bool Disposed { get; }
         }
 
         public class TaskService : ITaskService
         {
             public int Run() => 1;
+
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                Disposed = true;
+            }
         }
 
         public class TaskServiceWithRef : ITaskService
@@ -31,6 +40,13 @@ namespace AspectCoreTest.Autofac.Issues
             }
 
             public int Run() => _taskService.Run();
+
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                Disposed = true;
+            }
         }
 
         public class Interceptor : AbstractInterceptor
@@ -51,7 +67,7 @@ namespace AspectCoreTest.Autofac.Issues
             serviceContext.Configuration.Interceptors.AddTyped<Interceptor>(m => true);
 
             var container = serviceContext.Build();
-            var taskService = container.Resolve<ITaskService>();
+            var taskService = container.ResolveRequired<ITaskService>();
             Assert.Equal(2, taskService.Run());
         }
 
@@ -59,7 +75,7 @@ namespace AspectCoreTest.Autofac.Issues
         public void AddDelegateInAutofac_UseInterceptorInAutofac_Test()
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.Register<ITaskService>(c => new TaskService());
+            containerBuilder.Register<ITaskService>(c => new TaskService()).SingleInstance();
             containerBuilder.RegisterDynamicProxy(config =>
             {
                 config.Interceptors.AddTyped<Interceptor>(m => true);
@@ -68,13 +84,16 @@ namespace AspectCoreTest.Autofac.Issues
             var container = containerBuilder.Build();
             var taskService = container.Resolve<ITaskService>();
             Assert.Equal(2, taskService.Run());
+
+            container.Dispose();
+            Assert.True(taskService.Disposed);
         }
 
         [Fact]
         public void AddDelegateInAspectCore_UseInterceptorInAutofac_Test()
         {
             var serviceContext = new ServiceContext();
-            serviceContext.AddDelegate<ITaskService, TaskService>(p => new TaskService());
+            serviceContext.AddDelegate<ITaskService, TaskService>(p => new TaskService(), Lifetime.Singleton);
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceContext);
@@ -87,6 +106,9 @@ namespace AspectCoreTest.Autofac.Issues
             var container = containerBuilder.Build();
             var taskService = container.Resolve<ITaskService>();
             Assert.Equal(2, taskService.Run());
+
+            container.Dispose();
+            Assert.True(taskService.Disposed);
         }
 
         [Fact]
@@ -113,7 +135,7 @@ namespace AspectCoreTest.Autofac.Issues
         {
             var serviceContext = new ServiceContext();
             serviceContext.AddDelegate<TaskService>(p => new TaskService());
-            serviceContext.AddDelegate<ITaskService, TaskServiceWithRef>(p => new TaskServiceWithRef(p.Resolve<TaskService>()));
+            serviceContext.AddDelegate<ITaskService, TaskServiceWithRef>(p => new TaskServiceWithRef(p.ResolveRequired<TaskService>()));
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Populate(serviceContext);
@@ -126,6 +148,60 @@ namespace AspectCoreTest.Autofac.Issues
             var container = containerBuilder.Build();
             var taskService = container.Resolve<ITaskService>();
             Assert.Equal(3, taskService.Run()); // Intercept twice
+        }
+        
+
+
+        [Fact]
+        public void AddInstanceInAspectCore_UseInterceptorInAspectCore_Test()
+        {
+            var serviceContext = new ServiceContext();
+            serviceContext.AddInstance<ITaskService>(new TaskService());
+            serviceContext.Configuration.Interceptors.AddTyped<Interceptor>(m => true);
+
+            var container = serviceContext.Build();
+            var taskService = container.ResolveRequired<ITaskService>();
+            Assert.Equal(2, taskService.Run());
+        }
+
+        [Fact]
+        public void AddInstanceInAutofac_UseInterceptorInAutofac_Test()
+        {
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterInstance<ITaskService>(new TaskService()).SingleInstance();
+            containerBuilder.RegisterDynamicProxy(config =>
+            {
+                config.Interceptors.AddTyped<Interceptor>(m => true);
+            });
+
+            var container = containerBuilder.Build();
+            var taskService = container.Resolve<ITaskService>();
+            Assert.Equal(2, taskService.Run());
+
+            container.Dispose();
+            Assert.True(taskService.Disposed);
+        }
+
+        [Fact]
+        public void AddInstanceInAspectCore_UseInterceptorInAutofac_Test()
+        {
+            var serviceContext = new ServiceContext();
+            serviceContext.AddInstance<ITaskService>(new TaskService());
+
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.Populate(serviceContext);
+
+            containerBuilder.RegisterDynamicProxy(serviceContext.Configuration, config =>
+            {
+                config.Interceptors.AddTyped<Interceptor>(m => true);
+            });
+
+            var container = containerBuilder.Build();
+            var taskService = container.Resolve<ITaskService>();
+            Assert.Equal(2, taskService.Run());
+
+            container.Dispose();
+            Assert.True(taskService.Disposed);
         }
     }
 }

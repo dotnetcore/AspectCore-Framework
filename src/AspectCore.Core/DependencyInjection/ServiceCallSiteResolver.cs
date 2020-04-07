@@ -63,8 +63,6 @@ namespace AspectCore.DependencyInjection
                 default:
                     return resolver => null;
             }
-
-            ;
         }
 
         private Func<ServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefintion manyEnumerableServiceDefintion)
