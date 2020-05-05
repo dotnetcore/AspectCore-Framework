@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AspectCore.Configuration;
+﻿using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Autofac;
 using Autofac;
 using Xunit;
 
-namespace AspectCore1.Extensions.Autofac.Test
+namespace AspectCoreTest.Autofac
 {
     public class NonAspectTest
     {

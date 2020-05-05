@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
-using Xunit;
-using Autofac;
 using AspectCore.Extensions.Autofac;
+using Autofac;
+using Xunit;
 
-namespace AspectCore1.Extensions.Autofac.Test
+namespace AspectCoreTest.Autofac
 {
    public class AdditionalInterceptorSelectorTests
     {
