@@ -34,7 +34,7 @@ namespace AspectCore.Tests.Injector
             Assert.NotNull(many);
             Assert.Empty(many);
         }
-        
+
         [Fact]
         public void Resolve_Enumerable_Lifetime()
         {
@@ -51,7 +51,7 @@ namespace AspectCore.Tests.Injector
                 Assert.NotEqual(many[2], many2[2]);
             }
         }
-        
+
         [Fact]
         public void Resolve_Many_Lifetime()
         {
