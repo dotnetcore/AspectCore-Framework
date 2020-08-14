@@ -9,7 +9,16 @@
         <PackageTags>Reflection;Aop;DynamicProxy;Configuration</PackageTags>
         <PackageReleaseNotes>Configuration extension system for ASP.NET Core via AspectCore-Framework.</PackageReleaseNotes>
         <TargetFrameworks>netcoreapp3.0;netstandard2.0</TargetFrameworks>
-    </PropertyGroup>
+    
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
       <ProjectReference Include="..\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
