@@ -18,7 +18,7 @@ namespace AspectCore.Extensions.Reflection
                 name += arguments[0].GetReflector().DisplayName;
                 for (var i = 1; i < arguments.Length; i++)
                 {
-                    name += ("," + arguments[0].GetReflector().DisplayName);
+                    name += ("," + arguments[i].GetReflector().DisplayName);
                 }
                 name += ">";
             }
@@ -28,7 +28,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 name += ")";
                 return name;
-            } 
+            }
             name += parameterTypes[0].GetReflector().DisplayName;
             for (var i = 1; i < parameterTypes.Length; i++)
             {

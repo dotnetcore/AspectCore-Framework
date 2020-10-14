@@ -1,11 +1,12 @@
 ﻿using System.Reflection;
-using AspectCore.DynamicProxy;
 using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
+using AspectCore.Extensions.Autofac;
 using AspectCore.Extensions.Test.Fakes;
 using Autofac;
 using Xunit;
 
-namespace AspectCore.Extensions.Autofac.Test
+namespace AspectCoreTest.Autofac
 {
     public class RegistrationExtensionsTests
     {

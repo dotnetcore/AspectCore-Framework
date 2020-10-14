@@ -68,8 +68,8 @@ public interface ISampleRepository
 
 public class SampleRepository : ISampleRepository
 {
-    //属性注入。属性注入的条件为标记FromContainer特性，并且允许set。满足条件的属性自动注入
-    [FromContainer]
+    //属性注入。属性注入的条件为标记FromServiceContext特性，并且允许set。满足条件的属性自动注入
+    [FromServiceContext]
     public ILogger Logger { get; set; }
 }
 ```
