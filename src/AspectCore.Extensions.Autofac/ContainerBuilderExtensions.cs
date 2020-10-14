@@ -11,6 +11,7 @@ using Autofac.Core;
 using Autofac.Core.Activators;
 using Autofac.Core.Activators.Delegate;
 using Autofac.Core.Activators.Reflection;
+using Autofac.Core.Resolving.Pipeline;
 using AParameter = Autofac.Core.Parameter;
 
 namespace AspectCore.Extensions.Autofac
@@ -66,7 +67,7 @@ namespace AspectCore.Extensions.Autofac
                 // middleware can be added inside it.
                 args.ComponentRegistration.PipelineBuilding += (_, pipeline) =>
                 {
-                    pipeline.Use(ActivationResolveMiddleware.Instance);
+                    pipeline.Use(ActivationResolveMiddleware.Instance,MiddlewareInsertionMode.StartOfPhase);
                 };
             };
 
