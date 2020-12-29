@@ -8,7 +8,10 @@ using AspectCore.DynamicProxy.Parameters;
 using AspectCore.DependencyInjection;
 using Autofac;
 using Autofac.Core;
+using Autofac.Core.Activators;
+using Autofac.Core.Activators.Delegate;
 using Autofac.Core.Activators.Reflection;
+using Autofac.Core.Resolving.Pipeline;
 using AParameter = Autofac.Core.Parameter;
 
 namespace AspectCore.Extensions.Autofac
@@ -16,18 +19,6 @@ namespace AspectCore.Extensions.Autofac
     public static class ContainerBuilderExtensions
     {
         #region RegisterDynamicProxy
-        private static readonly List<string> excepts = new List<string>
-        {
-            "Microsoft.Extensions.Logging",
-            "Microsoft.Extensions.Options",
-            "System",
-            "System.*",
-            "IHttpContextAccessor",
-            "ITelemetryInitializer",
-            "IHostingEnvironment",
-            "Autofac.*",
-            "Autofac"
-        };
 
         public static ContainerBuilder RegisterDynamicProxy(this ContainerBuilder containerBuilder, Action<IAspectConfiguration> configure = null)
         {
@@ -68,71 +59,20 @@ namespace AspectCore.Extensions.Autofac
             containerBuilder.RegisterType<ProxyTypeGenerator>().As<IProxyTypeGenerator>().SingleInstance();
             containerBuilder.RegisterType<AspectCachingProvider>().As<IAspectCachingProvider>().SingleInstance();
             containerBuilder.RegisterType<AspectExceptionWrapper>().As<IAspectExceptionWrapper>().SingleInstance();
-            
-            containerBuilder.RegisterCallback(registryBuilder =>
+
+            //全局注册中间件
+            containerBuilder.ComponentRegistryBuilder.Registered += (sender, args) =>
             {
-                registryBuilder.Registered += Registry_Registered;
-            });
+                // The PipelineBuilding event fires just before the pipeline is built, and
+                // middleware can be added inside it.
+                args.ComponentRegistration.PipelineBuilding += (_, pipeline) =>
+                {
+                    pipeline.Use(ActivationResolveMiddleware.Instance,MiddlewareInsertionMode.StartOfPhase);
+                };
+            };
 
             return containerBuilder;
         }
-
-        private static void Registry_Registered(object sender, ComponentRegisteredEventArgs e)
-        {
-            e.ComponentRegistration.Activating += ComponentRegistration_Activating;
-        }
-
-        private static void ComponentRegistration_Activating(object sender, ActivatingEventArgs<object> e)
-        {
-            if (e.Instance == null || e.Instance.IsProxy())
-            {
-                return;
-            }
-            if (!(e.Component.Activator is ReflectionActivator))
-            {
-                return;
-            }
-            var limitType = e.Instance.GetType();
-            if (!limitType.GetTypeInfo().CanInherited())
-            {
-                return;
-            }
-            if (excepts.Any(x => limitType.Name.Matches(x)) || excepts.Any(x => limitType.Namespace.Matches(x)))
-            {
-                return;
-            }
-            var services = e.Component.Services.Select(x => ((IServiceWithType)x).ServiceType).ToList();
-            if (!services.All(x => x.GetTypeInfo().CanInherited()) || services.All(x => x.GetTypeInfo().IsNonAspect()))
-            {
-                return;
-            }
-            var aspectValidator = new AspectValidatorBuilder(e.Context.Resolve<IAspectConfiguration>()).Build();
-            if (services.All(x => !aspectValidator.Validate(x, true)) && !aspectValidator.Validate(limitType, false))
-            {
-                return;
-            }
-            var proxyTypeGenerator = e.Context.Resolve<IProxyTypeGenerator>();
-            Type proxyType; object instance;
-            var interfaceType = services.FirstOrDefault(x => x.GetTypeInfo().IsInterface);
-            if (interfaceType == null)
-            {
-                var baseType = services.FirstOrDefault(x => x.GetTypeInfo().IsClass) ?? limitType;
-                proxyType = proxyTypeGenerator.CreateClassProxyType(baseType, limitType);
-                var activator = new ReflectionActivator(proxyType, new DefaultConstructorFinder(type => type.GetTypeInfo().DeclaredConstructors.ToArray()), new MostParametersConstructorSelector(), new AParameter[0], new AParameter[0]);
-                instance = activator.ActivateInstance(e.Context, e.Parameters);
-            }
-            else
-            {
-                proxyType = proxyTypeGenerator.CreateInterfaceProxyType(interfaceType, limitType);
-                instance = Activator.CreateInstance(proxyType, new object[] { e.Context.Resolve<IAspectActivatorFactory>(), e.Instance });
-            }
-
-            var propertyInjector = e.Context.Resolve<IPropertyInjectorFactory>().Create(instance.GetType());
-            propertyInjector.Invoke(instance);
-            e.Instance = instance;
-            e.Component.RaiseActivating(e.Context, e.Parameters, ref instance);
-        }
-
         #endregion
     }
 }

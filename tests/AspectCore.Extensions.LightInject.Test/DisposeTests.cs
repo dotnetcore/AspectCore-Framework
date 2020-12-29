@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AspectCore.DependencyInjection;
 using AspectCore.Extensions.LightInject;
@@ -20,39 +21,50 @@ namespace AspectCoreTest.LightInject
             }
         }
 
-        private static IServiceResolver Create(ILifetime lifetime, bool registerServiceBeforeAop)
+        private static IServiceResolver Create(Action<ServiceContainer> action, bool registerServiceBeforeAop)
         {
             var container = new ServiceContainer();
             if (registerServiceBeforeAop)
             {
-                container.Register<DisposableService>(lifetime);
+                action(container);
                 container.RegisterDynamicProxy();
             }
             else
             {
                 container.RegisterDynamicProxy();
-                container.Register<DisposableService>(lifetime);
+                action(container);
             }
             return container.GetInstance<IServiceResolver>();
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Transient_Test(bool registerServiceBeforeAop)
+        private static IServiceResolver Create(ILifetime lifetime, bool registerServiceBeforeAop, bool byFac)
         {
-            var resolver = Create(null, registerServiceBeforeAop);
+            return byFac
+                ? Create(c => c.Register<DisposableService>(lifetime), registerServiceBeforeAop)
+                : Create(c => c.Register<DisposableService>(s => new DisposableService(), lifetime), registerServiceBeforeAop);
+        }
+
+        private static bool[] Bools { get; } = { true, false };
+
+        public static IEnumerable<object[]> TestCases { get; } = Bools
+            .SelectMany(m => Bools, (x, y) => (x, y))
+            .Select(m => new object[] { m.x, m.y });
+
+        [Theory]
+        [MemberData(nameof(TestCases))]
+        public void Transient_Test(bool registerServiceBeforeAop, bool byFac)
+        {
+            var resolver = Create((ILifetime)null, registerServiceBeforeAop, byFac);
             var service = resolver.Resolve<DisposableService>();
             resolver.Dispose();
             Assert.Equal(0, service.DisposeTimes);
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void RequestLifeTime_Test(bool registerServiceBeforeAop)
+        [MemberData(nameof(TestCases))]
+        public void RequestLifeTime_Test(bool registerServiceBeforeAop, bool byFac)
         {
-            var resolver = Create(new PerRequestLifeTime(), registerServiceBeforeAop);
+            var resolver = Create(new PerRequestLifeTime(), registerServiceBeforeAop, byFac);
             var scope = resolver.CreateScope();
             var service = scope.Resolve<DisposableService>();
             scope.Dispose();
@@ -63,22 +75,20 @@ namespace AspectCoreTest.LightInject
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Singleton_Test(bool registerServiceBeforeAop)
+        [MemberData(nameof(TestCases))]
+        public void Singleton_Test(bool registerServiceBeforeAop, bool byFac)
         {
-            var resolver = Create(new PerContainerLifetime(), registerServiceBeforeAop);
+            var resolver = Create(new PerContainerLifetime(), registerServiceBeforeAop, byFac);
             var service = resolver.Resolve<DisposableService>();
             resolver.Dispose();
             Assert.Equal(1, service.DisposeTimes);
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Scope_Test(bool registerServiceBeforeAop)
+        [MemberData(nameof(TestCases))]
+        public void Scope_Test(bool registerServiceBeforeAop, bool byFac)
         {
-            var resolver = Create(new PerScopeLifetime(), registerServiceBeforeAop);
+            var resolver = Create(new PerScopeLifetime(), registerServiceBeforeAop, byFac);
             var outerScope = resolver.CreateScope();
             var serviceFromOuter = outerScope.Resolve<DisposableService>();
             var innerScope = resolver.CreateScope();

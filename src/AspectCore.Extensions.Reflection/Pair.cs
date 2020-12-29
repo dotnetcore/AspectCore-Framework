@@ -9,9 +9,9 @@ namespace AspectCore.Extensions.Reflection
     /// </summary>
     /// <typeparam name="T1"></typeparam>
     /// <typeparam name="T2"></typeparam>
+    /// </summary>
     internal struct Pair<T1, T2> : IEquatable<Pair<T1, T2>>
     {
-        /// </summary>
         public T1 Item1 { get; private set; }
 
         public T2 Item2 { get; private set; }
@@ -54,7 +54,7 @@ namespace AspectCore.Extensions.Reflection
 
     internal static class Pair
     {
-        public static Pair<T1,T2> Create<T1,T2>(T1 item1,T2 item2)
+        public static Pair<T1, T2> Create<T1, T2>(T1 item1, T2 item2)
         {
             return new Pair<T1, T2>(item1, item2);
         }

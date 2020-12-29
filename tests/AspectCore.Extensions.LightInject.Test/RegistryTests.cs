@@ -9,7 +9,7 @@ using Xunit;
 
 namespace AspectCoreTest.LightInject
 {
-    public class RegistryTest
+    public class RegistryTests
     {
         public const int Result = 9;
 
@@ -22,6 +22,18 @@ namespace AspectCoreTest.LightInject
         {
             [AsyncIncreament]
             public virtual int Foo() => Result;
+        }
+        public class ServiceWithRef : IService
+        {
+            private readonly IService _service;
+
+            public ServiceWithRef(IService service)
+            {
+                _service = service;
+            }
+
+            [AsyncIncreament]
+            public virtual int Foo() => _service.Foo();
         }
 
         private static IServiceContainer CreateContainer()
@@ -65,18 +77,54 @@ namespace AspectCoreTest.LightInject
         }
 
         [Fact]
-        public void Register_Factory()
+        public void RegisterInterface_Factory()
+        {
+            var container = CreateContainer();
+            container.Register<IService>(s => new Service(), new PerRequestLifeTime());
+
+            var inter = container.GetInstance<IService>();
+            Assert.Equal(Result + 1, inter.Foo());
+        }
+
+        [Fact]
+        public void RegisterClass_Factory()
+        {
+            var container = CreateContainer();
+            container.Register<Service>(s => new Service(), new PerRequestLifeTime());
+
+            var obj = container.GetInstance<Service>();
+            Assert.Equal(Result + 1, obj.Foo());
+        }
+
+        [Fact]
+        public void RegisterInterface_WithRef_Factory()
+        {
+            var container = CreateContainer();
+            container.Register<IService>(s => new ServiceWithRef(new Service()), new PerRequestLifeTime());
+
+            var obj = container.GetInstance<IService>();
+            Assert.Equal(Result + 1, obj.Foo());
+        }
+
+        [Fact]
+        public void RegisterInterface_WithRefFromContainer_Factory()
+        {
+            var container = CreateContainer();
+            container.Register<Service>(s => new Service(), new PerRequestLifeTime());
+            container.Register<IService>(s => new ServiceWithRef(s.GetInstance<Service>()), new PerRequestLifeTime());
+
+            var obj = container.GetInstance<IService>();
+            Assert.Equal(Result + 1 + 1, obj.Foo());
+        }
+
+        [Fact]
+        public void Register_Factory_SameFactoryBody_AreDifferent()
         {
             var container = CreateContainer();
             container.Register<IService>(s => new Service(), new PerRequestLifeTime());
             container.Register<Service>(s => new Service(), new PerRequestLifeTime());
-
             var inter = container.GetInstance<IService>();
-            Assert.Equal(Result + 1, inter.Foo());
-
             var obj = container.GetInstance<Service>();
-            Assert.Equal(Result + 1, obj.Foo());
-
             Assert.NotSame(inter, obj);
         }
 

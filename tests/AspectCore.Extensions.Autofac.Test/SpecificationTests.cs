@@ -4,7 +4,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Specification;
 
-namespace AspectCore.Extensions.Autofac.Test
+namespace AspectCoreTest.Autofac
 {
     public class SpecificationTests : DependencyInjectionSpecificationTests
     {

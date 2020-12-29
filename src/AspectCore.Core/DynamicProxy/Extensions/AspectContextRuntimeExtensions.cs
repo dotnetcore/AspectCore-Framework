@@ -33,7 +33,7 @@ namespace AspectCore.DynamicProxy
                 default:
                     if (returnValue.GetType().GetTypeInfo().IsValueTaskWithResult())
                     {
-                        await (dynamic) returnValue;
+                        await (dynamic)returnValue;
                     }
                     break;
             }
@@ -62,7 +62,7 @@ namespace AspectCore.DynamicProxy
 
         public static async Task<T> UnwrapAsyncReturnValue<T>(this AspectContext aspectContext)
         {
-            return (T) await UnwrapAsyncReturnValue(aspectContext);
+            return (T)await UnwrapAsyncReturnValue(aspectContext);
         }
 
         public static Task<object> UnwrapAsyncReturnValue(this AspectContext aspectContext)
@@ -89,19 +89,23 @@ namespace AspectCore.DynamicProxy
 
         private static async Task<object> Unwrap(object value, TypeInfo valueTypeInfo)
         {
-            object result = null;
+            object result;
 
             if (valueTypeInfo.IsTaskWithResult())
             {
                 // Is there better solution to unwrap ?
-                result = (object) (await (dynamic) value);
+                result = (object)(await (dynamic)value);
             }
             else if (valueTypeInfo.IsValueTaskWithResult())
             {
                 // Is there better solution to unwrap ?
-                result = (object) (await (dynamic) value);
+                result = (object)(await (dynamic)value);
             }
             else if (value is Task)
+            {
+                return null;
+            }
+            else if (value is ValueTask)
             {
                 return null;
             }
@@ -118,7 +122,7 @@ namespace AspectCore.DynamicProxy
             var resultTypeInfo = result.GetType().GetTypeInfo();
             if (IsAsyncType(resultTypeInfo))
             {
-                return Unwrap(result, resultTypeInfo);
+                return await Unwrap(result, resultTypeInfo);
             }
 
             return result;
