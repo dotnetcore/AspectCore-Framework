@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LightInject" Version="6.3.2" />
+    <PackageReference Include="LightInject" Version="6.3.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />
