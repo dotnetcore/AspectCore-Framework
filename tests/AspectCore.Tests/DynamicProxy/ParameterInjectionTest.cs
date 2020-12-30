@@ -13,7 +13,7 @@ namespace AspectCore.Tests.DynamicProxy
         public void Parameter_Intercept()
         {
             var service = ProxyGenerator.CreateClassProxy<AppService>();
-            Assert.Throws<AspectInvocationException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
             {
                 service.Run(null);
             });
