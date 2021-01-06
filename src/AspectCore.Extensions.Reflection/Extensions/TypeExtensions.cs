@@ -10,6 +10,7 @@ namespace AspectCore.Extensions.Reflection
     {
         private static readonly ConcurrentDictionary<TypeInfo, bool> isTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
         private static readonly ConcurrentDictionary<TypeInfo, bool> isValueTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
+        private static readonly Type voidTaskResultType = Type.GetType("System.Threading.Tasks.VoidTaskResult", false);
 
         public static MethodInfo GetMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
@@ -146,7 +147,17 @@ namespace AspectCore.Extensions.Reflection
             }
             return isTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && typeof(Task).GetTypeInfo().IsAssignableFrom(Info));
         }
-        
+
+        public static bool IsTaskWithVoidTaskResult(this TypeInfo typeInfo)
+        {
+            if (typeInfo == null)
+            {
+                throw new ArgumentNullException(nameof(typeInfo));
+            }
+
+            return typeInfo.GenericTypeArguments?.Length > 0 && typeInfo.GenericTypeArguments[0] == voidTaskResultType; ;
+        }
+
         public static bool IsValueTask(this TypeInfo typeInfo)
         {
             if (typeInfo == null)

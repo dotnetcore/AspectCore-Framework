@@ -10,9 +10,8 @@ using BenchmarkDotNet.Jobs;
 
 namespace AspectCore.Extensions.Reflection.Benchmark
 {
-    [SimpleJob(RuntimeMoniker.NetCoreApp20)]
-    [SimpleJob(RuntimeMoniker.NetCoreApp30)]
     [AllStatisticsColumn]
+    [MemoryDiagnoser]
     public class MethodReflectorBenchmarks
     {
         private readonly MethodInfo _method;

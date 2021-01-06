@@ -91,7 +91,11 @@ namespace AspectCore.DynamicProxy
         {
             object result;
 
-            if (valueTypeInfo.IsTaskWithResult())
+            if (valueTypeInfo.IsTaskWithVoidTaskResult())
+            {
+                return null;
+            }
+            else if (valueTypeInfo.IsTaskWithResult())
             {
                 // Is there better solution to unwrap ?
                 result = (object)(await (dynamic)value);
