@@ -14,7 +14,7 @@ namespace AspectCore.Configuration
 
         public AspectConfiguration()
         {
-            ThrowAspectException = true;
+            ThrowAspectException = false;
             ValidationHandlers = new AspectValidationHandlerCollection().AddDefault(this);
             Interceptors = new InterceptorCollection();
             NonAspectPredicates = new NonAspectPredicateCollection().AddDefault();
