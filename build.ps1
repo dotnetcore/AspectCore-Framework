@@ -91,20 +91,20 @@ $PACKAGES_CONFIG_MD5 = Join-Path $TOOLS_DIR "packages.config.md5sum"
 $UseMono = "";
 if($Mono.IsPresent) {
     Write-Verbose -Message "Using the Mono based scripting engine."
-    $UseMono = "-mono"
+    $UseMono = "--mono"
 }
 
 # Should we use the new Roslyn?
 $UseExperimental = "";
 if($Experimental.IsPresent -and !($Mono.IsPresent)) {
     Write-Verbose -Message "Using experimental version of Roslyn."
-    $UseExperimental = "-experimental"
+    $UseExperimental = "--experimental"
 }
 
 # Is this a dry run?
 $UseDryRun = "";
 if($WhatIf.IsPresent) {
-    $UseDryRun = "-dryrun"
+    $UseDryRun = "--dryrun"
 }
 
 # Make sure tools folder exists
