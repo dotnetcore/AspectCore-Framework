@@ -91,20 +91,20 @@ $PACKAGES_CONFIG_MD5 = Join-Path $TOOLS_DIR "packages.config.md5sum"
 $UseMono = "";
 if($Mono.IsPresent) {
     Write-Verbose -Message "Using the Mono based scripting engine."
-    $UseMono = "--mono"
+    $UseMono = "--mono=true"
 }
 
 # Should we use the new Roslyn?
 $UseExperimental = "";
 if($Experimental.IsPresent -and !($Mono.IsPresent)) {
     Write-Verbose -Message "Using experimental version of Roslyn."
-    $UseExperimental = "--experimental"
+    $UseExperimental = "--experimental=true"
 }
 
 # Is this a dry run?
 $UseDryRun = "";
 if($WhatIf.IsPresent) {
-    $UseDryRun = "--dryrun"
+    $UseDryRun = "--dryrun=true"
 }
 
 # Make sure tools folder exists
@@ -179,5 +179,5 @@ if (!(Test-Path $CAKE_EXE)) {
 
 # Start Cake
 Write-Host "Running build script..."
-Invoke-Expression "& `"$CAKE_EXE`" `"$Script`" --target=`"$Target`" --configuration=`"$Configuration`" --verbosity=`"$Verbosity`" $UseMono $UseDryRun $UseExperimental $ScriptArgs"
+Invoke-Expression "& `"$CAKE_EXE`" `"$Script`" --target=`"$Target`" --configuration=`"$Configuration`" --verbosity=`"$Verbosity`" $ScriptArgs"
 exit $LASTEXITCODE
