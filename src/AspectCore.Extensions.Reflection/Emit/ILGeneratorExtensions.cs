@@ -572,7 +572,16 @@ namespace AspectCore.Extensions.Reflection.Emit
             {
                 ilGenerator.Emit(OpCodes.Dup);
                 ilGenerator.EmitInt(i);
-                ilGenerator.EmitConstant(items.GetValue(i), elementType);
+                var constantType = items.GetValue(i).GetType();
+                if (constantType == elementType)
+                {
+                    ilGenerator.EmitConstant(items.GetValue(i), elementType);
+                }
+                else
+                {
+                    ilGenerator.EmitConstant(items.GetValue(i), constantType);
+                    ilGenerator.EmitConvertToObject(constantType);
+                }
                 ilGenerator.EmitStoreElement(elementType);
             }
         }

@@ -33,17 +33,20 @@ namespace AspectCore.Extensions.Reflection.Test
         [Fact]
         public void CloseGeneric_Type_DisplayName()
         {
-            var displayName = typeof(FakeGenericClass<FakeGenericClass<string,int>, FakeClass>).GetTypeInfo().GetReflector().DisplayName;
+            var displayName = typeof(FakeGenericClass<FakeGenericClass<string, int>, FakeClass>).GetTypeInfo().GetReflector().DisplayName;
             Assert.Equal("FakeGenericClass<FakeGenericClass<String,Int32>,FakeClass>", displayName);
         }
     }
 
-    public class FakeClass {
-        public class FakeNestedClass { }
+    [AttributeFakes4("0", 1)]
+    public class FakeClass
+    {
+        public class FakeNestedClass
+        {
+        }
     }
 
     public class FakeGenericClass<K, V>
     {
-
     }
 }
