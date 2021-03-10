@@ -14,25 +14,7 @@ namespace AspectCore.Extensions.Reflection.Emit
                 throw new ArgumentNullException(nameof(ilGenerator));
             }
 
-            switch (index)
-            {
-                case 0:
-                    ilGenerator.Emit(OpCodes.Ldarg_0);
-                    break;
-                case 1:
-                    ilGenerator.Emit(OpCodes.Ldarg_1);
-                    break;
-                case 2:
-                    ilGenerator.Emit(OpCodes.Ldarg_2);
-                    break;
-                case 3:
-                    ilGenerator.Emit(OpCodes.Ldarg_3);
-                    break;
-                default:
-                    if (index <= byte.MaxValue) ilGenerator.Emit(OpCodes.Ldarg_S, (byte)index);
-                    else ilGenerator.Emit(OpCodes.Ldarg, index);
-                    break;
-            }
+            ilGenerator.Emit(OpCodes.Ldarg, index);
         }
 
         public static void EmitLoadArgA(this ILGenerator ilGenerator, int index)
@@ -210,25 +192,17 @@ namespace AspectCore.Extensions.Reflection.Emit
             {
                 throw new ArgumentNullException(nameof(ilGenerator));
             }
-            if (!typeFrom.IsValueType && typeTo.IsValueType)
+            if (typeFrom.IsValueType)
             {
-                ilGenerator.Emit(OpCodes.Unbox_Any, typeTo.AsType());
-            }
-            else if (typeFrom.IsValueType && !typeTo.IsValueType)
-            {
-                ilGenerator.Emit(OpCodes.Box, typeFrom.AsType());
-                if (typeTo.AsType() != typeof(object))
+                ilGenerator.Emit(OpCodes.Box, typeFrom);
+                if (typeTo != typeof(object))
                 {
-                    ilGenerator.Emit(OpCodes.Castclass, typeTo.AsType());
+                    ilGenerator.Emit(OpCodes.Castclass, typeTo);
                 }
-            }
-            else if (!typeFrom.IsValueType && !typeTo.IsValueType)
-            {
-                ilGenerator.Emit(OpCodes.Castclass, typeTo.AsType());
             }
             else
             {
-                throw new InvalidCastException($"Caanot cast {typeFrom} to {typeTo}.");
+                ilGenerator.Emit(typeTo.IsValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, typeTo);
             }
         }
 
@@ -693,49 +667,48 @@ namespace AspectCore.Extensions.Reflection.Emit
             {
                 throw new ArgumentNullException(nameof(type));
             }
-            if (type == typeof(short))
+            switch (Type.GetTypeCode(type))
             {
-                ilGenerator.Emit(OpCodes.Ldind_I1);
-            }
-            else if (type == typeof(Int16))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_I2);
-            }
-            else if (type == typeof(Int32))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_I4);
-            }
-            else if (type == typeof(Int64))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_I8);
-            }
-            else if (type == typeof(float))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_R4);
-            }
-            else if (type == typeof(double))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_R8);
-            }
-            else if (type == typeof(ushort))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_U1);
-            }
-            else if (type == typeof(UInt16))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_U2);
-            }
-            else if (type == typeof(UInt32))
-            {
-                ilGenerator.Emit(OpCodes.Ldind_U4);
-            }
-            else if (type.GetTypeInfo().IsValueType)
-            {
-                ilGenerator.Emit(OpCodes.Ldobj);
-            }
-            else
-            {
-                ilGenerator.Emit(OpCodes.Ldind_Ref);
+                case TypeCode.SByte:
+                    ilGenerator.Emit(OpCodes.Ldind_I1);
+                    break;
+                case TypeCode.Boolean:
+                case TypeCode.Byte:
+                    ilGenerator.Emit(OpCodes.Ldind_U1);
+                    break;
+                case TypeCode.Int16:
+                    ilGenerator.Emit(OpCodes.Ldind_I2);
+                    break;
+                case TypeCode.Char:
+                case TypeCode.UInt16:
+                    ilGenerator.Emit(OpCodes.Ldind_U2);
+                    break;
+                case TypeCode.Int32:
+                    ilGenerator.Emit(OpCodes.Ldind_I4);
+                    break;
+                case TypeCode.UInt32:
+                    ilGenerator.Emit(OpCodes.Ldind_U4);
+                    break;
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    ilGenerator.Emit(OpCodes.Ldind_I8);
+                    break;
+                case TypeCode.Single:
+                    ilGenerator.Emit(OpCodes.Ldind_R4);
+                    break;
+                case TypeCode.Double:
+                    ilGenerator.Emit(OpCodes.Ldind_R8);
+                    break;
+                default:
+                    if (type.IsValueType)
+                    {
+                        ilGenerator.Emit(OpCodes.Ldobj, type);
+                    }
+                    else
+                    {
+                        ilGenerator.Emit(OpCodes.Ldind_Ref);
+                    }
+                    break;
             }
         }
 
@@ -749,37 +722,42 @@ namespace AspectCore.Extensions.Reflection.Emit
             {
                 throw new ArgumentNullException(nameof(type));
             }
-            if (type == typeof(short))
+            switch (Type.GetTypeCode(type))
             {
-                ilGenerator.Emit(OpCodes.Stind_I1);
-            }
-            else if (type == typeof(Int16))
-            {
-                ilGenerator.Emit(OpCodes.Stind_I2);
-            }
-            else if (type == typeof(Int32))
-            {
-                ilGenerator.Emit(OpCodes.Stind_I4);
-            }
-            else if (type == typeof(Int64))
-            {
-                ilGenerator.Emit(OpCodes.Stind_I8);
-            }
-            else if (type == typeof(float))
-            {
-                ilGenerator.Emit(OpCodes.Stind_R4);
-            }
-            else if (type == typeof(double))
-            {
-                ilGenerator.Emit(OpCodes.Stind_R8);
-            }
-            else if (type.GetTypeInfo().IsValueType)
-            {
-                ilGenerator.Emit(OpCodes.Stobj);
-            }
-            else
-            {
-                ilGenerator.Emit(OpCodes.Stind_Ref);
+                case TypeCode.Boolean:
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                    ilGenerator.Emit(OpCodes.Stind_I1);
+                    break;
+                case TypeCode.Char:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                    ilGenerator.Emit(OpCodes.Stind_I2);
+                    break;
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                    ilGenerator.Emit(OpCodes.Stind_I4);
+                    break;
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    ilGenerator.Emit(OpCodes.Stind_I8);
+                    break;
+                case TypeCode.Single:
+                    ilGenerator.Emit(OpCodes.Stind_R4);
+                    break;
+                case TypeCode.Double:
+                    ilGenerator.Emit(OpCodes.Stind_R8);
+                    break;
+                default:
+                    if (type.IsValueType)
+                    {
+                        ilGenerator.Emit(OpCodes.Stobj, type);
+                    }
+                    else
+                    {
+                        ilGenerator.Emit(OpCodes.Stind_Ref);
+                    }
+                    break;
             }
         }
 
