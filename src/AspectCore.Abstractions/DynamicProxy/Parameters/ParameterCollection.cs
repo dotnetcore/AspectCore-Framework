@@ -4,18 +4,30 @@ using System.Collections.Generic;
 
 namespace AspectCore.DynamicProxy.Parameters
 {
+    /// <summary>
+    /// 包装Parameter类型数组的对象
+    /// </summary>
     public sealed class ParameterCollection : IEnumerable<Parameter>, IReadOnlyList<Parameter>
     {
         private static readonly object[] emptyValues = new object[0];
         private readonly int _count;
         private readonly Parameter[] _parameterEntries;
 
+        /// <summary>
+        /// 通过Parameter数组构造ParameterCollection
+        /// </summary>
+        /// <param name="parameters">包装Parameter类型数组的对象</param>
         internal ParameterCollection(Parameter[] parameters)
         {
             _count = parameters.Length;
             _parameterEntries = parameters;
         }
 
+        /// <summary>
+        /// 访问ParameterCollection对象中此索引对应的Parameter类型对象
+        /// </summary>
+        /// <param name="index">索引</param>
+        /// <returns>index索引对应的Parameter对象</returns>
         public Parameter this[int index]
         {
             get
@@ -28,6 +40,11 @@ namespace AspectCore.DynamicProxy.Parameters
             }
         }
 
+        /// <summary>
+        /// 访问ParameterCollection对象中此名称索引对应的Parameter类型对象
+        /// </summary>
+        /// <param name="name">名称索引(通过Parameter类型的Name属性进行判断获取)</param>
+        /// <returns>此名称对应的参数对象</returns>
         public Parameter this[string name]
         {
             get
@@ -62,11 +79,18 @@ namespace AspectCore.DynamicProxy.Parameters
             }
         }
 
+        /// <summary>
+        /// 参数个数
+        /// </summary>
         public int Count
         {
             get { return _count; }
         }
 
+        /// <summary>
+        /// 枚举集合中参数
+        /// </summary>
+        /// <returns>参数枚举器</returns>
         public IEnumerator<Parameter> GetEnumerator()
         {
             for (var i = 0; i < _count; i++)
@@ -75,6 +99,10 @@ namespace AspectCore.DynamicProxy.Parameters
             }
         }
 
+        /// <summary>
+        /// 获取对象中的所有参数值
+        /// </summary>
+        /// <returns>对象中的所有参数值</returns>
         public object[] GetValues()
         {
             if (_count == 0)
