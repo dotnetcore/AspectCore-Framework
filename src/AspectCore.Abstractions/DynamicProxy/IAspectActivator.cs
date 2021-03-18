@@ -3,7 +3,7 @@
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// 触发执行拦截管道的接口定义
+    /// 触发执行拦截管道
     /// </summary>
     [NonAspect]
     public interface IAspectActivator
