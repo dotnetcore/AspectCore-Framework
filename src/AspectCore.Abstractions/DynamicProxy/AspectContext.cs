@@ -57,7 +57,7 @@ namespace AspectCore.DynamicProxy
         public abstract object Proxy { get; }
 
         /// <summary>
-        /// 设置跳出
+        /// 设置异步跳出
         /// </summary>
         /// <returns>异步任务</returns>
         public abstract Task Break();
@@ -70,7 +70,7 @@ namespace AspectCore.DynamicProxy
         public abstract Task Invoke(AspectDelegate next);
 
         /// <summary>
-        /// 设置完成
+        /// 设置异步完成
         /// </summary>
         /// <returns>异步任务</returns>
         public abstract Task Complete();

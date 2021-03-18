@@ -139,6 +139,7 @@ namespace AspectCore.DynamicProxy
                 return true;
             }
 
+            //指示是否将AsyncAspectAttribute类型的一个或多个特性应用于此成员。(要搜索此成员的继承链以查找属性)
             if (method.IsDefined(typeof(AsyncAspectAttribute), true))
             {
                 if (method.ReturnType == typeof(object))
