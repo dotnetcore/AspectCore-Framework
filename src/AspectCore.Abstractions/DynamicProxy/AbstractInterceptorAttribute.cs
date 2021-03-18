@@ -29,7 +29,7 @@ namespace AspectCore.DynamicProxy
         /// 增强的具体业务逻辑
         /// </summary>
         /// <param name="context">拦截上下文</param>
-        /// <param name="next">后续处理拦截上下文构建的委托对象</param>
+        /// <param name="next">后续处理拦截上下文的委托对象</param>
         /// <returns>异步任务</returns>
         public abstract Task Invoke(AspectContext context, AspectDelegate next);
     }

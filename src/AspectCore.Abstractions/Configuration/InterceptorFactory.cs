@@ -5,7 +5,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 拦截器工厂抽象基类
+    /// 拦截器工厂的抽象基类
     /// </summary>
     public abstract class InterceptorFactory
     {

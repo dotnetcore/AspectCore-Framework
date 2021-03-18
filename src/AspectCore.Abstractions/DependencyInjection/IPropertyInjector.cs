@@ -9,7 +9,7 @@ namespace AspectCore.DependencyInjection
     public interface IPropertyInjector
     {
         /// <summary>
-        /// 此implementation对象的属性如何被解析注入
+        /// implementation对象的属性如何被解析注入
         /// </summary>
         /// <param name="implementation">要被解析注入属性的对象</param>
         void Invoke(object implementation);

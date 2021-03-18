@@ -6,7 +6,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 代表AspectCore验证处理器集合的对象
+    /// 包装多个AspectCore验证处理器的对象
     /// </summary>
     public class AspectValidationHandlerCollection: IEnumerable<IAspectValidationHandler>
     {
@@ -16,7 +16,7 @@ namespace AspectCore.Configuration
         /// 添加验证处理器
         /// </summary>
         /// <param name="aspectValidationHandler">验证处理器</param>
-        /// <returns>代表AspectCore验证处理器集合的对象</returns>
+        /// <returns>包装多个AspectCore验证处理器的对象</returns>
         public AspectValidationHandlerCollection Add(IAspectValidationHandler aspectValidationHandler)
         {
             if (aspectValidationHandler == null)
@@ -35,7 +35,7 @@ namespace AspectCore.Configuration
         /// <summary>
         /// 迭代AspectValidationHandlerCollection包含的验证处理器
         /// </summary>
-        /// <returns>迭代器,用以迭代此对象包含的验证处理器</returns>
+        /// <returns>迭代此对象包含的验证处理器</returns>
         public IEnumerator<IAspectValidationHandler> GetEnumerator()
         {
             return _sets.GetEnumerator();

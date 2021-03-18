@@ -3,9 +3,9 @@
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 代表拦截条件的委托
+    /// 拦截条件
     /// </summary>
     /// <param name="method">要拦截的方法</param>
-    /// <returns>是否可以对其拦截</returns>
+    /// <returns>是否需要拦截以生成代理</returns>
     public delegate bool AspectPredicate(MethodInfo method);
 }

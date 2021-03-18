@@ -12,7 +12,7 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 创建一个具有属性注入功能的对象
         /// </summary>
-        /// <param name="implementationType">针对此类型属性注入</param>
+        /// <param name="implementationType">针对此类型的属性进行注入</param>
         /// <returns>具有属性注入功能的对象</returns>
         IPropertyInjector Create(Type implementationType);
     }
