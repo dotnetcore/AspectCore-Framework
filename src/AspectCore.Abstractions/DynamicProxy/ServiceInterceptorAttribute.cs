@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// 需要被代理，并通过此特性指定拦截器类型,则拦截器实例将从容器中获取
+    /// 需要被代理，并通过此特性指定拦截器类型,则拦截器从DI激活使用的
     /// </summary>
     public sealed class ServiceInterceptorAttribute : AbstractInterceptorAttribute, IEquatable<ServiceInterceptorAttribute>
     {
