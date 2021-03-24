@@ -11,7 +11,7 @@ namespace AspectCore.Configuration
         /// 添加不拦截名称空间,nameSpace指定的名称空间不会被动态代理所拦截
         /// </summary>
         /// <param name="collection">NonAspectPredicateCollection对象</param>
-        /// <param name="nameSpace">名称空间名称</param>
+        /// <param name="nameSpace">名称空间名称模式字符串</param>
         /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddNamespace(this NonAspectPredicateCollection collection, string nameSpace)
         {
@@ -29,7 +29,7 @@ namespace AspectCore.Configuration
         /// 添加不拦截服务,以服务名称或服务的全限定名指定
         /// </summary>
         /// <param name="collection">NonAspectPredicateCollection对象</param>
-        /// <param name="service">服务名称</param>
+        /// <param name="service">服务名称模式字符串</param>
         /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddService(this NonAspectPredicateCollection collection, string service)
         {
@@ -47,7 +47,7 @@ namespace AspectCore.Configuration
         /// 添加不拦截方法
         /// </summary>
         /// <param name="collection">NonAspectPredicateCollection对象</param>
-        /// <param name="method">方法名称</param>
+        /// <param name="method">方法名称模式字符串</param>
         /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string method)
         {
@@ -65,8 +65,8 @@ namespace AspectCore.Configuration
         /// 不拦截服务service下的名称为method参数指定的方法
         /// </summary>
         /// <param name="collection">NonAspectPredicateCollection对象</param>
-        /// <param name="service">服务名称</param>
-        /// <param name="method">方法名称</param>
+        /// <param name="service">服务名称模式字符串</param>
+        /// <param name="method">方法名称模式字符串</param>
         /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string service, string method)
         {
