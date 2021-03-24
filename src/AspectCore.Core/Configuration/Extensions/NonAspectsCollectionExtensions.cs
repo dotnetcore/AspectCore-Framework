@@ -2,8 +2,17 @@
 
 namespace AspectCore.Configuration
 {
+    /// <summary>
+    /// NonAspectPredicateCollection的扩展,扩展方法中的参数可用 ?或* 通配符 
+    /// </summary>
     public static class NonAspectsCollectionExtensions
     {
+        /// <summary>
+        /// 添加不拦截名称空间,nameSpace指定的名称空间不会被动态代理所拦截
+        /// </summary>
+        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="nameSpace">名称空间名称</param>
+        /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddNamespace(this NonAspectPredicateCollection collection, string nameSpace)
         {
             if (collection == null)
@@ -16,6 +25,12 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        /// <summary>
+        /// 添加不拦截服务,以服务名称或服务的全限定名指定
+        /// </summary>
+        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="service">服务名称</param>
+        /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddService(this NonAspectPredicateCollection collection, string service)
         {
             if (collection == null)
@@ -28,6 +43,12 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        /// <summary>
+        /// 添加不拦截方法
+        /// </summary>
+        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="method">方法名称</param>
+        /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string method)
         {
             if (collection == null)
@@ -40,6 +61,13 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        /// <summary>
+        /// 不拦截服务service下的名称为method参数指定的方法
+        /// </summary>
+        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="service">服务名称</param>
+        /// <param name="method">方法名称</param>
+        /// <returns>NonAspectPredicateCollection对象</returns>
         public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string service, string method)
         {
             if (collection == null)
@@ -52,8 +80,10 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        #region 不拦截特定的名称空间下的方法
+
         private static NonAspectPredicateCollection AddMicrosoft(this NonAspectPredicateCollection collection)
-        {        
+        {
             collection.AddNamespace("Microsoft.*");
             return collection;
         }
@@ -143,6 +173,13 @@ namespace AspectCore.Configuration
             return collection;
         }
 
+        #endregion
+
+        /// <summary>
+        /// 添加默认的不拦截的方法
+        /// </summary>
+        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <returns>NonAspectPredicateCollection对象</returns>
         internal static NonAspectPredicateCollection AddDefault(this NonAspectPredicateCollection collection)
         {
             return collection.
