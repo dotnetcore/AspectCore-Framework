@@ -8,9 +8,19 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.DependencyInjection
 {
+    /// <summary>
+    /// 用于内部高效存取服务
+    /// </summary>
     internal class ServiceTable
     {
+        /// <summary>
+        /// 存储暴露的服务与对应的多个服务描述的映射（非泛型服务）
+        /// </summary>
         private readonly ConcurrentDictionary<Type, LinkedList<ServiceDefinition>> _linkedServiceDefinitions;
+
+        /// <summary>
+        /// 存储暴露的服务与对应的多个服务描述的映射（泛型服务）
+        /// </summary>
         private readonly ConcurrentDictionary<Type, LinkedList<ServiceDefinition>> _linkedGenericServiceDefinitions;
         private readonly IProxyTypeGenerator _proxyTypeGenerator;
         private readonly ServiceValidator _serviceValidator;
@@ -24,8 +34,13 @@ namespace AspectCore.DependencyInjection
             _linkedGenericServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ServiceDefinition>>();
         }
 
+        /// <summary>
+        /// 填充内部用于存放服务的字典
+        /// </summary>
+        /// <param name="services">服务描述对象集合</param>
         internal void Populate(IEnumerable<ServiceDefinition> services)
         {
+            //一个过滤器，晒选服务不是IManyEnumerable<>类型的服务描述对象
             Func<IEnumerable<ServiceDefinition>, IEnumerable<ServiceDefinition>> filter = input => input.Where(x => !x.IsManyEnumerable());
 
             foreach (var service in filter(services))
@@ -43,12 +58,18 @@ namespace AspectCore.DependencyInjection
             }
         }
 
+        /// <summary>
+        /// 是否包含此服务定义
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <returns>是否包含</returns>
         internal bool Contains(Type serviceType)
         {
             if (ContainsLinked(serviceType))
             {
                 return true;
             }
+            //IsConstructedGenericType:当此属性为true时,表示可创建当前类型的实例(封闭式泛型类型); false时不能(开放式泛型类型)
             if (serviceType.IsConstructedGenericType)
             {
                 switch (serviceType.GetGenericTypeDefinition())
@@ -65,6 +86,9 @@ namespace AspectCore.DependencyInjection
             return false;
         }
 
+        /// <summary>
+        /// 是否包含此服务定义
+        /// </summary>
         private bool ContainsLinked(Type serviceType)
         {
             if (_linkedServiceDefinitions.ContainsKey(serviceType))
@@ -81,6 +105,11 @@ namespace AspectCore.DependencyInjection
             return false;
         }
 
+        /// <summary>
+        /// 通过服务类型尝试获取服务描述
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <returns>服务描述</returns>
         internal ServiceDefinition TryGetService(Type serviceType)
         {
             if (serviceType == null)
@@ -108,6 +137,11 @@ namespace AspectCore.DependencyInjection
             return null;
         }
 
+        /// <summary>
+        /// 查询内部字典中IEnumerable<>类型的服务描述
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <returns>服务描述</returns>
         private ServiceDefinition FindEnumerable(Type serviceType)
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
@@ -121,6 +155,11 @@ namespace AspectCore.DependencyInjection
             return enumerableServiceDefinition;
         }
 
+        /// <summary>
+        /// 查询内部字典中IManyEnumerable<>类型的服务描述
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <returns>服务描述</returns>
         private ServiceDefinition FindManyEnumerable(Type serviceType)
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
