@@ -3,7 +3,7 @@
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 提供属性注入功能,实现属性注入功能的类需要继承此接口
+    /// 提供属性注入功能
     /// </summary>
     internal sealed class PropertyInjector : IPropertyInjector
     {

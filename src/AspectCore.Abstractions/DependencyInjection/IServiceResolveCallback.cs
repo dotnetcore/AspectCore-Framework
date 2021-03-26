@@ -4,7 +4,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 服务解析回调接口
+    /// 获取服务后的回调接口
     /// </summary>
     [NonAspect, NonCallback]
     public interface IServiceResolveCallback
