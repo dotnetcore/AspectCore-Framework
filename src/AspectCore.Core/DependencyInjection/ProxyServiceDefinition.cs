@@ -3,6 +3,9 @@ using System.Reflection;
 
 namespace AspectCore.DependencyInjection
 {
+    /// <summary>
+    /// 代理服务描述
+    /// </summary>
     internal class ProxyServiceDefinition : ServiceDefinition
     {
         public ServiceDefinition ServiceDefinition { get; }
