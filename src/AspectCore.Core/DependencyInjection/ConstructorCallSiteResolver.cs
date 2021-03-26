@@ -29,7 +29,6 @@ namespace AspectCore.DependencyInjection
         /// </summary>
         /// <param name="implementationType">服务实现类型</param>
         /// <returns>一个用于获取服务实现对象的委托</returns>
-
         internal Func<IServiceResolver, object> Resolve(Type implementationType)
         {
             return compiledCallSites.GetOrAdd(implementationType, GetBestCallSite);

@@ -27,7 +27,7 @@ namespace AspectCore.DependencyInjection
         void Add(ServiceDefinition item);
 
         /// <summary>
-        /// 判断此生命周期的服务上下文中是否包含serviceType类型
+        /// 判断此生命周期的服务描述集合中是否包含serviceType类型
         /// </summary>
         /// <param name="serviceType">待判断的服务类型</param>
         /// <returns>是否包含</returns>
