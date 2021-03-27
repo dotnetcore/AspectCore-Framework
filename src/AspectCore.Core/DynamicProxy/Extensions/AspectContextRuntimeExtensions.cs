@@ -13,6 +13,11 @@ namespace AspectCore.DynamicProxy
 
         internal static readonly ConcurrentDictionary<MethodInfo, MethodReflector> reflectorTable = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
+        /// <summary>
+        /// 等待异步拦截处理
+        /// </summary>
+        /// <param name="aspectContext">拦截上下文</param>
+        /// <returns>结果</returns>
         public static ValueTask AwaitIfAsync(this AspectContext aspectContext)
         {
             return AwaitIfAsync(aspectContext, aspectContext.ReturnValue);
