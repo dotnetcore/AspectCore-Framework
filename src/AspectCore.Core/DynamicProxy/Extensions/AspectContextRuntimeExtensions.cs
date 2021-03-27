@@ -18,6 +18,12 @@ namespace AspectCore.DynamicProxy
             return AwaitIfAsync(aspectContext, aspectContext.ReturnValue);
         }
 
+        /// <summary>
+        /// 如果returnValue为异步任务，则等待任务完成
+        /// </summary>
+        /// <param name="aspectContext">拦截上下文</param>
+        /// <param name="returnValue">待判断的值</param>
+        /// <returns>ValueTask</returns>
         public static async ValueTask AwaitIfAsync(this AspectContext aspectContext, object returnValue)
         {
             switch (returnValue)
@@ -39,6 +45,11 @@ namespace AspectCore.DynamicProxy
             }
         }
 
+        /// <summary>
+        /// 检查是否为异步拦截处理
+        /// </summary>
+        /// <param name="aspectContext">拦截上下文</param>
+        /// <returns>结果</returns>
         public static bool IsAsync(this AspectContext aspectContext)
         {
             if (aspectContext == null)
@@ -54,6 +65,7 @@ namespace AspectCore.DynamicProxy
 
             if (aspectContext.ReturnValue != null)
             {
+                //返回值为异步类型
                 return IsAsyncType(aspectContext.ReturnValue.GetType().GetTypeInfo());
             }
 
@@ -134,6 +146,7 @@ namespace AspectCore.DynamicProxy
 
         private static bool IsAsyncFromMetaData(MethodInfo method)
         {
+            //方法返回值为异步类型
             if (IsAsyncType(method.ReturnType.GetTypeInfo()))
             {
                 return true;
@@ -151,6 +164,11 @@ namespace AspectCore.DynamicProxy
             return false;
         }
 
+        /// <summary>
+        /// 判断类型是否为Task,Task<>,ValueTask,ValueTask<>
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>结果</returns>
         private static bool IsAsyncType(TypeInfo typeInfo)
         {
             //return typeInfo.IsTask() || typeInfo.IsTaskWithResult() || typeInfo.IsValueTask();

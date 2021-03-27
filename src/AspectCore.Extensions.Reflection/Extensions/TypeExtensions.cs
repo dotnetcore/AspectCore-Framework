@@ -12,6 +12,12 @@ namespace AspectCore.Extensions.Reflection
         private static readonly ConcurrentDictionary<TypeInfo, bool> isValueTaskOfTCache = new ConcurrentDictionary<TypeInfo, bool>();
         private static readonly Type voidTaskResultType = Type.GetType("System.Threading.Tasks.VoidTaskResult", false);
 
+        /// <summary>
+        /// 通过签名获取方法
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <param name="signature">签名</param>
+        /// <returns>方法</returns>
         public static MethodInfo GetMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
             if (typeInfo == null)
@@ -22,6 +28,12 @@ namespace AspectCore.Extensions.Reflection
                 FirstOrDefault(m => new MethodSignature(m) == signature);
         }
 
+        /// <summary>
+        /// 获取类型中声明的与签名一致方法
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <param name="signature">签名</param>
+        /// <returns>方法</returns>
         public static MethodInfo GetDeclaredMethodBySignature(this TypeInfo typeInfo, MethodSignature signature)
         {
             if (typeInfo == null)
@@ -31,6 +43,11 @@ namespace AspectCore.Extensions.Reflection
             return typeInfo.DeclaredMethods.FirstOrDefault(m => new MethodSignature(m) == signature);
         }
 
+        /// <summary>
+        /// 获取类型默认值
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>默认值</returns>
         public static object GetDefaultValue(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -88,23 +105,35 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        /// <summary>
+        /// 获取类型的默认值
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <returns>默认值</returns>
         public static object GetDefaultValue(this Type type)
         {
             return type?.GetTypeInfo()?.GetDefaultValue();
         }
 
+        /// <summary>
+        /// 获取可见性
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>是否可见</returns>
         public static bool IsVisible(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
+            //IsNested：是否为嵌套类型
             if (typeInfo.IsNested)
             {
                 if (!typeInfo.DeclaringType.GetTypeInfo().IsVisible())
                 {
                     return false;
                 }
+                //IsNestedPublic：是嵌套的并且声明为公共的
                 if (!typeInfo.IsVisible || !typeInfo.IsNestedPublic)
                 {
                     return false;
@@ -130,6 +159,11 @@ namespace AspectCore.Extensions.Reflection
             return true;
         }
 
+        /// <summary>
+        /// 类型是否为Task类型
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>结果</returns>
         public static bool IsTask(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -139,6 +173,11 @@ namespace AspectCore.Extensions.Reflection
             return typeInfo.AsType() == typeof(Task);
         }
 
+        /// <summary>
+        /// 类型是否为Task<>类型
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>结果</returns>
         public static bool IsTaskWithResult(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -148,6 +187,11 @@ namespace AspectCore.Extensions.Reflection
             return isTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && typeof(Task).GetTypeInfo().IsAssignableFrom(Info));
         }
 
+        /// <summary>
+        /// 类型是否为Task<T>类型,T为System.Threading.Tasks.VoidTaskResult类型
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>结果</returns>
         public static bool IsTaskWithVoidTaskResult(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -158,6 +202,11 @@ namespace AspectCore.Extensions.Reflection
             return typeInfo.GenericTypeArguments?.Length > 0 && typeInfo.GenericTypeArguments[0] == voidTaskResultType; ;
         }
 
+        /// <summary>
+        /// 类型是否为ValueTask类型
+        /// </summary>
+        /// <param name="typeInfo"></param>
+        /// <returns></returns>
         public static bool IsValueTask(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -167,15 +216,27 @@ namespace AspectCore.Extensions.Reflection
             return typeInfo.AsType() == typeof(ValueTask);
         }
 
+        /// <summary>
+        /// 类型是否为ValueTask<>类型
+        /// </summary>
+        /// <param name="typeInfo">待判断的类型</param>
+        /// <returns>结果</returns>
         public static bool IsValueTaskWithResult(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
+
+            //GetGenericTypeDefinition方法说明：返回一个表示可用于构造当前泛型类型的泛型类型定义的 Type 对象（泛型模板）
             return isValueTaskOfTCache.GetOrAdd(typeInfo, Info => Info.IsGenericType && Info.GetGenericTypeDefinition() == typeof(ValueTask<>));
         }
 
+        /// <summary>
+        /// 类型是否为Nullable<>类型
+        /// </summary>
+        /// <param name="type">待判断的类型</param>
+        /// <returns>结果</returns>
         public static bool IsNullableType(this Type type)
         {
             return type.GetTypeInfo().IsGenericType &&
