@@ -69,6 +69,7 @@ namespace AspectCore.Utils
             }
         }
 
+
         internal Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!serviceType.GetTypeInfo().IsVisible() || !serviceType.GetTypeInfo().IsClass)
@@ -228,8 +229,20 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 类型构造器工具
+        /// </summary>
         private class TypeBuilderUtils
         {
+            /// <summary>
+            /// 定义一个类型
+            /// </summary>
+            /// <param name="moduleBuilder">模块构建器</param>
+            /// <param name="name">类型名称</param>
+            /// <param name="serviceType">服务类型</param>
+            /// <param name="parentType">父类型</param>
+            /// <param name="interfaces">实现的接口</param>
+            /// <returns></returns>
             public static TypeDesc DefineType(ModuleBuilder moduleBuilder, string name, Type serviceType, Type parentType, Type[] interfaces)
             {
                 //define proxy type for interface service
@@ -859,6 +872,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 参数构建工具
+        /// </summary>
         private class ParameterBuilderUtils
         {
             public static void DefineParameters(MethodInfo targetMethod, MethodBuilder methodBuilder)
@@ -1050,37 +1066,57 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 泛型参数生成工具
+        /// </summary>
         private class GenericParameterUtils
         {
+            /// <summary>
+            /// 为泛型类型定义泛型参数
+            /// </summary>
+            /// <param name="targetType">泛型类型</param>
+            /// <param name="typeBuilder">类型构建器</param>
             internal static void DefineGenericParameter(Type targetType, TypeBuilder typeBuilder)
             {
                 if (!targetType.GetTypeInfo().IsGenericTypeDefinition)
                 {
                     return;
                 }
+                //获取泛型参数的类型数组
                 var genericArguments = targetType.GetTypeInfo().GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
                 var genericArgumentsBuilders = typeBuilder.DefineGenericParameters(genericArguments.Select(a => a.Name).ToArray());
                 for (var index = 0; index < genericArguments.Length; index++)
                 {
+                    //设置泛型参数的方差特征和特殊约束
                     genericArgumentsBuilders[index].SetGenericParameterAttributes(ToClassGenericParameterAttributes(genericArguments[index].GenericParameterAttributes));
                     foreach (var constraint in genericArguments[index].GetGenericParameterConstraints().Select(t => t.GetTypeInfo()))
                     {
+                        //基类约束,T继承约束规定的基类（SetBaseTypeConstraint：设置某类型必须继承的基类型，以替换为类型参数）
                         if (constraint.IsClass) genericArgumentsBuilders[index].SetBaseTypeConstraint(constraint.AsType());
+                        //接口约束,T实现约束规定的接口（SetInterfaceConstraints:设置一个类型必须实现的接口，以替换为类型参数）
                         if (constraint.IsInterface) genericArgumentsBuilders[index].SetInterfaceConstraints(constraint.AsType());
                     }
                 }
             }
 
+            /// <summary>
+            /// 为泛型方法定义泛型参数
+            /// </summary>
+            /// <param name="tergetMethod">泛型方法</param>
+            /// <param name="methodBuilder">方法构建器</param>
             internal static void DefineGenericParameter(MethodInfo tergetMethod, MethodBuilder methodBuilder)
             {
+                //非泛型方法直接退出
                 if (!tergetMethod.IsGenericMethod)
                 {
                     return;
                 }
+                //获取泛型方法的泛型参数类型数组
                 var genericArguments = tergetMethod.GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray();
                 var genericArgumentsBuilders = methodBuilder.DefineGenericParameters(genericArguments.Select(a => a.Name).ToArray());
                 for (var index = 0; index < genericArguments.Length; index++)
                 {
+                    //指定泛型参数的约束
                     genericArgumentsBuilders[index].SetGenericParameterAttributes(genericArguments[index].GenericParameterAttributes);
                     foreach (var constraint in genericArguments[index].GetGenericParameterConstraints().Select(t => t.GetTypeInfo()))
                     {
@@ -1090,28 +1126,44 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="attributes">描述对泛型类型或方法的泛型类型参数的约束</param>
+            /// <returns>描述对泛型类型或方法的泛型类型参数的约束</returns>
             private static GenericParameterAttributes ToClassGenericParameterAttributes(GenericParameterAttributes attributes)
             {
                 if (attributes == GenericParameterAttributes.None)
                 {
                     return GenericParameterAttributes.None;
                 }
+
+                //SpecialConstraintMask:选择所有特殊约束标志的组合。 此值是使用逻辑“OR”合并后列标志得出的结果：DefaultConstructorConstraint、ReferenceTypeConstraint 和 NotNullableValueTypeConstraint。
                 if (attributes.HasFlag(GenericParameterAttributes.SpecialConstraintMask))
                 {
                     return GenericParameterAttributes.SpecialConstraintMask;
                 }
+
+                //** 非空值类型约束 T:struct **
+                //NotNullableValueTypeConstraint:仅当一个类型是值类型且不可为 null 时，才能替代泛型类型参数
                 if (attributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint))
                 {
                     return GenericParameterAttributes.NotNullableValueTypeConstraint;
                 }
+
+                //** 无参构造与引用类型约束 T: class, new() **
+                //ReferenceTypeConstraint:仅当一个类型是引用类型时，才能替代泛型类型参数
+                //DefaultConstructorConstraint:仅当一个类型具有无参数的构造函数时，才能替代泛型类型参数
                 if (attributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) && attributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
                 {
                     return GenericParameterAttributes.ReferenceTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint;
                 }
+                //T: class
                 if (attributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
                 {
                     return GenericParameterAttributes.ReferenceTypeConstraint;
                 }
+                //T: new()
                 if (attributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
                 {
                     return GenericParameterAttributes.DefaultConstructorConstraint;
@@ -1120,8 +1172,12 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 自定义特性构建工具
+        /// </summary>
         private class CustomAttributeBuildeUtils
         {
+
             public static CustomAttributeBuilder DefineCustomAttribute(Type attributeType)
             {
                 return new CustomAttributeBuilder(attributeType.GetTypeInfo().GetConstructor(Type.EmptyTypes), ArrayUtils.Empty<object>());
