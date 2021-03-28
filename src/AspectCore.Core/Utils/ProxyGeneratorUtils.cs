@@ -160,6 +160,9 @@ namespace AspectCore.Utils
             return typeDesc.Compile();
         }
 
+        /// <summary>
+        /// 代理类名称生成工具
+        /// </summary>
         private class ProxyNameUtils
         {
             private readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
@@ -212,6 +215,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 产生一个递增的代理类名称索引值
+        /// </summary>
         private class ProxyNameIndex
         {
             private int _index = -1;
@@ -1180,12 +1186,16 @@ namespace AspectCore.Utils
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
                 var fieldTable = new FieldTable();
+                //定义两个字段并保存于FieldTable
                 fieldTable[ActivatorFactory] = typeBuilder.DefineField(ActivatorFactory, typeof(IAspectActivatorFactory), FieldAttributes.Private);
                 fieldTable[Target] = typeBuilder.DefineField(Target, targetType, FieldAttributes.Private);
                 return fieldTable;
             }
         }
 
+        /// <summary>
+        /// 用于存取字段
+        /// </summary>
         private class FieldTable
         {
             private readonly Dictionary<string, FieldBuilder> _table = new Dictionary<string, FieldBuilder>();
@@ -1249,6 +1259,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 类型描述
+        /// </summary>
         private class TypeDesc
         {
             public TypeBuilder Builder { get; }

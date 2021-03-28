@@ -7,6 +7,9 @@ using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
+    /// <summary>
+    /// 提供AspectContext针对异步处理的扩展方法
+    /// </summary>
     public static class AspectContextRuntimeExtensions
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> isAsyncCache = new ConcurrentDictionary<MethodInfo, bool>();
@@ -77,11 +80,22 @@ namespace AspectCore.DynamicProxy
             return false;
         }
 
+        /// <summary>
+        /// 等待并获取异步拦截结果
+        /// </summary>
+        /// <typeparam name="T">结果类型</typeparam>
+        /// <param name="aspectContext">拦截上下文</param>
+        /// <returns>异步拦截结果</returns>
         public static async Task<T> UnwrapAsyncReturnValue<T>(this AspectContext aspectContext)
         {
             return (T)await UnwrapAsyncReturnValue(aspectContext);
         }
 
+        /// <summary>
+        /// 等待并获取异步拦截结果
+        /// </summary>
+        /// <param name="aspectContext">拦截上下文</param>
+        /// <returns>异步拦截结果</returns>
         public static Task<object> UnwrapAsyncReturnValue(this AspectContext aspectContext)
         {
             if (aspectContext == null)
@@ -157,7 +171,7 @@ namespace AspectCore.DynamicProxy
                 return true;
             }
 
-            //指示是否将AsyncAspectAttribute类型的一个或多个特性应用于此成员。(要搜索此成员的继承链以查找属性)
+            //IsDefined方法说明:指示是否将AsyncAspectAttribute类型的一个或多个特性应用于此成员。(要搜索此成员的继承链以查找属性)
             if (method.IsDefined(typeof(AsyncAspectAttribute), true))
             {
                 if (method.ReturnType == typeof(object))
