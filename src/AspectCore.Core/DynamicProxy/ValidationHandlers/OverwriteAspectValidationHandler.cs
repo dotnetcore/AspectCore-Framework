@@ -5,12 +5,23 @@ namespace AspectCore.DynamicProxy
 {
     public sealed class OverwriteAspectValidationHandler : IAspectValidationHandler
     {
+        /// <summary>
+        /// 排序号，表示处理验证的顺序
+        /// </summary>
         public int Order { get; } = 1;
 
+        /// <summary>
+        /// 检查是否需要被代理
+        /// </summary>
+        /// <param name="context">上下文</param>
+        /// <param name="next">后续的验证处理委托</param>
+        /// <returns>结果</returns>
         public bool Invoke(AspectValidationContext context, AspectValidationDelegate next)
         {
             var method = context.Method;
             var declaringType = method.DeclaringType.GetTypeInfo();
+
+            //如果被代理的方法的声明类型不可被继承则返回false
             if (!declaringType.CanInherited())
             {
                 return false;
