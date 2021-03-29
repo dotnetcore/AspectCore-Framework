@@ -15,7 +15,7 @@ namespace AspectCore.DynamicProxy
         int Order { get; }
 
         /// <summary>
-        /// 检查是否可被代理
+        /// 检查是否需要被代理
         /// </summary>
         /// <param name="context">上下文</param>
         /// <param name="next">后续的验证处理委托</param>
