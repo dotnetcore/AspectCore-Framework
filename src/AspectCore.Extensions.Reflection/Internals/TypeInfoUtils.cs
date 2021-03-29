@@ -128,6 +128,12 @@ namespace AspectCore.Extensions.Reflection.Internals
             return 0 != (t.GenericParameterAttributes & GenericParameterAttributes.Covariant);
         }
 
+        /// <summary>
+        /// 是否可进行引用类型的转化
+        /// </summary>
+        /// <param name="source">源类型</param>
+        /// <param name="dest">目标类型</param>
+        /// <returns>true 可转化,否则false</returns>
         internal static bool HasReferenceConversion(TypeInfo source, TypeInfo dest)
         {
             // void -> void conversion is handled elsewhere
@@ -186,7 +192,7 @@ namespace AspectCore.Extensions.Reflection.Internals
             {
                 return true;
             }
-            //Type.GetTypeCode,获取指定 Type 的基础类型代码
+            //Type.GetTypeCode获取指定 Type 的基础类型代码
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Boolean:
@@ -228,6 +234,11 @@ namespace AspectCore.Extensions.Reflection.Internals
             }
         }
 
+        /// <summary>
+        /// 判断是否为浮点数
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>true 是浮点数,否则false</returns>
         internal static bool IsFloatingPoint(TypeInfo typeInfo)
         {
             var type = GetNonNullableType(typeInfo);
