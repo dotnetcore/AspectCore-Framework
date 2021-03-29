@@ -51,6 +51,11 @@ namespace AspectCore.DynamicProxy
             return method.GetParameters().Select(parame => parame.ParameterType).ToArray();
         }
 
+        /// <summary>
+        /// 类型是否标记了NonAspectAttribute特性，以指明无需代理
+        /// </summary>
+        /// <param name="typeInfo">待判断的类型</param>
+        /// <returns>是否标记了NonAspectAttribute特性</returns>
         public static bool IsNonAspect(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
