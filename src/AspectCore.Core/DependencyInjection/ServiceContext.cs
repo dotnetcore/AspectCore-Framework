@@ -146,7 +146,7 @@ namespace AspectCore.DependencyInjection
         public ILifetimeServiceContext Transients { get; }
 
         /// <summary>
-        /// AspectCore配置
+        /// 拦截配置
         /// </summary>
         public IAspectConfiguration Configuration => _configuration;
 

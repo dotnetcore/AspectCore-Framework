@@ -4,7 +4,7 @@ using AspectCore.DependencyInjection;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// AspectCore的配置接口
+    /// 拦截配置接口
     /// </summary>
     [NonAspect]
     public interface IAspectConfiguration

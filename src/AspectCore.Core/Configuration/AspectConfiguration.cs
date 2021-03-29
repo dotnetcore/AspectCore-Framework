@@ -3,7 +3,7 @@
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// AspectCore的配置对象
+    /// 拦截配置
     /// </summary>
     public sealed class AspectConfiguration : IAspectConfiguration
     {
