@@ -8,9 +8,6 @@ using AspectCore.Utils;
 
 namespace AspectCore.DependencyInjection
 {
-    /// <summary>
-    /// 服务描述扩展
-    /// </summary>
     internal static class ServiceDefinitionExtensions
     {
         private static readonly ConcurrentDictionary<ServiceDefinition, bool> _callbackMap = new ConcurrentDictionary<ServiceDefinition, bool>();

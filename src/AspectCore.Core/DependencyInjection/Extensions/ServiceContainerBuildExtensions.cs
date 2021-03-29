@@ -2,9 +2,6 @@
 
 namespace AspectCore.DependencyInjection
 {
-    /// <summary>
-    /// IServiceContext扩展
-    /// </summary>
     public static class ServiceContainerBuildExtensions
     {
         /// <summary>

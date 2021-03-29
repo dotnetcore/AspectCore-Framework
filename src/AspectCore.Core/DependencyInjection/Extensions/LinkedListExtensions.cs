@@ -4,9 +4,6 @@ using System.Text;
 
 namespace AspectCore.DependencyInjection
 {
-    /// <summary>
-    /// LinkedList扩展
-    /// </summary>
     internal static class LinkedListExtensions
     {
         /// <summary>
