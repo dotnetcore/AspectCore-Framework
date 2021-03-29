@@ -3,6 +3,9 @@ using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
 {
+    /// <summary>
+    /// 基于重写特征的验证处理器
+    /// </summary>
     public sealed class OverwriteAspectValidationHandler : IAspectValidationHandler
     {
         /// <summary>
@@ -36,6 +39,9 @@ namespace AspectCore.DynamicProxy
                 {
                     return false;
                 }
+
+                //newslot标识脱离了基类虚函数的那一套链，等同C#中的new
+                //MethodAttributes.NewSlot指示此方法总是获取 vtable 中的新槽
                 if (!method.Attributes.HasFlag(MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.Final))
                     return false;
             }
