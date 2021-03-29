@@ -31,6 +31,7 @@ namespace AspectCore.DynamicProxy.Parameters
                 for (var i = 0; i < count; i++)
                 {
                     var parameter = parameters[i];
+                    //获取对应参数的参数拦截器
                     var interceptors = selector.Select(parameter.ParameterInfo);
                     if (interceptors.Length > 0)
                     {
@@ -46,6 +47,8 @@ namespace AspectCore.DynamicProxy.Parameters
             }
             await next(context);
             var returnParameter = context.GetReturnParameter();
+
+            //返回值的拦截处理
             var returnInterceptors = selector.Select(returnParameter.ParameterInfo);
             if (returnInterceptors.Length > 0)
             {

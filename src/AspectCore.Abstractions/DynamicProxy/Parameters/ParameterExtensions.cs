@@ -13,7 +13,7 @@ namespace AspectCore.DynamicProxy.Parameters
         /// 获取一个ParameterCollection对象，此对象封装被拦截方法的参数上下文信息
         /// </summary>
         /// <param name="aspectContext">拦截上下文</param>
-        /// <returns>参数信息集合</returns>
+        /// <returns>参数信息</returns>
         public static ParameterCollection GetParameters(this AspectContext aspectContext)
         {
             if (aspectContext == null)
