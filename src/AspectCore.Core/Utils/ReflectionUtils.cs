@@ -9,6 +9,11 @@ namespace AspectCore.DynamicProxy
 {
     public static class ReflectionUtils
     {
+        /// <summary>
+        /// 判断实例是否是代理实例
+        /// </summary>
+        /// <param name="instance">实例</param>
+        /// <returns>true 代理实例 false 非代理实例</returns>
         public static bool IsProxy(this object instance)
         {
             if (instance == null)
@@ -18,6 +23,11 @@ namespace AspectCore.DynamicProxy
             return instance.GetType().GetTypeInfo().IsProxyType();
         }
 
+        /// <summary>
+        /// 判断类型是否为代理类型
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>true 代理类型 false 非代理类型</returns>
         public static bool IsProxyType(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -27,6 +37,11 @@ namespace AspectCore.DynamicProxy
             return typeInfo.GetReflector().IsDefined(typeof(DynamicallyAttribute));
         }
 
+        /// <summary>
+        /// 判断类型是否可被继承
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <returns>true 可被继承，false 不可继承</returns>
         public static bool CanInherited(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -42,6 +57,11 @@ namespace AspectCore.DynamicProxy
             return typeInfo.IsVisible();
         }
 
+        /// <summary>
+        /// 获取方法的参数类型数组
+        /// </summary>
+        /// <param name="method">方法</param>
+        /// <returns>参数类型数组</returns>
         internal static Type[] GetParameterTypes(this MethodInfo method)
         {
             if (method == null)
@@ -107,6 +127,11 @@ namespace AspectCore.DynamicProxy
                                                  MethodAttributes.Virtual);
         }
 
+        /// <summary>
+        /// 判断方法有无返回值
+        /// </summary>
+        /// <param name="methodInfo">方法</param>
+        /// <returns>true无返回值,false有返回值</returns>
         internal static bool IsVoid(this MethodInfo methodInfo)
         {
             return methodInfo.ReturnType == typeof(void);
