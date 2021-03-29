@@ -6,7 +6,7 @@ namespace AspectCore.DynamicProxy
     public static class ProxyGeneratorExtensions
     {
         /// <summary>
-        /// 创建类代理对象
+        /// 以子类代理方式创建代理对象
         /// </summary>
         /// <param name="proxyGenerator">代理生成器</param>
         /// <param name="serviceType">暴露的服务类型</param>
@@ -21,6 +21,13 @@ namespace AspectCore.DynamicProxy
             return proxyGenerator.CreateClassProxy(serviceType, implementationType, ArrayUtils.Empty<object>());
         }
 
+        /// <summary>
+        /// 以子类代理方式创建代理对象
+        /// </summary>
+        /// <param name="proxyGenerator">代理生成器</param>
+        /// <param name="implementationType">实现类型</param>
+        /// <param name="args">构造参数</param>
+        /// <returns></returns>
         public static object CreateClassProxy(this IProxyGenerator proxyGenerator, Type implementationType, params object[] args)
         {
             if (proxyGenerator == null)

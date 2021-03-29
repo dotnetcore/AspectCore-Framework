@@ -7,9 +7,6 @@ using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
-    /// <summary>
-    /// 提供AspectContext针对异步处理的扩展方法
-    /// </summary>
     public static class AspectContextRuntimeExtensions
     {
         private static readonly ConcurrentDictionary<MethodInfo, bool> isAsyncCache = new ConcurrentDictionary<MethodInfo, bool>();

@@ -140,12 +140,21 @@ namespace AspectCore.Extensions.Reflection.Emit
                 throw new ArgumentNullException(nameof(declaringType));
             }
 
+            //讲类型和方法的运行时表示形式推送到计算堆栈上，以便调用方法
+            //OpCodes.Ldtoken:将元数据标记转换为其运行时表示形式，并将其推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Ldtoken, method);
             ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);
             ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetMethodFromHandle);
             ilGenerator.EmitConvertToType(typeof(MethodBase), typeof(MethodInfo));
         }
 
+        /// <summary>
+        /// 发出类型转化
+        /// </summary>
+        /// <param name="ilGenerator">IL生成器</param>
+        /// <param name="typeFrom">原类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">类型检查</param>
         public static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked = true)
         {
             if (ilGenerator == null)
