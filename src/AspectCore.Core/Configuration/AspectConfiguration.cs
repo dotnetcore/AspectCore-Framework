@@ -8,7 +8,7 @@ namespace AspectCore.Configuration
     public sealed class AspectConfiguration : IAspectConfiguration
     {
         /// <summary>
-        /// 验证处理器集合
+        /// 验证检查处理器集合
         /// </summary>
         public AspectValidationHandlerCollection ValidationHandlers { get; }
 
@@ -28,7 +28,7 @@ namespace AspectCore.Configuration
         public bool ThrowAspectException { get; set; }
 
         /// <summary>
-        /// 构造AspectCore的配置对象
+        /// AspectCore的配置对象
         /// </summary>
         public AspectConfiguration()
         {

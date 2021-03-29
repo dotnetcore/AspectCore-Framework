@@ -2,17 +2,14 @@
 
 namespace AspectCore.Configuration
 {
-    /// <summary>
-    /// AspectValidationHandlerCollection的扩展
-    /// </summary>
     internal static class AspectValidationHandlerCollectionExtensions
     {
         /// <summary>
-        /// 添加默认的验证处理器
+        /// 添加默认的验证检查处理器
         /// </summary>
         /// <param name="aspectValidationHandlers">拦截验证处理器集合</param>
         /// <param name="configuration">配置</param>
-        /// <returns>Aspect验证处理器集合</returns>
+        /// <returns>AspectValidationHandlerCollection</returns>
         internal static AspectValidationHandlerCollection AddDefault(this AspectValidationHandlerCollection aspectValidationHandlers, IAspectConfiguration configuration)
         {
             aspectValidationHandlers.Add(new OverwriteAspectValidationHandler());

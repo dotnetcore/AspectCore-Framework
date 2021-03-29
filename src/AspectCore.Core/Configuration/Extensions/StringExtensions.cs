@@ -12,7 +12,7 @@ namespace AspectCore.Configuration
         /// </summary>
         /// <param name="input">待匹配的字符串</param>
         /// <param name="pattern">匹配模式</param>
-        /// <returns>是否匹配</returns>
+        /// <returns>true 可匹配 , false 不可匹配</returns>
         public static unsafe bool Matches(this string input, string pattern)
         {
             if (string.IsNullOrEmpty(input))

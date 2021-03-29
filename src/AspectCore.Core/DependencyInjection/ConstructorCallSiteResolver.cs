@@ -16,29 +16,29 @@ namespace AspectCore.DependencyInjection
         private readonly ServiceTable _serviceTable;
 
         /// <summary>
-        /// 构造一个提供由构造函数注入的服务的解析功能
+        /// 提供由构造函数注入的服务的解析功能
         /// </summary>
-        /// <param name="serviceTable">内部存取服务的一个对象</param>
+        /// <param name="serviceTable">内部存取服务的对象</param>
         internal ConstructorCallSiteResolver(ServiceTable serviceTable)
         {
             _serviceTable = serviceTable;
         }
 
         /// <summary>
-        /// 提供一个用于获取服务实现对象的委托
+        /// 提供一个用于获取服务的委托
         /// </summary>
-        /// <param name="implementationType">服务实现类型</param>
-        /// <returns>一个用于获取服务实现对象的委托</returns>
+        /// <param name="implementationType">服务类型</param>
+        /// <returns>获取服务的委托</returns>
         internal Func<IServiceResolver, object> Resolve(Type implementationType)
         {
             return compiledCallSites.GetOrAdd(implementationType, GetBestCallSite);
         }
 
         /// <summary>
-        /// 选取一个构造函数（参数最多优先），提供一个用于获取服务实现对象的委托
+        /// 选取一个构造函数（参数最多优先），提供一个用于获取服务对象的委托
         /// </summary>
-        /// <param name="implementationType">服务实现类型</param>
-        /// <returns>一个用于获取服务实现对象的委托</returns>
+        /// <param name="implementationType">服务类型</param>
+        /// <returns>获取服务对象的委托</returns>
         private Func<IServiceResolver, object> GetBestCallSite(Type implementationType)
         {
             var constructors = implementationType.GetTypeInfo()
@@ -69,11 +69,11 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 指定构造函数来获取一个用于获取服务实现对象的委托
+        /// 指定构造函数来获取一个用于获取服务对象的委托
         /// </summary>
         /// <param name="constructor">构造函数</param>
-        /// <param name="callSite">一个用于获取服务实现对象的委托</param>
-        /// <returns>是否成功</returns>
+        /// <param name="callSite">获取服务对象的委托</param>
+        /// <returns>获取是否成功</returns>
         private bool TryResolve(ConstructorInfo constructor, out Func<IServiceResolver, object> callSite)
         {
             callSite = null;

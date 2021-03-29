@@ -3,7 +3,7 @@
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 构造条件的工具类
+    /// 构造拦截条件的工具类
     /// </summary>
     public static class Predicates
     {
@@ -84,7 +84,7 @@ namespace AspectCore.Configuration
         }
 
         /// <summary>
-        /// 构造一个条件,判断方法的声明类型是否由baseOrInterfaceType类型派生
+        /// 构造一个条件,此条件判断方法的声明类型是否由baseOrInterfaceType类型派生
         /// </summary>
         /// <param name="baseOrInterfaceType">基类型或接口</param>
         /// <returns>条件</returns>

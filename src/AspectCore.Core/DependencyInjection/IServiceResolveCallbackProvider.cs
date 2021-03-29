@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 服务解析回调功能的提供者接口
+    /// 用于提供一组服务回调功能
     /// </summary>
     internal interface IServiceResolveCallbackProvider
     {

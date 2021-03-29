@@ -11,7 +11,7 @@ namespace AspectCore.DependencyInjection
         public IEnumerable<ServiceDefinition> ServiceDefinitions { get; }
 
         /// <summary>
-        /// 这组服务描述对象中每个元素的类型
+        /// 元素的类型
         /// </summary>
         public Type ElementType { get; }
 

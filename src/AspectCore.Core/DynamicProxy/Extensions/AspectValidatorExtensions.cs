@@ -12,7 +12,7 @@ namespace AspectCore.DynamicProxy
         /// <param name="aspectValidator">拦截验证器</param>
         /// <param name="type">类型</param>
         /// <param name="isStrictValidation">模式</param>
-        /// <returns>是否需代理</returns>
+        /// <returns>true 需被代理,false 无需代理</returns>
         public static bool Validate(this IAspectValidator aspectValidator, Type type, bool isStrictValidation)
         {
             if (aspectValidator == null)

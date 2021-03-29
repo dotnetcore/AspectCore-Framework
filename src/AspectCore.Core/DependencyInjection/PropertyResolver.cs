@@ -14,8 +14,8 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 构造属性解析对象
         /// </summary>
-        /// <param name="propertyFactory">通过此委托创建属性对象</param>
-        /// <param name="reflector">属性反射支持对象</param>
+        /// <param name="propertyFactory">通过此委托创建属性</param>
+        /// <param name="reflector">PropertyReflector</param>
         internal PropertyResolver(Func<IServiceProvider, object> propertyFactory, PropertyReflector reflector)
         {  
             _propertyFactory = propertyFactory;

@@ -126,7 +126,7 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 服务描述对象集合的数量
+        /// 服务描述对象的数量
         /// </summary>
         public int Count => _collection.Count;
 

@@ -15,8 +15,8 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 获取服务描述对象中服务的类型
         /// </summary>
-        /// <param name="serviceDefinition">服务描述对象</param>
-        /// <returns>服务的实现类型</returns>
+        /// <param name="serviceDefinition">服务描述</param>
+        /// <returns>服务类型</returns>
         internal static Type GetImplementationType(this ServiceDefinition serviceDefinition)
         {
             if (serviceDefinition is TypeServiceDefinition typeServiceDefinition)
@@ -44,8 +44,8 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 判断服务是否需要进行属性注入
         /// </summary>
-        /// <param name="serviceDefinition">服务描述对象</param>
-        /// <returns>是否需要属性注入</returns>
+        /// <param name="serviceDefinition">服务描述</param>
+        /// <returns>true 需要,false 不需要</returns>
         internal static bool RequiredPropertyInjection(this ServiceDefinition serviceDefinition)
         {
             if (serviceDefinition is ProxyServiceDefinition proxyServiceDefinition && proxyServiceDefinition.ServiceType.GetTypeInfo().IsInterface)
@@ -67,8 +67,8 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 判断服务是否是IManyEnumerable<>类型
         /// </summary>
-        /// <param name="serviceDefinition">服务描述对象</param>
-        /// <returns>判断结果</returns>
+        /// <param name="serviceDefinition">服务描述</param>
+        /// <returns>true 是IManyEnumerable<>类型,false 不是</returns>
         internal static bool IsManyEnumerable(this ServiceDefinition serviceDefinition)
         {
             if (serviceDefinition == null)
@@ -82,8 +82,8 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 判断服务是否需要进行回调处理
         /// </summary>
-        /// <param name="serviceDefinition">服务描述对象</param>
-        /// <returns>判断结果</returns>
+        /// <param name="serviceDefinition">服务描述</param>
+        /// <returns>true 需要回调,false 无需回调</returns>
         internal static bool RequiredResolveCallback(this ServiceDefinition serviceDefinition)
         {
             return _callbackMap.GetOrAdd(serviceDefinition, service => !service.ServiceType.GetReflector().IsDefined<NonCallback>());

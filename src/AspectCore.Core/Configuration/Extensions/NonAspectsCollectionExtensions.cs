@@ -3,16 +3,16 @@
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// NonAspectPredicateCollection的扩展,扩展方法中的参数可用 ?或* 通配符 
+    /// NonAspectPredicateCollection的扩展,扩展方法中的参数可使用 ?或* 通配符 
     /// </summary>
     public static class NonAspectsCollectionExtensions
     {
         /// <summary>
-        /// 添加不拦截名称空间,nameSpace指定的名称空间不会被动态代理所拦截
+        /// nameSpace指定的名称空间不会被动态代理所拦截
         /// </summary>
-        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="collection">NonAspectPredicateCollection</param>
         /// <param name="nameSpace">名称空间名称模式字符串</param>
-        /// <returns>NonAspectPredicateCollection对象</returns>
+        /// <returns>NonAspectPredicateCollection</returns>
         public static NonAspectPredicateCollection AddNamespace(this NonAspectPredicateCollection collection, string nameSpace)
         {
             if (collection == null)
@@ -28,9 +28,9 @@ namespace AspectCore.Configuration
         /// <summary>
         /// 添加不拦截服务,以服务名称或服务的全限定名指定
         /// </summary>
-        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="collection">NonAspectPredicateCollection</param>
         /// <param name="service">服务名称模式字符串</param>
-        /// <returns>NonAspectPredicateCollection对象</returns>
+        /// <returns>NonAspectPredicateCollection</returns>
         public static NonAspectPredicateCollection AddService(this NonAspectPredicateCollection collection, string service)
         {
             if (collection == null)
@@ -46,9 +46,9 @@ namespace AspectCore.Configuration
         /// <summary>
         /// 添加不拦截方法
         /// </summary>
-        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="collection">NonAspectPredicateCollection</param>
         /// <param name="method">方法名称模式字符串</param>
-        /// <returns>NonAspectPredicateCollection对象</returns>
+        /// <returns>NonAspectPredicateCollection</returns>
         public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string method)
         {
             if (collection == null)
@@ -62,12 +62,12 @@ namespace AspectCore.Configuration
         }
 
         /// <summary>
-        /// 不拦截服务service下的名称为method参数指定的方法
+        /// 不拦截服务service下名称为method参数指定的方法
         /// </summary>
-        /// <param name="collection">NonAspectPredicateCollection对象</param>
+        /// <param name="collection">NonAspectPredicateCollection</param>
         /// <param name="service">服务名称模式字符串</param>
         /// <param name="method">方法名称模式字符串</param>
-        /// <returns>NonAspectPredicateCollection对象</returns>
+        /// <returns>NonAspectPredicateCollection</returns>
         public static NonAspectPredicateCollection AddMethod(this NonAspectPredicateCollection collection, string service, string method)
         {
             if (collection == null)

@@ -54,9 +54,9 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 通过服务的类型获取服务对象
+        /// 通过服务类型获取服务对象
         /// </summary>
-        /// <param name="serviceType">服务的类型</param>
+        /// <param name="serviceType">服务类型</param>
         /// <returns>服务对象</returns>
         public object GetService(Type serviceType)
         {
@@ -64,9 +64,9 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 通过服务的类型获取服务对象
+        /// 通过服务类型获取服务对象
         /// </summary>
-        /// <param name="serviceType">服务的类型</param>
+        /// <param name="serviceType">服务类型</param>
         /// <returns>服务对象</returns>
         public object Resolve(Type serviceType)
         {
@@ -81,9 +81,9 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 通过服务的描述对象获取服务
+        /// 通过服务描述获取服务
         /// </summary>
-        /// <param name="definition">服务的描述对象</param>
+        /// <param name="definition">服务描述</param>
         /// <returns>服务对象</returns>
         internal object ResolveDefinition(ServiceDefinition definition)
         {

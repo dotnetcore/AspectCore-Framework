@@ -6,7 +6,7 @@ using System.Linq;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 服务描述(ServiceDefinition)集合，集合中的ServiceDefinition具有同一种生命周期
+    /// 具有同一种生命周期的服务描述(ServiceDefinition)集合
     /// </summary>
     public sealed class LifetimeServiceContext : ILifetimeServiceContext
     {
@@ -18,7 +18,7 @@ namespace AspectCore.DependencyInjection
         public Lifetime Lifetime { get; }
 
         /// <summary>
-        /// 服务描述(ServiceDefinition)集合，集合中的ServiceDefinition具有同一种生命周期
+        /// 具有同一种生命周期的服务描述(ServiceDefinition)集合
         /// </summary>
         /// <param name="collection">具有同一种生命周期的服务描述对象</param>
         /// <param name="lifetime">生命周期</param>
@@ -29,7 +29,7 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 内部维护的ServiceDefinition的数量
+        /// 服务描述的数量
         /// </summary>
         public int Count => _internalCollection.Count(x => x.Lifetime == Lifetime);
 

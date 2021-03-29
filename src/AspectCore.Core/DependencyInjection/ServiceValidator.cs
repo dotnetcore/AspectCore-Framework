@@ -5,7 +5,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 服务验证
+    /// 服务验证,检查是否需要代理
     /// </summary>
     internal class ServiceValidator
     {

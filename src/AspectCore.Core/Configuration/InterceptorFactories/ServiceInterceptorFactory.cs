@@ -5,7 +5,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 服务拦截器工厂
+    /// 创建由DI激活使用的拦截器
     /// </summary>
     public sealed class ServiceInterceptorFactory : InterceptorFactory
     {
