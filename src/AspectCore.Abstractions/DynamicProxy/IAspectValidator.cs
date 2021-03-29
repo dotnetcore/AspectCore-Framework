@@ -13,7 +13,7 @@ namespace AspectCore.DynamicProxy
         /// </summary>
         /// <param name="method">待检查的方法</param>
         /// <param name="isStrictValidation">检查模式</param>
-        /// <returns>是否需要代理</returns>
+        /// <returns>true 需要代理 false 不需要</returns>
         bool Validate(MethodInfo method, bool isStrictValidation);
     }
 }

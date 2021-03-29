@@ -15,7 +15,7 @@ namespace AspectCore.Configuration
         /// 添加拦截器工厂
         /// </summary>
         /// <param name="interceptorFactory">拦截器工厂</param>
-        /// <returns>拦截器工厂集合对象</returns>
+        /// <returns>InterceptorCollection</returns>
         public InterceptorCollection Add(InterceptorFactory interceptorFactory)
         {
             if (interceptorFactory == null)

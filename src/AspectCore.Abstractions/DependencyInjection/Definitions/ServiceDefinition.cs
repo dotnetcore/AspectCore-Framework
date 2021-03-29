@@ -20,7 +20,7 @@ namespace AspectCore.DependencyInjection
         public Lifetime Lifetime { get; }
 
         /// <summary>
-        /// 通过服务的类型、生存期构造
+        /// 通过服务的类型、生存期构造ServiceDefinition
         /// </summary>
         /// <param name="serviceType">服务类型</param>
         /// <param name="lifetime">生存期</param>

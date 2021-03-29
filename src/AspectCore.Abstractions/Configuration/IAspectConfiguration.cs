@@ -4,7 +4,7 @@ using AspectCore.DependencyInjection;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 配置接口
+    /// AspectCore的配置接口
     /// </summary>
     [NonAspect]
     public interface IAspectConfiguration
@@ -20,7 +20,7 @@ namespace AspectCore.Configuration
         InterceptorCollection Interceptors { get; }
 
         /// <summary>
-        /// 不拦截条件集合对象
+        /// 不拦截条件集合
         /// </summary>
         NonAspectPredicateCollection NonAspectPredicates { get; }
 

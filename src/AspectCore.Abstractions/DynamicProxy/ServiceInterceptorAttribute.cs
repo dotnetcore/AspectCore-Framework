@@ -21,7 +21,7 @@ namespace AspectCore.DynamicProxy
         public override bool AllowMultiple { get; } = true;
 
         /// <summary>
-        /// 需要被代理，并通过此特性指定拦截器类型,则拦截器实例将从容器中获取
+        /// 需要被代理，并通过此特性指定拦截器类型,则拦截器从DI激活使用
         /// </summary>
         /// <param name="interceptorType">拦截器类型</param>
         public ServiceInterceptorAttribute(Type interceptorType)

@@ -3,7 +3,7 @@
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// 验证管道由多个验证处理器IAspectValidationHandler构建起来,
+    /// 验证管道由多个IAspectValidationHandler构建起来,
     /// 最终通过管道以确定方法是否需要被代理
     /// </summary>
     [NonAspect]
@@ -15,11 +15,11 @@ namespace AspectCore.DynamicProxy
         int Order { get; }
 
         /// <summary>
-        /// 校验
+        /// 检查是否可被代理
         /// </summary>
         /// <param name="context">上下文</param>
         /// <param name="next">后续的验证处理委托</param>
-        /// <returns>验证是否通过</returns>
+        /// <returns>结果</returns>
         bool Invoke(AspectValidationContext context, AspectValidationDelegate next);
     }
 }

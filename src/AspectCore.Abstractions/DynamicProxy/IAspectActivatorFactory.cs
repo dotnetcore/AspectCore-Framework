@@ -1,7 +1,7 @@
 ﻿namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    ///用以生成IAspectActivator对象的工厂接口
+    /// 用以生成IAspectActivator对象的工厂接口
     /// </summary>
     [NonAspect]
     public interface IAspectActivatorFactory

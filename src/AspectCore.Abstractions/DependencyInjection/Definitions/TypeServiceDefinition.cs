@@ -4,7 +4,7 @@ using System.Reflection;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 通过暴露的服务类型，实现类型，生存期来构造服务描述对象
+    /// 关注类型的服务描述对象
     /// </summary>
     public sealed class TypeServiceDefinition : ServiceDefinition
     {
@@ -20,7 +20,7 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 实现类型
+        /// 此对象关注的类型
         /// </summary>
         public Type ImplementationType { get; }
     }

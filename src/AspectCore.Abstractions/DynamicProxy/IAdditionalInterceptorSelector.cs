@@ -12,7 +12,7 @@ namespace AspectCore.DynamicProxy
     public interface IAdditionalInterceptorSelector
     {
         /// <summary>
-        /// 根据服务方法和实现方法查询拦截特性
+        /// 方法查询拦截特性
         /// </summary>
         /// <param name="serviceMethod">暴露的服务方法</param>
         /// <param name="implementationMethod">实现方法</param>

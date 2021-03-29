@@ -9,10 +9,10 @@ namespace AspectCore.DependencyInjection
     public static class ConfigurationExtensions
     {
         /// <summary>
-        /// 用于配置服务上下文中的配置
+        /// 配置IServiceContext中的配置
         /// </summary>
         /// <param name="serviceContext">服务上下文</param>
-        /// <param name="configure">通过此委托配置serviceContext中的配置对象</param>
+        /// <param name="configure">通过此委托配置serviceContext</param>
         /// <returns>服务上下文</returns>
         public static IServiceContext Configure(this IServiceContext serviceContext, Action<IAspectConfiguration> configure)
         {

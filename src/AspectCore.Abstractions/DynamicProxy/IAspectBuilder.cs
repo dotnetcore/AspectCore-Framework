@@ -10,14 +10,14 @@ namespace AspectCore.DynamicProxy
     public interface IAspectBuilder
     {
         /// <summary>
-        /// 拦截管道中的中间件集合
+        /// 拦截管道中间件集合
         /// </summary>
         IEnumerable<Func<AspectDelegate, AspectDelegate>> Delegates { get; }
 
         /// <summary>
         /// 构建拦截管道
         /// </summary>
-        /// <returns>表示拦截处理管道的委托</returns>
+        /// <returns>拦截管道</returns>
         AspectDelegate Build();
     }
 }

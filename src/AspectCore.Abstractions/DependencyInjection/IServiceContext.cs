@@ -6,7 +6,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 服务上下文接口,维护了需要管理的ServiceDefinition(类似：IServiceCollection)
+    /// 服务上下文接口,维护了需要管理的ServiceDefinition
     /// </summary>
     [NonAspect]
     public interface IServiceContext : IEnumerable<ServiceDefinition>
@@ -46,14 +46,14 @@ namespace AspectCore.DependencyInjection
         /// 移除服务描述对象
         /// </summary>
         /// <param name="item">服务描述对象</param>
-        /// <returns>移除是否成功</returns>
+        /// <returns>true 移除成功,false 移除失败</returns>
         bool Remove(ServiceDefinition item);
 
         /// <summary>
         /// 容器中是否包含有此类型的服务
         /// </summary>
         /// <param name="serviceType">服务</param>
-        /// <returns>是否包含</returns>
+        /// <returns>true 包含,false 不包含</returns>
         bool Contains(Type serviceType);
     }
 }

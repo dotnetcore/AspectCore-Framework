@@ -4,7 +4,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 此工厂接口的实现类用于创建具有属性注入功能的对象
+    /// 生产IPropertyInjector对象的工厂
     /// </summary>
     [NonAspect]
     public interface IPropertyInjectorFactory
@@ -12,8 +12,8 @@ namespace AspectCore.DependencyInjection
         /// <summary>
         /// 创建一个具有属性注入功能的对象
         /// </summary>
-        /// <param name="implementationType">针对此类型的属性进行注入</param>
-        /// <returns>具有属性注入功能的对象</returns>
+        /// <param name="implementationType">操作的对象</param>
+        /// <returns>IPropertyInjector</returns>
         IPropertyInjector Create(Type implementationType);
     }
 }

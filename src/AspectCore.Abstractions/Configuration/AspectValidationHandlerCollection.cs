@@ -6,7 +6,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 包装多个AspectCore验证处理器的对象
+    /// 包装多个IAspectValidationHandler的对象
     /// </summary>
     public class AspectValidationHandlerCollection: IEnumerable<IAspectValidationHandler>
     {

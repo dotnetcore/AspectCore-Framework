@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace AspectCore.Configuration
 {
     /// <summary>
-    /// 不拦截条件可添加到此对象中管理
+    /// 代表不拦截条件集合
     /// </summary>
     public sealed class NonAspectPredicateCollection : IEnumerable<AspectPredicate>
     {
@@ -15,7 +15,7 @@ namespace AspectCore.Configuration
         /// 添加不拦截条件
         /// </summary>
         /// <param name="interceptorFactory">不拦截条件</param>
-        /// <returns>不拦截条件集合对象</returns>
+        /// <returns>NonAspectPredicateCollection</returns>
         public NonAspectPredicateCollection Add(AspectPredicate interceptorFactory)
         {
             _collection.Add(interceptorFactory);
@@ -23,7 +23,7 @@ namespace AspectCore.Configuration
         }
 
         /// <summary>
-        /// 不拦截条件的数量
+        /// 条件的数量
         /// </summary>
         public int Count => _collection.Count;
 

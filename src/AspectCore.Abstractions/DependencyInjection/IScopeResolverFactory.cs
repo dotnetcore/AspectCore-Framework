@@ -3,7 +3,7 @@
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// 作用域解析工厂接口
+    /// 提供一个作用域
     /// </summary>
     [NonAspect]
     public interface IScopeResolverFactory

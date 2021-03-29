@@ -9,7 +9,7 @@ namespace AspectCore.DependencyInjection
     public sealed class InstanceServiceDefinition : ServiceDefinition
     {
         /// <summary>
-        /// 构造表示实例类型的服务描述对象的实例
+        /// 构造表示实例的服务描述对象的实例
         /// </summary>
         /// <param name="serviceType">暴露的服务类型</param>
         /// <param name="implementationInstance">实例</param>
