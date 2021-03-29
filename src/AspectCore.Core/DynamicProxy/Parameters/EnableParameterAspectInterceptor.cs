@@ -8,6 +8,9 @@ namespace AspectCore.DynamicProxy.Parameters
     /// </summary>
     public class EnableParameterAspectInterceptor : AbstractInterceptorAttribute
     {
+        /// <summary>
+        /// 排序号
+        /// </summary>
         public override int Order { get; set; } = -9;
 
         /// <summary>
