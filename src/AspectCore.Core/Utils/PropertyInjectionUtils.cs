@@ -12,7 +12,7 @@ namespace AspectCore.Utils
         private readonly static ConcurrentDictionary<Type, bool> dictionary = new ConcurrentDictionary<Type, bool>();
 
         /// <summary>
-        /// 判断类型的属性是否存在标注了FromServiceContextAttribute的属性
+        /// 判断类型中是否存在标注了FromServiceContextAttribute的属性
         /// </summary>
         /// <param name="type">类型</param>
         /// <returns>如果全部属性都没有标注FromServiceContextAttribute特性,则返回false。否则返回true</returns>
@@ -27,7 +27,7 @@ namespace AspectCore.Utils
         }
 
         /// <summary>
-        /// 判断对象的属性是否存在标注了FromServiceContextAttribute的属性
+        /// 判断对象中是否存在标注了FromServiceContextAttribute的属性
         /// </summary>
         /// <param name="type">类型</param>
         /// <returns>如果全部属性都没有标注FromServiceContextAttribute特性,则返回false。否则返回true</returns>
