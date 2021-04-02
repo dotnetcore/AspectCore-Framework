@@ -14,15 +14,29 @@ using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Utils
 {
+    /// <summary>
+    /// 代理生成器工具
+    /// </summary>
     internal class ProxyGeneratorUtils
     {
+        /// <summary>
+        /// 代理名称空间名称
+        /// </summary>
         private const string ProxyNameSpace = "AspectCore.DynamicGenerated";
+
+        /// <summary>
+        /// 代理程序集名称
+        /// </summary>
         private const string ProxyAssemblyName = "AspectCore.DynamicProxy.Generator";
+
         private readonly ModuleBuilder _moduleBuilder;
         private readonly Dictionary<string, Type> _definedTypes;
         private readonly object _lock = new object();
         private readonly ProxyNameUtils _proxyNameUtils;
 
+        /// <summary>
+        /// 代理生成器工具
+        /// </summary>
         public ProxyGeneratorUtils()
         {
             var asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(ProxyAssemblyName), AssemblyBuilderAccess.RunAndCollect);
@@ -31,6 +45,13 @@ namespace AspectCore.Utils
             _proxyNameUtils = new ProxyNameUtils();
         }
 
+        /// <summary>
+        /// 以接口代理方式创建代理类型
+        /// </summary>
+        /// <param name="interfaceType">接口类型</param>
+        /// <param name="additionalInterfaces">其他的接口</param>
+        /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理的对象</param>
+        /// <returns>代理类型</returns>
         internal Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
@@ -189,6 +210,11 @@ namespace AspectCore.Utils
                 return index;
             }
 
+            /// <summary>
+            /// 获取接口的实现类型的名称
+            /// </summary>
+            /// <param name="interfaceType">接口类型</param>
+            /// <returns>实现类型的名称</returns>
             public string GetInterfaceImplTypeName(Type interfaceType)
             {
                 var className = interfaceType.GetReflector().DisplayName;
@@ -199,6 +225,11 @@ namespace AspectCore.Utils
                 return className /*+ "Impl"*/;
             }
 
+            /// <summary>
+            /// 获取接口的实现类型的全限定名
+            /// </summary>
+            /// <param name="interfaceType">接口类型</param>
+            /// <returns>获取接口的实现类型的全限定名</returns>
             public string GetInterfaceImplTypeFullName(Type interfaceType)
             {
                 var className = GetInterfaceImplTypeName(interfaceType);
@@ -242,7 +273,7 @@ namespace AspectCore.Utils
             /// <param name="serviceType">服务类型</param>
             /// <param name="parentType">父类型</param>
             /// <param name="interfaces">实现的接口</param>
-            /// <returns></returns>
+            /// <returns>类型描述对象</returns>
             public static TypeDesc DefineType(ModuleBuilder moduleBuilder, string name, Type serviceType, Type parentType, Type[] interfaces)
             {
                 //define proxy type for interface service

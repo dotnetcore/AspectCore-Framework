@@ -7,6 +7,11 @@ namespace AspectCore.Extensions.Reflection.Emit
 {
     public static class ILGeneratorExtensions
     {
+        /// <summary>
+        /// 推送对应索引处的参数到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="index">参数索引</param>
         public static void EmitLoadArg(this ILGenerator ilGenerator, int index)
         {
             if (ilGenerator == null)
@@ -35,6 +40,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 推送对应索引处的参数地址到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="index">参数索引</param>
         public static void EmitLoadArgA(this ILGenerator ilGenerator, int index)
         {
             if (ilGenerator == null)
@@ -42,10 +52,17 @@ namespace AspectCore.Extensions.Reflection.Emit
                 throw new ArgumentNullException(nameof(ilGenerator));
             }
 
+            //OpCodes.Ldarga_S:以短格式将自变量地址加载到计算堆栈上
             if (index <= byte.MaxValue) ilGenerator.Emit(OpCodes.Ldarga_S, (byte)index);
+            //OpCodes.Ldarga:将参数地址加载到计算堆栈上
             else ilGenerator.Emit(OpCodes.Ldarga, index);
         }
 
+        /// <summary>
+        /// 将源类型转化为Object
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
         public static void EmitConvertToObject(this ILGenerator ilGenerator, Type typeFrom)
         {
             if (ilGenerator == null)
@@ -59,6 +76,7 @@ namespace AspectCore.Extensions.Reflection.Emit
 
             if (typeFrom.GetTypeInfo().IsGenericParameter)
             {
+                //装箱typeFrom
                 ilGenerator.Emit(OpCodes.Box, typeFrom);
             }
             else
@@ -67,6 +85,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 从object转化为目标类型typeTo
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeTo">目标类型</param>
         public static void EmitConvertFromObject(this ILGenerator ilGenerator, Type typeTo)
         {
             if (ilGenerator == null)
@@ -80,6 +103,7 @@ namespace AspectCore.Extensions.Reflection.Emit
 
             if (typeTo.GetTypeInfo().IsGenericParameter)
             {
+                //OpCodes.Unbox_Any:将指令中指定类型的已装箱的表示形式转换成未装箱形式
                 ilGenerator.Emit(OpCodes.Unbox_Any, typeTo);
             }
             else
@@ -88,6 +112,13 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 推送0号索引处的参数到计算堆栈上
+        /// </summary>
+        /// <remarks>
+        /// 实例方法第一个参数隐式传递为指向实例的this指针
+        /// </remarks>
+        /// <param name="ilGenerator"></param>
         public static void EmitThis(this ILGenerator ilGenerator)
         {
             if (ilGenerator == null)
@@ -152,7 +183,7 @@ namespace AspectCore.Extensions.Reflection.Emit
         /// 发出类型转化
         /// </summary>
         /// <param name="ilGenerator">IL生成器</param>
-        /// <param name="typeFrom">原类型</param>
+        /// <param name="typeFrom">源类型</param>
         /// <param name="typeTo">目标类型</param>
         /// <param name="isChecked">类型检查</param>
         public static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked = true)

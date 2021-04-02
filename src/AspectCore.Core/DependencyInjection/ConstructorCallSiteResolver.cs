@@ -35,8 +35,11 @@ namespace AspectCore.DependencyInjection
         }
 
         /// <summary>
-        /// 选取一个构造函数（参数最多优先），提供一个用于获取服务对象的委托
+        /// 选取一个构造函数，提供一个用于获取服务对象的委托
         /// </summary>
+        /// <remarks>
+        /// 以构造参数最多优先的原则选取
+        /// </remarks>
         /// <param name="implementationType">服务类型</param>
         /// <returns>获取服务对象的委托</returns>
         private Func<IServiceResolver, object> GetBestCallSite(Type implementationType)

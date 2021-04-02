@@ -15,6 +15,11 @@ namespace AspectCore.DynamicProxy.Parameters
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
         private readonly IAspectCaching _aspectCaching;
 
+        /// <summary>
+        /// 参数拦截器的查询器
+        /// </summary>
+        /// <param name="propertyInjectorFactory">生产IPropertyInjector对象的工厂</param>
+        /// <param name="aspectCachingProvider">缓存提供器</param>
         public ParameterInterceptorSelector(IPropertyInjectorFactory propertyInjectorFactory, IAspectCachingProvider aspectCachingProvider)
         {
             if (aspectCachingProvider == null)
