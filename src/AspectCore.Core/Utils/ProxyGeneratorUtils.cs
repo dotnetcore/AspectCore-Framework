@@ -1315,7 +1315,7 @@ namespace AspectCore.Utils
             /// </summary>
             /// <param name="targetType">类型</param>
             /// <param name="typeBuilder">TypeBuilder</param>
-            /// <returns></returns>
+            /// <returns>FieldTable</returns>
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
                 var fieldTable = new FieldTable();
