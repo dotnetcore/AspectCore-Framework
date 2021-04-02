@@ -28,6 +28,12 @@ namespace AspectCore.Utils
 
         internal static readonly MethodInfo ReflectorInvoke = GetMethod<Func<MethodReflector, object, object[], object>>((r, i, a) => r.Invoke(i, a));
 
+        /// <summary>
+        /// 获取MethodCallExpression表达式树中的方法
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="expression">表达式树</param>
+        /// <returns>MethodInfo</returns>
         private static MethodInfo GetMethod<T>(Expression<T> expression)
         {
             if (expression == null)
@@ -42,6 +48,12 @@ namespace AspectCore.Utils
             return methodCallExpression.Method;
         }
 
+        /// <summary>
+        /// 获取类型T中名称为name的方法
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="name">方法名称</param>
+        /// <returns>MethodInfo</returns>
         private static MethodInfo GetMethod<T>(string name)
         {
             if (name == null)
