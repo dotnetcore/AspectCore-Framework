@@ -397,7 +397,7 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义带其他参数的代理构造器
+            /// 定义带多个参数的代理构造器
             /// </summary>
             /// <remarks>
             /// 前两个构造器参数固定为：1.IAspectActivatorFactory;2.目标对象
