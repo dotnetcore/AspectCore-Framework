@@ -7,6 +7,9 @@ using AspectCore.DependencyInjection;
 
 namespace AspectCore.Utils
 {
+    /// <summary>
+    /// 属性注入工具类
+    /// </summary>
     internal static class PropertyInjectionUtils
     {
         private readonly static ConcurrentDictionary<Type, bool> dictionary = new ConcurrentDictionary<Type, bool>();

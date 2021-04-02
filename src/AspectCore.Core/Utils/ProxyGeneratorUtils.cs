@@ -71,6 +71,14 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 以接口代理方式创建代理类类型
+        /// </summary>
+        /// <param name="interfaceType">接口类型</param>
+        /// <param name="implType">目标对象类型</param>
+        /// <param name="additionalInterfaces">其他接口的类型</param>
+        /// <param name="aspectValidator">拦截验证器</param>
+        /// <returns>代理类类型</returns>
         internal Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
@@ -90,7 +98,14 @@ namespace AspectCore.Utils
             }
         }
 
-
+        /// <summary>
+        /// 以子类代理方式创建代理类类型
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <param name="implType">目标对象类型</param>
+        /// <param name="additionalInterfaces">其他接口的类型</param>
+        /// <param name="aspectValidator">拦截验证器</param>
+        /// <returns>代理类类型</returns>
         internal Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!serviceType.GetTypeInfo().IsVisible() || !serviceType.GetTypeInfo().IsClass)
@@ -114,6 +129,14 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 创建接口的实现类
+        /// </summary>
+        /// <param name="name">实现类名称</param>
+        /// <param name="interfaceType">接口类型</param>
+        /// <param name="additionalInterfaces">其他接口</param>
+        /// <param name="aspectValidator">拦截验证器</param>
+        /// <returns>实现类</returns>
         private Type CreateInterfaceImplInternal(string name, Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaceTypes = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
