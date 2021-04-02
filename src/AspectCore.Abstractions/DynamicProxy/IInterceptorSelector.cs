@@ -4,7 +4,7 @@ using System.Reflection;
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// 用以查询拦截器
+    /// 拦截器的查询器
     /// </summary>
     [NonAspect]
     public interface IInterceptorSelector

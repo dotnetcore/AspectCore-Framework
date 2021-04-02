@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// 拦截上下文，描述被拦截方法的相关信息
+    /// 抽象的拦截上下文定义，描述被拦截方法的相关信息
     /// </summary>
     [NonAspect]
     public abstract class AspectContext
@@ -32,12 +32,12 @@ namespace AspectCore.DynamicProxy
         public abstract MethodInfo ServiceMethod { get; }
 
         /// <summary>
-        /// 实现对象
+        /// 目标对象
         /// </summary>
         public abstract object Implementation { get; }
 
         /// <summary>
-        /// 实现对象对应的方法
+        /// 目标对象的方法
         /// </summary>
         public abstract MethodInfo ImplementationMethod { get; }
 
@@ -52,7 +52,7 @@ namespace AspectCore.DynamicProxy
         public abstract MethodInfo ProxyMethod { get; }
 
         /// <summary>
-        /// 代理类
+        /// 代理对象
         /// </summary>
         public abstract object Proxy { get; }
 
