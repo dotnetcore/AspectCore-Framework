@@ -9,6 +9,12 @@ namespace AspectCore.Extensions.Hosting
 {
     public static class HostBuilderExtensions
     {
+        /// <summary>
+        /// 使用IServiceContext作为服务容器
+        /// </summary>
+        /// <param name="hostBuilder">IHostBuilder</param>
+        /// <param name="configureDelegate">配置IServiceContext的委托</param>
+        /// <returns>IHostBuilder</returns>
         public static IHostBuilder UseServiceContext(this IHostBuilder hostBuilder, Action<IServiceContext> configureDelegate)
         {
             if (hostBuilder == null)
@@ -23,6 +29,12 @@ namespace AspectCore.Extensions.Hosting
             return hostBuilder;
         }
 
+        /// <summary>
+        /// 使用IServiceContext作为服务容器
+        /// </summary>
+        /// <param name="hostBuilder">IHostBuilder</param>
+        /// <param name="configureDelegate">配置IServiceContext的委托</param>
+        /// <returns>IHostBuilder</returns>
         public static IHostBuilder UseServiceContext(this IHostBuilder hostBuilder, Action<HostBuilderContext, IServiceContext> configureDelegate)
         {
             if (hostBuilder == null)
@@ -37,8 +49,14 @@ namespace AspectCore.Extensions.Hosting
             return hostBuilder;
         }
 
+        /// <summary>
+        /// 使用IServiceContext作为服务容器
+        /// </summary>
+        /// <param name="hostBuilder">IHostBuilder</param>
+        /// <returns>IHostBuilder</returns>
         public static IHostBuilder UseServiceContext(this IHostBuilder hostBuilder)
         {
+            //重写UseServiceProviderFactory用以创建服务提供器
             return hostBuilder.UseServiceProviderFactory(new ServiceContextProviderFactory());
         }
         

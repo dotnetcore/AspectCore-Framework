@@ -261,7 +261,7 @@ namespace AspectCore.Utils
         }
 
         /// <summary>
-        /// 类型构造器工具
+        /// 类型工具
         /// </summary>
         private class TypeBuilderUtils
         {
@@ -293,8 +293,15 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 构造器构建工具
+        /// </summary>
         private class ConstructorBuilderUtils
         {
+            /// <summary>
+            /// 定义无参构造器
+            /// </summary>
+            /// <param name="typeBuilder">TypeBuilder</param>
             internal static void DefineInterfaceImplConstructor(TypeBuilder typeBuilder)
             {
                 var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, Type.EmptyTypes);
@@ -304,20 +311,31 @@ namespace AspectCore.Utils
                 ilGen.Emit(OpCodes.Ret);
             }
 
+            /// <summary>
+            /// 定义一个参数类型为IAspectActivatorFactory的代理构造器
+            /// </summary>
+            /// <param name="interfaceType">接口类型(?方法中并未使用)</param>
+            /// <param name="implType">目标类型</param>
+            /// <param name="typeDesc">类型描述</param>
             internal static void DefineInterfaceProxyConstructor(Type interfaceType, Type implType, TypeDesc typeDesc)
             {
+                //定义一个接受IAspectActivatorFactory类型的构造器
                 var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory) });
 
                 constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderUtils.ActivatorFactory);
 
                 var ilGen = constructorBuilder.GetILGenerator();
+
+                //调用基类Object的构造函数
                 ilGen.EmitThis();
                 ilGen.Emit(OpCodes.Call, MethodUtils.ObjectCtor);
 
+                //赋值代理对象中类型为IAspectActivatorFactory的字段
                 ilGen.EmitThis();
                 ilGen.EmitLoadArg(1);
                 ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.ActivatorFactory]);
 
+                //赋值代理对象中的目标对象
                 ilGen.EmitThis();
                 ilGen.Emit(OpCodes.Newobj, implType.GetTypeInfo().GetConstructor(Type.EmptyTypes));
                 ilGen.Emit(OpCodes.Stfld, typeDesc.Fields[FieldBuilderUtils.Target]);
@@ -325,13 +343,21 @@ namespace AspectCore.Utils
                 ilGen.Emit(OpCodes.Ret);
             }
 
+            /// <summary>
+            /// 定义两个参数的代理构造器
+            /// </summary>
+            /// <remarks>
+            /// 构造器参数说明：1.IAspectActivatorFactory;2.目标对象
+            /// </remarks>
+            /// <param name="interfaceType">接口类型</param>
+            /// <param name="typeDesc">类型描述</param>
             internal static void DefineInterfaceProxyConstructor(Type interfaceType, TypeDesc typeDesc)
             {
                 var constructorBuilder = typeDesc.Builder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, new Type[] { typeof(IAspectActivatorFactory), interfaceType });
 
                 constructorBuilder.DefineParameter(1, ParameterAttributes.None, FieldBuilderUtils.ActivatorFactory);
                 constructorBuilder.DefineParameter(2, ParameterAttributes.None, FieldBuilderUtils.Target);
-
+                
                 var ilGen = constructorBuilder.GetILGenerator();
                 ilGen.EmitThis();
                 ilGen.Emit(OpCodes.Call, MethodUtils.ObjectCtor);
@@ -347,9 +373,17 @@ namespace AspectCore.Utils
                 ilGen.Emit(OpCodes.Ret);
             }
 
+            /// <summary>
+            /// 定义带其他参数的代理构造器
+            /// </summary>
+            /// <remarks>
+            /// 前两个构造器参数固定为：1.IAspectActivatorFactory;2.目标对象
+            /// </remarks>
+            /// <param name="serviceType">服务类型(? 方法中只用于了返回友好错误信息)</param>
+            /// <param name="implType">目标类型</param>
+            /// <param name="typeDesc">类型描述</param>
             internal static void DefineClassProxyConstructors(Type serviceType, Type implType, TypeDesc typeDesc)
             {
-
                 var constructors = implType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
                 if (constructors.Length == 0)
                 {
@@ -394,6 +428,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 方法构建工具
+        /// </summary>
         private class MethodBuilderUtils
         {
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
@@ -1158,7 +1195,7 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 
+            /// 处理泛型参数的修饰符
             /// </summary>
             /// <param name="attributes">描述对泛型类型或方法的泛型类型参数的约束</param>
             /// <returns>描述对泛型类型或方法的泛型类型参数的约束</returns>
@@ -1265,6 +1302,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 字段构建工具
+        /// </summary>
         private class FieldBuilderUtils
         {
             public const string ActivatorFactory = "_activatorFactory";
