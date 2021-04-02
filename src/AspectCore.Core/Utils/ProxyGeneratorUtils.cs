@@ -1310,6 +1310,12 @@ namespace AspectCore.Utils
             public const string ActivatorFactory = "_activatorFactory";
             public const string Target = "_implementation";
 
+            /// <summary>
+            /// 定义一个字段
+            /// </summary>
+            /// <param name="targetType">类型</param>
+            /// <param name="typeBuilder">TypeBuilder</param>
+            /// <returns></returns>
             public static FieldTable DefineFields(Type targetType, TypeBuilder typeBuilder)
             {
                 var fieldTable = new FieldTable();
@@ -1327,6 +1333,11 @@ namespace AspectCore.Utils
         {
             private readonly Dictionary<string, FieldBuilder> _table = new Dictionary<string, FieldBuilder>();
 
+            /// <summary>
+            /// 字段名称的索引器
+            /// </summary>
+            /// <param name="fieldName">字段名称</param>
+            /// <returns>FieldBuilder</returns>
             public FieldBuilder this[string fieldName]
             {
                 get
