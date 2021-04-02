@@ -800,6 +800,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 属性构建工具
+        /// </summary>
         private class PropertyBuilderUtils
         {
             public static void DefineInterfaceProxyProperties(Type interfaceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
