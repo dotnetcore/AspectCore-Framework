@@ -500,6 +500,13 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义类代理方法
+            /// </summary>
+            /// <param name="serviceType">服务类型</param>
+            /// <param name="implType">实现类型</param>
+            /// <param name="additionalInterfaces">额外的接口</param>
+            /// <param name="typeDesc">类型描述</param>
             internal static void DefineClassProxyMethods(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
                 foreach (var method in serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => !x.IsPropertyBinding()))
@@ -519,6 +526,7 @@ namespace AspectCore.Utils
             internal static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
                 var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, implType, typeDesc);
+                //DefineMethodOverride:指定实现给定方法声明的给定方法体
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
@@ -553,6 +561,15 @@ namespace AspectCore.Utils
                 return methodBuilder;
             }
 
+            /// <summary>
+            /// 定义一个基于参数method的动态方法
+            /// </summary>
+            /// <param name="method">MethodInfo</param>
+            /// <param name="name">方法名称</param>
+            /// <param name="attributes">方法属性的标志</param>
+            /// <param name="implType">目标对象类型</param>
+            /// <param name="typeDesc">类型描述</param>
+            /// <returns>MethodBuilder</returns>
             private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc)
             {
                 var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
@@ -845,6 +862,13 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义以类代理方式实现的代理的属性
+            /// </summary>
+            /// <param name="serviceType">暴露的服务类型</param>
+            /// <param name="implType">目标实现类型</param>
+            /// <param name="additionalInterfaces">额外的接口</param>
+            /// <param name="typeDesc">类型描述</param>
             internal static void DefineClassProxyProperties(Type serviceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
                 foreach (var property in serviceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
@@ -865,6 +889,13 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义以类代理方式实现的代理的属性get/set访问器方法
+            /// </summary>
+            /// <param name="propertyBuilder">定义类型的属性</param>
+            /// <param name="property">属性</param>
+            /// <param name="implType">类型</param>
+            /// <param name="typeDesc">类型描述</param>
             private static void DefineClassPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
             {
                 if (property.CanRead)
@@ -879,6 +910,13 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义以接口代理方式实现的代理的属性get/set访问器方法
+            /// </summary>
+            /// <param name="propertyBuilder">定义类型的属性</param>
+            /// <param name="property">属性</param>
+            /// <param name="implType">类型</param>
+            /// <param name="typeDesc">类型描述</param>
             private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
             {
                 if (property.CanRead)
@@ -907,6 +945,14 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="property"></param>
+            /// <param name="name"></param>
+            /// <param name="implType"></param>
+            /// <param name="typeDesc"></param>
+            /// <returns></returns>
             private static PropertyBuilder DefineInterfaceProxyProperty(PropertyInfo property, string name, Type implType, TypeDesc typeDesc)
             {
                 var propertyBuilder = typeDesc.Builder.DefineProperty(name, property.Attributes, property.PropertyType, Type.EmptyTypes);
@@ -1271,14 +1317,24 @@ namespace AspectCore.Utils
         /// </summary>
         private class CustomAttributeBuildeUtils
         {
-
+            /// <summary>
+            /// 在给定了特性类型的情况下，初始化 CustomAttributeBuilder 类的实例
+            /// </summary>
+            /// <param name="attributeType">特性类型</param>
+            /// <returns>CustomAttributeBuilder</returns>
             public static CustomAttributeBuilder DefineCustomAttribute(Type attributeType)
             {
                 return new CustomAttributeBuilder(attributeType.GetTypeInfo().GetConstructor(Type.EmptyTypes), ArrayUtils.Empty<object>());
             }
 
+            /// <summary>
+            /// 给定自定义特性数据的访问权限，初始化 CustomAttributeBuilder 类的实例
+            /// </summary>
+            /// <param name="customAttributeData">提供对加载到仅反射上下文的程序集、模块、类型、成员和参数的自定义属性数据的访问权限</param>
+            /// <returns>CustomAttributeBuilder</returns>
             public static CustomAttributeBuilder DefineCustomAttribute(CustomAttributeData customAttributeData)
             {
+                //CustomAttributeData:提供对加载到仅反射上下文的程序集、模块、类型、成员和参数的自定义属性数据的访问权限
                 if (customAttributeData.NamedArguments != null)
                 {
                     var attributeTypeInfo = customAttributeData.AttributeType.GetTypeInfo();
@@ -1312,8 +1368,14 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 获取特性某个参数的值
+            /// </summary>
+            /// <param name="argument">仅反射上下文中自定义属性的参数或数组参数的元素</param>
+            /// <returns>值</returns>
             private static object ReadAttributeValue(CustomAttributeTypedArgument argument)
             {
+                //CustomAttributeTypedArgument:表示仅反射上下文中自定义属性的参数或数组参数的元素
                 var value = argument.Value;
                 if (argument.ArgumentType.GetTypeInfo().IsArray == false)
                 {
