@@ -20,7 +20,7 @@ namespace AspectCore.Utils
     internal class ProxyGeneratorUtils
     {
         /// <summary>
-        /// 代理名称空间名称
+        /// 代理名称空间
         /// </summary>
         private const string ProxyNameSpace = "AspectCore.DynamicGenerated";
 
@@ -51,7 +51,7 @@ namespace AspectCore.Utils
         /// <param name="interfaceType">接口类型</param>
         /// <param name="additionalInterfaces">其他的接口</param>
         /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理的对象</param>
-        /// <returns>代理类型</returns>
+        /// <returns>代理类类型</returns>
         internal Type CreateInterfaceProxy(Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             if (!interfaceType.GetTypeInfo().IsVisible() || !interfaceType.GetTypeInfo().IsInterface)
@@ -77,7 +77,7 @@ namespace AspectCore.Utils
         /// <param name="interfaceType">接口类型</param>
         /// <param name="implType">目标对象类型</param>
         /// <param name="additionalInterfaces">其他接口的类型</param>
-        /// <param name="aspectValidator">拦截验证器</param>
+        /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理的对象</param>
         /// <returns>代理类类型</returns>
         internal Type CreateInterfaceProxy(Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
@@ -104,7 +104,7 @@ namespace AspectCore.Utils
         /// <param name="serviceType">服务类型</param>
         /// <param name="implType">目标对象类型</param>
         /// <param name="additionalInterfaces">其他接口的类型</param>
-        /// <param name="aspectValidator">拦截验证器</param>
+        /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理的对象</param>
         /// <returns>代理类类型</returns>
         internal Type CreateClassProxy(Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
@@ -132,10 +132,10 @@ namespace AspectCore.Utils
         /// <summary>
         /// 创建接口的实现类
         /// </summary>
-        /// <param name="name">实现类名称</param>
+        /// <param name="name">类名称</param>
         /// <param name="interfaceType">接口类型</param>
         /// <param name="additionalInterfaces">其他接口</param>
-        /// <param name="aspectValidator">拦截验证器</param>
+        /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理的对象</param>
         /// <returns>实现类</returns>
         private Type CreateInterfaceImplInternal(string name, Type interfaceType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
@@ -170,12 +170,12 @@ namespace AspectCore.Utils
         /// <summary>
         /// 创建以接口代理方式实现的代理类型
         /// </summary>
-        /// <param name="name">名称</param>
+        /// <param name="name">代理名称</param>
         /// <param name="interfaceType">接口</param>
         /// <param name="implType">目标类型</param>
         /// <param name="additionalInterfaces">其他接口</param>
         /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理</param>
-        /// <returns>代理</returns>
+        /// <returns>代理类类型</returns>
         private Type CreateInterfaceProxyInternal(string name, Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
@@ -196,14 +196,14 @@ namespace AspectCore.Utils
         }
 
         /// <summary>
-        /// 创建以类代理方式实现的代理类型
+        /// 创建以子类代理方式实现的代理类型
         /// </summary>
-        /// <param name="name">名称</param>
-        /// <param name="serviceType">暴露的服务类型</param>
+        /// <param name="name">代理名称</param>
+        /// <param name="serviceType">服务类型</param>
         /// <param name="implType">目标类型</param>
         /// <param name="additionalInterfaces">其他接口</param>
         /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理</param>
-        /// <returns>代理</returns>
+        /// <returns>代理类类型</returns>
         private Type CreateClassProxyInternal(string name, Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = additionalInterfaces.Distinct().ToArray();
@@ -234,8 +234,8 @@ namespace AspectCore.Utils
             /// <summary>
             /// 获取代理类型的一个内部唯一索引
             /// </summary>
-            /// <param name="className">名称</param>
-            /// <param name="serviceType">服务名称</param>
+            /// <param name="className">代理名称</param>
+            /// <param name="serviceType">服务类型</param>
             /// <param name="implementationType">实现类型</param>
             /// <returns>索引</returns>
             private string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
@@ -277,7 +277,7 @@ namespace AspectCore.Utils
             /// 获取接口的实现类型的全限定名
             /// </summary>
             /// <param name="interfaceType">接口类型</param>
-            /// <returns>获取接口的实现类型的全限定名</returns>
+            /// <returns>接口的实现类型的全限定名</returns>
             public string GetInterfaceImplTypeFullName(Type interfaceType)
             {
                 var className = GetInterfaceImplTypeName(interfaceType);
@@ -296,9 +296,9 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 通过服务类型和实现类型，一个已缓存的类型名称获取代理的全限定名称
+            /// 通过服务类型,实现类型,一个代理名称获取代理的全限定名称
             /// </summary>
-            /// <param name="className">名称</param>
+            /// <param name="className">代理名称</param>
             /// <param name="serviceType">服务类型</param>
             /// <param name="implType">实现类型</param>
             /// <returns>代理名称</returns>
@@ -327,14 +327,14 @@ namespace AspectCore.Utils
         private class TypeBuilderUtils
         {
             /// <summary>
-            /// 定义一个类型
+            /// 定义一个类型描述
             /// </summary>
             /// <param name="moduleBuilder">模块构建器</param>
             /// <param name="name">类型名称</param>
             /// <param name="serviceType">服务类型</param>
             /// <param name="parentType">父类型</param>
             /// <param name="interfaces">实现的接口</param>
-            /// <returns>类型描述对象</returns>
+            /// <returns>类型描述</returns>
             public static TypeDesc DefineType(ModuleBuilder moduleBuilder, string name, Type serviceType, Type parentType, Type[] interfaces)
             {
                 //define proxy type for interface service
@@ -360,9 +360,9 @@ namespace AspectCore.Utils
         private class ConstructorBuilderUtils
         {
             /// <summary>
-            /// 定义无参构造器
+            /// 定义无参构造器，用于接口代理方式生成的代理
             /// </summary>
-            /// <param name="typeBuilder">TypeBuilder</param>
+            /// <param name="typeBuilder">在运行时定义并创建类的新实例</param>
             internal static void DefineInterfaceImplConstructor(TypeBuilder typeBuilder)
             {
                 var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, MethodUtils.ObjectCtor.CallingConvention, Type.EmptyTypes);
@@ -373,9 +373,9 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义一个参数类型为IAspectActivatorFactory的代理构造器
+            /// 定义一个参数类型为IAspectActivatorFactory的代理构造器，用于接口代理方式生成的代理
             /// </summary>
-            /// <param name="interfaceType">接口类型(?方法中并未使用)</param>
+            /// <param name="interfaceType">接口类型</param>
             /// <param name="implType">目标类型</param>
             /// <param name="typeDesc">类型描述</param>
             internal static void DefineInterfaceProxyConstructor(Type interfaceType, Type implType, TypeDesc typeDesc)
@@ -405,10 +405,12 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义两个参数的代理构造器
+            ///定义两个参数的代理构造器，用于接口代理方式生成的代理
             /// </summary>
             /// <remarks>
-            /// 构造器参数说明：1.IAspectActivatorFactory;2.目标对象
+            /// 其中构造参数类型为：
+            /// 1：IAspectActivatorFactory
+            /// 2：interfaceType
             /// </remarks>
             /// <param name="interfaceType">接口类型</param>
             /// <param name="typeDesc">类型描述</param>
@@ -435,22 +437,21 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义带多个参数的代理构造器
+            /// 定义代理构造器，用于子类代理方式生成的代理
             /// </summary>
-            /// <remarks>
-            /// 前两个构造器参数固定为：1.IAspectActivatorFactory;2.目标对象
-            /// </remarks>
-            /// <param name="serviceType">服务类型(? 方法中只用于了返回友好错误信息)</param>
+            /// <param name="serviceType">服务类型</param>
             /// <param name="implType">目标类型</param>
             /// <param name="typeDesc">类型描述</param>
             internal static void DefineClassProxyConstructors(Type serviceType, Type implType, TypeDesc typeDesc)
             {
+                //获取目标类型的可访问构造
                 var constructors = implType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && (c.IsPublic || c.IsFamily || c.IsFamilyAndAssembly || c.IsFamilyOrAssembly)).ToArray();
                 if (constructors.Length == 0)
                 {
                     throw new InvalidOperationException(
                         $"A suitable constructor for type {serviceType.FullName} could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor.");
                 }
+                //代理类提供同目标类型相类似的构造
                 foreach (var constructor in constructors)
                 {
                     var parameterTypes = constructor.GetParameters().Select(p => p.ParameterType).ToArray();
@@ -495,8 +496,11 @@ namespace AspectCore.Utils
         private class MethodBuilderUtils
         {
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+            //实现接口的方法所具有的方法的修饰
             internal const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+            //重写方法的修饰
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
+            
             private static readonly HashSet<string> ignores = new HashSet<string> { "Finalize" };
 
             internal static void DefineInterfaceImplMethods(Type[] interfaceTypes, TypeBuilder implTypeBuilder)
@@ -564,7 +568,7 @@ namespace AspectCore.Utils
             /// <summary>
             /// 定义一个通过接口代理方式实现的代理的动态方法
             /// </summary>
-            /// <param name="method">目标方法</param>
+            /// <param name="method">要实现的方法</param>
             /// <param name="implType">目标类型</param>
             /// <param name="typeDesc">类型描述</param>
             /// <returns>定义并表示动态类上的方法</returns>
@@ -607,9 +611,9 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义一个基于参数method的动态方法
+            /// 定义一个代理方法
             /// </summary>
-            /// <param name="method">MethodInfo</param>
+            /// <param name="method">被代理的方法</param>
             /// <param name="name">方法名称</param>
             /// <param name="attributes">方法属性的标志</param>
             /// <param name="implType">目标对象类型</param>
@@ -959,7 +963,7 @@ namespace AspectCore.Utils
             /// 定义以接口代理方式实现的代理的属性get/set访问器方法
             /// </summary>
             /// <param name="propertyBuilder">定义类型的属性</param>
-            /// <param name="property">属性</param>
+            /// <param name="property">要实现的属性</param>
             /// <param name="implType">类型</param>
             /// <param name="typeDesc">类型描述</param>
             private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
@@ -991,13 +995,13 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 
+            /// 定义以接口代理方式实现的代理的属性
             /// </summary>
-            /// <param name="property"></param>
-            /// <param name="name"></param>
-            /// <param name="implType"></param>
-            /// <param name="typeDesc"></param>
-            /// <returns></returns>
+            /// <param name="property">要实现的属性</param>
+            /// <param name="name">属性名称</param>
+            /// <param name="implType">类型？？</param>
+            /// <param name="typeDesc">类型描述</param>
+            /// <returns>为类型定义属性</returns>
             private static PropertyBuilder DefineInterfaceProxyProperty(PropertyInfo property, string name, Type implType, TypeDesc typeDesc)
             {
                 var propertyBuilder = typeDesc.Builder.DefineProperty(name, property.Attributes, property.PropertyType, Type.EmptyTypes);
