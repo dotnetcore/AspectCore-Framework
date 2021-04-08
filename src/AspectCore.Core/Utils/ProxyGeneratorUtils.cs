@@ -167,6 +167,15 @@ namespace AspectCore.Utils
             return typeDesc.Compile();
         }
 
+        /// <summary>
+        /// 创建以接口代理方式实现的代理类型
+        /// </summary>
+        /// <param name="name">名称</param>
+        /// <param name="interfaceType">接口</param>
+        /// <param name="implType">目标类型</param>
+        /// <param name="additionalInterfaces">其他接口</param>
+        /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理</param>
+        /// <returns>代理</returns>
         private Type CreateInterfaceProxyInternal(string name, Type interfaceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = new Type[] { interfaceType }.Concat(additionalInterfaces).Distinct().ToArray();
@@ -186,6 +195,15 @@ namespace AspectCore.Utils
             return typeDesc.Compile();
         }
 
+        /// <summary>
+        /// 创建以类代理方式实现的代理类型
+        /// </summary>
+        /// <param name="name">名称</param>
+        /// <param name="serviceType">暴露的服务类型</param>
+        /// <param name="implType">目标类型</param>
+        /// <param name="additionalInterfaces">其他接口</param>
+        /// <param name="aspectValidator">执行检查管道以确定方法是否需要被代理</param>
+        /// <returns>代理</returns>
         private Type CreateClassProxyInternal(string name, Type serviceType, Type implType, Type[] additionalInterfaces, IAspectValidator aspectValidator)
         {
             var interfaces = additionalInterfaces.Distinct().ToArray();
@@ -213,6 +231,13 @@ namespace AspectCore.Utils
             private readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
             private readonly Dictionary<Tuple<Type, Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
 
+            /// <summary>
+            /// 获取代理类型的一个内部唯一索引
+            /// </summary>
+            /// <param name="className">名称</param>
+            /// <param name="serviceType">服务名称</param>
+            /// <param name="implementationType">实现类型</param>
+            /// <returns>索引</returns>
             private string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
             {
                 ProxyNameIndex nameIndex;
@@ -259,11 +284,24 @@ namespace AspectCore.Utils
                 return $"{ProxyNameSpace}.{className}{GetProxyTypeIndex(className, interfaceType, interfaceType)}";
             }
 
+            /// <summary>
+            /// 通过服务类型和实现类型获取代理的全限定名称
+            /// </summary>
+            /// <param name="serviceType">服务类型</param>
+            /// <param name="implType">实现类型</param>
+            /// <returns>代理的全限定名称</returns>
             public string GetProxyTypeName(Type serviceType, Type implType)
             {
                 return $"{ProxyNameSpace}.{implType.GetReflector().DisplayName}{GetProxyTypeIndex(implType.GetReflector().DisplayName, serviceType, implType)}";
             }
 
+            /// <summary>
+            /// 通过服务类型和实现类型，一个已缓存的类型名称获取代理的全限定名称
+            /// </summary>
+            /// <param name="className">名称</param>
+            /// <param name="serviceType">服务类型</param>
+            /// <param name="implType">实现类型</param>
+            /// <returns>代理名称</returns>
             public string GetProxyTypeName(string className, Type serviceType, Type implType)
             {
                 return $"{ProxyNameSpace}.{className}{GetProxyTypeIndex(className, serviceType, implType)}";
@@ -501,7 +539,7 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义类代理方法
+            /// 定义一个通过类代理方式实现的代理的动态方法
             /// </summary>
             /// <param name="serviceType">服务类型</param>
             /// <param name="implType">实现类型</param>
@@ -523,6 +561,13 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义一个通过接口代理方式实现的代理的动态方法
+            /// </summary>
+            /// <param name="method">目标方法</param>
+            /// <param name="implType">目标类型</param>
+            /// <param name="typeDesc">类型描述</param>
+            /// <returns>定义并表示动态类上的方法</returns>
             internal static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
                 var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, implType, typeDesc);
@@ -569,7 +614,7 @@ namespace AspectCore.Utils
             /// <param name="attributes">方法属性的标志</param>
             /// <param name="implType">目标对象类型</param>
             /// <param name="typeDesc">类型描述</param>
-            /// <returns>MethodBuilder</returns>
+            /// <returns>定义并表示动态类上的方法</returns>
             private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc)
             {
                 var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
