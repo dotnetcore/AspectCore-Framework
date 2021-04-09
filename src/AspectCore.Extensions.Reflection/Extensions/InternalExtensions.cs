@@ -14,6 +14,12 @@ namespace AspectCore.Extensions.Reflection
             return typeInfo.DeclaredMethods.FirstOrDefault(m => m.ToString() == method.ToString());
         }
 
+        /// <summary>
+        /// 从表达式树expression中获取要调用的方法
+        /// </summary>
+        /// <typeparam name="T">表达式树的类型参数</typeparam>
+        /// <param name="expression">表达式树</param>
+        /// <returns>方法</returns>
         internal static MethodInfo GetMethod<T>(Expression<T> expression)
         {
             if (expression == null)
@@ -28,6 +34,12 @@ namespace AspectCore.Extensions.Reflection
             return methodCallExpression.Method;
         }
 
+        /// <summary>
+        /// 从类型T中获取名称为name的方法
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="name">方法名称</param>
+        /// <returns>方法对象</returns>
         internal static MethodInfo GetMethod<T>(string name)
         {
             if (name == null)
@@ -38,6 +50,11 @@ namespace AspectCore.Extensions.Reflection
             return typeof(T).GetTypeInfo().GetMethod(name);
         }
 
+        /// <summary>
+        /// 如果声明方法的类型为类，则返回false,否则返回true(接口)
+        /// </summary>
+        /// <param name="methodInfo">方法</param>
+        /// <returns>声明方法的类型为类，则返回false,否则返回true(接口)</returns>
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
             var typeInfo = methodInfo.DeclaringType.GetTypeInfo();
@@ -48,6 +65,14 @@ namespace AspectCore.Extensions.Reflection
             return true;
         }
 
+        /// <summary>
+        /// 获取成员的全名称
+        /// </summary>
+        /// <example>
+        /// 如 Person.GetName
+        /// </example>
+        /// <param name="member">成员</param>
+        /// <returns>成员的全名称</returns>
         internal static string GetFullName(this MemberInfo member)
         {
             var declaringType = member.DeclaringType.GetTypeInfo();
@@ -58,11 +83,21 @@ namespace AspectCore.Extensions.Reflection
             return member.Name;
         }
 
+        /// <summary>
+        /// 判断方法返回值是否派生自Task类型
+        /// </summary>
+        /// <param name="methodInfo">待判断的方法</param>
+        /// <returns>方法返回值是否派生自Task类型。true:是，false:不是</returns>
         internal static bool IsReturnTask(this MethodInfo methodInfo)
         {
             return typeof(Task).GetTypeInfo().IsAssignableFrom(methodInfo.ReturnType.GetTypeInfo());
         }
 
+        /// <summary>
+        /// 获取方法的参数类型
+        /// </summary>
+        /// <param name="method">方法</param>
+        /// <returns>参数类型数组</returns>
         internal static Type[] GetParameterTypes(this MethodBase method)
         {
             return method.GetParameters().Select(x => x.ParameterType).ToArray();

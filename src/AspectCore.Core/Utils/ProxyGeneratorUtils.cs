@@ -503,6 +503,11 @@ namespace AspectCore.Utils
             
             private static readonly HashSet<string> ignores = new HashSet<string> { "Finalize" };
 
+            /// <summary>
+            /// 定义接口实现方法
+            /// </summary>
+            /// <param name="interfaceTypes">接口类型数组</param>
+            /// <param name="implTypeBuilder">实现类的类型构建器</param>
             internal static void DefineInterfaceImplMethods(Type[] interfaceTypes, TypeBuilder implTypeBuilder)
             {
                 foreach (var item in interfaceTypes)
@@ -514,6 +519,12 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义一个接口实现方法
+            /// </summary>
+            /// <param name="method">待实现的方法</param>
+            /// <param name="implTypeBuilder">实现类的类型构建器</param>
+            /// <returns>定义并表示动态类上的方法</returns>
             internal static MethodBuilder DefineInterfaceImplMethod(MethodInfo method, TypeBuilder implTypeBuilder)
             {
                 var methodBuilder = implTypeBuilder.DefineMethod(method.Name, InterfaceMethodAttributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
@@ -527,6 +538,13 @@ namespace AspectCore.Utils
                 return methodBuilder;
             }
 
+            /// <summary>
+            /// 定义通过接口代理方式实现的代理的动态方法,以实现接口上声明的方法
+            /// </summary>
+            /// <param name="interfaceType">接口类型</param>
+            /// <param name="targetType">目标类型</param>
+            /// <param name="additionalInterfaces">其他接口</param>
+            /// <param name="typeDesc">类型描述</param>
             internal static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
                 foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
@@ -543,7 +561,7 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义一个通过类代理方式实现的代理的动态方法
+            /// 定义通过类代理方式实现的代理的动态方法
             /// </summary>
             /// <param name="serviceType">服务类型</param>
             /// <param name="implType">实现类型</param>
@@ -568,7 +586,7 @@ namespace AspectCore.Utils
             /// <summary>
             /// 定义一个通过接口代理方式实现的代理的动态方法
             /// </summary>
-            /// <param name="method">要实现的方法</param>
+            /// <param name="method">被代理的方法</param>
             /// <param name="implType">目标类型</param>
             /// <param name="typeDesc">类型描述</param>
             /// <returns>定义并表示动态类上的方法</returns>
@@ -587,6 +605,13 @@ namespace AspectCore.Utils
                 return methodBuilder;
             }
 
+            /// <summary>
+            /// 定义一个通过子类代理方式实现的代理的动态方法
+            /// </summary>
+            /// <param name="method">被代理的方法</param>
+            /// <param name="implType"></param>
+            /// <param name="typeDesc"></param>
+            /// <returns></returns>
             internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
                 var attributes = OverrideMethodAttributes;
@@ -894,6 +919,13 @@ namespace AspectCore.Utils
         /// </summary>
         private class PropertyBuilderUtils
         {
+            /// <summary>
+            /// 定义以接口代理方式实现的代理的属性,以实现接口上声明的属性
+            /// </summary>
+            /// <param name="interfaceType">接口类型</param>
+            /// <param name="implType">目标对象类型</param>
+            /// <param name="additionalInterfaces">额外的接口</param>
+            /// <param name="typeDesc">类型描述</param>
             public static void DefineInterfaceProxyProperties(Type interfaceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
                 foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
@@ -912,9 +944,9 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义以类代理方式实现的代理的属性
+            /// 定义以子类代理方式实现的代理的属性
             /// </summary>
-            /// <param name="serviceType">暴露的服务类型</param>
+            /// <param name="serviceType">服务类型</param>
             /// <param name="implType">目标实现类型</param>
             /// <param name="additionalInterfaces">额外的接口</param>
             /// <param name="typeDesc">类型描述</param>
@@ -939,10 +971,10 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义以类代理方式实现的代理的属性get/set访问器方法
+            /// 定义一对以子类代理方式实现的代理的属性get/set访问器方法
             /// </summary>
             /// <param name="propertyBuilder">定义类型的属性</param>
-            /// <param name="property">属性</param>
+            /// <param name="property">被代理的属性</param>
             /// <param name="implType">类型</param>
             /// <param name="typeDesc">类型描述</param>
             private static void DefineClassPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
@@ -960,10 +992,10 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义以接口代理方式实现的代理的属性get/set访问器方法
+            /// 定义一对以接口代理方式实现的代理的属性get/set访问器方法
             /// </summary>
             /// <param name="propertyBuilder">定义类型的属性</param>
-            /// <param name="property">要实现的属性</param>
+            /// <param name="property">被代理的属性</param>
             /// <param name="implType">类型</param>
             /// <param name="typeDesc">类型描述</param>
             private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
@@ -995,11 +1027,11 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 定义以接口代理方式实现的代理的属性
+            /// 定义一个以接口代理方式实现的代理的属性
             /// </summary>
-            /// <param name="property">要实现的属性</param>
+            /// <param name="property">被代理的属性</param>
             /// <param name="name">属性名称</param>
-            /// <param name="implType">类型？？</param>
+            /// <param name="implType">类型</param>
             /// <param name="typeDesc">类型描述</param>
             /// <returns>为类型定义属性</returns>
             private static PropertyBuilder DefineInterfaceProxyProperty(PropertyInfo property, string name, Type implType, TypeDesc typeDesc)
@@ -1017,6 +1049,11 @@ namespace AspectCore.Utils
                 return propertyBuilder;
             }
 
+            /// <summary>
+            /// 定义接口实现属性
+            /// </summary>
+            /// <param name="interfaceTypes">待实现的接口数组</param>
+            /// <param name="implTypeBuilder">在运行时定义并创建类的新实例</param>
             internal static void DefineInterfaceImplProperties(Type[] interfaceTypes, TypeBuilder implTypeBuilder)
             {
                 foreach (var item in interfaceTypes)
@@ -1028,6 +1065,11 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 定义一个接口实现属性
+            /// </summary>
+            /// <param name="property">待实现的属性</param>
+            /// <param name="implTypeBuilder">在运行时定义并创建类的新实例</param>
             private static void DefineInterfaceImplProperty(PropertyInfo property, TypeBuilder implTypeBuilder)
             {
                 var propertyBuilder = implTypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, Type.EmptyTypes);
@@ -1066,6 +1108,11 @@ namespace AspectCore.Utils
         /// </summary>
         private class ParameterBuilderUtils
         {
+            /// <summary>
+            /// 为代理方法定义参数
+            /// </summary>
+            /// <param name="targetMethod">被代理的方法</param>
+            /// <param name="methodBuilder">定义并表示动态类上的方法</param>
             public static void DefineParameters(MethodInfo targetMethod, MethodBuilder methodBuilder)
             {
                 var parameters = targetMethod.GetParameters();
@@ -1111,7 +1158,12 @@ namespace AspectCore.Utils
                 }
             }
 
-            // Code from https://github.com/castleproject/Core/blob/master/src/Castle.Core/DynamicProxy/Generators/Emitters/MethodEmitter.cs
+            /// <summary>
+            /// 从from拷贝默认值到to
+            /// </summary>
+            /// <see cref="https://github.com/castleproject/Core/blob/master/src/Castle.Core/DynamicProxy/Generators/Emitters/MethodEmitter.cs"/>
+            /// <param name="from">源参数</param>
+            /// <param name="to">目标参数</param>
             private static void CopyDefaultValueConstant(ParameterInfo from, ParameterBuilder to)
             {
                 object defaultValue;
@@ -1230,6 +1282,11 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 为代理构造定义参数
+            /// </summary>
+            /// <param name="constructor">被代理的构造</param>
+            /// <param name="constructorBuilder">定义并表示动态类的构造函数</param>
             internal static void DefineParameters(ConstructorInfo constructor, ConstructorBuilder constructorBuilder)
             {
                 constructorBuilder.DefineParameter(1, ParameterAttributes.None, "aspectContextFactory");
@@ -1261,7 +1318,7 @@ namespace AspectCore.Utils
         private class GenericParameterUtils
         {
             /// <summary>
-            /// 为泛型类型定义泛型参数
+            /// 为泛型类型定义一个泛型参数
             /// </summary>
             /// <param name="targetType">泛型类型</param>
             /// <param name="typeBuilder">类型构建器</param>
@@ -1289,7 +1346,7 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 为泛型方法定义泛型参数
+            /// 为泛型方法定义一个泛型参数
             /// </summary>
             /// <param name="tergetMethod">泛型方法</param>
             /// <param name="methodBuilder">方法构建器</param>
