@@ -129,6 +129,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.EmitLoadArg(0);
         }
 
+        /// <summary>
+        /// 发出对类型type的获取
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="type">类型</param>
         public static void EmitType(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
@@ -143,6 +148,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Call, MethodInfoConstant.GetTypeFromHandle);
         }
 
+        /// <summary>
+        /// 发出对方法method的调用
+        /// </summary>
+        /// <param name="ilGenerator">IL生成器</param>
+        /// <param name="method">方法</param>
         public static void EmitMethod(this ILGenerator ilGenerator, MethodInfo method)
         {
             if (ilGenerator == null)
@@ -156,6 +166,12 @@ namespace AspectCore.Extensions.Reflection.Emit
             EmitMethod(ilGenerator, method, method.DeclaringType);
         }
 
+        /// <summary>
+        /// 发出对类型declaringType中method方法的调用
+        /// </summary>
+        /// <param name="ilGenerator">生成 Microsoft 中间语言 (MSIL) 指令</param>
+        /// <param name="method">方法</param>
+        /// <param name="declaringType">类型</param>
         public static void EmitMethod(this ILGenerator ilGenerator, MethodInfo method, Type declaringType)
         {
             if (ilGenerator == null)
@@ -244,24 +260,36 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 发出类型转化
+        /// </summary>
+        /// <param name="ilGenerator">IL生成器</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
         public static void EmitCastToType(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo)
         {
             if (ilGenerator == null)
             {
                 throw new ArgumentNullException(nameof(ilGenerator));
             }
+            //引用类型到值类型
             if (!typeFrom.IsValueType && typeTo.IsValueType)
             {
+                //拆箱
                 ilGenerator.Emit(OpCodes.Unbox_Any, typeTo.AsType());
             }
+            //值类型到引用类型
             else if (typeFrom.IsValueType && !typeTo.IsValueType)
             {
+                //装箱
                 ilGenerator.Emit(OpCodes.Box, typeFrom.AsType());
                 if (typeTo.AsType() != typeof(object))
                 {
+                    //OpCodes.Castclass: 尝试将引用传递的对象转换为指定的类
                     ilGenerator.Emit(OpCodes.Castclass, typeTo.AsType());
                 }
             }
+            //引用到引用
             else if (!typeFrom.IsValueType && !typeTo.IsValueType)
             {
                 ilGenerator.Emit(OpCodes.Castclass, typeTo.AsType());
@@ -272,6 +300,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 发出对可空类型的HasValue属性的get访问器的调用
+        /// </summary>
+        /// <param name="ilGenerator">IL生成器</param>
+        /// <param name="nullableType">可空类型</param>
         public static void EmitHasValue(this ILGenerator ilGenerator, Type nullableType)
         {
             if (ilGenerator == null)
@@ -282,12 +315,22 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Call, mi);
         }
 
+        /// <summary>
+        /// 发出对可空类型的GetValueOrDefault方法的调用
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="nullableType">可空类型</param>
         public static void EmitGetValueOrDefault(this ILGenerator ilGenerator, Type nullableType)
         {
             MethodInfo mi = nullableType.GetTypeInfo().GetMethod("GetValueOrDefault", Type.EmptyTypes);
             ilGenerator.Emit(OpCodes.Call, mi);
         }
 
+        /// <summary>
+        /// 发出对可空类型Value属性的get访问器的调用
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="nullableType">可空类型</param>
         public static void EmitGetValue(this ILGenerator ilGenerator, Type nullableType)
         {
             MethodInfo mi = nullableType.GetTypeInfo().GetMethod("get_Value", BindingFlags.Instance | BindingFlags.Public);
@@ -463,21 +506,40 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 分配未初始化的对象或值类型，并调用构造函数方法
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="ci">构造函数</param>
         public static void EmitNew(this ILGenerator ilGenerator, ConstructorInfo ci)
         {
             ilGenerator.Emit(OpCodes.Newobj, ci);
         }
 
+        /// <summary>
+        /// 将空引用（O 类型）推送到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
         public static void EmitNull(this ILGenerator ilGenerator)
         {
             ilGenerator.Emit(OpCodes.Ldnull);
         }
 
+        /// <summary>
+        /// 推送对元数据中存储的字符串的新对象引用(即value)
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">字符串</param>
         public static void EmitString(this ILGenerator ilGenerator, string value)
         {
             ilGenerator.Emit(OpCodes.Ldstr, value);
         }
 
+        /// <summary>
+        /// 将整数值 0（当value为false） 或 1（当value为true） 作为 int32 推送到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">布尔值</param>
         public static void EmitBoolean(this ILGenerator ilGenerator, bool value)
         {
             if (value)
@@ -490,42 +552,78 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 推送char类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitChar(this ILGenerator ilGenerator, char value)
         {
             ilGenerator.EmitInt(value);
+            //OpCodes.Conv_U2: 将位于计算堆栈顶部的值转换为 unsigned int16，然后将其扩展为 int32
             ilGenerator.Emit(OpCodes.Conv_U2);
         }
 
+        /// <summary>
+        /// 推送byte类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitByte(this ILGenerator ilGenerator, byte value)
         {
             ilGenerator.EmitInt(value);
+            //OpCodes.Conv_U1: 将位于计算堆栈顶部的值转换为 unsigned int8，然后将其扩展为 int32
             ilGenerator.Emit(OpCodes.Conv_U1);
         }
 
+        /// <summary>
+        /// 推送sbyte类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitSByte(this ILGenerator ilGenerator, sbyte value)
         {
             ilGenerator.EmitInt(value);
+            //OpCodes.Conv_I1: 将位于计算堆栈顶部的值转换为 int8，然后将其扩展（填充）为 int32
             ilGenerator.Emit(OpCodes.Conv_I1);
         }
 
+        /// <summary>
+        /// 推送short类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitShort(this ILGenerator ilGenerator, short value)
         {
             ilGenerator.EmitInt(value);
+            //OpCodes.Conv_I2: 将位于计算堆栈顶部的值转换为 int16，然后将其扩展（填充）为 int32
             ilGenerator.Emit(OpCodes.Conv_I2);
         }
 
+        /// <summary>
+        /// 推送ushort类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitUShort(this ILGenerator ilGenerator, ushort value)
         {
             ilGenerator.EmitInt(value);
+            //OpCodes.Conv_U2: 将位于计算堆栈顶部的值转换为 unsigned int16，然后将其扩展为 int32
             ilGenerator.Emit(OpCodes.Conv_U2);
         }
 
+        /// <summary>
+        /// 推送int类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitInt(this ILGenerator ilGenerator, int value)
         {
             OpCode c;
             switch (value)
             {
                 case -1:
+                    //OpCodes.Ldc_I4_M1: 将整数值 -1 作为 int32 推送到计算堆栈上
                     c = OpCodes.Ldc_I4_M1;
                     break;
                 case 0:
@@ -558,10 +656,12 @@ namespace AspectCore.Extensions.Reflection.Emit
                 default:
                     if (value >= -128 && value <= 127)
                     {
+                        //OpCodes.Ldc_I4_S: 将提供的 int8 值作为 int32 推送到计算堆栈上（短格式）
                         ilGenerator.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
                     }
                     else
                     {
+                        //OpCodes.Ldc_I4: 将所提供的 int32 类型的值作为 int32 推送到计算堆栈上
                         ilGenerator.Emit(OpCodes.Ldc_I4, value);
                     }
                     return;
@@ -569,14 +669,26 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(c);
         }
 
+        /// <summary>
+        /// 推送uint类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitUInt(this ILGenerator ilGenerator, uint value)
         {
             ilGenerator.EmitInt((int)value);
+            //OpCodes.Conv_U4: 将位于计算堆栈顶部的值转换为 unsigned int32，然后将其扩展为 int32
             ilGenerator.Emit(OpCodes.Conv_U4);
         }
 
+        /// <summary>
+        /// 推送long类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitLong(this ILGenerator ilGenerator, long value)
         {
+            //OpCodes.Ldc_I8: 将所提供的 int64 类型的值作为 int64 推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Ldc_I8, value);
 
             //
@@ -585,25 +697,51 @@ namespace AspectCore.Extensions.Reflection.Emit
             // Otherwise, it is treated as unsigned and overflow is not
             // detected if it's used in checked ops.
             //
+            //OpCodes.Conv_I8: 将位于计算堆栈顶部的值转换为 int64
             ilGenerator.Emit(OpCodes.Conv_I8);
         }
 
+        /// <summary>
+        /// 推送ulong类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitULong(this ILGenerator ilGenerator, ulong value)
         {
+            //OpCodes.Ldc_I8: 将所提供的 int64 类型的值作为 int64 推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Ldc_I8, (long)value);
+            //OpCodes.Conv_U8: 将位于计算堆栈顶部的值转换为 unsigned int64，然后将其扩展为 int64
             ilGenerator.Emit(OpCodes.Conv_U8);
         }
 
+        /// <summary>
+        /// 推送double类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitDouble(this ILGenerator ilGenerator, double value)
         {
+            //OpCodes.Ldc_R8: 将所提供的 float64 类型的值作为 F(float) 类型推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Ldc_R8, value);
         }
 
+        /// <summary>
+        /// 推送float类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitSingle(this ILGenerator ilGenerator, float value)
         {
+            //OpCodes.Ldc_R4: 将所提供的 float32 类型的值作为 F (float) 类型推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Ldc_R4, value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="items"></param>
+        /// <param name="elementType"></param>
         public static void EmitArray(this ILGenerator ilGenerator, Array items, Type elementType)
         {
             ilGenerator.EmitInt(items.Length);
@@ -626,10 +764,16 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="type"></param>
         public static void EmitStoreElement(this ILGenerator ilGenerator, Type type)
         {
             if (type.GetTypeInfo().IsEnum)
             {
+                //OpCodes.Stelem: 用计算堆栈中的值替换给定索引处的数组元素，其类型在指令中指定
                 ilGenerator.Emit(OpCodes.Stelem, type);
                 return;
             }
@@ -638,40 +782,53 @@ namespace AspectCore.Extensions.Reflection.Emit
                 case TypeCode.Boolean:
                 case TypeCode.SByte:
                 case TypeCode.Byte:
+                    //OpCodes.Stelem_I1: 用计算堆栈上的 int8 值替换给定索引处的数组元素
                     ilGenerator.Emit(OpCodes.Stelem_I1);
                     break;
                 case TypeCode.Char:
                 case TypeCode.Int16:
                 case TypeCode.UInt16:
+                    //OpCodes.Stelem_I2: 用计算堆栈上的 int16 值替换给定索引处的数组元素
                     ilGenerator.Emit(OpCodes.Stelem_I2);
                     break;
                 case TypeCode.Int32:
                 case TypeCode.UInt32:
+                    //OpCodes.Stelem_I4: 用计算堆栈上的 int32 值替换给定索引处的数组元素
                     ilGenerator.Emit(OpCodes.Stelem_I4);
                     break;
                 case TypeCode.Int64:
                 case TypeCode.UInt64:
+                    //OpCodes.Stelem_I8: 用计算堆栈上的 int64 值替换给定索引处的数组元素
                     ilGenerator.Emit(OpCodes.Stelem_I8);
                     break;
                 case TypeCode.Single:
+                    //OpCodes.Stelem_R4: 用计算堆栈上的 float32 值替换给定索引处的数组元素 
                     ilGenerator.Emit(OpCodes.Stelem_R4);
                     break;
                 case TypeCode.Double:
+                    //OpCodes.Stelem_R8: 用计算堆栈上的 float64 值替换给定索引处的数组元素
                     ilGenerator.Emit(OpCodes.Stelem_R8);
                     break;
                 default:
                     if (type.GetTypeInfo().IsValueType)
                     {
+                        //OpCodes.Stelem: 用计算堆栈中的值替换给定索引处的数组元素，其类型在指令中指定
                         ilGenerator.Emit(OpCodes.Stelem, type);
                     }
                     else
                     {
+                        //OpCodes.Stelem_Ref: 用计算堆栈上的对象 ref 值（O 类型）替换给定索引处的数组元素
                         ilGenerator.Emit(OpCodes.Stelem_Ref);
                     }
                     break;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="type"></param>
         public static void EmitLoadElement(this ILGenerator ilGenerator, Type type)
         {
             if (!type.GetTypeInfo().IsValueType)
@@ -723,6 +880,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="type"></param>
         public static void EmitLdRef(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
@@ -779,6 +941,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="type"></param>
         public static void EmitStRef(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)

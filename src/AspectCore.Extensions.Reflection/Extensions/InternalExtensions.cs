@@ -9,6 +9,12 @@ namespace AspectCore.Extensions.Reflection
 {
     internal static class InternalExtensions
     {
+        /// <summary>
+        /// 比较typeInfo中声明的方法，并返回第一个与method的字符串表示相同的方法
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <param name="method">方法</param>
+        /// <returns>类型中找到的方法</returns>
         internal static MethodInfo GetMethodBySign(this TypeInfo typeInfo, MethodInfo method)
         {
             return typeInfo.DeclaredMethods.FirstOrDefault(m => m.ToString() == method.ToString());
@@ -103,6 +109,11 @@ namespace AspectCore.Extensions.Reflection
             return method.GetParameters().Select(x => x.ParameterType).ToArray();
         }
 
+        /// <summary>
+        /// 如果类型可枚举,则获取枚举项的类型
+        /// </summary>
+        /// <param name="typeInfo">待判断的类型</param>
+        /// <returns>元素项的类型</returns>
         internal static Type UnWrapArrayType(this TypeInfo typeInfo)
         {
             if (typeInfo == null)
@@ -113,6 +124,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 return typeInfo.AsType();
             }
+            //typeInfo.ImplementedInterfaces: 获取当前类型实现的接口的集合
             return typeInfo.ImplementedInterfaces.First(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>)).GenericTypeArguments[0];
         }
     }
