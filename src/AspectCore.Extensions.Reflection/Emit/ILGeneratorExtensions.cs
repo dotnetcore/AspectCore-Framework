@@ -406,13 +406,19 @@ namespace AspectCore.Extensions.Reflection.Emit
                         // This is the IL for default(T) if T is a generic type
                         // parameter, so it should work for any type. It's also
                         // the standard pattern for structs.
+
+                        //DeclareLocal: 声明指定类型的局部变量
                         LocalBuilder lb = ilGenerator.DeclareLocal(type);
+                        //OpCodes.Ldloca: 将位于特定索引处的局部变量的地址加载到计算堆栈上
                         ilGenerator.Emit(OpCodes.Ldloca, lb);
+                        //OpCodes.Initobj: 将位于指定地址的值类型的每个字段初始化为空引用或适当的基元类型的 0
                         ilGenerator.Emit(OpCodes.Initobj, type);
+                        //OpCodes.Ldloc: 将指定索引处的局部变量加载到计算堆栈上
                         ilGenerator.Emit(OpCodes.Ldloc, lb);
                     }
                     else
                     {
+                        //OpCodes.Ldnull: 将空引用（O 类型）推送到计算堆栈上
                         ilGenerator.Emit(OpCodes.Ldnull);
                     }
                     break;
@@ -449,6 +455,7 @@ namespace AspectCore.Extensions.Reflection.Emit
 
                 case TypeCode.Decimal:
                     ilGenerator.Emit(OpCodes.Ldc_I4_0);
+                    //OpCodes.Newobj: 创建一个值类型的新对象或新实例，并将对象引用（O 类型）推送到计算堆栈上
                     ilGenerator.Emit(OpCodes.Newobj, typeof(Decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(int) }));
                     break;
 

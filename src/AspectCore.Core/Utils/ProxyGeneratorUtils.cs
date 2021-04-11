@@ -522,8 +522,8 @@ namespace AspectCore.Utils
             /// <summary>
             /// 定义一个接口实现方法
             /// </summary>
-            /// <param name="method">待实现的方法</param>
-            /// <param name="implTypeBuilder">实现类的类型构建器</param>
+            /// <param name="method">要使用其声明的方法</param>
+            /// <param name="implTypeBuilder">要使用的方法体</param>
             /// <returns>定义并表示动态类上的方法</returns>
             internal static MethodBuilder DefineInterfaceImplMethod(MethodInfo method, TypeBuilder implTypeBuilder)
             {
@@ -586,6 +586,10 @@ namespace AspectCore.Utils
             /// <summary>
             /// 定义一个通过接口代理方式实现的代理的动态方法
             /// </summary>
+            /// <remarks>
+            /// 动态方法将具有(实现接口的方法所具有的方法的修饰)如下修饰：
+            ///  MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual
+            /// </remarks>
             /// <param name="method">被代理的方法</param>
             /// <param name="implType">目标类型</param>
             /// <param name="typeDesc">类型描述</param>
@@ -920,9 +924,9 @@ namespace AspectCore.Utils
         private class PropertyBuilderUtils
         {
             /// <summary>
-            /// 定义以接口代理方式实现的代理的属性,以实现接口上声明的属性
+            /// 定义以接口代理方式实现的代理的属性,以实现暴露的接口和额外接口上声明的属性
             /// </summary>
-            /// <param name="interfaceType">接口类型</param>
+            /// <param name="interfaceType">暴露的接口类型</param>
             /// <param name="implType">目标对象类型</param>
             /// <param name="additionalInterfaces">额外的接口</param>
             /// <param name="typeDesc">类型描述</param>
