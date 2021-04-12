@@ -235,7 +235,7 @@ namespace AspectCore.Extensions.Reflection.Internals
         }
 
         /// <summary>
-        /// 判断是否为浮点数
+        /// 是否为浮点数
         /// </summary>
         /// <param name="typeInfo">类型</param>
         /// <returns>true 是浮点数,否则false</returns>

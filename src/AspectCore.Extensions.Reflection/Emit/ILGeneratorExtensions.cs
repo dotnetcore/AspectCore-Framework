@@ -364,6 +364,7 @@ namespace AspectCore.Extensions.Reflection.Emit
                 ilGenerator.EmitType(t);
                 if (valueType != typeof(Type))
                 {
+                    //OpCodes.Castclass: 尝试将引用传递的对象转换为指定的类
                     ilGenerator.Emit(OpCodes.Castclass, valueType);
                 }
                 return;
@@ -385,6 +386,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             throw new InvalidOperationException("Code supposed to be unreachable.");
         }
 
+        /// <summary>
+        /// 发出类型的默认值
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="type">类型</param>
         public static void EmitDefault(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
@@ -464,6 +470,12 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 是否能将元数据标记转换为其运行时表示形式，并将其推送到计算堆栈上
+        /// </summary>
+        /// <param name="value">类型</param>
+        /// <param name="type">值</param>
+        /// <returns>判断结果</returns>
         public static bool CanEmitConstant(object value, Type type)
         {
             if (value == null || CanEmitILConstant(type))
@@ -486,6 +498,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             return false;
         }
 
+        /// <summary>
+        /// 推送decimal类型的值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         public static void EmitDecimal(this ILGenerator ilGenerator, decimal value)
         {
             if (Decimal.Truncate(value) == value)
@@ -744,17 +761,19 @@ namespace AspectCore.Extensions.Reflection.Emit
         }
 
         /// <summary>
-        /// 
+        /// 发出对构建数组的调用
         /// </summary>
         /// <param name="ilGenerator">ILGenerator</param>
-        /// <param name="items"></param>
-        /// <param name="elementType"></param>
+        /// <param name="items">数组</param>
+        /// <param name="elementType">元素类型</param>
         public static void EmitArray(this ILGenerator ilGenerator, Array items, Type elementType)
         {
             ilGenerator.EmitInt(items.Length);
+            //OpCodes.Newarr: 将对新的从零开始的一维数组（其元素属于特定类型）的对象引用推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Newarr, elementType);
             for (int i = 0; i < items.Length; i++)
             {
+                //OpCodes.Dup: 复制计算堆栈上当前最顶端的值，然后将副本推送到计算堆栈上
                 ilGenerator.Emit(OpCodes.Dup);
                 ilGenerator.EmitInt(i);
                 var constantType = items.GetValue(i).GetType();
@@ -772,10 +791,10 @@ namespace AspectCore.Extensions.Reflection.Emit
         }
 
         /// <summary>
-        /// 
+        /// 用计算堆栈中的值替换给定索引处的数组元素
         /// </summary>
         /// <param name="ilGenerator">ILGenerator</param>
-        /// <param name="type"></param>
+        /// <param name="type">元素类型</param>
         public static void EmitStoreElement(this ILGenerator ilGenerator, Type type)
         {
             if (type.GetTypeInfo().IsEnum)
@@ -832,14 +851,15 @@ namespace AspectCore.Extensions.Reflection.Emit
         }
 
         /// <summary>
-        /// 
+        /// 将位于指定数组索引处的值或引用加载到计算堆栈
         /// </summary>
         /// <param name="ilGenerator">ILGenerator</param>
-        /// <param name="type"></param>
+        /// <param name="type">元素类型</param>
         public static void EmitLoadElement(this ILGenerator ilGenerator, Type type)
         {
             if (!type.GetTypeInfo().IsValueType)
             {
+                //OpCodes.Ldelem_Ref: 将位于指定数组索引处的包含对象引用的元素作为 O 类型（对象引用）加载到计算堆栈的顶部
                 ilGenerator.Emit(OpCodes.Ldelem_Ref);
             }
             else if (type.GetTypeInfo().IsEnum)
@@ -855,6 +875,7 @@ namespace AspectCore.Extensions.Reflection.Emit
                         ilGenerator.Emit(OpCodes.Ldelem_I1);
                         break;
                     case TypeCode.Byte:
+                        //OpCodes.Ldelem_U1: 将位于指定数组索引处的 unsigned int8 类型的元素作为 int32 加载到计算堆栈的顶部
                         ilGenerator.Emit(OpCodes.Ldelem_U1);
                         break;
                     case TypeCode.Int16:
@@ -888,10 +909,10 @@ namespace AspectCore.Extensions.Reflection.Emit
         }
 
         /// <summary>
-        /// 
+        /// 加载所提供地址处的值或引用
         /// </summary>
         /// <param name="ilGenerator">ILGenerator</param>
-        /// <param name="type"></param>
+        /// <param name="type">类型</param>
         public static void EmitLdRef(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
@@ -936,23 +957,26 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
             else if (type == typeof(UInt32))
             {
+                //OpCodes.Ldind_U4: 将 unsigned int32 类型的值作为 int32 间接加载到计算堆栈上
                 ilGenerator.Emit(OpCodes.Ldind_U4);
             }
             else if (type.GetTypeInfo().IsValueType)
             {
+                //OpCodes.Ldobj: 将地址指向的值类型对象复制到计算堆栈的顶部
                 ilGenerator.Emit(OpCodes.Ldobj);
             }
             else
             {
+                //OpCodes.Ldind_Ref: 将对象引用作为 O（对象引用）类型间接加载到计算堆栈上
                 ilGenerator.Emit(OpCodes.Ldind_Ref);
             }
         }
 
         /// <summary>
-        /// 
+        /// 存储值或对象引用
         /// </summary>
         /// <param name="ilGenerator">ILGenerator</param>
-        /// <param name="type"></param>
+        /// <param name="type">类型</param>
         public static void EmitStRef(this ILGenerator ilGenerator, Type type)
         {
             if (ilGenerator == null)
@@ -965,10 +989,12 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
             if (type == typeof(short))
             {
+                //OpCodes.Stind_I1: 在所提供的地址存储 int8 类型的值
                 ilGenerator.Emit(OpCodes.Stind_I1);
             }
             else if (type == typeof(Int16))
             {
+                //OpCodes.Stind_I2: 在所提供的地址存储 int16 类型的值
                 ilGenerator.Emit(OpCodes.Stind_I2);
             }
             else if (type == typeof(Int32))
@@ -981,18 +1007,22 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
             else if (type == typeof(float))
             {
+                //OpCodes.Stind_R4: 在所提供的地址存储 float32 类型的值
                 ilGenerator.Emit(OpCodes.Stind_R4);
             }
             else if (type == typeof(double))
             {
+                //OpCodes.Stind_R8: 在所提供的地址存储 float64 类型的值
                 ilGenerator.Emit(OpCodes.Stind_R8);
             }
             else if (type.GetTypeInfo().IsValueType)
             {
+                //OpCodes.Stobj: 将指定类型的值从计算堆栈复制到所提供的内存地址中
                 ilGenerator.Emit(OpCodes.Stobj);
             }
             else
             {
+                //OpCodes.Stind_Ref: 存储所提供地址处的对象引用值
                 ilGenerator.Emit(OpCodes.Stind_Ref);
             }
         }
@@ -1081,6 +1111,13 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Ldloc, locTo);
         }
 
+        /// <summary>
+        /// 发出数值类型转换
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">溢出检查</param>
         private static void EmitNumericConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             bool isFromUnsigned = TypeInfoUtils.IsUnsigned(typeFrom);
@@ -1220,11 +1257,21 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 是否将类型的元数据标记转换为其运行时表示形式，并将其推送到计算堆栈上
+        /// </summary>
+        /// <param name="t">类型</param>
+        /// <returns>判断结果,true:需要推送到计算堆栈;false:不需要推送计算堆栈</returns>
         private static bool ShouldLdtoken(Type t)
         {
             return t.IsGenericParameter || t.GetTypeInfo().IsVisible;
         }
 
+        /// <summary>
+        /// 是否将方法声明类型的元数据标记转换为其运行时表示形式，并将其推送到计算堆栈上
+        /// </summary>
+        /// <param name="mb">方法</param>
+        /// <returns>判断结果,true:需要推送到计算堆栈;false:不需要推送计算堆栈</returns>
         private static bool ShouldLdtoken(MethodBase mb)
         {
             // Can't ldtoken on a DynamicMethod
@@ -1237,6 +1284,13 @@ namespace AspectCore.Extensions.Reflection.Emit
             return dt == null || ShouldLdtoken(dt);
         }
 
+        /// <summary>
+        /// 推送值到计算堆栈上
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
+        /// <param name="type">类型</param>
+        /// <returns>是否推送成功</returns>
         private static bool TryEmitILConstant(this ILGenerator ilGenerator, object value, Type type)
         {
             switch (Type.GetTypeCode(type))
@@ -1299,6 +1353,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.EmitNew(typeof(decimal).GetTypeInfo().GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(bool), typeof(byte) }));
         }
 
+        /// <summary>
+        /// 基本类型,string,decimal等的基础类型返回true
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <returns>基本类型,string,decimal等的基础类型返回true</returns>
         private static bool CanEmitILConstant(Type type)
         {
             switch (Type.GetTypeCode(type))
