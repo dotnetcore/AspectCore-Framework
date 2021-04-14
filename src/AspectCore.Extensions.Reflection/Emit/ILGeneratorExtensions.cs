@@ -14,7 +14,25 @@ namespace AspectCore.Extensions.Reflection.Emit
                 throw new ArgumentNullException(nameof(ilGenerator));
             }
 
-            ilGenerator.Emit(OpCodes.Ldarg, index);
+            switch (index)
+            {
+                case 0:
+                    ilGenerator.Emit(OpCodes.Ldarg_0);
+                    break;
+                case 1:
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    break;
+                case 2:
+                    ilGenerator.Emit(OpCodes.Ldarg_2);
+                    break;
+                case 3:
+                    ilGenerator.Emit(OpCodes.Ldarg_3);
+                    break;
+                default:
+                    if (index <= byte.MaxValue) ilGenerator.Emit(OpCodes.Ldarg_S, (byte)index);
+                    else ilGenerator.Emit(OpCodes.Ldarg, index);
+                    break;
+            }
         }
 
         public static void EmitLoadArgA(this ILGenerator ilGenerator, int index)
