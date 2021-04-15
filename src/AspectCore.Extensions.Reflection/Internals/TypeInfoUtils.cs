@@ -27,7 +27,7 @@ namespace AspectCore.Extensions.Reflection.Internals
         }
 
         /// <summary>
-        /// 如果类型为Nullable<>类型,则返回其泛型类型参数
+        /// 如果类型为Nullable<>类型,则返回其泛型类型参数,否则返回参数类型
         /// </summary>
         /// <param name="type">类型</param>
         /// <returns>结果</returns>

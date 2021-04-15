@@ -201,7 +201,7 @@ namespace AspectCore.Extensions.Reflection.Emit
         /// <param name="ilGenerator">IL生成器</param>
         /// <param name="typeFrom">源类型</param>
         /// <param name="typeTo">目标类型</param>
-        /// <param name="isChecked">类型检查</param>
+        /// <param name="isChecked">溢出检查</param>
         public static void EmitConvertToType(this ILGenerator ilGenerator, Type typeFrom, Type typeTo, bool isChecked = true)
         {
             if (ilGenerator == null)
@@ -1028,6 +1028,14 @@ namespace AspectCore.Extensions.Reflection.Emit
         }
 
         #region private
+
+        /// <summary>
+        /// 发出可能为可空类型直接的转化
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">溢出检查</param>
         private static void EmitNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             bool isTypeFromNullable = TypeInfoUtils.IsNullableType(typeFrom);
@@ -1040,6 +1048,13 @@ namespace AspectCore.Extensions.Reflection.Emit
                 ilGenerator.EmitNonNullableToNullableConversion(typeFrom, typeTo, isChecked);
         }
 
+        /// <summary>
+        /// 发出可空类型之间的转化
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">溢出检查</param>
         private static void EmitNullableToNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             Label labIfNull = default(Label);
@@ -1053,6 +1068,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Ldloca, locFrom);
             ilGenerator.EmitHasValue(typeFrom.AsType());
             labIfNull = ilGenerator.DefineLabel();
+            //OpCodes.Brfalse_S: 短格式，如果 value 为 false、空引用或零，则将控制转移到目标指令
             ilGenerator.Emit(OpCodes.Brfalse_S, labIfNull);
             ilGenerator.Emit(OpCodes.Ldloca, locFrom);
             ilGenerator.EmitGetValueOrDefault(typeFrom.AsType());
@@ -1064,6 +1080,7 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Newobj, ci);
             ilGenerator.Emit(OpCodes.Stloc, locTo);
             labEnd = ilGenerator.DefineLabel();
+            //OpCodes.Br_S: 无条件地将控制转移到目标指令（短格式）
             ilGenerator.Emit(OpCodes.Br_S, labEnd);
             // if null then create a default one
             ilGenerator.MarkLabel(labIfNull);
@@ -1073,6 +1090,13 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Ldloc, locTo);
         }
 
+        /// <summary>
+        /// 发出可空类型到非空类型的转化
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">溢出检查</param>
         private static void EmitNullableToNonNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             if (typeTo.IsValueType)
@@ -1081,6 +1105,13 @@ namespace AspectCore.Extensions.Reflection.Emit
                 ilGenerator.EmitNullableToReferenceConversion(typeFrom);
         }
 
+        /// <summary>
+        /// 发出可空类型到非空值类型的转化
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">溢出检查</param>
         private static void EmitNullableToNonNullableStructConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             LocalBuilder locFrom = null;
@@ -1092,13 +1123,26 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.EmitConvertToType(nnTypeFrom, typeTo.AsType(), isChecked);
         }
 
+        /// <summary>
+        /// 发出可空类型到引用类型的转化
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
         private static void EmitNullableToReferenceConversion(this ILGenerator ilGenerator, TypeInfo typeFrom)
         {
             // We've got a conversion from nullable to Object, ValueType, Enum, etc.  Just box it so that
             // we get the nullable semantics.
+
             ilGenerator.Emit(OpCodes.Box, typeFrom.AsType());
         }
 
+        /// <summary>
+        /// 发出非空类型到可空类型的转化
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="typeFrom">源类型</param>
+        /// <param name="typeTo">目标类型</param>
+        /// <param name="isChecked">溢出检查</param>
         private static void EmitNonNullableToNullableConversion(this ILGenerator ilGenerator, TypeInfo typeFrom, TypeInfo typeTo, bool isChecked)
         {
             LocalBuilder locTo = null;
@@ -1285,7 +1329,7 @@ namespace AspectCore.Extensions.Reflection.Emit
         }
 
         /// <summary>
-        /// 推送值到计算堆栈上
+        /// 推送值(基本类型的值)到计算堆栈上
         /// </summary>
         /// <param name="ilGenerator">ILGenerator</param>
         /// <param name="value">值</param>
