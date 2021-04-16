@@ -99,6 +99,11 @@ namespace AspectCore.DynamicProxy
             return methodInfo.DeclaringType.GetTypeInfo().IsNonAspect() || methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
+        /// <summary>
+        /// 是否查询实际的对象类型对方法进行调用
+        /// </summary>
+        /// <param name="methodInfo">方法</param>
+        /// <returns>判断结果</returns>
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
@@ -117,6 +122,11 @@ namespace AspectCore.DynamicProxy
             return true;
         }
 
+        /// <summary>
+        /// 方法的MethodAttributes是否有 MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.Virtual 标志
+        /// </summary>
+        /// <param name="methodInfo">方法</param>
+        /// <returns>判断结果</returns>
         internal static bool IsExplicit(this MethodInfo methodInfo)
         {
             if (methodInfo == null)
@@ -255,6 +265,12 @@ namespace AspectCore.DynamicProxy
                     (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly);
         }
 
+        /// <summary>
+        /// 在类型typeInfo中查询和method相同签名的实例方法
+        /// </summary>
+        /// <param name="typeInfo">类型</param>
+        /// <param name="method">方法</param>
+        /// <returns>获取到的类型中对应的方法</returns>
         public static MethodInfo GetMethodBySignature(this TypeInfo typeInfo, MethodInfo method)
         {
             if (typeInfo == null)
