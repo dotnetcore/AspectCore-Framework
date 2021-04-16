@@ -187,7 +187,7 @@ namespace AspectCore.Extensions.Reflection.Emit
                 throw new ArgumentNullException(nameof(declaringType));
             }
 
-            //讲类型和方法的运行时表示形式推送到计算堆栈上，以便调用方法
+            //将类型和方法的运行时表示形式推送到计算堆栈上
             //OpCodes.Ldtoken:将元数据标记转换为其运行时表示形式，并将其推送到计算堆栈上
             ilGenerator.Emit(OpCodes.Ldtoken, method);
             ilGenerator.Emit(OpCodes.Ldtoken, method.DeclaringType);

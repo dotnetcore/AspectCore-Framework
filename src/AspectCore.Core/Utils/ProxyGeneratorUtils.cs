@@ -1525,7 +1525,7 @@ namespace AspectCore.Utils
         }
 
         /// <summary>
-        /// 用于存取字段
+        /// 用于存取类型中的字段
         /// </summary>
         private class FieldTable
         {
@@ -1549,6 +1549,9 @@ namespace AspectCore.Utils
             }
         }
 
+        /// <summary>
+        /// 用于存取类型中的方法
+        /// </summary>
         private class MethodConstantTable
         {
             private readonly TypeBuilder _nestedTypeBuilder;
@@ -1564,6 +1567,11 @@ namespace AspectCore.Utils
                 _ilGen = _constructorBuilder.GetILGenerator();
             }
 
+            /// <summary>
+            /// 向类型中添加方法
+            /// </summary>
+            /// <param name="name">方法特定名称key</param>
+            /// <param name="method">方法</param>
             public void AddMethod(string name, MethodInfo method)
             {
                 if (!_fields.ContainsKey(name))
@@ -1578,6 +1586,11 @@ namespace AspectCore.Utils
                 }
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="ilGen"></param>
+            /// <param name="name"></param>
             public void LoadMethod(ILGenerator ilGen, string name)
             {
                 if (_fields.TryGetValue(name, out FieldBuilder field))
@@ -1588,6 +1601,9 @@ namespace AspectCore.Utils
                 throw new InvalidOperationException($"Failed to find the method associated with the specified key {name}.");
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
             public void Compile()
             {
                 _ilGen.Emit(OpCodes.Ret);
