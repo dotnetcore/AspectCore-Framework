@@ -337,6 +337,12 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Call, mi);
         }
 
+        /// <summary>
+        /// 发出设置默认值或赋值
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
+        /// <param name="valueType">类型</param>
         public static void EmitConstant(this ILGenerator ilGenerator, object value, Type valueType)
         {
             if (ilGenerator == null)
@@ -1386,6 +1392,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 推送decimal的等效字节到计算堆栈，分配并调用构造函数
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         private static void EmitDecimalBits(this ILGenerator ilGenerator, decimal value)
         {
             int[] bits = Decimal.GetBits(value);
