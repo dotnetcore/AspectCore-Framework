@@ -7,6 +7,9 @@ using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 方法反射操作
+    /// </summary>
     public partial class MethodReflector : MemberReflector<MethodInfo>
     {
         private class CallMethodReflector : MethodReflector
