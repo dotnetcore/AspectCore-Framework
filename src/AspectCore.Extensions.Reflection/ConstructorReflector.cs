@@ -7,6 +7,9 @@ using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 构造方法反射操作
+    /// </summary>
     public partial class ConstructorReflector : MemberReflector<ConstructorInfo>, IParameterReflectorProvider
     {
         private readonly Func<object[], object> _invoker;
@@ -14,12 +17,20 @@ namespace AspectCore.Extensions.Reflection
 
         public ParameterReflector[] ParameterReflectors => _parameterReflectors;
 
+        /// <summary>
+        /// 构造方法反射操作
+        /// </summary>
+        /// <param name="constructorInfo">构造方法</param>
         private ConstructorReflector(ConstructorInfo constructorInfo) : base(constructorInfo)
         {
             _invoker = CreateInvoker();
             _parameterReflectors = constructorInfo.GetParameters().Select(x => ParameterReflector.Create(x)).ToArray();
         }
 
+        /// <summary>
+        /// 创建一个获取对象的委托
+        /// </summary>
+        /// <returns>一个用以获取对象的委托</returns>
         protected virtual Func<object[], object> CreateInvoker()
         {
             var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(object), new Type[] { typeof(object[]) }, _reflectionInfo.Module, true);
@@ -85,6 +96,11 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        /// <summary>
+        /// 调用
+        /// </summary>
+        /// <param name="args">构造参数</param>
+        /// <returns>创建的对象</returns>
         public virtual object Invoke(params object[] args)
         {
             if (args == null)
