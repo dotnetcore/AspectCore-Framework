@@ -7,16 +7,27 @@ using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 自定义特性反射操作
+    /// </summary>
     public partial class CustomAttributeReflector
     {
         private readonly CustomAttributeData _customAttributeData;
         private readonly Func<Attribute> _invoker;
         private readonly Type _attributeType;
 
+        //RuntimeTypeHandle: 表示使用内部元数据标记的类型
         internal readonly HashSet<RuntimeTypeHandle> _tokens;
 
+        /// <summary>
+        /// 特性的类型
+        /// </summary>
         public Type AttributeType => _attributeType;
 
+        /// <summary>
+        /// 自定义特性反射操作
+        /// </summary>
+        /// <param name="customAttributeData">提供对加载到仅反射上下文的程序集、模块、类型、成员和参数的自定义属性数据的访问权限</param>
         private CustomAttributeReflector(CustomAttributeData customAttributeData)
         {
             _customAttributeData = customAttributeData ?? throw new ArgumentNullException(nameof(customAttributeData));
@@ -25,6 +36,10 @@ namespace AspectCore.Extensions.Reflection
             _tokens = GetAttrTokens(_attributeType);
         }
 
+        /// <summary>
+        /// 创建一个获取自定义特性的委托
+        /// </summary>
+        /// <returns>获取自定义特性的委托</returns>
         private Func<Attribute> CreateInvoker()
         {
             var dynamicMethod = new DynamicMethod($"invoker-{Guid.NewGuid()}", typeof(Attribute), null, _attributeType.GetTypeInfo().Module, true);
@@ -81,6 +96,11 @@ namespace AspectCore.Extensions.Reflection
             return (Func<Attribute>)dynamicMethod.CreateDelegate(typeof(Func<Attribute>));
         }
 
+        /// <summary>
+        /// 获取特性的内部元数据标记
+        /// </summary>
+        /// <param name="attributeType">特性</param>
+        /// <returns>内部元数据标记</returns>
         private HashSet<RuntimeTypeHandle> GetAttrTokens(Type attributeType)
         {
             var tokenSet = new HashSet<RuntimeTypeHandle>();
@@ -91,11 +111,19 @@ namespace AspectCore.Extensions.Reflection
             return tokenSet;
         }
 
+        /// <summary>
+        /// 调用
+        /// </summary>
+        /// <returns>自定义特性</returns>
         public Attribute Invoke()
         {
             return _invoker();
         }
 
+        /// <summary>
+        /// 获取特性的CustomAttributeData
+        /// </summary>
+        /// <returns>CustomAttributeData</returns>
         public CustomAttributeData GetCustomAttributeData()
         {
             return _customAttributeData;

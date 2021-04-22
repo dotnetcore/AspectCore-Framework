@@ -337,12 +337,6 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Call, mi);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ilGenerator"></param>
-        /// <param name="value"></param>
-        /// <param name="valueType"></param>
         public static void EmitConstant(this ILGenerator ilGenerator, object value, Type valueType)
         {
             if (ilGenerator == null)
@@ -1392,11 +1386,6 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ilGenerator"></param>
-        /// <param name="value"></param>
         private static void EmitDecimalBits(this ILGenerator ilGenerator, decimal value)
         {
             int[] bits = Decimal.GetBits(value);

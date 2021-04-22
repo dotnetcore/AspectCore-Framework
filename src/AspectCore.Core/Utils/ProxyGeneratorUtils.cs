@@ -1525,7 +1525,7 @@ namespace AspectCore.Utils
         }
 
         /// <summary>
-        /// 用于存取类型中的字段
+        /// 用于存取字段
         /// </summary>
         private class FieldTable
         {
@@ -1550,27 +1550,37 @@ namespace AspectCore.Utils
         }
 
         /// <summary>
-        /// 用于存取类型中的方法
+        /// 用于存取方法
         /// </summary>
         private class MethodConstantTable
         {
+            /// <summary>
+            /// 嵌套类中的字段表示了对应的方法
+            /// </summary>
             private readonly TypeBuilder _nestedTypeBuilder;
+
             private readonly ConstructorBuilder _constructorBuilder;
             private readonly ILGenerator _ilGen;
+
+            /// <summary>
+            /// 字段缓存，保存了嵌套内中字段代表的方法
+            /// </summary>
             private readonly Dictionary<string, FieldBuilder> _fields;
 
             public MethodConstantTable(TypeBuilder typeBuilder)
             {
                 _fields = new Dictionary<string, FieldBuilder>();
+                //DefineNestedType方法： 定义嵌套类型
                 _nestedTypeBuilder = typeBuilder.DefineNestedType("MethodConstant", TypeAttributes.NestedPrivate);
+                //DefineTypeInitializer方法： 定义此类型的初始值设定项
                 _constructorBuilder = _nestedTypeBuilder.DefineTypeInitializer();
                 _ilGen = _constructorBuilder.GetILGenerator();
             }
 
             /// <summary>
-            /// 向类型中添加方法
+            /// 将对方法method的调用存入内部维护的字典中
             /// </summary>
-            /// <param name="name">方法特定名称key</param>
+            /// <param name="name">内部维护的字典中的key</param>
             /// <param name="method">方法</param>
             public void AddMethod(string name, MethodInfo method)
             {
@@ -1587,10 +1597,10 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 
+            /// 通过name（key）从内部维护的字典中获取对方法的调用并推送到计算堆栈
             /// </summary>
-            /// <param name="ilGen"></param>
-            /// <param name="name"></param>
+            /// <param name="ilGen">ILGenerator</param>
+            /// <param name="name">内部字典key</param>
             public void LoadMethod(ILGenerator ilGen, string name)
             {
                 if (_fields.TryGetValue(name, out FieldBuilder field))
@@ -1602,10 +1612,14 @@ namespace AspectCore.Utils
             }
 
             /// <summary>
-            /// 
+            /// 从当前方法返回，并创建内部的嵌套类型的 TypeInfo 对象
             /// </summary>
+            /// <remarks>
+            /// 说明：嵌套类中的字段表示了对应的方法
+            /// </remarks>
             public void Compile()
             {
+                //OpCodes.Ret: 从当前方法返回，并将返回值（如果存在）从被调用方的计算堆栈推送到调用方的计算堆栈上
                 _ilGen.Emit(OpCodes.Ret);
                 _nestedTypeBuilder.CreateTypeInfo();
             }
@@ -1635,12 +1649,21 @@ namespace AspectCore.Utils
                 Properties = new Dictionary<string, object>();
             }
 
+            /// <summary>
+            /// 编译构建类型
+            /// </summary>
+            /// <returns></returns>
             public Type Compile()
             {
                 MethodConstants.Compile();
                 return Builder.CreateTypeInfo().AsType();
             }
 
+            /// <summary>
+            /// 获取属性
+            /// </summary>
+            /// <typeparam name="T">属性类型</typeparam>
+            /// <returns>属性</returns>
             public T GetProperty<T>()
             {
                 return (T)Properties[typeof(T).Name];

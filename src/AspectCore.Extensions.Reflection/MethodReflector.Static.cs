@@ -11,6 +11,9 @@ namespace AspectCore.Extensions.Reflection
 {
     public partial class MethodReflector
     {
+        /// <summary>
+        /// 静态方法反射调用
+        /// </summary>
         private class StaticMethodReflector : MethodReflector
         {
             public StaticMethodReflector(MethodInfo reflectionInfo)
