@@ -1,7 +1,7 @@
 ﻿namespace AspectCore.Extensions.Reflection
 {
     /// <summary>
-    /// 调用选项
+    /// 调用方式
     /// </summary>
     public enum CallOptions
     {
