@@ -337,6 +337,16 @@ namespace AspectCore.Extensions.Reflection.Emit
             ilGenerator.Emit(OpCodes.Call, mi);
         }
 
+        /// <summary>
+        /// 1 value为null,推送valueType类型的默认值；
+        /// 2 value非null,尝试按值类型推送value;
+        /// 3 value可以转化为valueType类型,尝试将引用传递的对象转换为valueType类型
+        /// 4 value为MethodBase类型，则发出对value的调用
+        /// 5 value为数组类型，则推送空数组
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
+        /// <param name="valueType">类型</param>
         public static void EmitConstant(this ILGenerator ilGenerator, object value, Type valueType)
         {
             if (ilGenerator == null)
@@ -1386,6 +1396,11 @@ namespace AspectCore.Extensions.Reflection.Emit
             }
         }
 
+        /// <summary>
+        /// 推送与value等效的字节到计算堆栈，并分配构造decimal
+        /// </summary>
+        /// <param name="ilGenerator">ILGenerator</param>
+        /// <param name="value">值</param>
         private static void EmitDecimalBits(this ILGenerator ilGenerator, decimal value)
         {
             int[] bits = Decimal.GetBits(value);
