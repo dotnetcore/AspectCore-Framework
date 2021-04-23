@@ -14,6 +14,11 @@ namespace AspectCore.Extensions.AspNetCore
 {
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection AddAspectScope(this IServiceCollection services)
         {
             if (services == null)
@@ -26,6 +31,12 @@ namespace AspectCore.Extensions.AspNetCore
             return services;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="predicates"></param>
+        /// <returns></returns>
         public static IServiceCollection AddDataAnnotations(this IServiceCollection services, params AspectPredicate[] predicates)
         {
             if (services == null)
