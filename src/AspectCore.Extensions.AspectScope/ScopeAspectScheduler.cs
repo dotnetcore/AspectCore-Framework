@@ -16,40 +16,21 @@ namespace AspectCore.Extensions.AspectScope
         private readonly IInterceptorCollector _interceptorCollector;
         private int _version;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="interceptorCollector"></param>
         public ScopeAspectScheduler(IInterceptorCollector interceptorCollector)
         {
             _interceptorCollector = interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
         }
 
-        /// <summary>
-        /// 获取当前拦截上下文
-        /// </summary>
-        /// <returns>拦截上下文数组</returns>
         public AspectContext[] GetCurrentContexts()
         {
             return _entries.OrderBy(x => x.Value).Select(x => x.Key).ToArray();
         }
 
-        /// <summary>
-        /// 为拦截上下文增加唯一版本号
-        /// </summary>
-        /// <param name="context">拦截上下文</param>
-        /// <returns>是否成功</returns>
         public bool TryEnter(AspectContext context)
         {
             return _entries.TryAdd(context, Interlocked.Increment(ref _version));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="interceptor"></param>
-        /// <returns></returns>
         public bool TryRelate(AspectContext context, IInterceptor interceptor)
         {
             if (interceptor == null || context == null)

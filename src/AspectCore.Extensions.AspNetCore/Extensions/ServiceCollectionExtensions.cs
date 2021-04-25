@@ -15,10 +15,10 @@ namespace AspectCore.Extensions.AspNetCore
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// 
+        /// 添加拦截作用域服务到容器
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
+        /// <param name="services">IServiceCollection</param>
+        /// <returns>IServiceCollection</returns>
         public static IServiceCollection AddAspectScope(this IServiceCollection services)
         {
             if (services == null)
@@ -32,11 +32,11 @@ namespace AspectCore.Extensions.AspNetCore
         }
 
         /// <summary>
-        /// 
+        /// 添加数据校验服务到容器
         /// </summary>
-        /// <param name="services"></param>
-        /// <param name="predicates"></param>
-        /// <returns></returns>
+        /// <param name="services">IServiceCollection</param>
+        /// <param name="predicates">拦截条件</param>
+        /// <returns>IServiceCollection</returns>
         public static IServiceCollection AddDataAnnotations(this IServiceCollection services, params AspectPredicate[] predicates)
         {
             if (services == null)
