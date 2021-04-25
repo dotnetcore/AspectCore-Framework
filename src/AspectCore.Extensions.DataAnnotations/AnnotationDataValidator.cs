@@ -8,16 +8,27 @@ using AspectCore.Extensions.DataValidation;
 
 namespace AspectCore.Extensions.DataAnnotations
 {
+    /// <summary>
+    /// 基于特性校验的校验器
+    /// </summary>
     [NonAspect]
     public class AnnotationDataValidator : IDataValidator
     {
         private readonly IPropertyValidator _propertyValidator;
 
+        /// <summary>
+        /// 基于特性校验的校验器
+        /// </summary>
+        /// <param name="propertyValidator">属性校验器</param>
         public AnnotationDataValidator(IPropertyValidator propertyValidator)
         {
             _propertyValidator = propertyValidator ?? throw new ArgumentNullException(nameof(propertyValidator));
         }
 
+        /// <summary>
+        /// 校验
+        /// </summary>
+        /// <param name="context">数据校验上下文</param>
         public void Validate(DataValidationContext context)
         {
             foreach (var descriptor in context.DataMetaDatas)
@@ -26,6 +37,11 @@ namespace AspectCore.Extensions.DataAnnotations
             }
         }
 
+        /// <summary>
+        /// 基于校验元数据和拦截上下文校验数据
+        /// </summary>
+        /// <param name="dataMetaData">用于参数数据校验的元数据信息</param>
+        /// <param name="aspectContext">拦截上下文</param>
         private void Validate(DataMetaData dataMetaData, AspectContext aspectContext)
         {
             var skip = dataMetaData.Attributes.FirstOrDefault(x => x is SkipValidationAttribute);

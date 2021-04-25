@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AspectCore.Extensions.DataValidation
 {
     /// <summary>
-    /// 用于数据校验的元数据信息
+    /// 用于参数数据校验的元数据信息
     /// </summary>
     public sealed class DataMetaData
     {
