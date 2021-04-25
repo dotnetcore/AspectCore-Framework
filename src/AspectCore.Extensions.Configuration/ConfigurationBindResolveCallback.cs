@@ -5,10 +5,20 @@ using Microsoft.Extensions.Configuration;
 
 namespace AspectCore.Extensions.Configuration
 {
+    /// <summary>
+    /// 配置绑定解析
+    /// </summary>
     public sealed class ConfigurationBindResolveCallback : IServiceResolveCallback
     {
         private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
+        /// <summary>
+        /// 解析配置到对象相关字段
+        /// </summary>
+        /// <param name="resolver">服务解析</param>
+        /// <param name="instance">实例</param>
+        /// <param name="service">服务描述</param>
+        /// <returns>解析后的对象</returns>
         public object Invoke(IServiceResolver resolver, object instance, ServiceDefinition service)
         {
             if (instance == null || instance is IConfiguration)

@@ -3,12 +3,30 @@ using System.Linq;
 
 namespace AspectCore.Extensions.Configuration
 {
+    /// <summary>
+    /// 配置元数据信息特性
+    /// </summary>
     public abstract class ConfigurationMetadataAttribute : Attribute, IConfigurationMetadataProvider
     {
+        /// <summary>
+        /// 配置节
+        /// </summary>
         public abstract string[] Sections { get; }
+
+        /// <summary>
+        /// 键
+        /// </summary>
         public abstract string Key { get; }
+
+        /// <summary>
+        /// 配置绑定类型
+        /// </summary>
         public abstract ConfigurationBindType Type { get; }
-        
+
+        /// <summary>
+        /// 获取字符串表示的配置节
+        /// </summary>
+        /// <returns>字符串表示的配置节</returns>
         public string GetSection()
         {
             if (Sections == null || Sections.Length == 0)
