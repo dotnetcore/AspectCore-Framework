@@ -5,11 +5,19 @@ using Microsoft.Extensions.Options;
 
 namespace AspectCore.Extensions.AspNetCore
 {
+    /// <summary>
+    /// http上下文工厂
+    /// </summary>
     public class HttpContextFactory : IHttpContextFactory
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly FormOptions _formOptions;
 
+        /// <summary>
+        /// 创建http上下文工厂
+        /// </summary>
+        /// <param name="formOptions">FormOptions</param>
+        /// <param name="httpContextAccessor">提供当前的访问权限 HttpContext （如果可用）</param>
         public HttpContextFactory(IOptions<FormOptions> formOptions, IHttpContextAccessor httpContextAccessor)
         {
             if (formOptions == null)
@@ -21,6 +29,10 @@ namespace AspectCore.Extensions.AspNetCore
             _httpContextAccessor = httpContextAccessor;
         }
 
+        /// <summary>
+        /// 通过IFeatureCollection创建http上下文
+        /// </summary>
+        /// <param name="IFeatureCollection">表示 HTTP 功能的集合</param>
         public HttpContext Create(IFeatureCollection featureCollection)
         {
             if (featureCollection == null)
