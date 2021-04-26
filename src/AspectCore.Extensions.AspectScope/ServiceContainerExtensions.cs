@@ -6,6 +6,11 @@ namespace AspectCore.Extensions.AspectScope
 {
     public static class ServiceContainerExtensions
     {
+        /// <summary>
+        /// 添加拦截器作用域服务到容器中
+        /// </summary>
+        /// <param name="services">服务上下文</param>
+        /// <returns>服务上下文</returns>
         public static IServiceContext AddAspectScope(this IServiceContext services)
         {
             if (services == null)

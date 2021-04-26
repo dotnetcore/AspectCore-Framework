@@ -9,6 +9,9 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.AspectScope
 {
+    /// <summary>
+    /// 具有作用域范围的拦截上下文的调度器
+    /// </summary>
     [NonAspect]
     public sealed class ScopeAspectScheduler : IAspectScheduler
     {
@@ -16,16 +19,29 @@ namespace AspectCore.Extensions.AspectScope
         private readonly IInterceptorCollector _interceptorCollector;
         private int _version;
 
+        /// <summary>
+        /// 拦截作用域调度
+        /// </summary>
+        /// <param name="interceptorCollector"></param>
         public ScopeAspectScheduler(IInterceptorCollector interceptorCollector)
         {
             _interceptorCollector = interceptorCollector ?? throw new ArgumentNullException(nameof(interceptorCollector));
         }
 
+        /// <summary>
+        /// 获取当前所有的拦截上下文
+        /// </summary>
+        /// <returns>拦截上下文数组</returns>
         public AspectContext[] GetCurrentContexts()
         {
             return _entries.OrderBy(x => x.Value).Select(x => x.Key).ToArray();
         }
 
+        /// <summary>
+        /// 尝试进入作用域范围
+        /// </summary>
+        /// <param name="context">拦截作用域</param>
+        /// <returns>是否进入作用域范围</returns>
         public bool TryEnter(AspectContext context)
         {
             return _entries.TryAdd(context, Interlocked.Increment(ref _version));
@@ -82,9 +98,9 @@ namespace AspectCore.Extensions.AspectScope
         }
 
         /// <summary>
-        /// 
+        /// 释放作用域
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">拦截上下文</param>
         public void Release(AspectContext context)
         {
             if(_entries.TryRemove(context, out _))
