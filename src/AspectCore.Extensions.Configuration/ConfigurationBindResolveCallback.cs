@@ -15,7 +15,7 @@ namespace AspectCore.Extensions.Configuration
         /// <summary>
         /// 解析配置到对象相关字段
         /// </summary>
-        /// <param name="resolver">服务解析</param>
+        /// <param name="resolver">服务解析 </param>
         /// <param name="instance">实例</param>
         /// <param name="service">服务描述</param>
         /// <returns>解析后的对象</returns>
