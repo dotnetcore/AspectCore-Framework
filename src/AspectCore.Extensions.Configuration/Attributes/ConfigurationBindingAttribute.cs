@@ -3,29 +3,29 @@ using System;
 namespace AspectCore.Extensions.Configuration
 {
     /// <summary>
-    /// »ùÓÚ¶ÔÏó°ó¶¨µÄÅäÖÃ°ó¶¨ÌØĞÔ
+    /// åŸºäºå¯¹è±¡ç»‘å®šçš„é…ç½®ç»‘å®šç‰¹æ€§
     /// </summary>
     public class ConfigurationBindingAttribute : ConfigurationMetadataAttribute
     {
         /// <summary>
-        /// ¶ÔÓ¦µÄÅäÖÃ½Ú
+        /// ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½Ã½ï¿½
         /// </summary>
         public override string[] Sections { get; }
 
         /// <summary>
-        /// ¼ü
+        /// ï¿½ï¿½
         /// </summary>
         public override string Key { get; } = null;
 
         /// <summary>
-        /// ÅäÖÃ°ó¶¨µÄÀàĞÍ
+        /// ï¿½ï¿½ï¿½Ã°ó¶¨µï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public override ConfigurationBindType Type { get; } = ConfigurationBindType.Class;
 
         /// <summary>
-        /// »ùÓÚ¶ÔÏó°ó¶¨µÄÅäÖÃ°ó¶¨ÌØĞÔ
+        /// ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ó¶¨µï¿½ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="sections">ÅäÖÃ½Ú</param>
+        /// <param name="sections">ï¿½ï¿½ï¿½Ã½ï¿½</param>
         public ConfigurationBindingAttribute(params string[] sections)
         {
             Sections = sections;

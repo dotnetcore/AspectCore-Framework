@@ -1,17 +1,17 @@
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// »ñÈ¡·şÎñºó¶Ô¶ÔÏó½øĞĞÊôĞÔ×¢Èë
+    /// è·å–æœåŠ¡åå¯¹å¯¹è±¡è¿›è¡Œå±æ€§æ³¨å…¥
     /// </summary>
     public class PropertyInjectorCallback : IServiceResolveCallback
     {
         /// <summary>
-        /// »ñÈ¡·şÎñºó¶Ô¶ÔÏó½øĞĞÊôĞÔ×¢Èë
+        /// è·å–æœåŠ¡åå¯¹å¯¹è±¡è¿›è¡Œå±æ€§æ³¨å…¥
         /// </summary>
-        /// <param name="resolver">·şÎñ½âÎö</param>
-        /// <param name="instance">´ı´¦ÀíµÄ¶ÔÏó</param>
-        /// <param name="service">·şÎñÃèÊö</param>
-        /// <returns>½á¹û</returns>
+        /// <param name="resolver">æœåŠ¡è§£æ</param>
+        /// <param name="instance">å¾…å¤„ç†çš„å¯¹è±¡</param>
+        /// <param name="service">æœåŠ¡æè¿°</param>
+        /// <returns>ç»“æœ</returns>
         public object Invoke(IServiceResolver resolver, object instance, ServiceDefinition service)
         {
             if (instance == null || !service.RequiredPropertyInjection())

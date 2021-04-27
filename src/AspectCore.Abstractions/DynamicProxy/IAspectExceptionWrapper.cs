@@ -3,16 +3,16 @@ using System;
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// ю╧╫ьрЛЁё╟Эв╟фВ╫с©з
+    /// Ф▀╕Ф┬╙Е╪┌Е╦╦Е▄┘Хё┘Е≥╗Ф▌╔Е▐ё
     /// </summary>
     public interface IAspectExceptionWrapper
     {
-        /// <summary>
-        /// ╟Эв╟рЛЁё╤тоС
+         /// <summary>
+        /// Е▄┘Хё┘Е╪┌Е╦╦Д╦╨Ф▀╕Ф┬╙Е╪┌Е╦╦
         /// </summary>
-        /// <param name="aspectContext">ю╧╫ьиообнд</param>
-        /// <param name="exception">рЛЁё╤тоС</param>
-        /// <returns>╟Эв╟╨С╣дрЛЁё╤тоС</returns>
+        /// <param name="aspectContext">Ф▀╕Ф┬╙Д╦┼Д╦▀Ф√┤</param>
+        /// <param name="exception">Е╪┌Е╦╦</param>
+        /// <returns>Е▄┘Хё┘Е░▌Г └Е╪┌Е╦╦Е╞╧Х╠║</returns>
         Exception Wrap(AspectContext aspectContext, Exception exception);
     }
 }
