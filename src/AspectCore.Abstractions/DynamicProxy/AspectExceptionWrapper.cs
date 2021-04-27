@@ -4,7 +4,7 @@ using AspectCore.Configuration;
 namespace AspectCore.DynamicProxy
 {
     /// <summary>
-    /// À¹½ØÒì³£°ü×°Æ÷
+    /// æ‹¦æˆªå¼‚å¸¸åŒ…è£…å™¨
     /// </summary>
     [NonAspect]
     public class AspectExceptionWrapper : IAspectExceptionWrapper
@@ -12,20 +12,20 @@ namespace AspectCore.DynamicProxy
         private readonly IAspectConfiguration _configuration;
 
         /// <summary>
-        /// ¹¹ÔìÀ¹½ØÒì³£°ü×°Æ÷
+        /// æ‹¦æˆªå¼‚å¸¸åŒ…è£…å™¨
         /// </summary>
-        /// <param name="configuration">À¹½ØÅäÖÃ</param>
+        /// <param name="configuration">æ‹¦æˆªé…ç½®</param>
         public AspectExceptionWrapper(IAspectConfiguration configuration)
         {
             _configuration = configuration;
         }
 
         /// <summary>
-        /// °ü×°Òì³£¶ÔÏó
+        /// åŒ…è£…å¼‚å¸¸ä¸ºAspectInvocationException
         /// </summary>
-        /// <param name="aspectContext">À¹½ØÉÏÏÂÎÄ</param>
-        /// <param name="exception">Òì³£¶ÔÏó</param>
-        /// <returns>°ü×°ºóµÄÒì³£¶ÔÏó</returns>
+        /// <param name="aspectContext">æ‹¦æˆªä¸Šä¸‹æ–‡</param>
+        /// <param name="exception">å¼‚å¸¸</param>
+        /// <returns>åŒ…è£…åçš„å¼‚å¸¸å¯¹è±¡</returns>
         public Exception Wrap(AspectContext aspectContext, Exception exception)
         {
             if (!_configuration.ThrowAspectException)

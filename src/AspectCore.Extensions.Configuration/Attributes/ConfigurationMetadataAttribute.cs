@@ -3,30 +3,30 @@ using System.Linq;
 
 namespace AspectCore.Extensions.Configuration
 {
-    /// <summary>
-    /// ÅäÖÃÔªÊı¾İĞÅÏ¢ÌØĞÔ
+   /// <summary>
+    /// é…ç½®å…ƒæ•°æ®ä¿¡æ¯ç‰¹æ€§
     /// </summary>
     public abstract class ConfigurationMetadataAttribute : Attribute, IConfigurationMetadataProvider
     {
-        /// <summary>
-        /// ÅäÖÃ½Ú
+         /// <summary>
+        /// é…ç½®èŠ‚
         /// </summary>
         public abstract string[] Sections { get; }
 
         /// <summary>
-        /// ¼ü
+        /// é”®
         /// </summary>
         public abstract string Key { get; }
 
         /// <summary>
-        /// ÅäÖÃ°ó¶¨ÀàĞÍ
+        /// é…ç½®ç»‘å®šç±»å‹
         /// </summary>
         public abstract ConfigurationBindType Type { get; }
 
         /// <summary>
-        /// »ñÈ¡×Ö·û´®±íÊ¾µÄÅäÖÃ½Ú
+        /// è·å–å­—ç¬¦ä¸²æ ¼å¼çš„é…ç½®èŠ‚
         /// </summary>
-        /// <returns>×Ö·û´®±íÊ¾µÄÅäÖÃ½Ú</returns>
+        /// <returns>å­—ç¬¦ä¸²æ ¼å¼çš„é…ç½®èŠ‚</returns>
         public string GetSection()
         {
             if (Sections == null || Sections.Length == 0)

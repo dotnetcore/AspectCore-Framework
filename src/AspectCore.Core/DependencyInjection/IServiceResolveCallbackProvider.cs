@@ -3,12 +3,12 @@ using System.Collections.Generic;
 namespace AspectCore.DependencyInjection
 {
     /// <summary>
-    /// ÓÃÓÚÌá¹©Ò»×é·şÎñ»Øµ÷¹¦ÄÜ
+    /// ç”¨äºæä¾›ä¸€ç»„æœåŠ¡å›è°ƒåŠŸèƒ½
     /// </summary>
     internal interface IServiceResolveCallbackProvider
     {
         /// <summary>
-        /// Ìá¹©Ò»×é·şÎñ»Øµ÷¹¦ÄÜ
+        /// ä¸€ç»„æœåŠ¡å›è°ƒåŠŸèƒ½
         /// </summary>
         IServiceResolveCallback[] ServiceResolveCallbacks { get; }
     }

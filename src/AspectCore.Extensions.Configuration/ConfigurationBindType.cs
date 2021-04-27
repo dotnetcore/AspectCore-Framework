@@ -1,17 +1,17 @@
 namespace AspectCore.Extensions.Configuration
 {
     /// <summary>
-    /// ÅäÖÃ°ó¶¨ÀàĞÍÃ¶¾Ù
+    /// é…ç½®ç»‘å®šç±»å‹
     /// </summary>
     public enum ConfigurationBindType
     {
         /// <summary>
-        /// °ó¶¨Öµ
+        /// å€¼ç»‘å®š
         /// </summary>
         Value,
 
         /// <summary>
-        /// °ó¶¨¶ÔÏó
+        /// å¯¹è±¡ç»‘å®š
         /// </summary>
         Class
     }

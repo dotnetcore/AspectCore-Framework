@@ -7,17 +7,17 @@ namespace AspectCore.DependencyInjection
     public interface IServiceResolveCallback
     {
         /// <summary>
-        /// Ìá¹©ÊµÀıµÄ·şÎñ½âÎöÆ÷ºÍ·şÎñÃèÊö¶ÔÏó£¬ÒÔÊ¹ÄãÔÚ·½·¨ÖĞÖ´ĞĞÏà¹Ø»Øµ÷´¦ÀíÂß¼­
+        /// æä¾›å®ä¾‹çš„æœåŠ¡è§£æå™¨å’ŒæœåŠ¡æè¿°å¯¹è±¡ï¼Œä»¥ä½¿ä½ åœ¨æ–¹æ³•ä¸­æ‰§è¡Œç›¸å…³å›è°ƒå¤„ç†é€»è¾‘
         /// </summary>
         /// <param name="resolver">IServiceResolver</param>
-        /// <param name="instance">ÊµÀı</param>
-        /// <param name="service">ÊµÀıµÄ·şÎñÃèÊö¶ÔÏó</param>
-        /// <returns>»Øµ÷´¦ÀíºóµÄ½á¹û</returns>
+        /// <param name="instance">å®ä¾‹</param>
+        /// <param name="service">å®ä¾‹çš„æœåŠ¡æè¿°å¯¹è±¡</param>
+        /// <returns>å›è°ƒå¤„ç†åçš„ç»“æœ</returns>
         object Invoke(IServiceResolver resolver, object instance, ServiceDefinition service);
     }
 
     /// <summary>
-    /// ±ê×¢´ËÌØĞÔ´ú±í²»Ö´ĞĞ»Øµ÷´¦Àí
+    /// æ ‡æ³¨ä»¥ä¸æ‰§è¡Œå›è°ƒ
     /// </summary>
     public sealed class NonCallback : Attribute
     {
