@@ -5,9 +5,17 @@ using AspectCore.Extensions.DataValidation;
 
 namespace AspectCore.Extensions.DataAnnotations
 {
+    /// <summary>
+    /// 基于属性特性校验属性的校验器
+    /// </summary>
     [NonAspect]
     public class AnnotationPropertyValidator : IPropertyValidator
     {
+        /// <summary>
+        /// 校验属性
+        /// </summary>
+        /// <param name="propertyValidationContext">属性校验上下文</param>
+        /// <returns>校验错误集</returns>
         public IEnumerable<DataValidationError> Validate(PropertyValidationContext propertyValidationContext)
         {
             var propertyMetaData = propertyValidationContext.PropertyMetaData;

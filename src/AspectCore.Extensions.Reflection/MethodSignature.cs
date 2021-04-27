@@ -1,23 +1,43 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 定义一个结构以表示方法签名(方法名称+参数)
+    /// </summary>
     public struct MethodSignature
     {
         private static readonly ConcurrentDictionary<Pair<MethodBase,string>, int> signatures = new ConcurrentDictionary<Pair<MethodBase, string>, int>();
 
         private readonly int _signature;
+
+        /// <summary>
+        /// 签名值
+        /// </summary>
         public int Value => _signature;
 
+        /// <summary>
+        /// 名称
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// 定义一个结构以表示方法签名
+        /// </summary>
+        /// <param name="method">方法</param>
         public MethodSignature(MethodBase method)
             : this(method, method?.Name)
         {
         }
 
+        /// <summary>
+        /// 定义一个结构以表示方法签名
+        /// </summary>
+        /// <param name="method">方法</param>
+        /// <param name="name">名称</param>
         public MethodSignature(MethodBase method, string name)
         {
             if (method == null)

@@ -6,22 +6,42 @@ using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DependencyInjection
 {
+    /// <summary>
+    /// 提供由构造函数注入的服务的解析功能
+    /// </summary>
     internal sealed class ConstructorCallSiteResolver
     {
         private readonly ConcurrentDictionary<Type, Func<IServiceResolver, object>> compiledCallSites = new ConcurrentDictionary<Type, Func<IServiceResolver, object>>();
 
         private readonly ServiceTable _serviceTable;
 
+        /// <summary>
+        /// 提供由构造函数注入的服务的解析功能
+        /// </summary>
+        /// <param name="serviceTable">内部存取服务的对象</param>
         internal ConstructorCallSiteResolver(ServiceTable serviceTable)
         {
             _serviceTable = serviceTable;
         }
 
+        /// <summary>
+        /// 提供一个用于获取服务的委托
+        /// </summary>
+        /// <param name="implementationType">服务类型</param>
+        /// <returns>获取服务的委托</returns>
         internal Func<IServiceResolver, object> Resolve(Type implementationType)
         {
             return compiledCallSites.GetOrAdd(implementationType, GetBestCallSite);
         }
 
+        /// <summary>
+        /// 选取一个构造函数，提供一个用于获取服务对象的委托
+        /// </summary>
+        /// <remarks>
+        /// 以构造参数最多优先的原则选取
+        /// </remarks>
+        /// <param name="implementationType">服务类型</param>
+        /// <returns>获取服务对象的委托</returns>
         private Func<IServiceResolver, object> GetBestCallSite(Type implementationType)
         {
             var constructors = implementationType.GetTypeInfo()
@@ -39,6 +59,7 @@ namespace AspectCore.DependencyInjection
                 var constructor = constructors[0];
                 return TryResolve(constructor, out Func<IServiceResolver, object> callSite) ? callSite : null;
             }
+            //构造函数参数个数倒序，优先调用参数最多的构造函数
             Array.Sort(constructors, (a, b) => b.GetParameters().Length.CompareTo(a.GetParameters().Length));
             for (var i = 0; i < length; i++)
             {
@@ -50,6 +71,12 @@ namespace AspectCore.DependencyInjection
             return null;
         }
 
+        /// <summary>
+        /// 指定构造函数来获取一个用于获取服务对象的委托
+        /// </summary>
+        /// <param name="constructor">构造函数</param>
+        /// <param name="callSite">获取服务对象的委托</param>
+        /// <returns>获取是否成功</returns>
         private bool TryResolve(ConstructorInfo constructor, out Func<IServiceResolver, object> callSite)
         {
             callSite = null;

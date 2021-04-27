@@ -5,6 +5,12 @@ namespace AspectCore.Extensions.Reflection
 {
     public partial class MethodReflector
     {
+        /// <summary>
+        /// 通过MethodInfo对象和调用方式获取对应的MethodReflector对象
+        /// </summary>
+        /// <param name="reflectionInfo">方法</param>
+        /// <param name="callOption">调用方式</param>
+        /// <returns>方法反射调用</returns>
         internal static MethodReflector Create(MethodInfo reflectionInfo, CallOptions callOption)
         {
             if (reflectionInfo == null)

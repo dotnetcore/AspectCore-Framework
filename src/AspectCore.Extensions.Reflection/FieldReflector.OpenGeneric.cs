@@ -5,6 +5,9 @@ namespace AspectCore.Extensions.Reflection
 {
     public partial class FieldReflector
     {
+        /// <summary>
+        /// 开放泛型类型字段反射
+        /// </summary>
         private class OpenGenericFieldReflector : FieldReflector
         {
             public OpenGenericFieldReflector(FieldInfo reflectionInfo) : base(reflectionInfo)

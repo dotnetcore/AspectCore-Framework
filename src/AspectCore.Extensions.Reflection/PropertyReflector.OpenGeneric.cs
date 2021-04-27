@@ -3,6 +3,9 @@ using System.Reflection;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 开放泛型类型属性的反射操作
+    /// </summary>
     public partial class PropertyReflector
     {
         private class OpenGenericPropertyReflector : PropertyReflector

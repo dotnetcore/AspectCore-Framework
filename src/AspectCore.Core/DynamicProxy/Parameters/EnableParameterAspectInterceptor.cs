@@ -3,10 +3,22 @@ using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy.Parameters
 {
+    /// <summary>
+    /// 针对被代理方法参数进行拦截处理的拦截器特性
+    /// </summary>
     public class EnableParameterAspectInterceptor : AbstractInterceptorAttribute
     {
+        /// <summary>
+        /// 排序号
+        /// </summary>
         public override int Order { get; set; } = -9;
 
+        /// <summary>
+        /// 拦截被代理方法参数执行处理逻辑
+        /// </summary>
+        /// <param name="context">拦截上下文</param>
+        /// <param name="next">拦截委托</param>
+        /// <returns>异步任务</returns>
         public async override Task Invoke(AspectContext context, AspectDelegate next)
         {
             var selector = (IParameterInterceptorSelector)context.ServiceProvider.GetService(typeof(IParameterInterceptorSelector));
@@ -22,6 +34,7 @@ namespace AspectCore.DynamicProxy.Parameters
                 for (var i = 0; i < count; i++)
                 {
                     var parameter = parameters[i];
+                    //获取对应参数的参数拦截器
                     var interceptors = selector.Select(parameter.ParameterInfo);
                     if (interceptors.Length > 0)
                     {
@@ -37,6 +50,8 @@ namespace AspectCore.DynamicProxy.Parameters
             }
             await next(context);
             var returnParameter = context.GetReturnParameter();
+
+            //返回值的拦截处理
             var returnInterceptors = selector.Select(returnParameter.ParameterInfo);
             if (returnInterceptors.Length > 0)
             {

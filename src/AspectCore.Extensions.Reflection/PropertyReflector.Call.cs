@@ -5,15 +5,29 @@ using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 属性反射操作
+    /// </summary>
     public partial class PropertyReflector
     {
+        /// <summary>
+        /// 基于call调用的属性反射操作对象
+        /// </summary>
         private class CallPropertyReflector : PropertyReflector
         {
+            /// <summary>
+            /// 基于call调用的属性反射操作对象
+            /// </summary>
+            /// <param name="reflectionInfo">属性对象</param>
             public CallPropertyReflector(PropertyInfo reflectionInfo)
                 : base(reflectionInfo)
             {
             }
 
+            /// <summary>
+            /// 创建一个代表属性get访问器方法的委托
+            /// </summary>
+            /// <returns>代表属性get访问器方法的委托</returns>
             protected override Func<object, object> CreateGetter()
             {
                 var dynamicMethod = new DynamicMethod($"getter-{Guid.NewGuid()}", typeof(object), new Type[] { typeof(object) }, _reflectionInfo.Module, true);
@@ -33,6 +47,10 @@ namespace AspectCore.Extensions.Reflection
                 return (Func<object, object>)dynamicMethod.CreateDelegate(typeof(Func<object, object>));
             }
 
+            /// <summary>
+            /// 创建一个代表属性set访问器方法的委托
+            /// </summary>
+            /// <returns>代表属性set访问器方法的委托</returns>
             protected override Action<object, object> CreateSetter()
             {
                 var dynamicMethod = new DynamicMethod($"setter-{Guid.NewGuid()}", typeof(void), new Type[] { typeof(object), typeof(object) }, _reflectionInfo.Module, true);

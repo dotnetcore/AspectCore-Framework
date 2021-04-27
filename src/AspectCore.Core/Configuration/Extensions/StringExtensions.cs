@@ -2,8 +2,17 @@
 
 namespace AspectCore.Configuration
 {
+    /// <summary>
+    /// string扩展
+    /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// 字符串匹配
+        /// </summary>
+        /// <param name="input">待匹配的字符串</param>
+        /// <param name="pattern">匹配模式</param>
+        /// <returns>true 可匹配 , false 不可匹配</returns>
         public static unsafe bool Matches(this string input, string pattern)
         {
             if (string.IsNullOrEmpty(input))

@@ -11,6 +11,9 @@ namespace AspectCore.Extensions.Reflection
 {
     public partial class MethodReflector
     {
+        /// <summary>
+        /// 静态方法反射调用
+        /// </summary>
         private class StaticMethodReflector : MethodReflector
         {
             public StaticMethodReflector(MethodInfo reflectionInfo)
@@ -18,6 +21,10 @@ namespace AspectCore.Extensions.Reflection
             {
             }
 
+            /// <summary>
+            /// 创建代表静态方法的委托
+            /// </summary>
+            /// <returns>代表静态方法的委托</returns>
             protected override Func<object, object[], object> CreateInvoker()
             {
                 DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{_displayName}",
@@ -90,11 +97,22 @@ namespace AspectCore.Extensions.Reflection
                 }
             }
 
+            /// <summary>
+            /// 实例方法调用
+            /// </summary>
+            /// <param name="instance">实例对象(null)</param>
+            /// <param name="parameters">参数数组</param>
+            /// <returns>返回值</returns>
             public override object Invoke(object instance, params object[] parameters)
             {
                 return _invoker(null, parameters);
             }
 
+            /// <summary>
+            /// 静态方法调用
+            /// </summary>
+            /// <param name="parameters">参数数组</param>
+            /// <returns>返回值</returns>
             public override object StaticInvoke(params object[] parameters)
             {
                 return _invoker(null, parameters);

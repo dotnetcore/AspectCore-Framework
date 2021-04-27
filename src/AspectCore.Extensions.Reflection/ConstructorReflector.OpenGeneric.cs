@@ -7,6 +7,9 @@ namespace AspectCore.Extensions.Reflection
 {
     public partial class ConstructorReflector
     {
+        /// <summary>
+        /// 开放泛型的构造
+        /// </summary>
         private class OpenGenericConstructorReflector : ConstructorReflector
         {
             public OpenGenericConstructorReflector(ConstructorInfo constructorInfo) : base(constructorInfo)

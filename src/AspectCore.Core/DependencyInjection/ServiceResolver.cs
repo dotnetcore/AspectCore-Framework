@@ -6,15 +6,24 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.DependencyInjection
 {
+    /// <summary>
+    /// 提供获取服务功能
+    /// </summary>
     [NonAspect]
     internal sealed class ServiceResolver : IServiceResolver,IServiceResolveCallbackProvider
     {
+        //作用域生命周期的缓存字典，描述了服务描述对象和服务之间的对应关系
         private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedScopedServices;
+        //单例生命周期的缓存字典，描述了服务描述对象和服务之间的对应关系
         private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedSingletonServices;
         private readonly ServiceTable _serviceTable;
         private readonly ServiceCallSiteResolver _serviceCallSiteResolver;
         internal readonly ServiceResolver _root;
 
+        /// <summary>
+        /// 提供获取服务功能的对象
+        /// </summary>
+        /// <param name="serviceContext">服务上下文</param>
         public ServiceResolver(IServiceContext serviceContext)
         {
             _serviceTable = new ServiceTable(serviceContext.Configuration);
@@ -25,8 +34,15 @@ namespace AspectCore.DependencyInjection
             ServiceResolveCallbacks = this.ResolveMany<IServiceResolveCallback>().ToArray();
         }
 
+        /// <summary>
+        /// 服务获取后的回调
+        /// </summary>
         public IServiceResolveCallback[] ServiceResolveCallbacks { get; }
 
+        /// <summary>
+        /// 提供获取服务功能的对象
+        /// </summary>
+        /// <param name="ServiceResolver">根容器</param>
         public ServiceResolver(ServiceResolver root)
         {
             _root = root;
@@ -37,11 +53,21 @@ namespace AspectCore.DependencyInjection
             ServiceResolveCallbacks = this.ResolveMany<IServiceResolveCallback>().ToArray();
         }
 
+        /// <summary>
+        /// 通过服务类型获取服务对象
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <returns>服务对象</returns>
         public object GetService(Type serviceType)
         {
             return Resolve(serviceType);
         }
 
+        /// <summary>
+        /// 通过服务类型获取服务对象
+        /// </summary>
+        /// <param name="serviceType">服务类型</param>
+        /// <returns>服务对象</returns>
         public object Resolve(Type serviceType)
         {
             if (serviceType == null)
@@ -54,6 +80,11 @@ namespace AspectCore.DependencyInjection
             return ResolveDefinition(definition);
         }
 
+        /// <summary>
+        /// 通过服务描述获取服务
+        /// </summary>
+        /// <param name="definition">服务描述</param>
+        /// <returns>服务对象</returns>
         internal object ResolveDefinition(ServiceDefinition definition)
         {
             if (definition == null)
@@ -75,6 +106,7 @@ namespace AspectCore.DependencyInjection
         #region IDisposable Support
         private bool disposedValue = false;
 
+        //释放未托管资源（注册的服务可能包含未托管资源）
         private void Dispose(bool disposing)
         {
             if (!disposedValue)

@@ -2,19 +2,32 @@
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 类型反射操作
+    /// </summary>
     public partial class TypeReflector : MemberReflector<TypeInfo>
     {
         private readonly string _displayName;
         private readonly string _fullDisplayName;
 
+        /// <summary>
+        /// 类型反射操作
+        /// </summary>
+        /// <param name="typeInfo">类型对象</param>
         private TypeReflector(TypeInfo typeInfo) : base(typeInfo)
         {
             _displayName = GetDisplayName(typeInfo);
             _fullDisplayName = GetFullDisplayName(typeInfo);
         }
 
+        /// <summary>
+        /// 显示名称
+        /// </summary>
         public override string DisplayName => _displayName;
 
+        /// <summary>
+        /// 全显示名称
+        /// </summary>
         public virtual string FullDisplayName => _fullDisplayName;
 
         private static string GetDisplayName(TypeInfo typeInfo)

@@ -9,6 +9,11 @@ namespace AspectCore.Extensions.Reflection
     {
         private static readonly Attribute[] empty = new Attribute[0];
 
+        /// <summary>
+        /// 获取自定义特性
+        /// </summary>
+        /// <param name="customAttributeReflectorProvider">提供CustomAttributeReflector对象</param>
+        /// <returns>自定义特性数组</returns>
         public static Attribute[] GetCustomAttributes(this ICustomAttributeReflectorProvider customAttributeReflectorProvider)
         {
             if (customAttributeReflectorProvider == null)
@@ -29,6 +34,12 @@ namespace AspectCore.Extensions.Reflection
             return attrs;
         }
 
+        /// <summary>
+        /// 获取类型为attributeType的自定义特性
+        /// </summary>
+        /// <param name="customAttributeReflectorProvider">提供CustomAttributeReflector对象</param>
+        /// <param name="attributeType">要获取的自定义特性的类型</param>
+        /// <returns>自定义特性数组</returns>
         public static Attribute[] GetCustomAttributes(this ICustomAttributeReflectorProvider customAttributeReflectorProvider, Type attributeType)
         {
             if (customAttributeReflectorProvider == null)

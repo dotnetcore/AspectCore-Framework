@@ -2,12 +2,23 @@
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 方法反射操作
+    /// </summary>
     public partial class MethodReflector
     {
         private readonly string _displayName;
 
+        /// <summary>
+        /// 方法的显示名称
+        /// </summary>
         public override string DisplayName => _displayName;
 
+        /// <summary>
+        /// 获取方法的显示名称
+        /// </summary>
+        /// <param name="method">方法</param>
+        /// <returns>显示名称</returns>
         private static string GetDisplayName(MethodInfo method)
         {
             var name = $"{method.ReturnType.GetReflector().DisplayName} {method.Name}";

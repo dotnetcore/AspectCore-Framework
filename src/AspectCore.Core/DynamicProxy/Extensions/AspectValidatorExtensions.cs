@@ -6,6 +6,13 @@ namespace AspectCore.DynamicProxy
 {
     public static class AspectValidatorExtensions
     {
+        /// <summary>
+        /// 检查类型是否可以被代理
+        /// </summary>
+        /// <param name="aspectValidator">拦截验证器</param>
+        /// <param name="type">类型</param>
+        /// <param name="isStrictValidation">模式</param>
+        /// <returns>true 需被代理,false 无需代理</returns>
         public static bool Validate(this IAspectValidator aspectValidator, Type type, bool isStrictValidation)
         {
             if (aspectValidator == null)
@@ -27,12 +34,13 @@ namespace AspectCore.DynamicProxy
             {
                 return false;
             }
-
+            //类型不可继承
             if (typeInfo.IsClass && !typeInfo.CanInherited())
             {
                 return false;
             }
 
+            //检查类中是否由需要被代理的方法
             foreach (var method in typeInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (aspectValidator.Validate(method, isStrictValidation))
@@ -41,6 +49,7 @@ namespace AspectCore.DynamicProxy
                 }
             }
 
+            //检查实现接口中的方法,是否需要被代理
             foreach (var interfaceType in typeInfo.GetInterfaces())
             {
                 if (aspectValidator.Validate(interfaceType, isStrictValidation))
@@ -56,6 +65,7 @@ namespace AspectCore.DynamicProxy
                 return false;
             }
 
+            //检查基类方法，查看是否需要被代理
             return aspectValidator.Validate(baseType, isStrictValidation);
         }
     }

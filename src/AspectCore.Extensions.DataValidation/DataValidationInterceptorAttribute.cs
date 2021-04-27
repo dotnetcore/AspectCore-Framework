@@ -6,12 +6,27 @@ using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.Extensions.DataValidation
 {
+    /// <summary>
+    /// 数据校验拦截器特性
+    /// </summary>
     public class DataValidationInterceptorAttribute : AbstractInterceptorAttribute
     {
+        /// <summary>
+        /// 提供一个布尔值。如果为 true，则该特性可多次使用, false（单用的）。
+        /// </summary>
         public override bool AllowMultiple => false;
 
+        /// <summary>
+        /// 排序号,用以指定拦截顺序
+        /// </summary>
         public override int Order { get; set; } = -999;
 
+        /// <summary>
+        /// 增强的具体业务逻辑
+        /// </summary>
+        /// <param name="context">拦截上下文</param>
+        /// <param name="next">后续处理拦截上下文的委托对象</param>
+        /// <returns>异步任务</returns>
         public override Task Invoke(AspectContext context, AspectDelegate next)
         {
             var dataValidator = context.ServiceProvider.GetService(typeof(IDataValidator)) as IDataValidator;

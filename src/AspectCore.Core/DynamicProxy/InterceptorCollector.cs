@@ -8,6 +8,9 @@ using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
+    /// <summary>
+    /// 拦截器收集器,提供方法获取服务和实例上关联的所有拦截器
+    /// </summary>
     [NonAspect]
     public sealed class InterceptorCollector : IInterceptorCollector
     {
@@ -16,6 +19,13 @@ namespace AspectCore.DynamicProxy
         private readonly IPropertyInjectorFactory _propertyInjectorFactory;
         private readonly IAspectCaching _aspectCaching;
 
+        /// <summary>
+        /// 拦截器收集器,提供方法获取服务和实例上关联的所有拦截器
+        /// </summary>
+        /// <param name="interceptorSelectors">查询器集合</param>
+        /// <param name="additionalInterceptorSelectors">IAdditionalInterceptorSelector集合</param>
+        /// <param name="propertyInjectorFactory">属性注入工厂</param>
+        /// <param name="aspectCachingProvider">缓存提供者</param>
         public InterceptorCollector(
             IEnumerable<IInterceptorSelector> interceptorSelectors,
             IEnumerable<IAdditionalInterceptorSelector> additionalInterceptorSelectors,
@@ -44,6 +54,12 @@ namespace AspectCore.DynamicProxy
             _aspectCaching = aspectCachingProvider.GetAspectCaching(nameof(InterceptorCollector));
         }
 
+        /// <summary>
+        /// 获取服务和实例上关联的所有拦截器
+        /// </summary>
+        /// <param name="serviceMethod">服务方法</param>
+        /// <param name="implementationMethod">目标方法</param>
+        /// <returns>拦截器集合</returns>
         public IEnumerable<IInterceptor> Collect(MethodInfo serviceMethod, MethodInfo implementationMethod)
         {
             if (serviceMethod == null)

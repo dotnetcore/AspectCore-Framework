@@ -7,6 +7,9 @@ using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 方法反射操作
+    /// </summary>
     public partial class MethodReflector : MemberReflector<MethodInfo>, IParameterReflectorProvider
     {
         protected readonly Func<object, object[], object> _invoker;
@@ -14,6 +17,10 @@ namespace AspectCore.Extensions.Reflection
 
         public ParameterReflector[] ParameterReflectors => _parameterReflectors;
 
+        /// <summary>
+        /// 采用的Callvirt调用的方法反射操作
+        /// </summary>
+        /// <param name="reflectionInfo">方法</param>
         private MethodReflector(MethodInfo reflectionInfo) : base(reflectionInfo)
         {
             _displayName = GetDisplayName(reflectionInfo);
@@ -21,6 +28,10 @@ namespace AspectCore.Extensions.Reflection
             _parameterReflectors = reflectionInfo.GetParameters().Select(x => ParameterReflector.Create(x)).ToArray();
         }
 
+        /// <summary>
+        /// 创建代表实例方法的委托,方法采用的Callvirt调用
+        /// </summary>
+        /// <returns>代表实例方法的委托</returns>
         protected virtual Func<object, object[], object> CreateInvoker()
         {
             DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{_displayName}",
@@ -29,14 +40,17 @@ namespace AspectCore.Extensions.Reflection
             ILGenerator ilGen = dynamicMethod.GetILGenerator();
             var parameterTypes = _reflectionInfo.GetParameterTypes();
 
+            //推送调用方法的对象引用
             ilGen.EmitLoadArg(0);
             ilGen.EmitConvertFromObject(_reflectionInfo.DeclaringType);
 
+            //无参数
             if (parameterTypes.Length == 0)
             {
                 return CreateDelegate();
             }
 
+            //参数都不按引用传递
             var refParameterCount = parameterTypes.Count(x => x.IsByRef);
             if (refParameterCount == 0)
             {
@@ -44,6 +58,7 @@ namespace AspectCore.Extensions.Reflection
                 {
                     ilGen.EmitLoadArg(1);
                     ilGen.EmitInt(i);
+                    //OpCodes.Ldelem_Ref: 将位于指定数组索引处的包含对象引用的元素作为 O 类型（对象引用）加载到计算堆栈的顶部。
                     ilGen.Emit(OpCodes.Ldelem_Ref);
                     ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
@@ -84,6 +99,7 @@ namespace AspectCore.Extensions.Reflection
                 }
             });
 
+            //callback用于推送方法参数
             Func<object, object[], object> CreateDelegate(Action callback = null)
             {
                 ilGen.EmitCall(OpCodes.Callvirt, _reflectionInfo, null);
@@ -96,6 +112,12 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        /// <summary>
+        /// 实例方法调用
+        /// </summary>
+        /// <param name="instance">实例对象</param>
+        /// <param name="parameters">参数数组</param>
+        /// <returns>返回值</returns>
         public virtual object Invoke(object instance, params object[] parameters)
         {
             if (instance == null)
@@ -105,6 +127,11 @@ namespace AspectCore.Extensions.Reflection
             return _invoker(instance, parameters);
         }
 
+        /// <summary>
+        /// 静态方法调用
+        /// </summary>
+        /// <param name="parameters">参数数组</param>
+        /// <returns>返回值</returns>
         public virtual object StaticInvoke(params object[] parameters)
         {
             throw new InvalidOperationException($"Method {_reflectionInfo.Name} must be static to call this method. For invoke instance method, call 'Invoke'.");

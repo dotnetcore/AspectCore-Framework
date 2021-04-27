@@ -7,15 +7,26 @@ using AspectCore.Extensions.Reflection.Internals;
 
 namespace AspectCore.Extensions.Reflection
 {
+    /// <summary>
+    /// 方法反射操作
+    /// </summary>
     public partial class MethodReflector : MemberReflector<MethodInfo>
     {
         private class CallMethodReflector : MethodReflector
         {
+            /// <summary>
+            /// 采用的Call调用的方法反射操作
+            /// </summary>
+            /// <param name="reflectionInfo">方法</param>
             public CallMethodReflector(MethodInfo reflectionInfo)
                : base(reflectionInfo)
             {
             }
 
+            /// <summary>
+            /// 创建代表实例方法的委托,方法采用的Call调用
+            /// </summary>
+            /// <returns>代表实例方法的委托</returns>
             protected override Func<object, object[], object> CreateInvoker()
             {
                 DynamicMethod dynamicMethod = new DynamicMethod($"invoker_{_displayName}",

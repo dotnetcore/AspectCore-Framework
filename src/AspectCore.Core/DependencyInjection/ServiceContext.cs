@@ -8,26 +8,45 @@ using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.DependencyInjection
 {
+    /// <summary>
+    /// 服务上下文
+    /// </summary>
     public sealed class ServiceContext : IServiceContext
     {
         private readonly ICollection<ServiceDefinition> _collection;
         private readonly IAspectConfiguration _configuration;
 
+        /// <summary>
+        ///  服务上下文
+        /// </summary>
         public ServiceContext()
             : this(null, null)
         {
         }
 
+        /// <summary>
+        /// 通过服务描述集合构造ServiceContext
+        /// </summary>
+        /// <param name="services">服务描述集合</param>
         public ServiceContext(IEnumerable<ServiceDefinition> services)
           : this(services, null)
         {
         }
 
+        /// <summary>
+        /// 通过配置构造ServiceContext
+        /// </summary>
+        /// <param name="aspectConfiguration">AspectCore配置</param>
         public ServiceContext(IAspectConfiguration aspectConfiguration)
            : this(null, aspectConfiguration)
         {
         }
 
+        /// <summary>
+        /// 组合服务描述集合和配置构造ServiceContext
+        /// </summary>
+        /// <param name="services">服务描述集合</param>
+        /// <param name="aspectConfiguration">AspectCore配置</param>
         public ServiceContext(IEnumerable<ServiceDefinition> services, IAspectConfiguration aspectConfiguration)
         {
             _collection = new List<ServiceDefinition>();
@@ -60,6 +79,9 @@ namespace AspectCore.DependencyInjection
             AddInternalServices();
         }
 
+        /// <summary>
+        /// 添加内置服务
+        /// </summary>
         private void AddInternalServices()
         {
             Scopeds.AddDelegate<IServiceResolver>(resolver => resolver);
@@ -103,20 +125,49 @@ namespace AspectCore.DependencyInjection
                 Singletons.AddType<IAspectExceptionWrapper, AspectExceptionWrapper>();
         }
 
+        /// <summary>
+        /// 服务描述对象的数量
+        /// </summary>
         public int Count => _collection.Count;
 
+        /// <summary>
+        /// 单例生命周期的服务集合
+        /// </summary>
         public ILifetimeServiceContext Singletons { get; }
 
+        /// <summary>
+        /// 作用域生命周期的服务集合
+        /// </summary>
         public ILifetimeServiceContext Scopeds { get; }
 
+        /// <summary>
+        /// 瞬时生命周期的服务集合
+        /// </summary>
         public ILifetimeServiceContext Transients { get; }
 
+        /// <summary>
+        /// 拦截配置
+        /// </summary>
         public IAspectConfiguration Configuration => _configuration;
 
+        /// <summary>
+        /// 添加服务描述对象
+        /// </summary>
+        /// <param name="item">服务描述对象</param>
         public void Add(ServiceDefinition item) => _collection.Add(item);
 
+        /// <summary>
+        /// 移除服务描述对象
+        /// </summary>
+        /// <param name="item">服务描述对象</param>
+        /// <returns>移除是否成功</returns>
         public bool Remove(ServiceDefinition item) => _collection.Remove(item);
 
+        /// <summary>
+        /// 容器中是否包含此类型的服务
+        /// </summary>
+        /// <param name="serviceType">服务</param>
+        /// <returns>是否包含</returns>
         public bool Contains(Type serviceType) => _collection.Any(x => x.ServiceType == serviceType);
 
         public IEnumerator<ServiceDefinition> GetEnumerator() => _collection.GetEnumerator();
