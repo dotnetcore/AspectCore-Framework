@@ -1,22 +1,22 @@
 namespace AspectCore.Extensions.Configuration
 {
     /// <summary>
-    /// Ìá¹©ÅäÖÃ°ó¶¨µÄÔªÊı¾İĞÅÏ¢
+    /// é…ç½®å…ƒæ•°æ®æä¾›è€…
     /// </summary>
     public interface IConfigurationMetadataProvider
     {
         /// <summary>
-        /// °ó¶¨µÄÅäÖÃ½Ú
+        /// é…ç½®èŠ‚
         /// </summary>
         string[] Sections { get; }
         
         /// <summary>
-        /// ¼ü£¬ÖµÀàĞÍµÄ°ó¶¨¿ÉÓÃ
+        /// é”®
         /// </summary>
         string Key { get; }
         
         /// <summary>
-        /// ÅäÖÃ°ó¶¨ÀàĞÍ
+        /// é…ç½®ç»‘å®šç±»å‹
         /// </summary>
         ConfigurationBindType Type { get; }
     }
