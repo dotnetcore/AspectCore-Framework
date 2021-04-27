@@ -6,19 +6,19 @@ using Microsoft.Extensions.Configuration;
 namespace AspectCore.Extensions.Configuration
 {
     /// <summary>
-    /// ÅäÖÃ°ó¶¨½âÎö
+    /// é…ç½®ç»‘å®šè§£æ
     /// </summary>
     public sealed class ConfigurationBindResolveCallback : IServiceResolveCallback
     {
         private const BindingFlags _flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         /// <summary>
-        /// ½âÎöÅäÖÃµ½¶ÔÏóÏà¹Ø×Ö¶Î
+        /// è§£æé…ç½®åˆ°å¯¹è±¡ç›¸å…³å­—æ®µ
         /// </summary>
-        /// <param name="resolver">·şÎñ½âÎö</param>
-        /// <param name="instance">ÊµÀı</param>
-        /// <param name="service">·şÎñÃèÊö</param>
-        /// <returns>½âÎöºóµÄ¶ÔÏó</returns>
+        /// <param name="resolver">æœåŠ¡è§£æ</param>
+        /// <param name="instance">å®ä¾‹</param>
+        /// <param name="service">æœåŠ¡æè¿°</param>
+        /// <returns>è§£æåçš„å¯¹è±¡</returns>
         public object Invoke(IServiceResolver resolver, object instance, ServiceDefinition service)
         {
             if (instance == null || instance is IConfiguration)
