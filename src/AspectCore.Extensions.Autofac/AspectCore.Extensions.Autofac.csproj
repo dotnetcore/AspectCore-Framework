@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />
-    <ProjectReference Include="..\AspectCore.Extensions.DataValidation\AspectCore.Extensions.DataValidation.csproj" />
   </ItemGroup>
 
 </Project>
