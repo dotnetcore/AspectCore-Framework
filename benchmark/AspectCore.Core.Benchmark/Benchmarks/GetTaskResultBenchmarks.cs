@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
+using AspectCore.DynamicProxy;
 using BenchmarkDotNet.Attributes;
 
-namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
+namespace AspectCore.Core.Benchmark.Benchmarks
 {
     [AllStatisticsColumn]
     [MemoryDiagnoser]
@@ -46,27 +45,17 @@ namespace AspectCore.Extensions.Reflection.Benchmark.Benchmarks
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Func<object, object> CreateDelegate(TypeInfo valueTypeInfo)
-        {
-            var parameter = Expression.Parameter(typeof(object), "type");
-            var convert = Expression.Convert(parameter, valueTypeInfo);
-            var property = Expression.Property(convert, nameof(Task<int>.Result));
-            var exp = Expression.Lambda<Func<object, object>>(property, parameter);
-            return exp.Compile();
-        }
-
         private static async Task<object> GetTaskResult_Expression(object value, TypeInfo valueTypeInfo)
         {
             await (Task)value;
-            var func = CreateDelegate(valueTypeInfo);
+            var func = AspectContextRuntimeExtensions.CreateFuncToGetTaskResult(valueTypeInfo);
             return func(value);
         }
 
         private static async Task<object> GetTaskResult_ExpressionWithCache(object value, TypeInfo valueTypeInfo)
         {
             await (Task)value;
-            var func = _delegates.GetOrAdd(valueTypeInfo, k => CreateDelegate(k));
+            var func = _delegates.GetOrAdd(valueTypeInfo, k => AspectContextRuntimeExtensions.CreateFuncToGetTaskResult(k));
             return func(value);
         }
 

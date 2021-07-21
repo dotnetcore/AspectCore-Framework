@@ -105,8 +105,8 @@ namespace AspectCore.DynamicProxy
             var func = _asTaskFuncCache.GetOrAdd(valueTypeInfo, k =>
             {
                 var parameter = Expression.Parameter(typeof(object), "type");
-                var convertedParameter = Expression.Convert(parameter, valueTypeInfo);
-                var method = valueTypeInfo.GetMethod(nameof(ValueTask<int>.AsTask));
+                var convertedParameter = Expression.Convert(parameter, k);
+                var method = k.GetMethod(nameof(ValueTask<int>.AsTask));
                 var property = Expression.Call(convertedParameter, method);
                 var convertedProperty = Expression.Convert(property, typeof(Task));
                 var exp = Expression.Lambda<Func<object, Task>>(convertedProperty, parameter);
@@ -115,33 +115,35 @@ namespace AspectCore.DynamicProxy
             return func(value);
         }
 
+        // mark this method as "internal" for testing.
+        internal static Func<object, object> CreateFuncToGetTaskResult(Type typeInfo)
+        {
+            var parameter = Expression.Parameter(typeof(object), "type");
+            var convertedParameter = Expression.Convert(parameter, typeInfo);
+            var property = Expression.Property(convertedParameter, nameof(Task<int>.Result));
+            var convertedProperty = Expression.Convert(property, typeof(object));
+            var exp = Expression.Lambda<Func<object, object>>(convertedProperty, parameter);
+            return exp.Compile();
+        }
+
         // value should be Task<T> or ValueTask<T>
         private static object GetTaskResult(object value, TypeInfo valueTypeInfo)
         {
-            // result: if we use "result = (object)(await (dynamic)value)" to get the result of a ValueTask<T> when T is non-public, we will get an RuntimeBinderException that says
-            // 'System.ValueType' does not contain a definition for 'GetAwaiter'.
-            // So after ValueTask<T> is awaited, we use expression with cache to get the value of ValueTask<T>.Result.
+            // There are several ways to get the value of "Result" of Task<T> or ValueTask<T> after it is awaited.
             // The Benchmark can be viewed in GetTaskResultBenchmarks.cs in AspectCore.Extensions.Reflection.Benchmark.
-            // Here is a sample result: 
+            // Here is a test result that can be referred to:
             /*
                 |                            Method |         Mean |
                 |---------------------------------- |-------------:|
-                |          GetTaskResult_Reflection |     342.0 ns |
-                | GetTaskResult_ReflectionWithCache |     279.5 ns |
-                |          GetTaskResult_Expression | 224,219.4 ns |
-                | GetTaskResult_ExpressionWithCache |     125.9 ns |
-                |        GetTaskResult_AwaitDynamic |     124.8 ns |
+                |          GetTaskResult_Reflection |     338.6 ns |
+                | GetTaskResult_ReflectionWithCache |     284.9 ns |
+                |          GetTaskResult_Expression | 224,786.1 ns |
+                | GetTaskResult_ExpressionWithCache |     126.2 ns |
+                |        GetTaskResult_AwaitDynamic |     117.1 ns |
             */
+            // So we use "ExpressionWithCache" here.
             // Please fix this logic if there is a better solution.
-            var func = _resultFuncCache.GetOrAdd(valueTypeInfo, k =>
-            {
-                var parameter = Expression.Parameter(typeof(object), "type");
-                var convertedParameter = Expression.Convert(parameter, valueTypeInfo);
-                var property = Expression.Property(convertedParameter, nameof(Task<int>.Result));
-                var convertedProperty = Expression.Convert(property, typeof(object));
-                var exp = Expression.Lambda<Func<object, object>>(convertedProperty, parameter);
-                return exp.Compile();
-            });
+            var func = _resultFuncCache.GetOrAdd(valueTypeInfo, k => CreateFuncToGetTaskResult(k));
             return func(value);
         }
 
@@ -155,11 +157,15 @@ namespace AspectCore.DynamicProxy
             }
             else if (valueTypeInfo.IsTaskWithResult())
             {
+                // NOTE: we can not use "result = (object)(await (dynamic)value)" here,
+                // because when T of Task<T> is non-public, we will get a RuntimeBinderException that says "Cannot implicitly convert type 'void' to 'object'".
                 await (Task)value;
                 result = GetTaskResult(value, valueTypeInfo);
             }
             else if (valueTypeInfo.IsValueTaskWithResult())
             {
+                // NOTE: we can not use "result = (object)(await (dynamic)value)" here,
+                // because when T of ValueTask<T> is non-public, we will get a RuntimeBinderException that says "'System.ValueType' does not contain a definition for 'GetAwaiter'".
                 await ValueTaskWithResultToTask(value, valueTypeInfo);
                 result = GetTaskResult(value, valueTypeInfo);
             }
