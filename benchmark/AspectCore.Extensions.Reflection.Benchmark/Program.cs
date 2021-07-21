@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection.Benchmark.Benchmarks;
 using BenchmarkDotNet.Running;
 
@@ -13,6 +14,7 @@ namespace AspectCore.Extensions.Reflection.Benchmark
             BenchmarkRunner.Run<MethodReflectorBenchmarks>();
             BenchmarkRunner.Run<PropertyReflectorBenchmarks>();
             BenchmarkRunner.Run<CustomAttributeReflectorBenchmarks>();
+            BenchmarkRunner.Run<GetTaskResultBenchmarks>();
         }
     }
 }
