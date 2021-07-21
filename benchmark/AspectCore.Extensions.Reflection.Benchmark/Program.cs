@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection.Benchmark.Benchmarks;
 using BenchmarkDotNet.Running;
 
