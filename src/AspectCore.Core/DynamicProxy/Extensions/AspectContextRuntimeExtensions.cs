@@ -130,7 +130,7 @@ namespace AspectCore.DynamicProxy
         private static object GetTaskResult(object value, TypeInfo valueTypeInfo)
         {
             // There are several ways to get the value of "Result" of Task<T> or ValueTask<T> after it is awaited.
-            // The Benchmark can be viewed in GetTaskResultBenchmarks.cs in AspectCore.Extensions.Reflection.Benchmark.
+            // The Benchmark can be viewed in GetTaskResultBenchmarks.cs in AspectCore.Core.Benchmark.
             // Here is a test result that can be referred to:
             /*
                 |                            Method |         Mean |
