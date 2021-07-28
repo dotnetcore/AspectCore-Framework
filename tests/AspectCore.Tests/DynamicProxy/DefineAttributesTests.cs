@@ -39,13 +39,6 @@ namespace AspectCore.Tests.DynamicProxy
             CheckAttribute<DefaultValueAttribute>(attributes, m => Assert.Equal(value, m.Value));
         }
 
-        protected static IProxyGenerator StaticProxyGenerator { get; } = new ProxyGeneratorBuilder().Build();
-
-        public static readonly IEnumerable<object[]> ServiceCases = new[]
-        {
-            StaticProxyGenerator.CreateClassProxy<Service>(),
-        }.Select(m => new object[] { m });
-
         [Fact]
         public void Attributes_OnClass_Test()
         {
