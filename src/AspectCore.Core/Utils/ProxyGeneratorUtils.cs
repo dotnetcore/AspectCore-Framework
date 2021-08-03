@@ -110,7 +110,7 @@ namespace AspectCore.Utils
             var typeDesc = TypeBuilderUtils.DefineType(_moduleBuilder, _proxyNameUtils.GetProxyTypeName(_proxyNameUtils.GetInterfaceImplTypeName(interfaceType), interfaceType, implType),
                 interfaceType, typeof(object), interfaceTypes);
 
-            typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
+            typeDesc.Properties[nameof(IAspectValidator)] = aspectValidator;
 
             //define constructor
             ConstructorBuilderUtils.DefineInterfaceProxyConstructor(interfaceType, implType, typeDesc);
@@ -128,7 +128,7 @@ namespace AspectCore.Utils
 
             var typeDesc = TypeBuilderUtils.DefineType(_moduleBuilder, name, interfaceType, typeof(object), interfaces);
 
-            typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
+            typeDesc.Properties[nameof(IAspectValidator)] = aspectValidator;
 
             //define constructor
             ConstructorBuilderUtils.DefineInterfaceProxyConstructor(interfaceType, typeDesc);
@@ -147,7 +147,9 @@ namespace AspectCore.Utils
 
             var typeDesc = TypeBuilderUtils.DefineType(_moduleBuilder, name, serviceType, implType, interfaces);
 
-            typeDesc.Properties[typeof(IAspectValidator).Name] = aspectValidator;
+            TypeBuilderUtils.DefineTypeAttributes(implType, typeDesc);
+
+            typeDesc.Properties[nameof(IAspectValidator)] = aspectValidator;
 
             //define constructor
             ConstructorBuilderUtils.DefineClassProxyConstructors(serviceType, implType, typeDesc);
@@ -233,13 +235,22 @@ namespace AspectCore.Utils
                 GenericParameterUtils.DefineGenericParameter(serviceType, typeBuilder);
 
                 //define default attribute
-                typeBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(NonAspectAttribute)));
-                typeBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                typeBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(NonAspectAttribute)));
+                typeBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //define private field
                 var fieldTable = FieldBuilderUtils.DefineFields(serviceType, typeBuilder);
 
                 return new TypeDesc(serviceType, typeBuilder, fieldTable, new MethodConstantTable(typeBuilder));
+            }
+
+            public static void DefineTypeAttributes(Type implType, TypeDesc typeDesc)
+            {
+                //inherit implement type's attributes
+                foreach (var customAttributeData in implType.CustomAttributes)
+                {
+                    typeDesc.Builder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
+                }
             }
         }
 
@@ -312,12 +323,12 @@ namespace AspectCore.Utils
                     var parameters = new Type[] { typeof(IAspectActivatorFactory) }.Concat(parameterTypes).ToArray();
                     var constructorBuilder = typeDesc.Builder.DefineConstructor(constructor.Attributes, constructor.CallingConvention, parameters);
 
-                    constructorBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                    constructorBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                     //inherit constructor's attribute
                     foreach (var customAttributeData in constructor.CustomAttributes)
                     {
-                        constructorBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
+                        constructorBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                     }
 
                     ParameterBuilderUtils.DefineParameters(constructor, constructorBuilder);
@@ -450,12 +461,12 @@ namespace AspectCore.Utils
                 GenericParameterUtils.DefineGenericParameter(method, methodBuilder);
 
                 //define method attributes
-                methodBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in method.CustomAttributes)
                 {
-                    methodBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
+                    methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
 
                 //define paramters
@@ -798,12 +809,12 @@ namespace AspectCore.Utils
             {
                 var propertyBuilder = typeDesc.Builder.DefineProperty(name, property.Attributes, property.PropertyType, Type.EmptyTypes);
 
-                propertyBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                propertyBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
 
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in property.CustomAttributes)
                 {
-                    propertyBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
+                    propertyBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
 
                 return propertyBuilder;
@@ -848,7 +859,7 @@ namespace AspectCore.Utils
 
                 foreach (var customAttributeData in property.CustomAttributes)
                 {
-                    propertyBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(customAttributeData));
+                    propertyBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
             }
         }
@@ -883,20 +894,20 @@ namespace AspectCore.Utils
                                 }
                             }
                         }
-                        parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                        parameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                         foreach (var attribute in parameter.CustomAttributes)
                         {
-                            parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
+                            parameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(attribute));
                         }
                     }
                 }
 
                 var returnParamter = targetMethod.ReturnParameter;
                 var returnParameterBuilder = methodBuilder.DefineParameter(0, returnParamter.Attributes, returnParamter.Name);
-                returnParameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                 foreach (var attribute in returnParamter.CustomAttributes)
                 {
-                    returnParameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
+                    returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(attribute));
                 }
             }
 
@@ -1034,10 +1045,10 @@ namespace AspectCore.Utils
                         {
                             parameterBuilder.SetConstant(parameter.DefaultValue);
                         }
-                        parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+                        parameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
                         foreach (var attribute in parameter.CustomAttributes)
                         {
-                            parameterBuilder.SetCustomAttribute(CustomAttributeBuildeUtils.DefineCustomAttribute(attribute));
+                            parameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(attribute));
                         }
                     }
                 }
@@ -1114,7 +1125,7 @@ namespace AspectCore.Utils
             }
         }
 
-        private class CustomAttributeBuildeUtils
+        private class CustomAttributeBuilderUtils
         {
             public static CustomAttributeBuilder DefineCustomAttribute(Type attributeType)
             {
