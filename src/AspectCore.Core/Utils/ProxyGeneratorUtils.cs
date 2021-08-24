@@ -569,12 +569,14 @@ namespace AspectCore.Utils
                         {
                             if (parameters[i].IsByRef)
                             {
+                                Type byrefToType = parameters[i].GetElementType();
+
                                 ilGen.EmitLoadArg(i + 1);
                                 ilGen.Emit(OpCodes.Ldloc, argsLocal);
                                 ilGen.EmitInt(i);
                                 ilGen.Emit(OpCodes.Ldelem_Ref);
                                 ilGen.EmitConvertFromObject(parameters[i].GetElementType());
-                                ilGen.EmitStRef(parameters[i]);
+                                ilGen.EmitStRef(byrefToType);
                             }
                         }
                         if (!method.IsVoid())
@@ -622,12 +624,14 @@ namespace AspectCore.Utils
                         {
                             if (parameterTypes[i].IsByRef)
                             {
+                                Type byrefToType = parameterTypes[i].GetElementType();
+
                                 ilGen.EmitLoadArg(i + 1);
                                 ilGen.Emit(OpCodes.Ldloc, parameters);
                                 ilGen.EmitInt(i);
                                 ilGen.Emit(OpCodes.Ldelem_Ref);
-                                ilGen.EmitConvertFromObject(parameterTypes[i].GetElementType());
-                                ilGen.EmitStRef(parameterTypes[i]);
+                                ilGen.EmitConvertFromObject(byrefToType);
+                                ilGen.EmitStRef(byrefToType);
                             }
                         }
                     }
@@ -928,7 +932,7 @@ namespace AspectCore.Utils
                     // If this bug is present, it is caused by a `null` default value:
                     defaultValue = null;
                 }
-                catch (FormatException) when (from.ParameterType.GetTypeInfo().IsEnum)
+                catch (FormatException) when (from.ParameterType.IsEnum)
                 {
                     // This catch clause guards against a CLR bug that makes it impossible to query
                     // the default value of a (closed generic) enum parameter. For the CoreCLR, see
@@ -973,7 +977,7 @@ namespace AspectCore.Utils
                             // would "produce" a default value of `Missing.Value` in this situation).
                             return;
                         }
-                        else if (parameterType.GetTypeInfo().IsValueType)
+                        else if (parameterType.IsValueType)
                         {
                             // This guards against a CLR bug that prohibits replicating `null` default
                             // values for non-nullable value types (which, despite the apparent type
@@ -989,7 +993,7 @@ namespace AspectCore.Utils
                     else if (isNullableType)
                     {
                         parameterNonNullableType = from.ParameterType.GetGenericArguments()[0];
-                        if (parameterNonNullableType.GetTypeInfo().IsEnum || parameterNonNullableType.IsInstanceOfType(defaultValue))
+                        if (parameterNonNullableType.IsEnum || parameterNonNullableType.IsInstanceOfType(defaultValue))
                         {
                             // This guards against two bugs:
                             //

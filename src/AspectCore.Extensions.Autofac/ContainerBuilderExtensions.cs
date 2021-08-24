@@ -67,7 +67,7 @@ namespace AspectCore.Extensions.Autofac
                 // middleware can be added inside it.
                 args.ComponentRegistration.PipelineBuilding += (_, pipeline) =>
                 {
-                    pipeline.Use(ActivationResolveMiddleware.Instance,MiddlewareInsertionMode.StartOfPhase);
+                    pipeline.Use(ActivationResolveMiddleware.Instance);
                 };
             };
 
