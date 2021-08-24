@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using AspectCore.Configuration;
+using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Autofac;
 using AspectCore.Extensions.Test.Fakes;
@@ -66,6 +67,32 @@ namespace AspectCoreTest.Autofac
 
             var proxyController = container.Resolve<IController>();
             Assert.Equal(proxyService.Get(100), proxyController.Execute());
+        }
+
+        [Fact]
+        public void Intercept_OutWithDecimalParamter_Test()
+        {
+            var builder = CreateBuilder();
+            builder.RegisterType<FakeServiceWithOut>().As<IFakeServiceWithOut>();
+            var container = builder.Build();
+
+            var proxyServiceWithOut = container.Resolve<IFakeServiceWithOut>();
+            decimal num;
+            Assert.True(proxyServiceWithOut.OutDecimal(out num));
+            Assert.Equal(1.0M, num);
+        }
+
+        [Fact]
+        public void Intercept_OutWithIntParamter_Test()
+        {
+            var builder = CreateBuilder();
+            builder.RegisterType<FakeServiceWithOut>().As<IFakeServiceWithOut>();
+            var container = builder.Build();
+
+            var proxyServiceWithOut = container.Resolve<IFakeServiceWithOut>();
+            int num;
+            Assert.True(proxyServiceWithOut.OutInt(out num));
+            Assert.Equal(1, num);
         }
     }
 }
