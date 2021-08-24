@@ -32,11 +32,30 @@ namespace AspectCore.Tests.Injector
             Assert.IsType<SimpleGeneric<IService>>(service);
         }
 
+        [Fact]
+        public void Intercept_OutWithDecimalParamter_Test()
+        {
+            var service = ServiceResolver.Resolve<IFakeServiceWithOut>();
+            decimal num;
+            Assert.True(service.OutDecimal(out num));
+            Assert.Equal(1.0M, num);
+        }
+
+        [Fact]
+        public void Intercept_OutWithIntParamter_Test()
+        {
+            var service = ServiceResolver.Resolve<IFakeServiceWithOut>();
+            int num;
+            Assert.True(service.OutInt(out num));
+            Assert.Equal(1, num);
+        }
+
         protected override void ConfigureService(IServiceContext services)
         {
             services.Transients.AddType(typeof(ISimpleGeneric<>), typeof(SimpleGeneric<>));
             services.Transients.AddDelegate(typeof(IDelegateSimpleGeneric<>), r => new SimpleGeneric<IService>());
             services.Singletons.AddInstance(typeof(IInstanceSimpleGeneric<>), new SimpleGeneric<IService>());
+            services.Transients.AddType<IFakeServiceWithOut, FakeServiceWithOut>();
         }
     }
 }
