@@ -4,6 +4,7 @@ using AspectCore.DynamicProxy;
 using System.Text;
 using Xunit;
 using System.Threading.Tasks;
+using AspectCore.DependencyInjection;
 
 namespace AspectCore.Tests.DynamicProxy
 {
