@@ -155,7 +155,7 @@ namespace AspectCore.Extensions.Reflection
                 throw new ArgumentNullException(nameof(typeInfo));
             }
 
-            return typeInfo.GenericTypeArguments?.Length > 0 && typeInfo.GenericTypeArguments[0] == voidTaskResultType; ;
+            return typeInfo.GenericTypeArguments?.Length > 0 && typeInfo.GenericTypeArguments[0] == voidTaskResultType;
         }
 
         public static bool IsValueTask(this TypeInfo typeInfo)

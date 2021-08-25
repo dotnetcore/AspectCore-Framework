@@ -42,6 +42,7 @@ namespace AspectCore.Tests.DynamicProxy
 
             [Interceptor] public virtual Task Task() => CompletedTask;
             [Interceptor] public virtual Task<int> TaskT() => 1.WrapIntoTask();
+            [Interceptor] public virtual Task<T> TaskT_Generic<T>() => CreateDefaultValue<T>().WrapIntoTask();
             [Interceptor] public virtual Task<Task> Task_Task() => CompletedTask.WrapIntoTask();
             [Interceptor] public virtual Task<ValueTask> Task_ValueTask() => CreateCompletedValueTask().WrapIntoTask();
             [Interceptor] public virtual Task<Task<int>> Task_TaskT() => 1.WrapIntoTask().WrapIntoTask();
@@ -49,10 +50,26 @@ namespace AspectCore.Tests.DynamicProxy
 
             [Interceptor] public virtual ValueTask ValueTask() => CreateCompletedValueTask();
             [Interceptor] public virtual ValueTask<int> ValueTaskT() => 1.WrapIntoValueTask();
+            [Interceptor] public virtual ValueTask<T> ValueTaskT_Generic<T>() => CreateDefaultValue<T>().WrapIntoValueTask();
             [Interceptor] public virtual ValueTask<Task> ValueTask_Task() => CompletedTask.WrapIntoValueTask();
             [Interceptor] public virtual ValueTask<ValueTask> ValueTask_ValueTask() => CreateCompletedValueTask().WrapIntoValueTask();
             [Interceptor] public virtual ValueTask<Task<int>> ValueTask_TaskT() => 1.WrapIntoTask().WrapIntoValueTask();
             [Interceptor] public virtual ValueTask<ValueTask<int>> ValueTask_ValueTaskT() => 1.WrapIntoValueTask().WrapIntoValueTask();
+
+            private static T CreateDefaultValue<T>()
+            {
+                if (typeof(T) == typeof(InternalClass))
+                    return (T)(object)new InternalClass { Value = 1 };
+                if (typeof(T) == typeof(int))
+                    return (T)(object)1;
+
+                return default;
+            }
+        }
+
+        internal class InternalClass
+        {
+            public int Value;
         }
 
         [Fact]
@@ -69,6 +86,22 @@ namespace AspectCore.Tests.DynamicProxy
             var service = ProxyGenerator.CreateClassProxy<Service>();
             await service.TaskT();
             Assert.Equal(1, service.CurrentValue);
+        }
+
+        [Fact]
+        public async Task TaskT_Generic_Int_Test()
+        {
+            var service = ProxyGenerator.CreateClassProxy<Service>();
+            await service.TaskT_Generic<int>();
+            Assert.Equal(1, service.CurrentValue);
+        }
+
+        [Fact]
+        public async Task TaskT_Generic_Internal_Test()
+        {
+            var service = ProxyGenerator.CreateClassProxy<Service>();
+            await service.TaskT_Generic<InternalClass>();
+            Assert.True(service.CurrentValue is InternalClass { Value: 1 });
         }
 
         [Fact]
@@ -117,6 +150,22 @@ namespace AspectCore.Tests.DynamicProxy
             var service = ProxyGenerator.CreateClassProxy<Service>();
             await service.ValueTaskT();
             Assert.Equal(1, service.CurrentValue);
+        }
+
+        [Fact]
+        public async Task ValueTaskT_Generic_Int_Test()
+        {
+            var service = ProxyGenerator.CreateClassProxy<Service>();
+            await service.ValueTaskT_Generic<int>();
+            Assert.Equal(1, service.CurrentValue);
+        }
+
+        [Fact]
+        public async Task ValueTaskT_Generic_Internal_Test()
+        {
+            var service = ProxyGenerator.CreateClassProxy<Service>();
+            await service.ValueTaskT_Generic<InternalClass>();
+            Assert.True(service.CurrentValue is InternalClass { Value: 1 });
         }
 
         [Fact]
