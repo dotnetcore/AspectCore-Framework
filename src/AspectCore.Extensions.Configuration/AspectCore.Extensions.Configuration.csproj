@@ -1,42 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\..\build\common.props" />
-    <PropertyGroup>
-        <Description>Configuration extension system for ASP.NET Core via AspectCore-Framework.</Description>
-        <AssemblyTitle>AspectCore.Extensions.Configuration</AssemblyTitle>
-        <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-        <AssemblyName>AspectCore.Extensions.Configuration</AssemblyName>
-        <PackageId>AspectCore.Extensions.Configuration</PackageId>
-        <PackageTags>Reflection;Aop;DynamicProxy;Configuration</PackageTags>
-        <PackageReleaseNotes>Configuration extension system for ASP.NET Core via AspectCore-Framework.</PackageReleaseNotes>
-        <TargetFrameworks>net5.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
-    
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+	<Import Project="..\..\build\common.props" />
+	<PropertyGroup>
+		<Description>Configuration extension system for ASP.NET Core via AspectCore-Framework.</Description>
+		<AssemblyTitle>AspectCore.Extensions.Configuration</AssemblyTitle>
+		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+		<AssemblyName>AspectCore.Extensions.Configuration</AssemblyName>
+		<PackageId>AspectCore.Extensions.Configuration</PackageId>
+		<PackageTags>Reflection;Aop;DynamicProxy;Configuration</PackageTags>
+		<PackageReleaseNotes>Configuration extension system for ASP.NET Core via AspectCore-Framework.</PackageReleaseNotes>
+		<TargetFrameworks>net6.0;net5.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-  </ItemGroup>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
-      <ProjectReference Include="..\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.1.0" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
+		<ProjectReference Include="..\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
+	</ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.0" />
-    </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0" />
+	</ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-    </ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
+	</ItemGroup>
 
 </Project>
