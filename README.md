@@ -44,6 +44,7 @@ Core support for aspect-interceptor, dependency injection integration, web appli
 * [Util](https://github.com/dotnetcore/Util)
 * [Zxw.Framework.NetCore](https://github.com/VictorTzeng/Zxw.Framework.NetCore)
 * [Tars.Net](https://github.com/TarsNET)
+* [FastCache](https://github.com/sj-distributor/FastCache)
 
 ## Contributors
 * [Savorboard](https://github.com/yuleyule66)  
