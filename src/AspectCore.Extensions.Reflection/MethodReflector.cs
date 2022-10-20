@@ -86,7 +86,12 @@ namespace AspectCore.Extensions.Reflection
 
             Func<object, object[], object> CreateDelegate(Action callback = null)
             {
+#if NET6_0
+                //https://github.com/dotnet/runtime/issues/67084
+                ilGen.Emit(OpCodes.Callvirt, _reflectionInfo);
+#else
                 ilGen.EmitCall(OpCodes.Callvirt, _reflectionInfo, null);
+#endif
                 callback?.Invoke();
                 if (_reflectionInfo.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
                 else if (_reflectionInfo.ReturnType.GetTypeInfo().IsValueType)
