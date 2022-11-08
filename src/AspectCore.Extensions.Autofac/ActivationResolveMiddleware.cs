@@ -18,7 +18,7 @@ namespace AspectCore.Extensions.Autofac
     /// <summary>
     /// 
     /// </summary>
-    public class ActivationResolveMiddleware : IResolveMiddleware
+    public class ActivationResolveMiddleware
     {
         private static readonly List<string> excepts = new List<string>
         {
@@ -45,7 +45,7 @@ namespace AspectCore.Extensions.Autofac
         /// </summary>
         public PipelinePhase Phase => PipelinePhase.Activation;
 
-        public void Execute(ResolveRequestContext context, Action<ResolveRequestContext> next)
+        public void Execute(ResolveRequestContext context, Action<ResolveRequestContext> next, bool isEnablePropertiesAutowired)
         {
             next(context);
             if (context.Instance == null || context.Instance.IsProxy())
@@ -104,6 +104,10 @@ namespace AspectCore.Extensions.Autofac
                 var allBindings = GetAllBindings(binders, context, context.Parameters);
                 var selectedBinding = constructorSelector.SelectConstructorBinding(allBindings, context.Parameters);
                 instance = selectedBinding.Instantiate();
+                if (isEnablePropertiesAutowired)
+                {
+                    instance = context.InjectProperties(instance);
+                }
             }
             else
             {

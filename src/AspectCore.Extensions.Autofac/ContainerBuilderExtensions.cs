@@ -67,7 +67,9 @@ namespace AspectCore.Extensions.Autofac
                 // middleware can be added inside it.
                 args.ComponentRegistration.PipelineBuilding += (_, pipeline) =>
                 {
-                    pipeline.Use(ActivationResolveMiddleware.Instance);
+                    //检查是否启用属性注入特性
+                    bool isEnablePropertiesAutowired = pipeline.Middleware.Any(p => p.ToString() == "PropertiesAutowired");
+                    pipeline.Use(PipelinePhase.Activation, MiddlewareInsertionMode.StartOfPhase, (context, next) => { ActivationResolveMiddleware.Instance.Execute(context, next, isEnablePropertiesAutowired); });
                 };
             };
 
