@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
+		<TargetFrameworks>net7.0;net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
 		<DebugType>portable</DebugType>
 		<AssemblyName>AspectCore.Extensions.DependencyInjection.Test</AssemblyName>
 		<PackageId>AspectCore.Extensions.DependencyInjection.Test</PackageId>
@@ -15,7 +15,7 @@
 		<ProjectReference Include="..\..\src\AspectCore.Extensions.DependencyInjection\AspectCore.Extensions.DependencyInjection.csproj" />
 	</ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' != 'net6.0' ">
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'netcoreapp3.1'">
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Specification.Tests" Version="3.1.16" />
 	</ItemGroup>
 
@@ -23,8 +23,12 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Specification.Tests" Version="6.0.0" />
 	</ItemGroup>
 
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Specification.Tests" Version="7.0.0" />
+	</ItemGroup>
+
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
