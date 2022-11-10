@@ -9,7 +9,7 @@
     <PackageId>AspectCore.Abstractions</PackageId>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
     <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
-    <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
