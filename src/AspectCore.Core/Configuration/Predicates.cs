@@ -23,12 +23,17 @@ namespace AspectCore.Configuration
 
             return method =>
             {
-                if (method.DeclaringType.Name.Matches(service))
+                var declaringType = method.DeclaringType;
+                var declaringTypeName = declaringType.Name;
+                if (declaringType.IsGenericType)
+                {
+                    declaringTypeName = declaringTypeName.Split('`')[0];
+                }
+                if (declaringTypeName.Matches(service))
                 {
                     return true;
                 }
 
-                var declaringType = method.DeclaringType;
                 var fullName = declaringType.FullName ?? $"{declaringType.Name}.{declaringType.Name}";
                 return fullName.Matches(service);
             };
