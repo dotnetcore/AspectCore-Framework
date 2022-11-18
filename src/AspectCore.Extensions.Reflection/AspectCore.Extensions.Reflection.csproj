@@ -8,7 +8,7 @@
     <PackageId>AspectCore.Extensions.Reflection</PackageId>
     <PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
     <PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
-    <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
