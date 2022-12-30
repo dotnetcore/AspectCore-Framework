@@ -73,7 +73,7 @@ namespace AspectCore.Extensions.LightInject
                 .AddSingleton<IAspectBuilderFactory, AspectBuilderFactory>()
                 .AddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>()
                 .AddSingleton<IAspectCachingProvider, AspectCachingProvider>()
-                .AddSingleton<IAspectExceptionWrapper, AspectExceptionWrapper>();
+                .AddTransient(typeof(IAspectExceptionWrapper), typeof(AspectExceptionWrapper));
 
             var aspectValidator = new AspectValidatorBuilder(aspectConfig).Build();
             container.Decorate(aspectValidator.CreateDecorator());

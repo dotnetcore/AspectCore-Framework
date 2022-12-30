@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.ExceptionServices;
 using AspectCore.Configuration;
 
 namespace AspectCore.DynamicProxy
@@ -7,25 +8,27 @@ namespace AspectCore.DynamicProxy
     public class AspectExceptionWrapper : IAspectExceptionWrapper
     {
         private readonly IAspectConfiguration _configuration;
+        private ExceptionDispatchInfo _exceptionInfo;
 
         public AspectExceptionWrapper(IAspectConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public Exception Wrap(AspectContext aspectContext, Exception exception)
+        public void Wrap(AspectContext aspectContext, Exception exception)
         {
-            if (!_configuration.ThrowAspectException)
+            if (!_configuration.ThrowAspectException || exception is AspectInvocationException _)
             {
-                return exception;
+                _exceptionInfo = ExceptionDispatchInfo.Capture(exception);
+                return;
             }
 
-            if (exception is AspectInvocationException aspectInvocationException)
-            {
-                return aspectInvocationException;
-            }
+            _exceptionInfo = ExceptionDispatchInfo.Capture(new AspectInvocationException(aspectContext, exception));
+        }
 
-            return new AspectInvocationException(aspectContext, exception);
+        public void ThrowIfFailed()
+        {
+            _exceptionInfo?.Throw();
         }
     }
 }

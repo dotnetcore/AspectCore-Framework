@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using AspectCore.Core.Utils;
+using System;
 using System.Threading.Tasks;
-using AspectCore.Core.Utils;
-using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
@@ -29,7 +27,10 @@ namespace AspectCore.DynamicProxy
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var task = aspectBuilder.Build()(context);
                 if (task.IsFaulted)
-                    throw _aspectExceptionWrapper.Wrap(context, task.Exception.InnerException);
+                {
+                    _aspectExceptionWrapper.Wrap(context, task.Exception.InnerException);
+                    return default;
+                }
                 if (!task.IsCompleted)
                 {
                     // try to avoid potential deadlocks.
@@ -41,10 +42,12 @@ namespace AspectCore.DynamicProxy
             }
             catch (Exception ex)
             {
-                throw _aspectExceptionWrapper.Wrap(context, ex);
+                _aspectExceptionWrapper.Wrap(context, ex);
+                return default;
             }
             finally
             {
+                _aspectExceptionWrapper.ThrowIfFailed();
                 _aspectContextFactory.ReleaseContext(context);
             }
         }
@@ -59,7 +62,8 @@ namespace AspectCore.DynamicProxy
 
                 if (invoke.IsFaulted)
                 {
-                    throw _aspectExceptionWrapper.Wrap(context, invoke.Exception?.InnerException);
+                    _aspectExceptionWrapper.Wrap(context, invoke.Exception.InnerException);
+                    return default;
                 }
 
                 if (!invoke.IsCompleted)
@@ -70,22 +74,25 @@ namespace AspectCore.DynamicProxy
                 switch (context.ReturnValue)
                 {
                     case null:
-                        return default(TResult);
+                        return default;
                     case Task<TResult> taskWithResult:
                         return taskWithResult.Result;
                     case Task _:
-                        return default(TResult);
+                        return default;
                     default:
-                        throw _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
+                        _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
                             $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(Task<TResult>)}'."));
+                        return default;
                 }
             }
             catch (Exception ex)
             {
-                throw _aspectExceptionWrapper.Wrap(context, ex);
+                _aspectExceptionWrapper.Wrap(context, ex);
+                return default;
             }
             finally
             {
+                _aspectExceptionWrapper.ThrowIfFailed();
                 _aspectContextFactory.ReleaseContext(context);
             }
         }
@@ -100,7 +107,8 @@ namespace AspectCore.DynamicProxy
                 
                 if (invoke.IsFaulted)
                 {
-                    throw _aspectExceptionWrapper.Wrap(context, invoke.Exception?.InnerException);
+                    _aspectExceptionWrapper.Wrap(context, invoke.Exception.InnerException);
+                    return default;
                 }
                 
                 if (!invoke.IsCompleted)
@@ -111,22 +119,25 @@ namespace AspectCore.DynamicProxy
                 switch (context.ReturnValue)
                 {
                     case null:
-                        return default(TResult);
+                        return default;
                     case ValueTask<TResult> taskWithResult:
                         return taskWithResult.Result;
                     case ValueTask task:
-                        return default(TResult);
+                        return default;
                     default:
-                        throw _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
+                        _aspectExceptionWrapper.Wrap(context, new InvalidCastException(
                             $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(ValueTask<TResult>)}'."));
+                        return default;
                 }
             }
             catch (Exception ex)
             {
-                throw _aspectExceptionWrapper.Wrap(context, ex);
+                _aspectExceptionWrapper.Wrap(context, ex);
+                return default;
             }
             finally
             {
+                _aspectExceptionWrapper.ThrowIfFailed();
                 _aspectContextFactory.ReleaseContext(context);
             }
         }

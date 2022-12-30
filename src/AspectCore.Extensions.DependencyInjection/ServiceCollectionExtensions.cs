@@ -59,7 +59,7 @@ namespace AspectCore.Extensions.DependencyInjection
             services.TryAddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
             services.TryAddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
             services.TryAddSingleton<IAspectCachingProvider, AspectCachingProvider>();
-            services.TryAddSingleton<IAspectExceptionWrapper, AspectExceptionWrapper>();
+            services.TryAddTransient<IAspectExceptionWrapper, AspectExceptionWrapper>();
 
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, AttributeInterceptorSelector>();

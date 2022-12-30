@@ -36,7 +36,7 @@ namespace AspectCore.Extensions.Windsor
                 Component.For<IInterceptorCollector>().ImplementedBy<InterceptorCollector>().LifestyleSingleton(),
                 Component.For<IAspectContextFactory>().ImplementedBy<AspectContextFactory>().LifestyleSingleton(),
                 Component.For<IAspectCachingProvider>().ImplementedBy<AspectCachingProvider>().LifestyleSingleton(),
-                Component.For<IAspectExceptionWrapper>().ImplementedBy<AspectExceptionWrapper>().LifestyleSingleton(),
+                Component.For<IAspectExceptionWrapper>().ImplementedBy<AspectExceptionWrapper>().LifestyleTransient(),
                 Component.For<IAspectActivatorFactory>().ImplementedBy<AspectActivatorFactory>().LifestyleSingleton(),
                 Component.For<IAspectValidatorBuilder>().ImplementedBy<AspectValidatorBuilder>().LifestyleSingleton(),
                 Component.For<IPropertyInjectorFactory>().ImplementedBy<PropertyInjectorFactory>().LifestyleSingleton(),
