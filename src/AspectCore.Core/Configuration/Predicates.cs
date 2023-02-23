@@ -10,8 +10,10 @@ namespace AspectCore.Configuration
             {
                 throw new ArgumentNullException(nameof(nameSpace));
             }
-
-            return method => method.DeclaringType.Namespace.Matches(nameSpace);
+            
+            return method => nameSpace == method.DeclaringType.Namespace ||
+                             (method.DeclaringType.Namespace != null && 
+                              method.DeclaringType.Namespace.Matches(nameSpace));
         }
 
         public static AspectPredicate ForService(string service)
