@@ -82,7 +82,7 @@ namespace AspectCore.DynamicProxy
 
             if (!aspectContext.IsAsync())
             {
-                throw new AspectInvocationException(aspectContext, new InvalidOperationException("This operation only support asynchronous method."));
+                throw new AspectInvalidOperationException(aspectContext, "This operation only support asynchronous method.");
             }
 
             var returnValue = aspectContext.ReturnValue;
