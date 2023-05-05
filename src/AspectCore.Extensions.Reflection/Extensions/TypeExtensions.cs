@@ -181,5 +181,10 @@ namespace AspectCore.Extensions.Reflection
             return type.GetTypeInfo().IsGenericType &&
                    type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
+
+        public static bool IsTupleType(this Type type)
+        {
+            return type.FullName.StartsWith("System.Tuple") || type.FullName.StartsWith("System.ValueTuple");
+        }
     }
 }
