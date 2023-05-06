@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AspectCore.Extensions.Reflection
 {
@@ -24,7 +25,11 @@ namespace AspectCore.Extensions.Reflection
         private ParameterReflector(ParameterInfo reflectionInfo)
         {
             _reflectionInfo = reflectionInfo ?? throw new ArgumentNullException(nameof(reflectionInfo));
-            _customAttributeReflectors = _reflectionInfo.CustomAttributes.Select(data => CustomAttributeReflector.Create(data)).ToArray();
+
+            if (!reflectionInfo.ParameterType.IsTupleType())
+            {
+                _customAttributeReflectors = _reflectionInfo.CustomAttributes.Select(data => CustomAttributeReflector.Create(data)).ToArray();
+            }
             HasDeflautValue = reflectionInfo.HasDefaultValueByAttributes();
             if (HasDeflautValue)
             {
