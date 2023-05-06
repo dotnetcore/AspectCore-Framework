@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace AspectCore.Extensions.Reflection
@@ -184,7 +185,18 @@ namespace AspectCore.Extensions.Reflection
 
         public static bool IsTupleType(this Type type)
         {
-            return type.FullName.StartsWith("System.Tuple") || type.FullName.StartsWith("System.ValueTuple");
+            if (type is null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+#if NET461
+            return false;
+#elif NETSTANDARD2_0
+            return false;
+#else
+            return type.IsGenericType && typeof(ITuple).IsAssignableFrom(type.GetTypeInfo().GetGenericTypeDefinition());
+#endif
+
         }
     }
 }
