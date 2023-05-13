@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using AspectCore.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,11 +15,11 @@ namespace AspectCore.Extensions.DependencyInjection.ConsoleSample
             services.AddTransient<ILogger, ConsoleLogger>();
             services.AddTransient<ISampleService, SampleService>();
             var serviceProvider = services.BuildServiceContextProvider();
-//            var container = services.ToServiceContext();
-//            container.AddType<ILogger, ConsoleLogger>();
-//            container.AddType<ISampleService, SampleService>();
-//            var serviceResolver = container.Build();
-//            var sampleService = serviceResolver.Resolve<ISampleService>();
+            //            var container = services.ToServiceContext();
+            //            container.AddType<ILogger, ConsoleLogger>();
+            //            container.AddType<ISampleService, SampleService>();
+            //            var serviceResolver = container.Build();
+            //            var sampleService = serviceResolver.Resolve<ISampleService>();
             var sampleService = serviceProvider.GetService<ISampleService>();
             sampleService.Invoke();
             Console.ReadKey();
