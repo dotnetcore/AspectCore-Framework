@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using AspectCore.Configuration;
+﻿using AspectCore.Configuration;
+using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
-using AspectCore.DependencyInjection;
 using Autofac;
-using Autofac.Core;
-using Autofac.Core.Activators;
-using Autofac.Core.Activators.Delegate;
-using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Resolving.Pipeline;
-using AParameter = Autofac.Core.Parameter;
+using System;
+using System.Linq;
 
 namespace AspectCore.Extensions.Autofac
 {
@@ -58,7 +51,6 @@ namespace AspectCore.Extensions.Autofac
             containerBuilder.RegisterType<AspectBuilderFactory>().As<IAspectBuilderFactory>().SingleInstance();
             containerBuilder.RegisterType<ProxyTypeGenerator>().As<IProxyTypeGenerator>().SingleInstance();
             containerBuilder.RegisterType<AspectCachingProvider>().As<IAspectCachingProvider>().SingleInstance();
-            containerBuilder.RegisterType<AspectExceptionWrapper>().As<IAspectExceptionWrapper>().InstancePerDependency();
 
             //全局注册中间件
             containerBuilder.ComponentRegistryBuilder.Registered += (sender, args) =>

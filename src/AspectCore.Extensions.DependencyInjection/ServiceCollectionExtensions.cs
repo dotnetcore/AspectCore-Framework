@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using AspectCore.Configuration;
+﻿using AspectCore.Configuration;
+using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
-using AspectCore.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
+using System.Linq;
 
 namespace AspectCore.Extensions.DependencyInjection
 {
@@ -59,7 +59,6 @@ namespace AspectCore.Extensions.DependencyInjection
             services.TryAddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
             services.TryAddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
             services.TryAddSingleton<IAspectCachingProvider, AspectCachingProvider>();
-            services.TryAddTransient<IAspectExceptionWrapper, AspectExceptionWrapper>();
 
             services.AddSingleton<IInterceptorSelector, ConfigureInterceptorSelector>();
             services.AddSingleton<IInterceptorSelector, AttributeInterceptorSelector>();
