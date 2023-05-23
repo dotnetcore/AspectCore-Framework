@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Reflection;
-using AspectCore.Configuration;
+﻿using AspectCore.Configuration;
 using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
 using LightInject;
+using System;
+using System.Linq;
+using System.Reflection;
 using IServiceContainer = LightInject.IServiceContainer;
 
 namespace AspectCore.Extensions.LightInject
@@ -72,8 +71,7 @@ namespace AspectCore.Extensions.LightInject
                 .AddSingleton<IAspectValidatorBuilder, AspectValidatorBuilder>()
                 .AddSingleton<IAspectBuilderFactory, AspectBuilderFactory>()
                 .AddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>()
-                .AddSingleton<IAspectCachingProvider, AspectCachingProvider>()
-                .AddTransient(typeof(IAspectExceptionWrapper), typeof(AspectExceptionWrapper));
+                .AddSingleton<IAspectCachingProvider, AspectCachingProvider>();
 
             var aspectValidator = new AspectValidatorBuilder(aspectConfig).Build();
             container.Decorate(aspectValidator.CreateDecorator());

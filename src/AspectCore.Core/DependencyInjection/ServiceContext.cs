@@ -1,10 +1,10 @@
-﻿using System;
+﻿using AspectCore.Configuration;
+using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using AspectCore.Configuration;
-using AspectCore.DynamicProxy;
-using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.DependencyInjection
 {
@@ -99,8 +99,6 @@ namespace AspectCore.DependencyInjection
                 Scopeds.AddType<IParameterInterceptorSelector, ParameterInterceptorSelector>();
             if (!Contains(typeof(IAspectCachingProvider)))
                 Singletons.AddType<IAspectCachingProvider, AspectCachingProvider>();
-            if (!Contains(typeof(IAspectExceptionWrapper)))
-                Transients.AddType<IAspectExceptionWrapper, AspectExceptionWrapper>();
         }
 
         public int Count => _collection.Count;
