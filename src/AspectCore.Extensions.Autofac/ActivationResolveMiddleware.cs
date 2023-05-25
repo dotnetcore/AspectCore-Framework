@@ -92,7 +92,7 @@ namespace AspectCore.Extensions.Autofac
 
                 if (availableConstructors.Length == 0)
                 {
-                    throw new NoConstructorsFoundException(proxyType, $"No constructors on type '{proxyType}' can be found with the constructor finder '{constructorFinder}'.");
+                    throw new NoConstructorsFoundException(proxyType, constructorFinder);
                 }
 
                 var binders = new ConstructorBinder[availableConstructors.Length];
