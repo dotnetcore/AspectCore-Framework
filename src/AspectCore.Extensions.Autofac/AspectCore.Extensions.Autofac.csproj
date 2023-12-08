@@ -9,7 +9,7 @@
     <PackageId>AspectCore.Extensions.Autofac</PackageId>
     <PackageTags>DynamicProxy;Aop;Autofac;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for Autofac via AspectCore Framework.</PackageReleaseNotes>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
