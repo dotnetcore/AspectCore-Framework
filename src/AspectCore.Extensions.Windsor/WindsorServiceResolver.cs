@@ -35,5 +35,17 @@ namespace AspectCore.Extensions.Windsor
                 return _kernel.Resolve(serviceType);
             return null;
         }
+
+#if NET8_0_OR_GREATER
+        public object GetKeyedService(Type serviceType, object serviceKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetRequiredKeyedService(Type serviceType, object serviceKey)
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
 }

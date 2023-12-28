@@ -72,6 +72,18 @@ namespace AspectCore.DependencyInjection
             }
         }
 
+#if NET8_0_OR_GREATER
+        public object GetKeyedService(Type serviceType, object serviceKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetRequiredKeyedService(Type serviceType, object serviceKey)
+        {
+            throw new NotImplementedException();
+        }
+#endif
+
         #region IDisposable Support
         private bool disposedValue = false;
 
