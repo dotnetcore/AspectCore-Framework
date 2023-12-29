@@ -45,6 +45,23 @@ namespace AspectCore.Extensions.DependencyInjection
 
         private static ServiceDefinition Replace(ServiceDescriptor descriptor)
         {
+#if NET8_0_OR_GREATER
+            if (descriptor.IsKeyedService)
+            {
+                if (descriptor.KeyedImplementationType != null)
+                {
+                    return new TypeServiceDefinition(descriptor.ServiceType, descriptor.KeyedImplementationType, GetLifetime(descriptor.Lifetime));
+                }
+                else if (descriptor.KeyedImplementationInstance != null)
+                {
+                    return new InstanceServiceDefinition(descriptor.ServiceType, descriptor.KeyedImplementationInstance);
+                }
+                else
+                {
+                    return new DelegateServiceDefinition(descriptor.ServiceType, resolver => descriptor.KeyedImplementationFactory(resolver, descriptor.ServiceKey), GetLifetime(descriptor.Lifetime));
+                }
+            }
+#endif
             if (descriptor.ImplementationType != null)
             {
                 return new TypeServiceDefinition(descriptor.ServiceType, descriptor.ImplementationType, GetLifetime(descriptor.Lifetime));
