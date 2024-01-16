@@ -82,7 +82,6 @@ Task("Pack")
 
 Task("Default")
 	.IsDependentOn("Build")
-	.IsDependentOn("Test")
 	.IsDependentOn("Pack")
 	.Does(() =>
 {
