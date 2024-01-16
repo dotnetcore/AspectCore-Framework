@@ -10,7 +10,7 @@
     <Title>AspectCore.Extensions.AspectScope</Title>
     <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Intercepter</PackageTags>
     <PackageReleaseNotes>ScopedContext extension system for AspectCore Framework.</PackageReleaseNotes>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -19,7 +19,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />

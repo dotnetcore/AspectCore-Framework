@@ -7,7 +7,7 @@
     <PackageTags>DynamicProxy;Aop;LightInject;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for LightInject via AspectCore Framework.</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>	
-    <TargetFrameworks>net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LightInject" Version="6.6.0" />
+    <PackageReference Include="LightInject" Version="6.6.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Core\AspectCore.Core.csproj" />

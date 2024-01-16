@@ -9,7 +9,7 @@
     <PackageId>AspectCore.Extensions.Windsor</PackageId>
     <PackageTags>DynamicProxy;Aop;Windsor;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for Castle.Windsor via AspectCore Framework.</PackageReleaseNotes>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -21,8 +21,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Castle.Windsor" Version="4.1.0" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="Castle.Windsor" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

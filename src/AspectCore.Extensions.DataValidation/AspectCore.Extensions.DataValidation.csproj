@@ -9,7 +9,7 @@
     <PackageId>AspectCore.Extensions.DataValidation</PackageId>
     <PackageTags>DataValidation;AspectCore;AOP</PackageTags>
     <PackageReleaseNotes>DataValidation extension system for AspectCore Framework.</PackageReleaseNotes>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

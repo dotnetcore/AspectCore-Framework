@@ -30,5 +30,17 @@ namespace AspectCore.Extensions.Autofac
         {
             return _componentContext.ResolveOptional(serviceType);
         }
+
+#if NET8_0_OR_GREATER
+        public object GetKeyedService(Type serviceType, object serviceKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetRequiredKeyedService(Type serviceType, object serviceKey)
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
 }

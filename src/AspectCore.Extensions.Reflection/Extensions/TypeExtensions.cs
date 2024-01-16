@@ -189,13 +189,7 @@ namespace AspectCore.Extensions.Reflection
             {
                 throw new ArgumentNullException(nameof(type));
             }
-#if NET461
-            return false;
-#elif NETSTANDARD2_0
-            return false;
-#else
             return type.IsGenericType && typeof(ITuple).IsAssignableFrom(type.GetTypeInfo().GetGenericTypeDefinition());
-#endif
 
         }
     }

@@ -52,16 +52,40 @@ namespace AspectCore.Extensions.DependencyInjection
                 {
                     return false;
                 }
+
                 if (!implementationType.GetTypeInfo().CanInherited())
                 {
                     return false;
                 }
             }
+
             return _aspectValidator.Validate(descriptor.ServiceType, true) || _aspectValidator.Validate(implementationType, false);
         }
 
+
         private Type GetImplementationType(ServiceDescriptor descriptor)
         {
+#if NET8_0_OR_GREATER
+            if (descriptor.IsKeyedService)
+            {
+                if (descriptor.KeyedImplementationType != null)
+                {
+                    return descriptor.KeyedImplementationType;
+                }
+                else if (descriptor.KeyedImplementationInstance != null)
+                {
+                    return descriptor.KeyedImplementationInstance.GetType();
+                }
+                else if (descriptor.KeyedImplementationFactory != null)
+                {
+                    var typeArguments = descriptor.KeyedImplementationFactory.GetType().GenericTypeArguments;
+
+                    return typeArguments[1];
+                }
+
+                return null;
+            }
+#endif
             if (descriptor.ImplementationType != null)
             {
                 return descriptor.ImplementationType;
@@ -76,6 +100,7 @@ namespace AspectCore.Extensions.DependencyInjection
 
                 return typeArguments[1];
             }
+
             return null;
         }
     }
