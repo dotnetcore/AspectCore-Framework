@@ -85,6 +85,6 @@ jobs:
           echo "Pushing to MyGet..."
           dotnet nuget push "$package" \
             --source "https://www.myget.org/F/aspectcore/api/v2/package" \
-            --api-key "jpjXYvzq6XOX2E5PnhKPRBK/DKVoZAQ6Ok1UmWI3BuWq6rdtrGJMUJem/GtR8+qG" \
+            --api-key ${{ secrets.MYGET_API_TOKEN }} \
             --skip-duplicate || echo "Skipping: Package push failed or already exists."
         done
