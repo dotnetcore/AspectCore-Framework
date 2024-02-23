@@ -35,6 +35,12 @@ jobs:
           $versionPrefix = "$versionPrefix.$versionQuality"
         }
         
+        $tag = git tag --points-at HEAD
+        if ([string]::IsNullOrWhiteSpace($tag)) {
+          $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+          $versionPrefix = "$versionPrefix-preview-$timestamp"
+        }
+        
         echo "Full Version: $versionPrefix"
         Add-Content -Path $Env:GITHUB_ENV -Value "FULL_VERSION=$versionPrefix"
       
