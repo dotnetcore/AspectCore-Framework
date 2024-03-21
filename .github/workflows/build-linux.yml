@@ -21,8 +21,16 @@ jobs:
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
       
     - name: Build
-      run: dotnet build --configuration Release AspectCore-Framework.sln
+      shell: bash
+      run: |
+        for project in $(find ./src -name "*.csproj"); do
+          dotnet build --configuration Release $project
+        done
       
     - name: Run Tests
-      run: dotnet test --configuration Release --no-build AspectCore-Framework.sln
+      shell: bash
+      run: |
+        for project in $(find ./tests -name "*.csproj"); do
+          dotnet test --configuration Release $project
+        done
       
