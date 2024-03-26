@@ -1,0 +1,90 @@
+name: Build Windows
+on: [push, pull_request]
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: | 
+          6.x
+          8.x
+        
+    - name: Build Reason
+      run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
+      
+    - name: Build Version
+      shell: pwsh
+      run: |
+        $versionPropsPath = "./build/version.props"
+        [xml]$versionProps = Get-Content $versionPropsPath
+        $versionMajor = $versionProps.Project.PropertyGroup.VersionMajor
+        $versionMinor = $versionProps.Project.PropertyGroup.VersionMinor
+        $versionPatch = $versionProps.Project.PropertyGroup.VersionPatch
+        $versionQuality = $versionProps.Project.PropertyGroup.VersionQuality
+        $versionPrefix = "$versionMajor.$versionMinor.$versionPatch"
+        
+        if (-not [string]::IsNullOrWhiteSpace($versionQuality)) {
+          $versionPrefix = "$versionPrefix.$versionQuality"
+        }
+        
+        $tag = git tag --points-at HEAD
+        if ([string]::IsNullOrWhiteSpace($tag)) {
+          $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+          $versionPrefix = "$versionPrefix-preview-$timestamp"
+        }
+        
+        echo "Full Version: $versionPrefix"
+        Add-Content -Path $Env:GITHUB_ENV -Value "FULL_VERSION=$versionPrefix"
+      
+    - name: Build
+      shell: bash
+      run: |
+        for project in $(find ./src -name "*.csproj"); do
+          dotnet build --configuration Release $project -p:Version=${{ env.FULL_VERSION }}
+        done
+      
+    - name: Run Tests
+      shell: bash
+      run: |
+        for project in $(find ./tests -name "*.csproj"); do
+          dotnet test --configuration Release $project
+        done
+      
+    - name: Package
+      shell: bash
+      if: github.event_name != 'pull_request'
+      run: |
+        for project in $(find ./src -name "*.csproj"); do
+          dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
+        done
+
+    - name: Install GitHub Package Tool
+      if: github.event_name != 'pull_request'
+      run: dotnet tool install gpr -g
+      
+    - name: Publish CI Packages
+      shell: bash
+      if: github.event_name != 'pull_request'
+      run: |
+        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
+          echo "$package": Pushing $package...
+
+          # GitHub
+          echo "Pushing to GitHub Package Registry..."
+          gpr push "$package" -k ${{ secrets.GITHUB_TOKEN }} || echo "Skipping: Package push failed or already exists."
+          
+          # myget
+          echo "Pushing to MyGet..."
+          dotnet nuget push "$package" \
+            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
+            --api-key ${{ secrets.MYGET_API_TOKEN }} \
+            --skip-duplicate || echo "Skipping: Package push failed or already exists."
+        done
