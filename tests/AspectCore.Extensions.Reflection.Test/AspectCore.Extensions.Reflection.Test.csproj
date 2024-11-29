@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>AspectCore.Extensions.Reflection.Test</AssemblyName>
     <PackageId>AspectCore.Extensions.Reflection.Test</PackageId>
@@ -14,12 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />
   </ItemGroup>
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-		<PackageReference Include="System.Reflection" Version="4.3.0" />
-		<PackageReference Include="System.Linq" Version="4.3.0" />
-		<PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
