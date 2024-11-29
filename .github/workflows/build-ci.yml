@@ -1,9 +1,25 @@
-name: Build Windows
-on: [push, pull_request]
-env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+name: Build
+on: 
+  push:
+    branches: 
+      - master
+    paths:
+      - '!**/*.md'
+  workflow_dispatch:
+    inputs:
+      publish-github-package:
+        type: boolean
+        description: 'Github Package push'
+        default: true
+        required: false
+      publish-myget-package:
+        type: boolean
+        description: 'MyGet Package push'
+        default: true
+        required: false
+
 jobs:
-  build:
+  build-test-pack:
     runs-on: windows-latest
     steps:
     - name: Checkout
@@ -13,9 +29,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: | 
-          6.x
-          8.x
+        dotnet-version: 9.x
         
     - name: Build Reason
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
@@ -59,32 +73,40 @@ jobs:
         done
       
     - name: Package
+      if: ${{ inputs.publish-github-package || inputs.publish-myget-package}}
       shell: bash
-      if: github.event_name != 'pull_request'
       run: |
         for project in $(find ./src -name "*.csproj"); do
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
         done
 
     - name: Install GitHub Package Tool
-      if: github.event_name != 'pull_request'
+      if: ${{ inputs.publish-github-package}}
       run: dotnet tool install gpr -g
       
     - name: Publish CI Packages
+      if: ${{ inputs.publish-github-package || inputs.publish-myget-package}}
       shell: bash
-      if: github.event_name != 'pull_request'
       run: |
         for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
           echo "$package": Pushing $package...
 
-          # GitHub
-          echo "Pushing to GitHub Package Registry..."
-          gpr push "$package" -k ${{ secrets.GITHUB_TOKEN }} || echo "Skipping: Package push failed or already exists."
-          
-          # myget
-          echo "Pushing to MyGet..."
-          dotnet nuget push "$package" \
-            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
-            --api-key ${{ secrets.MYGET_API_TOKEN }} \
-            --skip-duplicate || echo "Skipping: Package push failed or already exists."
+          if [ "${{ inputs.publish-github-package }}" = "true" ]; then
+            # GitHub
+            echo "Pushing to GitHub Package Registry..."
+            gpr push "$package" -k ${{ secrets.GITHUB_TOKEN }} || echo "Skipping: Package push failed or already exists."
+          else
+            echo "Skipping: Pushing to GitHub Package Registry is disabled."
+          fi
+
+          # MyGet
+          if [ "${{ inputs.publish-myget-package }}" = "true" ]; then
+            echo "Pushing to MyGet..."
+            dotnet nuget push "$package" \
+              --source "https://www.myget.org/F/aspectcore/api/v2/package" \
+              --api-key ${{ secrets.MYGET_API_TOKEN }} \
+              --skip-duplicate || echo "Skipping: Package push failed or already exists."
+          else
+            echo "Skipping: Pushing to MyGet Package Registry is disabled."
+          fi
         done

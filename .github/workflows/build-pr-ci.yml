@@ -1,10 +1,10 @@
-name: Build Linux
-#on: [push, pull_request]
-env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+name: Build for PR
+on: 
+  pull_request:
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-test:
+    runs-on: windows-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -13,9 +13,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: | 
-          6.x
-          8.x
+        dotnet-version: 9.x
         
     - name: Build Reason
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
