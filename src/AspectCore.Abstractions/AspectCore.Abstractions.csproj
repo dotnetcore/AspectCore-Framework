@@ -1,19 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
+	<Import Project="..\..\build\common.props" />
 
-  <PropertyGroup>
-    <Description>The abstract design of the AspectCore framework.</Description>
-    <AssemblyTitle>AspectCore.Abstractions</AssemblyTitle>
-    <AssemblyName>AspectCore.Abstractions</AssemblyName>
-    <PackageId>AspectCore.Abstractions</PackageId>
-    <PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
-    <PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Description>The abstract design of the AspectCore framework.</Description>
+		<AssemblyTitle>AspectCore.Abstractions</AssemblyTitle>
+		<AssemblyName>AspectCore.Abstractions</AssemblyName>
+		<PackageId>AspectCore.Abstractions</PackageId>
+		<PackageTags>DynamicProxy;Aop;Aspect;AspectCore;Interceptor</PackageTags>
+		<PackageReleaseNotes>The abstract design of the AspectCore framework.</PackageReleaseNotes>
+		<TargetFrameworks>net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
+	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
@@ -26,13 +30,17 @@
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
 	</ItemGroup>
-	
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
+
 </Project>

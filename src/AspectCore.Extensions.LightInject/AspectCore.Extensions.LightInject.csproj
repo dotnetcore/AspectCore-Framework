@@ -7,14 +7,14 @@
     <PackageTags>DynamicProxy;Aop;LightInject;AspectCore</PackageTags>
     <PackageReleaseNotes>Interceptor and dynamicProxy support for LightInject via AspectCore Framework.</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>	
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
