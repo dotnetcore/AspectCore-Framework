@@ -375,6 +375,10 @@ namespace AspectCore.Utils
 
             internal static MethodBuilder DefineInterfaceImplMethod(MethodInfo method, TypeBuilder implTypeBuilder)
             {
+                // method is not abstract means it is a default implementation on the interface, so don't need to define method on the proxy type.
+                if (method.IsAbstract == false)
+                    return null;
+
                 var methodBuilder = implTypeBuilder.DefineMethod(method.Name, InterfaceMethodAttributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
                 var ilGen = methodBuilder.GetILGenerator();
                 if (method.ReturnType != typeof(void))
