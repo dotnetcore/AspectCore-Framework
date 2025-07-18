@@ -1,4 +1,5 @@
-﻿using AspectCore.DynamicProxy;
+﻿using System.Reflection;
+using AspectCore.DynamicProxy;
 using Xunit;
 
 namespace AspectCore.Tests.DynamicProxy;
@@ -13,8 +14,8 @@ public class CovariantReturnTypesTests : DynamicProxyTestBase
 
     public class Service : IService
     {
-        public virtual object Method() => nameof(Service);
-        public virtual object Property { get; } = nameof(Service);
+        public virtual object Method() => new();
+        public virtual object Property { get; } = new();
     }
 
     public class CovariantReturnsService : Service

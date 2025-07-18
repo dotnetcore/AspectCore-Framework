@@ -441,17 +441,22 @@ namespace AspectCore.Utils
 
                 if (method.Attributes.HasFlag(MethodAttributes.Public))
                 {
-                    attributes = attributes | MethodAttributes.Public;
+                    attributes |= MethodAttributes.Public;
                 }
 
                 if (method.Attributes.HasFlag(MethodAttributes.Family))
                 {
-                    attributes = attributes | MethodAttributes.Family;
+                    attributes |= MethodAttributes.Family;
                 }
 
                 if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
                 {
-                    attributes = attributes | MethodAttributes.FamORAssem;
+                    attributes |= MethodAttributes.FamORAssem;
+                }
+
+                if (method.Attributes.HasFlag(MethodAttributes.NewSlot))
+                {
+                    attributes |= MethodAttributes.NewSlot;
                 }
 
                 var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc);
@@ -470,6 +475,9 @@ namespace AspectCore.Utils
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in method.CustomAttributes)
                 {
+                    if (customAttributeData.AttributeType.Name == "PreserveBaseOverridesAttribute")
+                        continue; // Skip PreserveBaseOverridesAttribute as it is not needed in dynamic proxy generation.
+
                     methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
 
