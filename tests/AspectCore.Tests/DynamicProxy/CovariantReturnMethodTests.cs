@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Linq;
 using AspectCore.DynamicProxy;
 using Xunit;
 
 namespace AspectCore.Tests.DynamicProxy;
 
-public class CovariantReturnTypesTests : DynamicProxyTestBase
+public class CovariantReturnMethodTests : DynamicProxyTestBase
 {
     public interface IService
     {
@@ -20,7 +20,7 @@ public class CovariantReturnTypesTests : DynamicProxyTestBase
 
     public class CovariantReturnsService : Service
     {
-        public override string Method() => nameof(CovariantReturnsService);
+        public sealed override string Method() => nameof(CovariantReturnsService);
         public override string Property { get; } = nameof(CovariantReturnsService);
     }
 

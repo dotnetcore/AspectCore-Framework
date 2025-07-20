@@ -14,7 +14,7 @@ using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Utils
 {
-    internal class ProxyGeneratorUtils
+    internal partial class ProxyGeneratorUtils
     {
         private const string ProxyNameSpace = "AspectCore.DynamicGenerated";
         private const string ProxyAssemblyName = "AspectCore.DynamicProxy.Generator";
@@ -392,15 +392,18 @@ namespace AspectCore.Utils
 
             internal static void DefineInterfaceProxyMethods(Type interfaceType, Type targetType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
+                var covariantReturnMethodMap = GetCovariantReturnMethodMap(targetType);
                 foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
-                    DefineInterfaceMethod(method, targetType, typeDesc);
+                    var covariantReturnMethod = covariantReturnMethodMap.FirstOrDefault(m => m.Value.Contains(method)).Key;
+                    DefineInterfaceMethod(method, targetType, typeDesc, covariantReturnMethod);
                 }
                 foreach (var item in additionalInterfaces)
                 {
                     foreach (var method in item.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                     {
-                        DefineExplicitMethod(method, targetType, typeDesc);
+                        var covariantReturnMethod = covariantReturnMethodMap.FirstOrDefault(m => m.Value.Contains(method)).Key;
+                        DefineExplicitMethod(method, targetType, typeDesc, covariantReturnMethod);
                     }
                 }
             }
@@ -421,16 +424,16 @@ namespace AspectCore.Utils
                 }
             }
 
-            internal static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
+            internal static MethodBuilder DefineInterfaceMethod(MethodInfo method, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
             {
-                var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, implType, typeDesc);
+                var methodBuilder = DefineMethod(method, method.Name, InterfaceMethodAttributes, implType, typeDesc, covariantReturnMethod);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
 
-            internal static MethodBuilder DefineExplicitMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
+            internal static MethodBuilder DefineExplicitMethod(MethodInfo method, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
             {
-                var methodBuilder = DefineMethod(method, method.GetName(), ExplicitMethodAttributes, implType, typeDesc);
+                var methodBuilder = DefineMethod(method, method.GetName(), ExplicitMethodAttributes, implType, typeDesc, covariantReturnMethod);
                 typeDesc.Builder.DefineMethodOverride(methodBuilder, method);
                 return methodBuilder;
             }
@@ -454,6 +457,7 @@ namespace AspectCore.Utils
                     attributes |= MethodAttributes.FamORAssem;
                 }
 
+                // NewSlot is required for covariant return types.
                 if (method.Attributes.HasFlag(MethodAttributes.NewSlot))
                 {
                     attributes |= MethodAttributes.NewSlot;
@@ -463,7 +467,7 @@ namespace AspectCore.Utils
                 return methodBuilder;
             }
 
-            private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc)
+            private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
             {
                 var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
 
@@ -475,16 +479,13 @@ namespace AspectCore.Utils
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in method.CustomAttributes)
                 {
-                    if (customAttributeData.AttributeType.Name == "PreserveBaseOverridesAttribute")
-                        continue; // Skip PreserveBaseOverridesAttribute as it is not needed in dynamic proxy generation.
-
                     methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
 
                 //define paramters
                 ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
-                var implementationMethod = implType.GetTypeInfo().GetMethodBySignature(method);
+                var implementationMethod = covariantReturnMethod ?? implType.GetTypeInfo().GetMethodBySignature(method);
                 if (implementationMethod == null)
                 {
                     var interfaces = implType.GetInterfaces();
@@ -616,7 +617,7 @@ namespace AspectCore.Utils
                     ilGen.Emit(OpCodes.Callvirt, MethodUtils.CreateAspectActivator);
                     ilGen.Emit(OpCodes.Ldloc, activatorContext);
 
-                    EmitReturnVaule(ilGen);
+                    EmitReturnValue(ilGen);
 
                     if (method.ReturnType != typeof(void))
                     {
@@ -707,7 +708,7 @@ namespace AspectCore.Utils
                     }
                 }
 
-                void EmitReturnVaule(ILGenerator ilGen)
+                void EmitReturnValue(ILGenerator ilGen)
                 {
                     if (method.ReturnType == typeof(void))
                     {
@@ -744,17 +745,25 @@ namespace AspectCore.Utils
         {
             public static void DefineInterfaceProxyProperties(Type interfaceType, Type implType, Type[] additionalInterfaces, TypeDesc typeDesc)
             {
+                var covariantReturnMethodMap = GetCovariantReturnMethodMap(implType);
+
                 foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
                 {
                     var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
-                    DefineInterfacePropertyMethod(builder, property, implType, typeDesc);
+                    var covariantReturnGetter = property.CanRead
+                        ? covariantReturnMethodMap.FirstOrDefault(m => m.Value.Contains(property.GetMethod)).Key
+                        : null;
+                    DefineInterfacePropertyMethod(builder, property, implType, typeDesc, covariantReturnGetter);
                 }
                 foreach (var item in additionalInterfaces)
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
                     {
                         var builder = DefineInterfaceProxyProperty(property, property.GetDisplayName(), implType, typeDesc);
-                        DefineExplicitPropertyMethod(builder, property, implType, typeDesc);
+                        var covariantReturnGetter = property.CanRead
+                            ? covariantReturnMethodMap.FirstOrDefault(m => m.Value.Contains(property.GetMethod)).Key
+                            : null;
+                        DefineExplicitPropertyMethod(builder, property, implType, typeDesc, covariantReturnGetter);
                     }
                 }
             }
@@ -793,11 +802,11 @@ namespace AspectCore.Utils
                 }
             }
 
-            private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
+            private static void DefineInterfacePropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnGetter = null)
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderUtils.DefineInterfaceMethod(property.GetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineInterfaceMethod(property.GetMethod, implType, typeDesc, covariantReturnGetter);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
@@ -807,11 +816,11 @@ namespace AspectCore.Utils
                 }
             }
 
-            private static void DefineExplicitPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
+            private static void DefineExplicitPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnGetter = null)
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderUtils.DefineExplicitMethod(property.GetMethod, implType, typeDesc);
+                    var method = MethodBuilderUtils.DefineExplicitMethod(property.GetMethod, implType, typeDesc, covariantReturnGetter);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
