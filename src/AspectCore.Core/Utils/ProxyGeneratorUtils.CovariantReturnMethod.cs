@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AspectCore.Extensions;
+using static AspectCore.Extensions.MethodInfoExtensions;
 
 // ReSharper disable once CheckNamespace
 namespace AspectCore.Utils
@@ -18,14 +19,9 @@ namespace AspectCore.Utils
         {
             var result = new Dictionary<MethodInfo, HashSet<MethodInfo>>();
             // No PreserveBaseOverridesAttribute means that the runtime does not support covariant return types.
-            if (AspectCore.Extensions.MethodInfoExtensions.PreserveBaseOverridesAttribute is null)
+            if (PreserveBaseOverridesAttribute is null)
                 return result;
 
-
-            var methods = implType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .ToHashSet();
-
-            const MethodAttributes attributes = MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot;
             var covariantReturnMethods = implType
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(m => m.IsPreserveBaseOverride(true))
