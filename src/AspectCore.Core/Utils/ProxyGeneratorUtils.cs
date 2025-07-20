@@ -164,16 +164,16 @@ namespace AspectCore.Utils
 
         private class ProxyNameUtils
         {
-            private readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
+            private readonly Dictionary<string, ProxyNameIndex> _indexes = new Dictionary<string, ProxyNameIndex>();
             private readonly Dictionary<Tuple<Type, Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
 
             private string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
             {
                 ProxyNameIndex nameIndex;
-                if (!_indexs.TryGetValue(className, out nameIndex))
+                if (!_indexes.TryGetValue(className, out nameIndex))
                 {
                     nameIndex = new ProxyNameIndex();
-                    _indexs[className] = nameIndex;
+                    _indexes[className] = nameIndex;
                 }
                 var key = Tuple.Create(serviceType, implementationType);
                 string index;
@@ -360,7 +360,7 @@ namespace AspectCore.Utils
             const MethodAttributes ExplicitMethodAttributes = MethodAttributes.Private | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             internal const MethodAttributes InterfaceMethodAttributes = MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
             const MethodAttributes OverrideMethodAttributes = MethodAttributes.HideBySig | MethodAttributes.Virtual;
-            private static readonly HashSet<string> ignores = new HashSet<string> { "Finalize" };
+            private static readonly HashSet<string> _ignores = new HashSet<string> { "Finalize" };
 
             internal static void DefineInterfaceImplMethods(Type[] interfaceTypes, TypeBuilder implTypeBuilder)
             {
@@ -412,7 +412,7 @@ namespace AspectCore.Utils
             {
                 foreach (var method in serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => !x.IsPropertyBinding()))
                 {
-                    if (method.IsVisibleAndVirtual() && !ignores.Contains(method.Name))
+                    if (method.IsVisibleAndVirtual() && !_ignores.Contains(method.Name))
                         DefineClassMethod(method, implType, typeDesc);
                 }
                 foreach (var item in additionalInterfaces)
@@ -458,7 +458,7 @@ namespace AspectCore.Utils
                 }
 
                 // NewSlot is required for covariant return types.
-                if (method.Attributes.HasFlag(MethodAttributes.NewSlot))
+                if (method.IsDefined(PreserveBaseOverridesAttribute) && method.Attributes.HasFlag(MethodAttributes.NewSlot))
                 {
                     attributes |= MethodAttributes.NewSlot;
                 }
@@ -482,7 +482,7 @@ namespace AspectCore.Utils
                     methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
 
-                //define paramters
+                //define parameters
                 ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
                 var implementationMethod = covariantReturnMethod ?? implType.GetTypeInfo().GetMethodBySignature(method);

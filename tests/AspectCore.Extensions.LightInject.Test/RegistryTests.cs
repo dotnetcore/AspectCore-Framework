@@ -15,12 +15,12 @@ namespace AspectCoreTest.LightInject
 
         public interface IService
         {
-            [AsyncIncreament]
+            [AsyncIncrement]
             int Foo();
         }
         public class Service : IService
         {
-            [AsyncIncreament]
+            [AsyncIncrement]
             public virtual int Foo() => Result;
         }
         public class ServiceWithRef : IService
@@ -32,7 +32,7 @@ namespace AspectCoreTest.LightInject
                 _service = service;
             }
 
-            [AsyncIncreament]
+            [AsyncIncrement]
             public virtual int Foo() => _service.Foo();
         }
 
