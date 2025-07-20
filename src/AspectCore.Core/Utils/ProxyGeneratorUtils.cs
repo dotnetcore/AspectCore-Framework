@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
@@ -16,7 +14,7 @@ using AspectCore.Extensions.Reflection.Emit;
 
 namespace AspectCore.Utils
 {
-    internal partial class ProxyGeneratorUtils
+    internal class ProxyGeneratorUtils
     {
         private const string ProxyNameSpace = "AspectCore.DynamicGenerated";
         private const string ProxyAssemblyName = "AspectCore.DynamicProxy.Generator";
