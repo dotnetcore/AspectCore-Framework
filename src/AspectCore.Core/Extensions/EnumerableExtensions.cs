@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace AspectCore.Extensions
+namespace System.Linq
 {
     internal static class EnumerableExtensions
     {

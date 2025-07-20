@@ -63,19 +63,19 @@ namespace AspectCore.Extensions.Reflection
                 if (parameterTypes.Length > 0)
                 {
                     signatureCode = (signatureCode * 397) ^ parameterTypes.Length.GetHashCode();
-                    foreach (var paramterType in parameterTypes)
+                    foreach (var parameterType in parameterTypes)
                     {
-                        if (paramterType.IsGenericParameter)
+                        if (parameterType.IsGenericParameter)
                         {
                             continue;
                         }
-                        else if (paramterType.GetTypeInfo().IsGenericType)
+                        else if (parameterType.GetTypeInfo().IsGenericType)
                         {
-                            signatureCode = GetSignatureCode(signatureCode, paramterType);
+                            signatureCode = GetSignatureCode(signatureCode, parameterType);
                         }
                         else
                         {
-                            signatureCode = (signatureCode * 397) ^ paramterType.GetHashCode();
+                            signatureCode = (signatureCode * 397) ^ parameterType.GetHashCode();
                         }
                     }
                 }

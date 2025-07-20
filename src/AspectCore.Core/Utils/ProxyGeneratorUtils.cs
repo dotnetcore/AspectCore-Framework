@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
+using AspectCore.Extensions;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Extensions.Reflection.Emit;
 
@@ -457,34 +458,12 @@ namespace AspectCore.Utils
                     attributes |= MethodAttributes.FamORAssem;
                 }
 
-                // NewSlot is required for covariant return types.
-                if (method.IsDefined(PreserveBaseOverridesAttribute) && method.Attributes.HasFlag(MethodAttributes.NewSlot))
-                {
-                    attributes |= MethodAttributes.NewSlot;
-                }
-
                 var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc);
                 return methodBuilder;
             }
 
             private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
             {
-                var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
-
-                GenericParameterUtils.DefineGenericParameter(method, methodBuilder);
-
-                //define method attributes
-                methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
-
-                //inherit targetMethod's attribute
-                foreach (var customAttributeData in method.CustomAttributes)
-                {
-                    methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
-                }
-
-                //define parameters
-                ParameterBuilderUtils.DefineParameters(method, methodBuilder);
-
                 var implementationMethod = covariantReturnMethod ?? implType.GetTypeInfo().GetMethodBySignature(method);
                 if (implementationMethod == null)
                 {
@@ -515,6 +494,34 @@ namespace AspectCore.Utils
                         throw new MissingMethodException($"Type '{implType}' does not contain a method '{method}'.");
                     }
                 }
+
+                // NOTE: both covariant return method and its corresponding overridden method should be defined with NewSlot attribute.
+                if (method.IsPreserveBaseOverride(true))
+                {
+                    // PreserveBaseOverridesAttribute is used to indicate that the method is a covariant return method.
+                    attributes |= MethodAttributes.NewSlot;
+                }
+                else if (implementationMethod.Attributes.HasFlag(MethodAttributes.NewSlot) && implementationMethod.IsOverriden())
+                {
+                    // an overridden method with NewSlot attribute is a method overriden covariant return method.
+                    attributes |= MethodAttributes.NewSlot;
+                }
+
+                var methodBuilder = typeDesc.Builder.DefineMethod(name, attributes, method.CallingConvention, method.ReturnType, method.GetParameterTypes());
+
+                GenericParameterUtils.DefineGenericParameter(method, methodBuilder);
+
+                //define method attributes
+                methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
+
+                //inherit targetMethod's attribute
+                foreach (var customAttributeData in method.CustomAttributes)
+                {
+                    methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
+                }
+
+                //define parameters
+                ParameterBuilderUtils.DefineParameters(method, methodBuilder);
 
                 if (method.IsNonAspect())
                 {
