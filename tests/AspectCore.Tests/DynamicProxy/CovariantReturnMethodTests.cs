@@ -67,7 +67,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         Assert.Equal(nameof(DerivedCovariantReturnsService), service.Method());
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
     }
-    
+
     [Fact]
     public void CreateInterfaceProxy_IService_CovariantReturnsService_Test()
     {

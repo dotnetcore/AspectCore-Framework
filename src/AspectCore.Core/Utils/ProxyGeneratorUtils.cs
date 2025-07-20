@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
@@ -161,6 +162,29 @@ namespace AspectCore.Utils
             PropertyBuilderUtils.DefineClassProxyProperties(serviceType, implType, additionalInterfaces, typeDesc);
 
             return typeDesc.Compile();
+        }
+
+        // key: covariant return method
+        // value: interface method declarations
+        internal static IReadOnlyDictionary<MethodInfo, HashSet<MethodInfo>> GetCovariantReturnMethodMap(Type implType)
+        {
+            var result = new Dictionary<MethodInfo, HashSet<MethodInfo>>();
+            // No PreserveBaseOverridesAttribute means that the runtime does not support covariant return types.
+            if (AspectCore.Extensions.MethodInfoExtensions.PreserveBaseOverridesAttribute is null)
+                return result;
+
+            var covariantReturnMethods = implType
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(m => m.IsPreserveBaseOverride(true))
+                .ToHashSet();
+
+            foreach (var method in covariantReturnMethods)
+            {
+                var interfaceDeclarations = method.GetInterfaceDeclarations().ToHashSet();
+                result[method] = interfaceDeclarations;
+            }
+
+            return result;
         }
 
         private class ProxyNameUtils
@@ -461,7 +485,10 @@ namespace AspectCore.Utils
                 var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc);
                 return methodBuilder;
             }
-
+            
+            // NOTE: when a covariant return method is handling:
+            // For class proxy: We just define the covariant return methods in the implementation type like normal methods, the CLR will handle the propagation. (in this case covariantReturnMethod is null)
+            // For interface proxy: We need to use the covariant return methods as the interface methods' implementation. (in this case covariantReturnMethod is not null)
             private static MethodBuilder DefineMethod(MethodInfo method, string name, MethodAttributes attributes, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
             {
                 var implementationMethod = covariantReturnMethod ?? implType.GetTypeInfo().GetMethodBySignature(method);
