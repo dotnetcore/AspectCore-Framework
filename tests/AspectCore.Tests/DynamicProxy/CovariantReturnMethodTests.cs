@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AspectCore.DynamicProxy;
+﻿using AspectCore.DynamicProxy;
 using Xunit;
 
 namespace AspectCore.Tests.DynamicProxy;

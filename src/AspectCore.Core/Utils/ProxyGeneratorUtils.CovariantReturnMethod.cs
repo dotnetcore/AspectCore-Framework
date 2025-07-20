@@ -15,7 +15,7 @@ namespace AspectCore.Utils
         private static readonly Type PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
 
         // key: covariant return method
-        // value: overridden method's interface declarations
+        // value: interface method declarations
         internal static IReadOnlyDictionary<MethodInfo, HashSet<MethodInfo>> GetCovariantReturnMethodMap(Type implType)
         {
             var result = new Dictionary<MethodInfo, HashSet<MethodInfo>>();
@@ -32,7 +32,7 @@ namespace AspectCore.Utils
 
             foreach (var method in covariantReturnMethods)
             {
-                var interfaceDeclarations = method.GetInterfaceDeclarationsForMethod().ToHashSet();
+                var interfaceDeclarations = method.GetInterfaceDeclarations().ToHashSet();
                 result[method] = interfaceDeclarations;
             }
 

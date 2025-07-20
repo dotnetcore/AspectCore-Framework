@@ -7,7 +7,7 @@ namespace AspectCore.Extensions
 {
     internal static class MethodInfoExtensions
     {
-        public static IEnumerable<MethodInfo> GetInterfaceDeclarationsForMethod(this MethodInfo method)
+        public static IEnumerable<MethodInfo> GetInterfaceDeclarations(this MethodInfo method)
         {
             var typeInfo = method.ReflectedType?.GetTypeInfo();
             if (typeInfo is null)
