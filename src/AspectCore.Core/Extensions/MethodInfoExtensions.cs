@@ -27,11 +27,6 @@ namespace AspectCore.Extensions
             }
         }
 
-        public static bool IsOverriden(this MethodInfo method)
-        {
-            return method.GetBaseDefinition() != method;
-        }
-
         public static bool IsPreserveBaseOverride(this MethodInfo method, bool checkBase)
         {
             if (PreserveBaseOverridesAttribute is null)
@@ -54,6 +49,26 @@ namespace AspectCore.Extensions
             }
 
             return false;
+        }
+
+        public static IEnumerable<MethodInfo> EnumerateBaseDefinition(this MethodInfo method)
+        {
+            var m = method;
+            while (true)
+            {
+                yield return m;
+
+                var b = m.GetBaseDefinition();
+                if (b == m || b == null)
+                    yield break;
+
+                m = b;
+            }
+        }
+
+        public static bool EqualAnyBaseDefinitionTo(this MethodInfo method, MethodInfo other)
+        {
+            return method.EnumerateBaseDefinition().Any(m => m == other);
         }
     }
 }
