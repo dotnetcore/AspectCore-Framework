@@ -503,7 +503,7 @@ namespace AspectCore.Utils
                 }
                 else if (implementationMethod.Attributes.HasFlag(MethodAttributes.NewSlot) && implementationMethod.IsOverriden())
                 {
-                    // an overridden method with NewSlot attribute is a method overriden covariant return method.
+                    // an overridden method with NewSlot attribute is a method overriden by a covariant return method.
                     attributes |= MethodAttributes.NewSlot;
                 }
 
