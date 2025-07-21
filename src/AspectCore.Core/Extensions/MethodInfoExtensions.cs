@@ -32,43 +32,15 @@ namespace AspectCore.Extensions
             if (PreserveBaseOverridesAttribute is null)
                 return false;
 
-            var m = method;
-            while (true)
-            {
-                if (m.IsDefined(PreserveBaseOverridesAttribute))
-                    return true;
+            if (method.IsDefined(PreserveBaseOverridesAttribute))
+                return true;
 
-                if (checkBase == false)
-                    break;
-
-                var b = m.GetBaseDefinition();
-                if (b == m || b == null)
-                    break;
-
-                m = b;
-            }
-
-            return false;
+            return checkBase && method.GetBaseDefinition().IsDefined(PreserveBaseOverridesAttribute);
         }
 
-        public static IEnumerable<MethodInfo> EnumerateBaseDefinition(this MethodInfo method)
+        public static bool IsSameBaseDefinition(this MethodInfo method, MethodInfo other)
         {
-            var m = method;
-            while (true)
-            {
-                yield return m;
-
-                var b = m.GetBaseDefinition();
-                if (b == m || b == null)
-                    yield break;
-
-                m = b;
-            }
-        }
-
-        public static bool EqualAnyBaseDefinitionTo(this MethodInfo method, MethodInfo other)
-        {
-            return method.EnumerateBaseDefinition().Any(m => m == other);
+            return method.GetBaseDefinition() == other.GetBaseDefinition();
         }
     }
 }
