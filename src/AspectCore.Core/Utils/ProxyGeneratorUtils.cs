@@ -5,15 +5,12 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Extensions.Reflection.Emit;
-using TypeExtensions = AspectCore.Extensions.TypeExtensions;
 
 namespace AspectCore.Utils
 {
@@ -465,7 +462,7 @@ namespace AspectCore.Utils
                 return methodBuilder;
             }
 
-            internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
+            internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc)
             {
                 var attributes = OverrideMethodAttributes;
 
@@ -484,7 +481,7 @@ namespace AspectCore.Utils
                     attributes |= MethodAttributes.FamORAssem;
                 }
 
-                var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc, covariantReturnMethod);
+                var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc);
                 return methodBuilder;
             }
 
