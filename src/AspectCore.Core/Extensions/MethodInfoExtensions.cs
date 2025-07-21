@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using static AspectCore.Extensions.TypeExtensions;
 
 // ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions
 {
     internal static class MethodInfoExtensions
     {
-        public static readonly Type PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
-
         public static IEnumerable<MethodInfo> GetInterfaceDeclarations(this MethodInfo method)
         {
             var typeInfo = method.ReflectedType?.GetTypeInfo();

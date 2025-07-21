@@ -6,27 +6,34 @@ using System.Reflection;
 // ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions
 {
+    internal readonly struct CovariantReturnMethodInfo
+    {
+        public readonly MethodInfo CovariantReturnMethod;
+        public readonly MethodInfo OverridenMethod;
+        public readonly HashSet<MethodInfo> InterfaceDeclarations;
+
+        public CovariantReturnMethodInfo(MethodInfo covariantReturnMethod, MethodInfo overridenMethod, HashSet<MethodInfo> interfaceDeclarations)
+        {
+            InterfaceDeclarations = interfaceDeclarations;
+            OverridenMethod = overridenMethod;
+            CovariantReturnMethod = covariantReturnMethod;
+        }
+    }
+
     internal static class TypeExtensions
     {
-        public readonly struct CovariantReturnMethodInfo
-        {
-            public readonly MethodInfo CovariantReturnMethod;
-            public readonly MethodInfo OverridenMethod;
-            public readonly HashSet<MethodInfo> InterfaceDeclarations;
+        public static readonly Type PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
 
-            public CovariantReturnMethodInfo(MethodInfo covariantReturnMethod, MethodInfo overridenMethod, HashSet<MethodInfo> interfaceDeclarations)
-            {
-                InterfaceDeclarations = interfaceDeclarations;
-                OverridenMethod = overridenMethod;
-                CovariantReturnMethod = covariantReturnMethod;
-            }
+        public static bool IsPreserveBaseOverrides(this Type type)
+        {
+            return type == PreserveBaseOverridesAttribute;
         }
 
         public static IReadOnlyList<CovariantReturnMethodInfo> GetCovariantReturnMethods(this Type type)
         {
             var result = new List<CovariantReturnMethodInfo>();
             // No PreserveBaseOverridesAttribute means that the runtime does not support covariant return types.
-            if (MethodInfoExtensions.PreserveBaseOverridesAttribute is null)
+            if (PreserveBaseOverridesAttribute is null)
                 return result;
 
             var methods = type

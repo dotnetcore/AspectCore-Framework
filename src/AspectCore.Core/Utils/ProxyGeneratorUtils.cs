@@ -5,12 +5,15 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Extensions.Reflection.Emit;
+using TypeExtensions = AspectCore.Extensions.TypeExtensions;
 
 namespace AspectCore.Utils
 {
@@ -497,7 +500,7 @@ namespace AspectCore.Utils
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in method.CustomAttributes)
                 {
-                    if (customAttributeData.AttributeType == AspectCore.Extensions.MethodInfoExtensions.PreserveBaseOverridesAttribute)
+                    if (customAttributeData.AttributeType.IsPreserveBaseOverrides())
                         continue;
 
                     methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
@@ -795,18 +798,34 @@ namespace AspectCore.Utils
 
                 foreach (var property in serviceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    MethodInfo covariantReturnGetter = null;
-
-                    if (property.CanRead)
-                    {
-                    }
-
                     if (property.IsVisibleAndVirtual())
                     {
+                        // covariant return property can only have getter.
+                        if (property.CanRead && property.CanWrite == false)
+                        {
+                            var covariantReturn = covariantReturnMethods.FirstOrDefault(m => IsOverriddenByCovariantReturnProperty(property, m));
+                            var overriden = covariantReturn.OverridenMethod;
+                            if (overriden != null)
+                            {
+                                // if method is the base definition of the overriden method, the CovariantReturnMethod is not in serviceType, so we need to add CovariantReturnMethod to implType.
+                                // otherwise, the CovariantReturnMethod is also in serviceType, which will be added to implType in next for-loops.
+                                if (overriden.GetBaseDefinition() == property.GetMethod)
+                                {
+                                    var propertyBuilder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
+                                    var method = MethodBuilderUtils.DefineClassMethod(covariantReturn.CovariantReturnMethod, implType, typeDesc);
+                                    propertyBuilder.SetGetMethod(method);
+                                }
+
+                                // covariant return property is found, do not add property to implType.
+                                continue;
+                            }
+                        }
+
                         var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
-                        DefineClassPropertyMethod(builder, property, implType, typeDesc, covariantReturnGetter);
+                        DefineClassPropertyMethod(builder, property, implType, typeDesc);
                     }
                 }
+
                 foreach (var item in additionalInterfaces)
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
@@ -815,13 +834,31 @@ namespace AspectCore.Utils
                         DefineExplicitPropertyMethod(builder, property, implType, typeDesc);
                     }
                 }
+
+                bool IsOverriddenByCovariantReturnProperty(PropertyInfo property, CovariantReturnMethodInfo info)
+                {
+                    // this case occurs when the property is not overridden in the serviceType.
+                    var get = property.GetMethod;
+                    if (info.OverridenMethod.IsSameBaseDefinition(get))
+                        return true;
+
+                    // this case occurs when the property is overridden in the serviceType.
+                    // in this case, the property type is super class of (and not the same as) the getter's type.
+                    var covariantReturn = info.CovariantReturnMethod;
+                    if (covariantReturn.IsSameBaseDefinition(get)
+                        && covariantReturn.ReturnType != property.PropertyType
+                        && property.PropertyType.IsAssignableFrom(covariantReturn.ReturnType))
+                        return true;
+
+                    return false;
+                }
             }
 
-            private static void DefineClassPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnGetter = null)
+            private static void DefineClassPropertyMethod(PropertyBuilder propertyBuilder, PropertyInfo property, Type implType, TypeDesc typeDesc)
             {
                 if (property.CanRead)
                 {
-                    var method = MethodBuilderUtils.DefineClassMethod(property.GetMethod, implType, typeDesc, covariantReturnGetter);
+                    var method = MethodBuilderUtils.DefineClassMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
                 }
                 if (property.CanWrite)
