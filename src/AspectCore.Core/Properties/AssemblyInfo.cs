@@ -28,5 +28,3 @@ using System.Runtime.InteropServices;
                               "e15b6849fbabea83fc9b8b6abf959e606f5e51b268a6a6c2d4757bbc3ae33689373faaedf61077" +
                               "59678c9b")]
 #endif
-
-[assembly: InternalsVisibleTo("AspectCore.Tests")]

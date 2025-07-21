@@ -426,7 +426,7 @@ namespace AspectCore.Utils
                         if (overriden != null)
                         {
                             // if method is the base definition of the overriden method, the CovariantReturnMethod is not in serviceType, so we need to add CovariantReturnMethod to implType.
-                            // otherwise, the CovariantReturnMethod is also in serviceType, which will be added to implType next for-loops.
+                            // otherwise, the CovariantReturnMethod is also in serviceType, which will be added to implType in next for-loops.
                             if (overriden.GetBaseDefinition() == method)
                             {
                                 DefineClassMethod(covariantReturnMethod.CovariantReturnMethod, implType, typeDesc);
