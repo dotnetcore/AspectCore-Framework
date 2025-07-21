@@ -462,7 +462,7 @@ namespace AspectCore.Utils
                 return methodBuilder;
             }
 
-            internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null, bool isNewSlot = false)
+            internal static MethodBuilder DefineClassMethod(MethodInfo method, Type implType, TypeDesc typeDesc, MethodInfo covariantReturnMethod = null)
             {
                 var attributes = OverrideMethodAttributes;
 
@@ -479,11 +479,6 @@ namespace AspectCore.Utils
                 if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
                 {
                     attributes |= MethodAttributes.FamORAssem;
-                }
-
-                if (isNewSlot)
-                {
-                    attributes |= MethodAttributes.NewSlot;
                 }
 
                 var methodBuilder = DefineMethod(method, method.Name, attributes, implType, typeDesc, covariantReturnMethod);
