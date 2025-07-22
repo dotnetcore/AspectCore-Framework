@@ -395,22 +395,23 @@ namespace AspectCore.Utils
                 var covariantReturnMethods = targetType.GetCovariantReturnMethods();
                 foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
-                    var covariantReturnMethod = covariantReturnMethods
-                        .FirstOrDefault(m => m.InterfaceDeclarations.Contains(method))
-                        .CovariantReturnMethod;
-
+                    var covariantReturnMethod = GetCovariantReturnMethod(method);
                     DefineInterfaceMethod(method, targetType, typeDesc, covariantReturnMethod);
                 }
                 foreach (var item in additionalInterfaces)
                 {
                     foreach (var method in item.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                     {
-                        var covariantReturnMethod = covariantReturnMethods
-                            .FirstOrDefault(m => m.InterfaceDeclarations.Contains(method))
-                            .CovariantReturnMethod;
-
+                        var covariantReturnMethod = GetCovariantReturnMethod(method);
                         DefineExplicitMethod(method, targetType, typeDesc, covariantReturnMethod);
                     }
+                }
+
+                MethodInfo GetCovariantReturnMethod(MethodInfo interfaceMethod)
+                {
+                    return covariantReturnMethods
+                        .FirstOrDefault(m => m.InterfaceDeclarations.Contains(interfaceMethod))
+                        .CovariantReturnMethod;
                 }
             }
 
@@ -421,15 +422,15 @@ namespace AspectCore.Utils
                 {
                     if (method.IsVisibleAndVirtual() && !_ignores.Contains(method.Name))
                     {
-                        var covariantReturnMethod = covariantReturnMethods.FirstOrDefault(m => m.OverridenMethod.IsSameBaseDefinition(method));
-                        var overriden = covariantReturnMethod.OverridenMethod;
+                        var covariantReturn = covariantReturnMethods.FirstOrDefault(m => m.OverridenMethod.IsSameBaseDefinition(method));
+                        var overriden = covariantReturn.OverridenMethod;
                         if (overriden != null)
                         {
                             // if method is the base definition of the overriden method, the CovariantReturnMethod is not in serviceType, so we need to add CovariantReturnMethod to implType.
                             // otherwise, the CovariantReturnMethod is also in serviceType, which will be added to implType in next for-loops.
                             if (overriden.GetBaseDefinition() == method)
                             {
-                                DefineClassMethod(covariantReturnMethod.CovariantReturnMethod, implType, typeDesc);
+                                DefineClassMethod(covariantReturn.CovariantReturnMethod, implType, typeDesc);
                             }
 
                             // covariantReturnMethod is found, do not add method to implType.
@@ -767,22 +768,25 @@ namespace AspectCore.Utils
 
                 foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
                 {
+                    var covariantReturnGetter = FindCovariantReturnGetter(property);
                     var builder = DefineInterfaceProxyProperty(property, property.Name, implType, typeDesc);
-                    var covariantReturnGetter = property.CanRead
-                        ? covariantReturnMethods.FirstOrDefault(m => m.InterfaceDeclarations.Contains(property.GetMethod)).CovariantReturnMethod
-                        : null;
                     DefineInterfacePropertyMethod(builder, property, implType, typeDesc, covariantReturnGetter);
                 }
                 foreach (var item in additionalInterfaces)
                 {
                     foreach (var property in item.GetTypeInfo().DeclaredProperties)
                     {
+                        var covariantReturnGetter = FindCovariantReturnGetter(property);
                         var builder = DefineInterfaceProxyProperty(property, property.GetDisplayName(), implType, typeDesc);
-                        var covariantReturnGetter = property.CanRead
-                            ? covariantReturnMethods.FirstOrDefault(m => m.InterfaceDeclarations.Contains(property.GetMethod)).CovariantReturnMethod
-                            : null;
                         DefineExplicitPropertyMethod(builder, property, implType, typeDesc, covariantReturnGetter);
                     }
+                }
+
+                MethodInfo FindCovariantReturnGetter(PropertyInfo property)
+                {
+                    return property.CanRead
+                        ? covariantReturnMethods.FirstOrDefault(m => m.InterfaceDeclarations.Contains(property.GetMethod)).CovariantReturnMethod
+                        : null;
                 }
             }
 
