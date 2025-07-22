@@ -29,6 +29,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         object Property { get; }
         object Method();
 
+        object ProxyProperty { [Interceptor] get; }
         [Interceptor]
         object ProxyMethod();
     }
@@ -38,6 +39,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         public virtual object Property { get; } = 1;
         public virtual object Method() => 1;
 
+        public virtual object ProxyProperty { [Interceptor] get; } = new();
         [Interceptor]
         public virtual object ProxyMethod() => new();
     }
@@ -47,19 +49,16 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         public override string Property { get; } = nameof(CovariantReturnsService);
         public override string Method() => nameof(CovariantReturnsService);
 
+        public override string ProxyProperty { [Interceptor] get; } = nameof(CovariantReturnsService);
         [Interceptor]
         public override string ProxyMethod() => nameof(CovariantReturnsService);
     }
 
     public class DerivedCovariantReturnsService : CovariantReturnsService
     {
+        public override string ProxyProperty { [Interceptor] get; } = nameof(DerivedCovariantReturnsService);
         [Interceptor]
         public override string ProxyMethod() => nameof(DerivedCovariantReturnsService);
-    }
-
-    public class DerivedCovariantReturnsService2 : DerivedCovariantReturnsService
-    {
-        public override string Property { get; } = nameof(CovariantReturnsService);
     }
 
     [Fact]
@@ -68,17 +67,17 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         var service = ProxyGenerator.CreateClassProxy<CovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 
     [Fact]
     public void CreateClassProxy_DerivedCovariantReturnsService_Test()
     {
-        return; // 会死锁, 待修. DefineClassPropertyMethod
-
         var service = ProxyGenerator.CreateClassProxy<DerivedCovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 
@@ -88,6 +87,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         var service = ProxyGenerator.CreateClassProxy<Service, CovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 
@@ -97,6 +97,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         var service = ProxyGenerator.CreateClassProxy<Service, DerivedCovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 
@@ -106,6 +107,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         var service = ProxyGenerator.CreateClassProxy<CovariantReturnsService, DerivedCovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 
@@ -115,6 +117,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         var service = ProxyGenerator.CreateInterfaceProxy<IService, CovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 
@@ -124,6 +127,7 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
         var service = ProxyGenerator.CreateInterfaceProxy<IService, DerivedCovariantReturnsService>();
         Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
     }
 }

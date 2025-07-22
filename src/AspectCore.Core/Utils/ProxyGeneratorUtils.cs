@@ -497,9 +497,6 @@ namespace AspectCore.Utils
                 //inherit targetMethod's attribute
                 foreach (var customAttributeData in method.CustomAttributes)
                 {
-                    if (customAttributeData.AttributeType.IsPreserveBaseOverrides())
-                        continue;
-
                     methodBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(customAttributeData));
                 }
 
@@ -857,6 +854,13 @@ namespace AspectCore.Utils
                 {
                     var method = MethodBuilderUtils.DefineClassMethod(property.GetMethod, implType, typeDesc);
                     propertyBuilder.SetGetMethod(method);
+
+                    if (property.GetMethod.IsPreserveBaseOverride(true))
+                    {
+                        // property.GetMethod is a covariant return type method, we need to define an override for it.
+                        // otherwise, the TypeDesc.Compile() will run forever.
+                        typeDesc.Builder.DefineMethodOverride(method, property.GetMethod);
+                    }
                 }
                 if (property.CanWrite)
                 {
@@ -990,10 +994,10 @@ namespace AspectCore.Utils
                     }
                 }
 
-                var returnParamter = targetMethod.ReturnParameter;
-                var returnParameterBuilder = methodBuilder.DefineParameter(0, returnParamter.Attributes, returnParamter.Name);
+                var returnParameter = targetMethod.ReturnParameter;
+                var returnParameterBuilder = methodBuilder.DefineParameter(0, returnParameter.Attributes, returnParameter.Name);
                 returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(typeof(DynamicallyAttribute)));
-                foreach (var attribute in returnParamter.CustomAttributes)
+                foreach (var attribute in returnParameter.CustomAttributes)
                 {
                     returnParameterBuilder.SetCustomAttribute(CustomAttributeBuilderUtils.DefineCustomAttribute(attribute));
                 }

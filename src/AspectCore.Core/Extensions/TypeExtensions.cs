@@ -24,11 +24,6 @@ namespace AspectCore.Extensions
     {
         public static readonly Type PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
 
-        public static bool IsPreserveBaseOverrides(this Type type)
-        {
-            return type == PreserveBaseOverridesAttribute;
-        }
-
         public static IReadOnlyList<CovariantReturnMethodInfo> GetCovariantReturnMethods(this Type type)
         {
             var result = new List<CovariantReturnMethodInfo>();
