@@ -29,7 +29,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.x
+        dotnet-version: 7.x
         
     - name: Build Reason
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
