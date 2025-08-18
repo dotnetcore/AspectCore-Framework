@@ -10,7 +10,7 @@ on:
       publish-github-package:
         type: boolean
         description: 'Github Package push'
-        default: true
+        default: false
         required: false
       publish-myget-package:
         type: boolean
