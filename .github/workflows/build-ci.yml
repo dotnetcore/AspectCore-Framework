@@ -7,11 +7,6 @@ on:
       - '!**/*.md'
   workflow_dispatch:
     inputs:
-      publish-github-package:
-        type: boolean
-        description: 'Github Package push'
-        default: false
-        required: false
       publish-myget-package:
         type: boolean
         description: 'MyGet Package push'
@@ -73,7 +68,7 @@ jobs:
         done
       
     - name: Package
-      if: ${{ inputs.publish-github-package || inputs.publish-myget-package}}
+      if: ${{ inputs.publish-myget-package }}
       shell: bash
       run: |
         for project in $(find ./src -name "*.csproj"); do
@@ -85,19 +80,11 @@ jobs:
       run: dotnet tool install gpr -g
       
     - name: Publish CI Packages
-      if: ${{ inputs.publish-github-package || inputs.publish-myget-package}}
+      if: ${{ inputs.publish-myget-package }}
       shell: bash
       run: |
         for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
           echo "$package": Pushing $package...
-
-          if [ "${{ inputs.publish-github-package }}" = "true" ]; then
-            # GitHub
-            echo "Pushing to GitHub Package Registry..."
-            gpr push "$package" -k ${{ secrets.GITHUB_TOKEN }} || echo "Skipping: Package push failed or already exists."
-          else
-            echo "Skipping: Pushing to GitHub Package Registry is disabled."
-          fi
 
           # MyGet
           if [ "${{ inputs.publish-myget-package }}" = "true" ]; then
