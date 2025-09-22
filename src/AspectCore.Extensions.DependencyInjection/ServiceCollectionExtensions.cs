@@ -53,10 +53,10 @@ namespace AspectCore.Extensions.DependencyInjection
             services.TryAddScoped<IAspectActivatorFactory, AspectActivatorFactory>();
             services.TryAddScoped<IProxyGenerator, ProxyGenerator>();
             services.TryAddScoped<IParameterInterceptorSelector, ParameterInterceptorSelector>();
+            services.TryAddScoped<IInterceptorCollector, InterceptorCollector>();
+            services.TryAddScoped<IAspectBuilderFactory, AspectBuilderFactory>();
 
-            services.TryAddSingleton<IInterceptorCollector, InterceptorCollector>();
             services.TryAddSingleton<IAspectValidatorBuilder, AspectValidatorBuilder>();
-            services.TryAddSingleton<IAspectBuilderFactory, AspectBuilderFactory>();
             services.TryAddSingleton<IProxyTypeGenerator, ProxyTypeGenerator>();
             services.TryAddSingleton<IAspectCachingProvider, AspectCachingProvider>();
 
