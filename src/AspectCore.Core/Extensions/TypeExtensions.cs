@@ -8,8 +8,30 @@ namespace AspectCore.Extensions
 {
     internal readonly struct CovariantReturnMethodInfo
     {
+        /// <summary>
+        /// The method that defines the covariant return type —
+        /// i.e., the overriding method that returns a more derived type.
+        /// </summary>
         public readonly MethodInfo CovariantReturnMethod;
+
+        /// <summary>
+        /// Gets the method that is overridden or implemented by <see cref="CovariantReturnMethod"/>.
+        /// </summary>
+        /// <remarks>
+        /// This <see cref="MethodInfo"/> is **reflected from the derived type**, not necessarily
+        /// the base definition returned by <see cref="MethodInfo.GetBaseDefinition()"/>.
+        /// <para>
+        /// In other words, it represents the version of the base or interface method as seen
+        /// through the derived class’s reflection context, which may differ from the canonical
+        /// base definition when covariant return types are involved.
+        /// </para>
+        /// </remarks>
         public readonly MethodInfo OverridenMethod;
+
+        /// <summary>
+        /// The set of interface method declarations (if any)
+        /// that are implemented by the <see cref="CovariantReturnMethod"/>.
+        /// </summary>
         public readonly HashSet<MethodInfo> InterfaceDeclarations;
 
         public CovariantReturnMethodInfo(MethodInfo covariantReturnMethod, MethodInfo overridenMethod, HashSet<MethodInfo> interfaceDeclarations)
