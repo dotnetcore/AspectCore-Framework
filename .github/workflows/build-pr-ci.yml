@@ -12,8 +12,12 @@ jobs:
         fetch-depth: 0
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
-      with: # NOTE: we don't need to install 6.x, 8.x and 9.x cause they are included in windows-latest(windows-2022) image.
-        dotnet-version: 7.x
+      with: # Install all required versions explicitly, since some frameworks may be missing from the image if they have been removed due to end of support.
+        dotnet-version: | 
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
         
     - name: Build Reason
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
