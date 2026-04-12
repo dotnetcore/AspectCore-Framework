@@ -76,8 +76,9 @@ namespace AspectCore.DynamicProxy
                     case null:
                         return default;
                     case Task<TResult> taskWithResult:
-                        return taskWithResult.Result;
-                    case Task _:
+                        return await taskWithResult;
+                    case Task task:
+                        await task;
                         return default;
                     default:
                         throw new AspectInvalidCastException(context, $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(Task<TResult>)}'.");
@@ -119,8 +120,9 @@ namespace AspectCore.DynamicProxy
                     case null:
                         return default;
                     case ValueTask<TResult> taskWithResult:
-                        return taskWithResult.Result;
+                        return await taskWithResult;
                     case ValueTask task:
+                        await task;
                         return default;
                     default:
                         throw new AspectInvalidCastException(context, $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(ValueTask<TResult>)}'.");
