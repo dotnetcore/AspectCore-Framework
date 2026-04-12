@@ -1,4 +1,3 @@
-﻿using AspectCore.Core.Benchmark.Benchmarks;
 using BenchmarkDotNet.Running;
 
 namespace AspectCore.Core.Benchmark
@@ -7,7 +6,7 @@ namespace AspectCore.Core.Benchmark
     {
         public static void Main(string[] args)
         {
-            BenchmarkRunner.Run<GetTaskResultBenchmarks>();
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
         }
     }
 }
