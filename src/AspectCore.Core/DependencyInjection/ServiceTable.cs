@@ -15,13 +15,51 @@ namespace AspectCore.DependencyInjection
         private readonly IProxyTypeGenerator _proxyTypeGenerator;
         private readonly ServiceValidator _serviceValidator;
 
-        public ServiceTable(IAspectConfiguration configuration)
+        public ServiceTable(IServiceContext serviceContext)
         {
-            var aspectValidatorBuilder = new AspectValidatorBuilder(configuration);
-            _proxyTypeGenerator = new ProxyTypeGenerator(aspectValidatorBuilder);
+            if (serviceContext == null)
+            {
+                throw new ArgumentNullException(nameof(serviceContext));
+            }
+
+            var aspectValidatorBuilder = new AspectValidatorBuilder(serviceContext.Configuration);
+            _proxyTypeGenerator = CreateProxyTypeGenerator(serviceContext, aspectValidatorBuilder);
             _serviceValidator = new ServiceValidator(aspectValidatorBuilder);
             _linkedServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ServiceDefinition>>();
             _linkedGenericServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ServiceDefinition>>();
+        }
+
+        private static IProxyTypeGenerator CreateProxyTypeGenerator(IServiceContext serviceContext, IAspectValidatorBuilder aspectValidatorBuilder)
+        {
+            // 1) 显式实例注册优先
+            var explicitGenerator = serviceContext
+                .OfType<InstanceServiceDefinition>()
+                .FirstOrDefault(x => x.ServiceType == typeof(IProxyTypeGenerator))
+                ?.ImplementationInstance as IProxyTypeGenerator;
+            if (explicitGenerator != null)
+            {
+                return explicitGenerator;
+            }
+
+            // 2) 按 ProxyEngineOptions 选择（若未配置则保持默认 DynamicProxy）
+            var options = serviceContext
+                .OfType<InstanceServiceDefinition>()
+                .FirstOrDefault(x => x.ServiceType == typeof(ProxyEngineOptions))
+                ?.ImplementationInstance as ProxyEngineOptions;
+
+            if (options != null && options.Engine != ProxyEngine.DynamicProxy)
+            {
+                var registries = serviceContext
+                    .OfType<InstanceServiceDefinition>()
+                    .Where(x => x.ServiceType == typeof(ISourceGeneratedProxyRegistry))
+                    .Select(x => x.ImplementationInstance)
+                    .OfType<ISourceGeneratedProxyRegistry>()
+                    .ToArray();
+
+                return new SourceGeneratedProxyTypeGenerator(aspectValidatorBuilder, options, registries);
+            }
+
+            return new ProxyTypeGenerator(aspectValidatorBuilder);
         }
 
         internal void Populate(IEnumerable<ServiceDefinition> services)

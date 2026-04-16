@@ -17,7 +17,7 @@ namespace AspectCore.DependencyInjection
 
         public ServiceResolver(IServiceContext serviceContext)
         {
-            _serviceTable = new ServiceTable(serviceContext.Configuration);
+            _serviceTable = new ServiceTable(serviceContext);
             _serviceTable.Populate(serviceContext);
             _resolvedScopedServices = new ConcurrentDictionary<ServiceDefinition, object>();
             _resolvedSingletonServices = new ConcurrentDictionary<ServiceDefinition, object>();

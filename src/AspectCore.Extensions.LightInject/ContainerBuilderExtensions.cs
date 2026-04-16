@@ -78,6 +78,25 @@ namespace AspectCore.Extensions.LightInject
 
             return container;
         }
+
+        /// <summary>
+        /// 显式 opt-in 配置 AOP 后端引擎（DynamicProxy/SourceGenerator/Auto）。
+        /// 调用后会用 <see cref="SourceGeneratedProxyTypeGenerator"/> 替换 <see cref="IProxyTypeGenerator"/> 注册。
+        /// </summary>
+        public static IServiceContainer ConfigureDynamicProxyEngine(this IServiceContainer container, Action<ProxyEngineOptions> configure)
+        {
+            if (container == null)
+            {
+                throw new ArgumentNullException(nameof(container));
+            }
+
+            var options = new ProxyEngineOptions();
+            configure?.Invoke(options);
+
+            container.AddSingleton(options);
+            container.AddSingleton<IProxyTypeGenerator, SourceGeneratedProxyTypeGenerator>();
+            return container;
+        }
         
         private static Type GetImplType(this ServiceRegistration registration)
         {

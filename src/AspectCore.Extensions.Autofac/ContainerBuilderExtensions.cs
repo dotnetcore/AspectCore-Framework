@@ -67,6 +67,25 @@ namespace AspectCore.Extensions.Autofac
 
             return containerBuilder;
         }
+
+        /// <summary>
+        /// 显式 opt-in 配置 AOP 后端引擎（DynamicProxy/SourceGenerator/Auto）。
+        /// 调用后会用 <see cref="SourceGeneratedProxyTypeGenerator"/> 替换 <see cref="IProxyTypeGenerator"/> 注册，
+        /// 但仍可按 options 回退 DynamicProxy。
+        /// </summary>
+        public static ContainerBuilder ConfigureDynamicProxyEngine(this ContainerBuilder containerBuilder, Action<ProxyEngineOptions> configure)
+        {
+            if (containerBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(containerBuilder));
+            }
+            var options = new ProxyEngineOptions();
+            configure?.Invoke(options);
+
+            containerBuilder.RegisterInstance(options).SingleInstance();
+            containerBuilder.RegisterType<SourceGeneratedProxyTypeGenerator>().As<IProxyTypeGenerator>().SingleInstance();
+            return containerBuilder;
+        }
         #endregion
     }
 }
