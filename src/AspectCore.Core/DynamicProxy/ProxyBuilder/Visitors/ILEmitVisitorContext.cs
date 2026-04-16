@@ -45,15 +45,18 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
 
         public void AddMethod(string name, MethodInfo method)
         {
-            if (!_fields.ContainsKey(name))
+            if (!_fields.TryGetValue(name, out var field))
             {
-                var field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.InitOnly | FieldAttributes.Assembly);
+                field = _nestedTypeBuilder.DefineField(name, typeof(MethodInfo), FieldAttributes.Static | FieldAttributes.InitOnly | FieldAttributes.Assembly);
                 _fields.Add(name, field);
-                if (method != null)
-                {
-                    _ilGen.EmitMethod(method);
-                    _ilGen.Emit(OpCodes.Stsfld, field);
-                }
+            }
+
+            // Allow late-binding updates: proxy MethodBuilder is only available during body emit.
+            // It's safe to assign readonly static fields multiple times in the type initializer (last write wins).
+            if (method != null)
+            {
+                _ilGen.EmitMethod(method);
+                _ilGen.Emit(OpCodes.Stsfld, field);
             }
         }
 
