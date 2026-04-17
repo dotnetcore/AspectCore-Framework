@@ -269,7 +269,7 @@ internal static class ProxyEmitter
             }
             sb.Append(')');
             sb.Append(" : base(");
-            sb.Append(string.Join(", ", ctor.Parameters.Select(p => p.Name)));
+            sb.Append(string.Join(", ", ctor.Parameters.Select(p => EmitArgument(p))));
             sb.AppendLine(")");
             sb.AppendLine("        {");
             sb.AppendLine("            _activatorFactory = activatorFactory ?? throw new ArgumentNullException(nameof(activatorFactory));");
