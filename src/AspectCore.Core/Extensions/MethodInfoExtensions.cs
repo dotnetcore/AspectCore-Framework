@@ -25,17 +25,57 @@ namespace AspectCore.Extensions
             }
         }
 
-        public static bool IsPreserveBaseOverride(this MethodInfo method, bool checkBase)
+        /// <summary>
+        /// Determines whether the method itself is a covariant-return override method.
+        /// </summary>
+        /// <param name="method">
+        /// The method to inspect.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the method is marked with
+        /// <c>PreserveBaseOverridesAttribute</c>; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
+        public static bool IsCovariantReturnMethod(this MethodInfo method)
         {
-            if (PreserveBaseOverridesAttribute is null)
-                return false;
-
-            if (method.IsDefined(PreserveBaseOverridesAttribute))
-                return true;
-
-            return checkBase && method.GetBaseDefinition().IsDefined(PreserveBaseOverridesAttribute);
+            return PreserveBaseOverridesAttribute != null
+                   && method.IsDefined(PreserveBaseOverridesAttribute);
         }
 
+        /// <summary>
+        /// Determines whether the method participates in a covariant-return override chain.
+        /// </summary>
+        /// <param name="method">
+        /// The method to inspect.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if the method itself, or its base definition,
+        /// is a covariant-return override method; otherwise,
+        /// <see langword="false"/>.
+        /// </returns>
+        public static bool IsInCovariantReturnChain(this MethodInfo method)
+        {
+            if (method.IsCovariantReturnMethod())
+                return true;
+
+            return method.GetBaseDefinition()
+                         .IsCovariantReturnMethod();
+        }
+
+        /// <summary>
+        /// Determines whether two methods belong to the same virtual override chain
+        /// by comparing their base definitions.
+        /// </summary>
+        /// <param name="method">
+        /// The first method to compare.
+        /// </param>
+        /// <param name="other">
+        /// The second method to compare.
+        /// </param>
+        /// <returns>
+        /// <see langword="true"/> if both methods have the same base definition;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
         public static bool IsSameBaseDefinition(this MethodInfo method, MethodInfo other)
         {
             return method.GetBaseDefinition() == other.GetBaseDefinition();

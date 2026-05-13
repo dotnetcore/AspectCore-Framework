@@ -272,7 +272,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             {
                 var covariantReturnGetter = FindCovariantReturnGetter(property);
                 properties.Add(BuildProxyProperty(property, property.Name, resolvedImplType, aspectValidator,
-                    interfaceType, MethodBuilderConstants.InterfaceMethodAttributes, methods, methodConstants));
+                    interfaceType, MethodBuilderConstants.InterfaceMethodAttributes, methods, methodConstants, covariantReturnGetter));
             }
 
             // Additional interface properties (explicit)
@@ -280,8 +280,9 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             {
                 foreach (var property in iface.GetTypeInfo().DeclaredProperties)
                 {
+                    var covariantReturnGetter = FindCovariantReturnGetter(property);
                     properties.Add(BuildProxyProperty(property, property.GetDisplayName(), resolvedImplType, aspectValidator,
-                        interfaceType, MethodBuilderConstants.ExplicitMethodAttributes, methods, methodConstants));
+                        interfaceType, MethodBuilderConstants.ExplicitMethodAttributes, methods, methodConstants, covariantReturnGetter));
                 }
             }
 
@@ -308,7 +309,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             Type serviceType,
             MethodAttributes methodAttrs,
             List<MethodNode> methods,
-            List<MethodConstantNode> methodConstants)
+            List<MethodConstantNode> methodConstants,
+            MethodInfo covariantReturnGetter)
         {
             MethodNode getMethod = null;
             MethodNode setMethod = null;
@@ -316,7 +318,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             if (property.CanRead)
             {
                 var method = property.GetMethod;
-                var implMethod = ResolveImplementationMethod(method, implType);
+                var implMethod = covariantReturnGetter ?? ResolveImplementationMethod(method, implType);
                 var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, serviceType);
                 var overrides = methodAttrs == MethodBuilderConstants.ExplicitMethodAttributes ? method : method;
                 getMethod = BuildProxyMethod(method, implMethod, methodAttrs == MethodBuilderConstants.ExplicitMethodAttributes ? method.GetName() : method.Name,

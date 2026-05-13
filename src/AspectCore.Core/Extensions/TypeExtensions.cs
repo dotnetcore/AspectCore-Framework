@@ -26,7 +26,7 @@ namespace AspectCore.Extensions
         /// base definition when covariant return types are involved.
         /// </para>
         /// </remarks>
-        public readonly MethodInfo OverridenMethod;
+        public readonly MethodInfo OverriddenMethod;
 
         /// <summary>
         /// The set of interface method declarations (if any)
@@ -34,10 +34,10 @@ namespace AspectCore.Extensions
         /// </summary>
         public readonly HashSet<MethodInfo> InterfaceDeclarations;
 
-        public CovariantReturnMethodInfo(MethodInfo covariantReturnMethod, MethodInfo overridenMethod, HashSet<MethodInfo> interfaceDeclarations)
+        public CovariantReturnMethodInfo(MethodInfo covariantReturnMethod, MethodInfo overriddenMethod, HashSet<MethodInfo> interfaceDeclarations)
         {
             InterfaceDeclarations = interfaceDeclarations;
-            OverridenMethod = overridenMethod;
+            OverriddenMethod = overriddenMethod;
             CovariantReturnMethod = covariantReturnMethod;
         }
     }
@@ -55,7 +55,7 @@ namespace AspectCore.Extensions
 
             var methods = type
                 .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .GroupBy(m => m.IsPreserveBaseOverride(true))
+                .GroupBy(m => m.IsInCovariantReturnChain())
                 .ToDictionary(m => m.Key, m => m.ToArray());
 
             var covariantReturnMethods = methods.GetValueOrDefault(true, Array.Empty<MethodInfo>());
@@ -63,12 +63,12 @@ namespace AspectCore.Extensions
 
             foreach (var covariantReturnMethod in covariantReturnMethods)
             {
-                var overridenMethod = otherMethods.FirstOrDefault(m => Match(covariantReturnMethod, m));
-                if (overridenMethod is null)
+                var overriddenMethod = otherMethods.FirstOrDefault(m => Match(covariantReturnMethod, m));
+                if (overriddenMethod is null)
                     continue;
 
                 var interfaceDeclarations = covariantReturnMethod.GetInterfaceDeclarations().ToHashSet();
-                result.Add(new CovariantReturnMethodInfo(covariantReturnMethod, overridenMethod, interfaceDeclarations));
+                result.Add(new CovariantReturnMethodInfo(covariantReturnMethod, overriddenMethod, interfaceDeclarations));
             }
 
             return result;

@@ -7,7 +7,7 @@ namespace AspectCore.Tests.Extensions;
 
 public class CovariantReturnTests
 {
-    // 1️⃣ Basic covariant override between classes
+    // Basic covariant override between classes
     private class Animal { }
 
     private class Dog : Animal { }
@@ -31,9 +31,9 @@ public class CovariantReturnTests
         var info = methods.Single();
         Assert.Equal(nameof(DerivedClass.Make), info.CovariantReturnMethod.Name);
         Assert.Equal(typeof(Dog), info.CovariantReturnMethod.ReturnType);
-        Assert.Equal(typeof(Animal), info.OverridenMethod.ReturnType);
-        Assert.True(info.OverridenMethod.DeclaringType == typeof(DerivedClass)
-                 || info.OverridenMethod.DeclaringType == typeof(BaseClass));
+        Assert.Equal(typeof(Animal), info.OverriddenMethod.ReturnType);
+        Assert.True(info.OverriddenMethod.DeclaringType == typeof(DerivedClass)
+                 || info.OverriddenMethod.DeclaringType == typeof(BaseClass));
     }
 
     // Multi-level inheritance
@@ -76,7 +76,7 @@ public class CovariantReturnTests
     {
         var info = typeof(FancyWidgetFactory).GetCovariantReturnMethods().Single();
         Assert.Equal(typeof(FancyWidget), info.CovariantReturnMethod.ReturnType);
-        Assert.Equal(typeof(Widget), info.OverridenMethod.ReturnType);
+        Assert.Equal(typeof(Widget), info.OverriddenMethod.ReturnType);
         // Should list IFactory<FancyWidget>.Create() as an interface declaration
         Assert.Contains(info.InterfaceDeclarations, m => m.DeclaringType!.GetGenericTypeDefinition() == typeof(IFactory<>));
     }
@@ -116,8 +116,8 @@ public class CovariantReturnTests
         var info = typeof(GenDerived).GetCovariantReturnMethods().Single();
         Assert.Equal(typeof(Dog), info.CovariantReturnMethod.ReturnType);
         Assert.Empty(info.CovariantReturnMethod.GetGenericArguments());
-        Assert.Empty(info.OverridenMethod.GetGenericArguments());
-        Assert.NotEqual(info.OverridenMethod, info.OverridenMethod.GetBaseDefinition());
+        Assert.Empty(info.OverriddenMethod.GetGenericArguments());
+        Assert.NotEqual(info.OverriddenMethod, info.OverriddenMethod.GetBaseDefinition());
     }
 
     // Same slot verification

@@ -124,6 +124,30 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             return result;
         }
 
+        private MethodNode CreateClassProxyMethodNode(MethodInfo method, MethodInfo implMethod, MethodInfo overridesMethod, List<MethodConstantNode> methodConstants)
+        {
+            var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
+
+            var attributes = MethodBuilderConstants.OverrideMethodAttributes;
+            if (method.Attributes.HasFlag(MethodAttributes.Public))
+                attributes |= MethodAttributes.Public;
+            if (method.Attributes.HasFlag(MethodAttributes.Family))
+                attributes |= MethodAttributes.Family;
+            if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
+                attributes |= MethodAttributes.FamORAssem;
+
+            var node = InterfaceImplBuilder.BuildProxyMethod(
+                serviceMethod: method,
+                implMethod: implMethod,
+                name: method.Name,
+                attributes: attributes,
+                body: body,
+                overridesMethod: overridesMethod,
+                methodConstants: methodConstants);
+
+            return node;
+        }
+
         private void BuildClassMethods(List<MethodNode> methods, List<MethodConstantNode> methodConstants)
         {
             var covariantReturnMethods = _implType.GetCovariantReturnMethods();
@@ -134,43 +158,41 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 if (!method.IsVisibleAndVirtual() || Ignores.Contains(method.Name))
                     continue;
 
-                var (covariantReturnMethod, skip) = GetCovariantReturnMethod(method);
+                var (covariantReturnMethod, skip) = FindCovariantReturnMethod(method);
                 if (skip)
                     continue;
 
-                var implMethod = covariantReturnMethod ?? InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
-                var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
+                var (serviceMethod, implMethod) = covariantReturnMethod is null
+                    ? (method, InterfaceImplBuilder.ResolveImplementationMethod(method, _implType))
+                    : (covariantReturnMethod, covariantReturnMethod);
 
-                var attributes = MethodBuilderConstants.OverrideMethodAttributes;
-                if (method.Attributes.HasFlag(MethodAttributes.Public))
-                    attributes |= MethodAttributes.Public;
-                if (method.Attributes.HasFlag(MethodAttributes.Family))
-                    attributes |= MethodAttributes.Family;
-                if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
-                    attributes |= MethodAttributes.FamORAssem;
-
-                var node = InterfaceImplBuilder.BuildProxyMethod(
-                    method, implMethod, method.Name, attributes, body, null, methodConstants);
+                var node = CreateClassProxyMethodNode(serviceMethod, implMethod, null, methodConstants);
                 methods.Add(node);
             }
 
-            (MethodInfo, bool Skip) GetCovariantReturnMethod(MethodInfo method)
+            (MethodInfo, bool Skip) FindCovariantReturnMethod(MethodInfo method)
             {
-                var covariantReturn = covariantReturnMethods.FirstOrDefault(m => m.OverridenMethod.IsSameBaseDefinition(method));
-                var overriden = covariantReturn.OverridenMethod;
-                if (overriden == null)
+                var covariantReturn = covariantReturnMethods.FirstOrDefault(m => m.OverriddenMethod.IsSameBaseDefinition(method));
+                var overridden = covariantReturn.OverriddenMethod;
+                if (overridden == null)
                     return (null, false);
 
-                // if method is the base definition of the overriden method, the CovariantReturnMethod is not in serviceType, so we need to add CovariantReturnMethod to implType.
-                // otherwise, the CovariantReturnMethod is also in serviceType, which will be added to implType in next for-loops.
-                return overriden.GetBaseDefinition() == method
-                    ? (covariantReturn.CovariantReturnMethod, true)
+                // If the current method is the base definition of a covariant-return override chain,
+                // the actual covariant-return method will not appear in _serviceType's method list.
+                // In that case, use CovariantReturnMethod instead.
+                //
+                // Otherwise, the covariant-return method will be visited in a later iteration,
+                // so skip the current method to avoid duplicate processing.
+                return overridden.GetBaseDefinition() == method
+                    ? (covariantReturn.CovariantReturnMethod, false)
                     : (null, true);
             }
         }
 
         private void BuildClassProperties(List<PropertyNode> properties, List<MethodNode> methods, List<MethodConstantNode> methodConstants)
         {
+            var covariantReturnMethods = _implType.GetCovariantReturnMethods();
+
             foreach (var property in _serviceType.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (!property.IsVisibleAndVirtual())
@@ -181,38 +203,29 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
                 if (property.CanRead)
                 {
+                    var (covariantReturnGetter, skip) = FindCovariantReturnPropertyGetter(property);
+                    if (skip)
+                        continue;
+
                     var method = property.GetMethod;
-                    var implMethod = InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
-                    var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
+                    var (serviceMethod, implMethod) = covariantReturnGetter is null
+                        ? (method, InterfaceImplBuilder.ResolveImplementationMethod(method, _implType))
+                        : (covariantReturnGetter, covariantReturnGetter);
 
-                    var attributes = MethodBuilderConstants.OverrideMethodAttributes;
-                    if (method.Attributes.HasFlag(MethodAttributes.Public))
-                        attributes |= MethodAttributes.Public;
-                    if (method.Attributes.HasFlag(MethodAttributes.Family))
-                        attributes |= MethodAttributes.Family;
-                    if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
-                        attributes |= MethodAttributes.FamORAssem;
+                    // when property.GetMethod is a covariant return type method, we need to define an override for it.
+                    // otherwise, the typeBuilder.CreateTypeInfo() will run forever.
+                    var overrides = property.GetMethod.IsInCovariantReturnChain()
+                        ? property.GetMethod
+                        : null;
 
-                    getMethod = InterfaceImplBuilder.BuildProxyMethod(
-                        method, implMethod, method.Name, attributes, body, null, methodConstants);
+                    getMethod = CreateClassProxyMethodNode(serviceMethod, implMethod, overrides, methodConstants);
                 }
 
                 if (property.CanWrite)
                 {
                     var method = property.SetMethod;
                     var implMethod = InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
-                    var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
-
-                    var attributes = MethodBuilderConstants.OverrideMethodAttributes;
-                    if (method.Attributes.HasFlag(MethodAttributes.Public))
-                        attributes |= MethodAttributes.Public;
-                    if (method.Attributes.HasFlag(MethodAttributes.Family))
-                        attributes |= MethodAttributes.Family;
-                    if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
-                        attributes |= MethodAttributes.FamORAssem;
-
-                    setMethod = InterfaceImplBuilder.BuildProxyMethod(
-                        method, implMethod, method.Name, attributes, body, null, methodConstants);
+                    setMethod = CreateClassProxyMethodNode(method, implMethod, null, methodConstants);
                 }
 
                 var attrs = new List<AttributeNode>
@@ -222,6 +235,42 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
                 properties.Add(new PropertyNode(property.Name, property.PropertyType, property.Attributes, attrs, getMethod, setMethod));
+            }
+
+            (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)
+            {
+                var covariantReturn = covariantReturnMethods.FirstOrDefault(m => IsOverriddenByCovariantReturnProperty(property, m));
+                var overridden = covariantReturn.OverriddenMethod;
+                if (overridden == null)
+                    return (null, false);
+
+                // If the property's getter is the base definition of a covariant-return override chain,
+                // the actual covariant-return getter will not appear in _serviceType's property list.
+                // In that case, use CovariantReturnMethod instead.
+                //
+                // Otherwise, the covariant-return property will be visited in a later iteration,
+                // so skip the current property to avoid duplicate processing.
+                return overridden.GetBaseDefinition() == property.GetMethod
+                    ? (covariantReturn.CovariantReturnMethod, false)
+                    : (null, true);
+            }
+
+            bool IsOverriddenByCovariantReturnProperty(PropertyInfo property, CovariantReturnMethodInfo info)
+            {
+                // this case occurs when the property is not overridden in the serviceType.
+                var get = property.GetMethod;
+                if (info.OverriddenMethod.IsSameBaseDefinition(get))
+                    return true;
+
+                // this case occurs when the property is overridden in the serviceType.
+                // in this case, the property type is super class of (and not the same as) the getter's type.
+                var covariantReturn = info.CovariantReturnMethod;
+                if (covariantReturn.IsSameBaseDefinition(get)
+                    && covariantReturn.ReturnType != property.PropertyType
+                    && property.PropertyType.IsAssignableFrom(covariantReturn.ReturnType))
+                    return true;
+
+                return false;
             }
         }
 

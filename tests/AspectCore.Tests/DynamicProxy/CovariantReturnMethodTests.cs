@@ -65,10 +65,10 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
     public void CreateClassProxy_CovariantReturnsService_Test()
     {
         var service = ProxyGenerator.CreateClassProxy<CovariantReturnsService>();
-        Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
-        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
+        Assert.Equal(nameof(CovariantReturnsService), service.Property);
+        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
     }
 
     [Fact]
@@ -85,49 +85,49 @@ public class CovariantReturnMethodTests : DynamicProxyTestBase
     public void CreateClassProxy_Service_CovariantReturnsService_Test()
     {
         var service = ProxyGenerator.CreateClassProxy<Service, CovariantReturnsService>();
-        Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
-        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
+        Assert.Equal(nameof(CovariantReturnsService), service.Property);
+        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
     }
 
     [Fact]
     public void CreateClassProxy_Service_DerivedCovariantReturnsService_Test()
     {
         var service = ProxyGenerator.CreateClassProxy<Service, DerivedCovariantReturnsService>();
-        Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
-        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
+        Assert.Equal(nameof(CovariantReturnsService), service.Property);
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
     }
 
     [Fact]
     public void CreateClassProxy_CovariantReturnsService_DerivedCovariantReturnsService_Test()
     {
         var service = ProxyGenerator.CreateClassProxy<CovariantReturnsService, DerivedCovariantReturnsService>();
-        Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
-        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
+        Assert.Equal(nameof(CovariantReturnsService), service.Property);
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
     }
 
     [Fact]
     public void CreateInterfaceProxy_IService_CovariantReturnsService_Test()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<IService, CovariantReturnsService>();
-        Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
-        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
+        Assert.Equal(nameof(CovariantReturnsService), service.Property);
+        Assert.Equal(nameof(CovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
     }
 
     [Fact]
     public void CreateInterfaceProxy_IService_DerivedCovariantReturnsService_Test()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<IService, DerivedCovariantReturnsService>();
-        Assert.Equal(nameof(CovariantReturnsService), service.Property);
         Assert.Equal(nameof(CovariantReturnsService), service.Method());
-        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
         Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyMethod());
+        Assert.Equal(nameof(CovariantReturnsService), service.Property);
+        Assert.Equal(nameof(DerivedCovariantReturnsService) + nameof(Interceptor), service.ProxyProperty);
     }
 }
