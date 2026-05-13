@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Utils;
+using AspectCore.DynamicProxy.ProxyBuilder;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
@@ -11,7 +11,7 @@ namespace AspectCore.DynamicProxy
     public sealed class ProxyTypeGenerator : IProxyTypeGenerator
     {
         private readonly IAspectValidator _aspectValidator;
-        private readonly ProxyGeneratorUtils _proxyGeneratorUtils;
+        private readonly ProxyTypeCompiler _proxyGeneratorUtils;
 
         public ProxyTypeGenerator(IAspectValidatorBuilder aspectValidatorBuilder)
         {
@@ -20,7 +20,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(aspectValidatorBuilder));
             }
             _aspectValidator = aspectValidatorBuilder.Build();
-            _proxyGeneratorUtils = new ProxyGeneratorUtils();
+            _proxyGeneratorUtils = new ProxyTypeCompiler();
         }
 
         public Type CreateClassProxyType(Type serviceType, Type implementationType)

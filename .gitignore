@@ -33,6 +33,9 @@ bld/
 # Rider config directory
 .idea/
 
+# OMC orchestrator state
+.omc/
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
