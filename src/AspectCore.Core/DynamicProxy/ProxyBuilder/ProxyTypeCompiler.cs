@@ -134,16 +134,16 @@ namespace AspectCore.DynamicProxy.ProxyBuilder
 
         private class ProxyNameUtils
         {
-            private readonly Dictionary<string, ProxyNameIndex> _indexs = new Dictionary<string, ProxyNameIndex>();
+            private readonly Dictionary<string, ProxyNameIndex> _indexes = new Dictionary<string, ProxyNameIndex>();
             private readonly Dictionary<Tuple<Type, Type>, string> _indexMaps = new Dictionary<Tuple<Type, Type>, string>();
 
             private string GetProxyTypeIndex(string className, Type serviceType, Type implementationType)
             {
                 ProxyNameIndex nameIndex;
-                if (!_indexs.TryGetValue(className, out nameIndex))
+                if (!_indexes.TryGetValue(className, out nameIndex))
                 {
                     nameIndex = new ProxyNameIndex();
-                    _indexs[className] = nameIndex;
+                    _indexes[className] = nameIndex;
                 }
                 var key = Tuple.Create(serviceType, implementationType);
                 string index;

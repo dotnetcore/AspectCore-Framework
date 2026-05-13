@@ -6,6 +6,7 @@ using AspectCore.DynamicProxy;
 using AspectCore.Utils;
 using AspectCore.Extensions.Reflection;
 using AspectCore.DynamicProxy.ProxyBuilder.Nodes;
+using AspectCore.Extensions;
 
 namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 {
@@ -239,11 +240,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             List<MethodConstantNode> methodConstants)
         {
             var resolvedImplType = implType ?? interfaceType;
+            var covariantReturnMethods = resolvedImplType.GetCovariantReturnMethods();
 
             // Primary interface methods
             foreach (var method in interfaceType.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
             {
-                var implMethod = ResolveImplementationMethod(method, resolvedImplType);
+                var covariantReturnMethod = FindCovariantReturnMethod(method);
+                var implMethod = covariantReturnMethod ?? ResolveImplementationMethod(method, resolvedImplType);
                 var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, interfaceType);
                 var node = BuildProxyMethod(method, implMethod, method.Name,
                     MethodBuilderConstants.InterfaceMethodAttributes, body, method, methodConstants);
@@ -255,7 +258,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             {
                 foreach (var method in iface.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
-                    var implMethod = ResolveImplementationMethod(method, resolvedImplType);
+                    var covariantReturnMethod = FindCovariantReturnMethod(method);
+                    var implMethod = covariantReturnMethod ?? ResolveImplementationMethod(method, resolvedImplType);
                     var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, interfaceType);
                     var node = BuildProxyMethod(method, implMethod, method.GetName(),
                         MethodBuilderConstants.ExplicitMethodAttributes, body, method, methodConstants);
@@ -266,6 +270,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             // Primary interface properties
             foreach (var property in interfaceType.GetTypeInfo().DeclaredProperties)
             {
+                var covariantReturnGetter = FindCovariantReturnGetter(property);
                 properties.Add(BuildProxyProperty(property, property.Name, resolvedImplType, aspectValidator,
                     interfaceType, MethodBuilderConstants.InterfaceMethodAttributes, methods, methodConstants));
             }
@@ -278,6 +283,20 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     properties.Add(BuildProxyProperty(property, property.GetDisplayName(), resolvedImplType, aspectValidator,
                         interfaceType, MethodBuilderConstants.ExplicitMethodAttributes, methods, methodConstants));
                 }
+            }
+
+            MethodInfo FindCovariantReturnMethod(MethodInfo interfaceMethod)
+            {
+                return covariantReturnMethods
+                    .FirstOrDefault(m => m.InterfaceDeclarations.Contains(interfaceMethod))
+                    .CovariantReturnMethod;
+            }
+
+            MethodInfo FindCovariantReturnGetter(PropertyInfo property)
+            {
+                return property.CanRead
+                    ? covariantReturnMethods.FirstOrDefault(m => m.InterfaceDeclarations.Contains(property.GetMethod)).CovariantReturnMethod
+                    : null;
             }
         }
 

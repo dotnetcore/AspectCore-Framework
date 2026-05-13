@@ -6,6 +6,7 @@ using AspectCore.DynamicProxy;
 using AspectCore.Utils;
 using AspectCore.Extensions.Reflection;
 using AspectCore.DynamicProxy.ProxyBuilder.Nodes;
+using AspectCore.Extensions;
 
 namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 {
@@ -125,13 +126,19 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
         private void BuildClassMethods(List<MethodNode> methods, List<MethodConstantNode> methodConstants)
         {
+            var covariantReturnMethods = _implType.GetCovariantReturnMethods();
+
             foreach (var method in _serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(x => !x.IsPropertyBinding()))
             {
                 if (!method.IsVisibleAndVirtual() || Ignores.Contains(method.Name))
                     continue;
 
-                var implMethod = InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
+                var (covariantReturnMethod, skip) = GetCovariantReturnMethod(method);
+                if (skip)
+                    continue;
+
+                var implMethod = covariantReturnMethod ?? InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
                 var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
 
                 var attributes = MethodBuilderConstants.OverrideMethodAttributes;
@@ -145,6 +152,20 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 var node = InterfaceImplBuilder.BuildProxyMethod(
                     method, implMethod, method.Name, attributes, body, null, methodConstants);
                 methods.Add(node);
+            }
+
+            (MethodInfo, bool Skip) GetCovariantReturnMethod(MethodInfo method)
+            {
+                var covariantReturn = covariantReturnMethods.FirstOrDefault(m => m.OverridenMethod.IsSameBaseDefinition(method));
+                var overriden = covariantReturn.OverridenMethod;
+                if (overriden == null)
+                    return (null, false);
+
+                // if method is the base definition of the overriden method, the CovariantReturnMethod is not in serviceType, so we need to add CovariantReturnMethod to implType.
+                // otherwise, the CovariantReturnMethod is also in serviceType, which will be added to implType in next for-loops.
+                return overriden.GetBaseDefinition() == method
+                    ? (covariantReturn.CovariantReturnMethod, true)
+                    : (null, true);
             }
         }
 
