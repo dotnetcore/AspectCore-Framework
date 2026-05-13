@@ -46,6 +46,35 @@ namespace AspectCore.Extensions
     {
         public static readonly Type PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
 
+        /// <summary>
+        /// Finds methods participating in covariant-return overrides on the specified type
+        /// and matches them with their non-covariant overridden methods.
+        /// </summary>
+        /// <param name="type">
+        /// The type whose methods should be inspected.
+        /// </param>
+        /// <returns>
+        /// A collection of <see cref="CovariantReturnMethodInfo"/> containing:
+        /// <list type="bullet">
+        /// <item>
+        /// <description>
+        /// The covariant-return method.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// The corresponding overridden method with the original return type.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// The interface methods implemented by the covariant-return method.
+        /// </description>
+        /// </item>
+        /// </list>
+        /// Returns an empty collection if the current runtime does not support
+        /// covariant return types.
+        /// </returns>
         public static IReadOnlyList<CovariantReturnMethodInfo> GetCovariantReturnMethods(this Type type)
         {
             var result = new List<CovariantReturnMethodInfo>();

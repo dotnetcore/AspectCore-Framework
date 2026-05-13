@@ -23,7 +23,7 @@ namespace AspectCore.Extensions.Configuration.Tests
             container.AddConfigurationInject();
             container.AddType<BindConfigService>();
             var service = container.Build().Resolve<BindConfigService>();
-            Assert.Equal(service.ToString(), "lemon-24");
+            Assert.Equal("lemon-24", service.ToString());
         }
     }
 

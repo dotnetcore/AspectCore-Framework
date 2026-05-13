@@ -33,9 +33,9 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("AspectCore.Tests")]
 #else
 [assembly: InternalsVisibleTo("AspectCore.Tests, PublicKey=" +
-                              "0024000004800000940000000602000000240000525341310004000001000100e5a34dfa0bd597" +
-                              "39067521c28b809e6653358a008148f35c8d3357dc02d90ef3eb3365fb55903bdcd14dbfe2b73a" +
-                              "10361c71c948b5ffcec2bf17e6c7a2ef98494d34d6e00d671b32566d153b8139d1caa0d5a9b071" +
-                              "e15b6849fbabea83fc9b8b6abf959e606f5e51b268a6a6c2d4757bbc3ae33689373faaedf61077" +
-                              "59678c9b")]
+                              "0024000004800000940000000602000000240000525341310004000001000100E5A34DFA0BD597" +
+                              "39067521C28B809E6653358A008148F35C8D3357DC02D90EF3EB3365FB55903BDCD14DBFE2B73A" +
+                              "10361C71C948B5FFCEC2BF17E6C7A2EF98494D34D6E00D671B32566D153B8139D1CAA0D5A9B071" +
+                              "E15B6849FBABEA83FC9B8B6ABF959E606F5E51B268A6A6C2D4757BBC3AE33689373FAAEDF61077" +
+                              "59678C9B")]
 #endif
