@@ -172,7 +172,11 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
             (MethodInfo, bool Skip) FindCovariantReturnMethod(MethodInfo method)
             {
-                var covariantReturn = covariantReturnMethods.FirstOrDefault(m => m.OverriddenMethod.IsSameBaseDefinition(method));
+                var covariantReturn = covariantReturnMethods
+                    .Where(m => m.OverriddenMethod.IsSameBaseDefinition(method))
+                    .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
+                    .FirstOrDefault();
+
                 var overridden = covariantReturn.OverriddenMethod;
                 if (overridden == null)
                     return (null, false);
@@ -183,6 +187,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 //
                 // Otherwise, the covariant-return method will be visited in a later iteration,
                 // so skip the current method to avoid duplicate processing.
+
+                // TODO: when method is also a covariant return method, it should be skipped as well.
                 return overridden.GetBaseDefinition() == method
                     ? (covariantReturn.CovariantReturnMethod, false)
                     : (null, true);
@@ -239,7 +245,11 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
             (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)
             {
-                var covariantReturn = covariantReturnMethods.FirstOrDefault(m => IsOverriddenByCovariantReturnProperty(property, m));
+                var covariantReturn = covariantReturnMethods
+                    .Where(m => IsOverriddenByCovariantReturnProperty(property, m))
+                    .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
+                    .FirstOrDefault();
+
                 var overridden = covariantReturn.OverriddenMethod;
                 if (overridden == null)
                     return (null, false);

@@ -1,4 +1,0 @@
-[*.cs]
-
-# IDE0290: Use primary constructor
-dotnet_diagnostic.IDE0290.severity = silent

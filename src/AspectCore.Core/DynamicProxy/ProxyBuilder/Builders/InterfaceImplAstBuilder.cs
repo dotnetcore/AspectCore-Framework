@@ -289,15 +289,22 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             MethodInfo FindCovariantReturnMethod(MethodInfo interfaceMethod)
             {
                 return covariantReturnMethods
-                    .FirstOrDefault(m => m.InterfaceDeclarations.Contains(interfaceMethod))
+                    .Where(m => m.InterfaceDeclarations.Contains(interfaceMethod))
+                    .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
+                    .FirstOrDefault()
                     .CovariantReturnMethod;
             }
 
             MethodInfo FindCovariantReturnGetter(PropertyInfo property)
             {
-                return property.CanRead
-                    ? covariantReturnMethods.FirstOrDefault(m => m.InterfaceDeclarations.Contains(property.GetMethod)).CovariantReturnMethod
-                    : null;
+                if (!property.CanRead)
+                    return null;
+
+                return covariantReturnMethods
+                    .Where(m => m.InterfaceDeclarations.Contains(property.GetMethod))
+                    .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
+                    .FirstOrDefault()
+                    .CovariantReturnMethod;
             }
         }
 

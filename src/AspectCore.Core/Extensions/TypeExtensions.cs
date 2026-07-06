@@ -1,9 +1,9 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-// ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions
 {
     internal readonly struct CovariantReturnMethodInfo
@@ -13,6 +13,11 @@ namespace AspectCore.Extensions
         /// i.e., the overriding method that returns a more derived type.
         /// </summary>
         public readonly MethodInfo CovariantReturnMethod;
+
+        /// <summary>
+        /// Gets the inheritance depth of the type that declares the <see cref="CovariantReturnMethod"/>.
+        /// </summary>
+        public readonly int InheritanceDepth;
 
         /// <summary>
         /// Gets the method that is overridden or implemented by <see cref="CovariantReturnMethod"/>.
@@ -39,12 +44,13 @@ namespace AspectCore.Extensions
             InterfaceDeclarations = interfaceDeclarations;
             OverriddenMethod = overriddenMethod;
             CovariantReturnMethod = covariantReturnMethod;
+            InheritanceDepth = covariantReturnMethod.DeclaringType.GetInheritanceDepth();
         }
     }
 
     internal static class TypeExtensions
     {
-        public static readonly Type PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
+        public static readonly Type? PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
 
         /// <summary>
         /// Finds methods participating in covariant-return overrides on the specified type
@@ -102,7 +108,7 @@ namespace AspectCore.Extensions
 
             return result;
 
-            bool Match(MethodInfo covariantReturnMethod, MethodInfo other)
+            static bool Match(MethodInfo covariantReturnMethod, MethodInfo other)
             {
                 if (covariantReturnMethod.Name != other.Name)
                     return false;
@@ -146,6 +152,35 @@ namespace AspectCore.Extensions
 
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Gets the inheritance depth of the specified type.
+        /// </summary>
+        /// <param name="type">The type whose inheritance depth is calculated.</param>
+        /// <returns>
+        /// The inheritance depth of <paramref name="type"/>.
+        /// Returns 0 for <see cref="object"/>, 1 for a class that directly inherits from <see cref="object"/>,
+        /// 2 for its derived class, and so on.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="type"/> is <see langword="null"/>.
+        /// </exception>
+        public static int GetInheritanceDepth(this Type? type)
+        {
+            if (type is null)
+                return 0;
+
+            var depth = 0;
+            var current = type;
+
+            while (current.BaseType != null)
+            {
+                depth++;
+                current = current.BaseType;
+            }
+
+            return depth - 1; // 去掉 object 自己那一层
         }
     }
 }

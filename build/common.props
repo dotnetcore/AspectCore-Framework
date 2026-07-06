@@ -14,5 +14,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <!-- 10.0 is the latest stable version of C# that is supported by the net6.0, which is the lowest target framework for this project -->
+    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 </Project>
