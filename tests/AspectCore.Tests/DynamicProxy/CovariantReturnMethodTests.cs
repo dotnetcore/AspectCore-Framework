@@ -157,16 +157,4 @@ public class CovariantReturnMethodTests2 : DynamicProxyTestBase
         AssertTypeValue<MidResult>(service.InterceptedProperty, v => v.Name == nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor));
         AssertTypeValue<MidResult>(service.InterceptedMethod(), v => v.Name == nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor));
     }
-
-    //[Fact]
-    //public void GetCovariantReturnMethods_MultiLevelCovariantReturn_ReportsOnlyLeafOverride_Test()
-    //{
-    //    var baseMethod = typeof(BaseCovariantReturnService).GetMethod(nameof(BaseCovariantReturnService.InterceptedMethod))!;
-    //    var methods = typeof(DerivedStringCovariantReturnService).GetCovariantReturnMethods()
-    //        .Where(x => x.OverriddenMethod.GetBaseDefinition() == baseMethod)
-    //        .ToArray();
-
-    //    var method = Assert.Single(methods);
-    //    Assert.Equal(typeof(string), method.CovariantReturnMethod.ReturnType);
-    //}
 }

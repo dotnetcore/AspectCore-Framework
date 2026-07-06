@@ -181,17 +181,20 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 if (overridden == null)
                     return (null, false);
 
-                // If the current method is the base definition of a covariant-return override chain,
-                // the actual covariant-return method will not appear in _serviceType's method list.
-                // In that case, use CovariantReturnMethod instead.
-                //
-                // Otherwise, the covariant-return method will be visited in a later iteration,
-                // so skip the current method to avoid duplicate processing.
-
                 // TODO: when method is also a covariant return method, it should be skipped as well.
-                return overridden.GetBaseDefinition() == method
-                    ? (covariantReturn.CovariantReturnMethod, false)
-                    : (null, true);
+
+                if (method.DeclaringType == method.ReflectedType)
+                {
+                    // the 'method' is declared in the _serviceType, and it is overridden by a covariant-return method in the _implType.
+                    // In this case, use CovariantReturnMethod for both serviceMethod and implMethod.
+                    return (covariantReturn.CovariantReturnMethod, false);
+                }
+                else
+                {
+                    // the 'method' is declared in a base class of the _serviceType, and it is overridden by a covariant-return method in the _implType.
+                    // In this case, the covariant-return method will be visited in a later iteration when the base class is processed, so skip the current method to avoid conflicts.
+                    return (null, true);
+                }
             }
         }
 

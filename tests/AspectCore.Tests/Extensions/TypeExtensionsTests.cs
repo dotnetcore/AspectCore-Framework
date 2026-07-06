@@ -1,16 +1,16 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Reflection;
 using AspectCore.Extensions;
 using Xunit;
 
 namespace AspectCore.Tests.Extensions;
 
-public class CovariantReturnTests
+public class TypeExtensionsTests
 {
     // Basic covariant override between classes
-    private class Animal { }
+    private class Animal;
 
-    private class Dog : Animal { }
+    private class Dog : Animal;
 
     private class BaseClass
     {
@@ -23,7 +23,7 @@ public class CovariantReturnTests
     }
 
     [Fact]
-    public void FindsBasicCovariantReturnMethod()
+    public void GetCovariantReturnMethods_FindsBasicCovariantReturnMethod()
     {
         var methods = typeof(DerivedClass).GetCovariantReturnMethods();
         Assert.Single(methods);
@@ -41,10 +41,10 @@ public class CovariantReturnTests
 
     private class B2 : B1 { public override B2 Clone() => new(); }
 
-    private class B3 : B2 { }
+    private class B3 : B2;
 
     [Fact]
-    public void DoesNotReportEmptyForDeeperHierarchy()
+    public void GetCovariantReturnMethods_DoesNotReportEmptyForDeeperHierarchy()
     {
         var methods = typeof(B3).GetCovariantReturnMethods();
         // Should inherit from B2 → B1, so no new covariant method
@@ -57,9 +57,9 @@ public class CovariantReturnTests
     // Interface with covariant return
     private interface IFactory<out T> { T Create(); }
 
-    private class Widget { }
+    private class Widget;
 
-    private class FancyWidget : Widget { }
+    private class FancyWidget : Widget;
 
     private class WidgetFactory : IFactory<Widget>
     {
@@ -72,7 +72,7 @@ public class CovariantReturnTests
     }
 
     [Fact]
-    public void HandlesInterfaceCovariantReturnCorrectly()
+    public void GetCovariantReturnMethods_HandlesInterfaceCovariantReturnCorrectly()
     {
         var info = typeof(FancyWidgetFactory).GetCovariantReturnMethods().Single();
         Assert.Equal(typeof(FancyWidget), info.CovariantReturnMethod.ReturnType);
@@ -82,7 +82,7 @@ public class CovariantReturnTests
     }
 
     // Explicit interface implementation
-    private interface ICreator<T> { T Create(); }
+    private interface ICreator<out T> { T Create(); }
 
     private class Creator : ICreator<Animal>
     {
@@ -95,7 +95,7 @@ public class CovariantReturnTests
     }
 
     [Fact]
-    public void FindsExplicitInterfaceImplementation()
+    public void GetCovariantReturnMethods_FindsExplicitInterfaceImplementation()
     {
         var infos = typeof(DogCreator).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
                                       .Where(m => m.Name.Contains("ICreator"))
@@ -111,7 +111,7 @@ public class CovariantReturnTests
     private class GenDerived : GenBase<Animal> { public override Dog Build() => new(); }
 
     [Fact]
-    public void WorksForGenericCovariantReturn()
+    public void GetCovariantReturnMethods_WorksForGenericCovariantReturn()
     {
         var info = typeof(GenDerived).GetCovariantReturnMethods().Single();
         Assert.Equal(typeof(Dog), info.CovariantReturnMethod.ReturnType);

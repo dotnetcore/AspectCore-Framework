@@ -98,7 +98,7 @@ namespace AspectCore.Extensions
 
             foreach (var covariantReturnMethod in covariantReturnMethods)
             {
-                var overriddenMethod = otherMethods.FirstOrDefault(m => Match(covariantReturnMethod, m));
+                var overriddenMethod = otherMethods.FirstOrDefault(m => m.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
                 if (overriddenMethod is null)
                     continue;
 
@@ -107,51 +107,6 @@ namespace AspectCore.Extensions
             }
 
             return result;
-
-            static bool Match(MethodInfo covariantReturnMethod, MethodInfo other)
-            {
-                if (covariantReturnMethod.Name != other.Name)
-                    return false;
-
-                // return types should not be the same.
-                if (covariantReturnMethod.ReturnType == other.ReturnType)
-                    return false;
-
-                if (other.ReturnType.IsAssignableFrom(covariantReturnMethod.ReturnType) == false)
-                    return false;
-
-                var params1 = covariantReturnMethod.GetParameters();
-                var params2 = other.GetParameters();
-
-                if (params1.Length != params2.Length)
-                    return false;
-
-                foreach (var (p1, p2) in params1.Zip(params2))
-                {
-                    if (p1.ParameterType != p2.ParameterType)
-                        return false;
-                }
-
-                var isGeneric = covariantReturnMethod.IsGenericMethod;
-                if (isGeneric != other.IsGenericMethod)
-                    return false;
-
-                if (isGeneric)
-                {
-                    var args1 = covariantReturnMethod.GetGenericArguments();
-                    var args2 = other.GetGenericArguments();
-                    if (args1.Length != args2.Length)
-                        return false;
-
-                    foreach (var (a1, a2) in args1.Zip(args2))
-                    {
-                        if (a1 != a2)
-                            return false;
-                    }
-                }
-
-                return true;
-            }
         }
 
         /// <summary>
@@ -181,6 +136,51 @@ namespace AspectCore.Extensions
             }
 
             return depth - 1; // 去掉 object 自己那一层
+        }
+
+        public static bool IsOverriddenByCovariantReturnMethod(this MethodInfo method, MethodInfo covariantReturnMethod)
+        {
+            if (covariantReturnMethod.Name != method.Name)
+                return false;
+
+            // return types should not be the same.
+            if (covariantReturnMethod.ReturnType == method.ReturnType)
+                return false;
+
+            if (method.ReturnType.IsAssignableFrom(covariantReturnMethod.ReturnType) == false)
+                return false;
+
+            var params1 = covariantReturnMethod.GetParameters();
+            var params2 = method.GetParameters();
+
+            if (params1.Length != params2.Length)
+                return false;
+
+            foreach (var (p1, p2) in params1.Zip(params2))
+            {
+                if (p1.ParameterType != p2.ParameterType)
+                    return false;
+            }
+
+            var isGeneric = covariantReturnMethod.IsGenericMethod;
+            if (isGeneric != method.IsGenericMethod)
+                return false;
+
+            if (isGeneric)
+            {
+                var args1 = covariantReturnMethod.GetGenericArguments();
+                var args2 = method.GetGenericArguments();
+                if (args1.Length != args2.Length)
+                    return false;
+
+                foreach (var (a1, a2) in args1.Zip(args2))
+                {
+                    if (a1 != a2)
+                        return false;
+                }
+            }
+
+            return true;
         }
     }
 }
