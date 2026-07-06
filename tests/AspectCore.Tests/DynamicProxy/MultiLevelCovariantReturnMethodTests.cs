@@ -13,34 +13,18 @@ public class MultiLevelCovariantReturnMethodTests : DynamicProxyTestBase
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             await context.Invoke(next);
-
             context.ReturnValue = new LeafResult(context.ImplementationMethod.ReturnType.Name);
         }
     }
 
-    public class BaseResult
+    public class BaseResult(string implementationReturnType)
     {
-        public BaseResult(string implementationReturnType)
-        {
-            ImplementationReturnType = implementationReturnType;
-        }
-
-        public string ImplementationReturnType { get; }
+        public string ImplementationReturnType { get; } = implementationReturnType;
     }
 
-    public class MidResult : BaseResult
-    {
-        public MidResult(string implementationReturnType) : base(implementationReturnType)
-        {
-        }
-    }
+    public class MidResult(string implementationReturnType) : BaseResult(implementationReturnType);
 
-    public class LeafResult : MidResult
-    {
-        public LeafResult(string implementationReturnType) : base(implementationReturnType)
-        {
-        }
-    }
+    public class LeafResult(string implementationReturnType) : MidResult(implementationReturnType);
 
     public class BaseService
     {
@@ -62,9 +46,7 @@ public class MultiLevelCovariantReturnMethodTests : DynamicProxyTestBase
     public void CreateClassProxy_MultiLevelCovariantReturn_UsesLeafOverride_Test()
     {
         var service = ProxyGenerator.CreateClassProxy<BaseService, LeafService>();
-
         var result = service.Create();
-
         Assert.Equal(nameof(LeafResult), result.ImplementationReturnType);
     }
 
