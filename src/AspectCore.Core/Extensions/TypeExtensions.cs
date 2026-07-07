@@ -167,9 +167,9 @@ internal static class TypeExtensions
         if (method.ReturnType.IsCovariantReturnAssignableFrom(covariantReturnMethod.ReturnType) == false)
             return false;
 
-        if (method.DeclaringType is not { } mdt
-            || covariantReturnMethod.DeclaringType is not { } crmdt
-            || mdt.IsAssignableFrom(crmdt) == false)
+        if (method.DeclaringType is not { } dt1
+            || covariantReturnMethod.DeclaringType is not { } dt2
+            || dt1.IsCovariantReturnAssignableFrom(dt2) == false)
             return false;
 
         var params1 = covariantReturnMethod.GetParameters();
@@ -205,12 +205,12 @@ internal static class TypeExtensions
         return true;
     }
 
-    private static bool AreEquivalentGenericTypes(Type type, Type other, Func<Type, Type, bool> argComparer)
+    private static bool AreEquivalentGenericTypes(Type type, Type other, Func<Type, Type, bool> argumentComparer, Func<Type, Type, bool> typeDefinitionComparer)
     {
         if (type.IsArray && other.IsArray)
         {
             // ReSharper disable once TailRecursiveCall
-            return argComparer(type.GetElementType()!, other.GetElementType()!);
+            return argumentComparer(type.GetElementType()!, other.GetElementType()!);
         }
 
         if (type.IsGenericType == false || other.IsGenericType == false)
@@ -225,8 +225,14 @@ internal static class TypeExtensions
             other = other.GetGenericTypeDefinition();
         }
 
-        if (argComparer(type, other) == false)
-            return false;
+        if (type.IsGenericTypeDefinition)
+        {
+            if (other.IsGenericTypeDefinition == false)
+                return false;
+
+            if (typeDefinitionComparer(type, other) == false)
+                return false;
+        }
 
         var args1 = type.GetGenericArguments();
         var args2 = other.GetGenericArguments();
@@ -236,7 +242,7 @@ internal static class TypeExtensions
 
         foreach (var (a1, a2) in args1.Zip(args2))
         {
-            if (argComparer(a1, a2) == false)
+            if (argumentComparer(a1, a2) == false)
                 return false;
         }
 
@@ -269,8 +275,11 @@ internal static class TypeExtensions
             return false;
 
         var p = other;
-        while (p is not null)
+        while (true)
         {
+            if (type == p)
+                return true;
+
             if (p.IsGenericTypeDefinition == false)
                 return false;
 
@@ -281,41 +290,51 @@ internal static class TypeExtensions
             }
 
             p = p.BaseType;
+
+            if (p is null)
+                break;
+
+            if (p.IsConstructedGenericType)
+                p = p.GetGenericTypeDefinition();
         }
 
         return false;
     }
 
+    private static bool TryUnwrapByRef(ref Type type, ref Type other)
+    {
+        if (type.IsByRef != other.IsByRef)
+            return false;
+
+        if (type.IsByRef == false)
+            return true;
+
+        if (other.IsByRef == false)
+            return false;
+
+        type = type.GetElementType()!;
+        other = other.GetElementType()!;
+        return true;
+    }
+
     public static bool IsCovariantReturnAssignableFrom(this Type type, Type other)
     {
-        if (type.IsByRef)
-        {
-            if (other.IsByRef == false)
-                return false;
-
-            type = type.GetElementType()!;
-            other = other.GetElementType()!;
-        }
+        if (TryUnwrapByRef(ref type, ref other) == false)
+            return false;
 
         return type.IsAssignableFrom(other)
                || type.IsAssignableFromGenericTypeDefinition(other)
                || AreEquivalentGenericParameters(type, other)
-               || AreEquivalentGenericTypes(type, other, IsCovariantReturnAssignableFrom);
+               || AreEquivalentGenericTypes(type, other, IsCovariantReturnAssignableFrom, (a, b) => a.IsAssignableFromGenericTypeDefinition(b));
     }
 
     public static bool IsCovariantReturnEquivalentTo(this Type type, Type other)
     {
-        if (type.IsByRef)
-        {
-            if (other.IsByRef == false)
-                return false;
-
-            type = type.GetElementType()!;
-            other = other.GetElementType()!;
-        }
+        if (TryUnwrapByRef(ref type, ref other) == false)
+            return false;
 
         return type == other
                || AreEquivalentGenericParameters(type, other)
-               || AreEquivalentGenericTypes(type, other, IsCovariantReturnEquivalentTo);
+               || AreEquivalentGenericTypes(type, other, IsCovariantReturnEquivalentTo, (a, b) => a == b);
     }
 }
