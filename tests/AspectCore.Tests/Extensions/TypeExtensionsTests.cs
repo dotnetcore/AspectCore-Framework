@@ -1,13 +1,15 @@
 using System.Linq;
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AspectCore.Extensions;
 using Xunit;
+using Xunit.Abstractions;
 using static AspectCore.Tests.CovariantReturnTypes;
 
 namespace AspectCore.Tests.Extensions;
 
-public class TypeExtensionsTests
+public class TypeExtensionsTests(ITestOutputHelper output)
 {
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnTrue_WhenMethodIsOverriddenWithCovariantReturnType()
@@ -77,5 +79,24 @@ public class TypeExtensionsTests
         return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Single(property => property.Name == name && property.PropertyType == propertyType)
             .GetMethod!;
+    }
+
+    [Fact]
+    public void Print()
+    {
+        var methods = typeof(DerivedLeafCovariantReturnService).GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        foreach (var method in methods)
+        {
+            var dt = method.DeclaringType;
+            if (dt == typeof(object))
+                continue;
+
+            var attributes = method.GetCustomAttributesData();
+            if (attributes.Any(m => m.AttributeType == typeof(CompilerGeneratedAttribute)))
+                continue;
+
+            var attributeNames = attributes.Select(a => a.AttributeType.Name);
+            output.WriteLine($"[{dt?.Name}.{method.Name}] Return Type: {method.ReturnType.Name}, Attributes: {string.Join(", ", attributeNames)}");
+        }
     }
 }

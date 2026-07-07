@@ -139,6 +139,12 @@ namespace AspectCore.Extensions
             return depth - 1; // 去掉 object 自己那一层
         }
 
+        /// <summary>
+        /// Determines whether the specified method is overridden by a covariant return method.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="covariantReturnMethod">Assumes it is already a covariant return method.</param>
+        /// <returns></returns>
         public static bool IsOverriddenByCovariantReturnMethod(this MethodInfo method, MethodInfo covariantReturnMethod)
         {
             if (covariantReturnMethod.Name != method.Name)
@@ -166,6 +172,19 @@ namespace AspectCore.Extensions
                     continue;
 
                 if (t1.IsGenericParameter == false || t2.IsGenericParameter == false)
+                    return false;
+
+                var m1 = t1.DeclaringMethod;
+                var m2 = t2.DeclaringMethod;
+
+                if (m1 is null && m2 is not null
+                   || m1 is not null && m2 is null)
+                    return false;
+
+                if (t1.DeclaringMethod != t2.DeclaringMethod)
+                    return false;
+
+                if (t1.DeclaringType != t2.DeclaringType)
                     return false;
 
                 if (t1.GenericParameterPosition != t2.GenericParameterPosition)

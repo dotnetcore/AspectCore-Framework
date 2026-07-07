@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 
 namespace AspectCore.Tests;
@@ -75,6 +75,17 @@ public class CovariantReturnTypes
         public override LeafResult InterceptedProperty { [ReturnTypeInterceptor] get; } = new(nameof(LeafCovariantReturnService));
         [ReturnTypeInterceptor]
         public override LeafResult InterceptedMethod() => new(nameof(LeafCovariantReturnService));
+    }
+
+    // this class just does common overriding.
+    public class DerivedLeafCovariantReturnService : LeafCovariantReturnService
+    {
+        public override LeafResult Property { get; } = new(nameof(DerivedLeafCovariantReturnService));
+        public override LeafResult Method() => new(nameof(DerivedLeafCovariantReturnService));
+
+        public override LeafResult InterceptedProperty { [ReturnTypeInterceptor] get; } = new(nameof(DerivedLeafCovariantReturnService));
+        [ReturnTypeInterceptor]
+        public override LeafResult InterceptedMethod() => new(nameof(DerivedLeafCovariantReturnService));
     }
 
     public class GenericMethodBaseService
