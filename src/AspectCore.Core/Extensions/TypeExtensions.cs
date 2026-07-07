@@ -288,6 +288,15 @@ internal static class TypeExtensions
 
     public static bool IsCovariantReturnAssignableFrom(this Type type, Type other)
     {
+        if (type.IsByRef)
+        {
+            if (other.IsByRef == false)
+                return false;
+
+            type = type.GetElementType()!;
+            other = other.GetElementType()!;
+        }
+
         return type.IsAssignableFrom(other)
                || type.IsAssignableFromGenericTypeDefinition(other)
                || AreEquivalentGenericParameters(type, other)
@@ -296,6 +305,15 @@ internal static class TypeExtensions
 
     public static bool IsCovariantReturnEquivalentTo(this Type type, Type other)
     {
+        if (type.IsByRef)
+        {
+            if (other.IsByRef == false)
+                return false;
+
+            type = type.GetElementType()!;
+            other = other.GetElementType()!;
+        }
+
         return type == other
                || AreEquivalentGenericParameters(type, other)
                || AreEquivalentGenericTypes(type, other, IsCovariantReturnEquivalentTo);
