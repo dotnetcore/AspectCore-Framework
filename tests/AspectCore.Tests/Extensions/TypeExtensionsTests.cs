@@ -1,9 +1,9 @@
-﻿using System.Linq;
+using System.Linq;
 using System;
 using System.Reflection;
 using AspectCore.Extensions;
-using AspectCore.Tests;
 using Xunit;
+using static AspectCore.Tests.CovariantReturnTypes;
 
 namespace AspectCore.Tests.Extensions;
 
@@ -12,8 +12,8 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnTrue_WhenMethodIsOverriddenWithCovariantReturnType()
     {
-        var method = GetMethod<CovariantReturnTypes.CommonService>(nameof(CovariantReturnTypes.CommonService.Method), typeof(object));
-        var covariantReturnMethod = GetMethod<CovariantReturnTypes.BaseCovariantReturnService>(nameof(CovariantReturnTypes.BaseCovariantReturnService.Method), typeof(CovariantReturnTypes.BaseResult));
+        var method = GetMethod<CommonService>(nameof(CommonService.Method), typeof(object));
+        var covariantReturnMethod = GetMethod<BaseCovariantReturnService>(nameof(BaseCovariantReturnService.Method), typeof(BaseResult));
 
         Assert.True(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -21,8 +21,8 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnFalse_WhenMethodNamesDiffer()
     {
-        var method = GetMethod<CovariantReturnTypes.CommonService>(nameof(CovariantReturnTypes.CommonService.Method), typeof(object));
-        var covariantReturnMethod = GetPropertyGetter<CovariantReturnTypes.BaseCovariantReturnService>(nameof(CovariantReturnTypes.BaseCovariantReturnService.Property), typeof(CovariantReturnTypes.BaseResult));
+        var method = GetMethod<CommonService>(nameof(CommonService.Method), typeof(object));
+        var covariantReturnMethod = GetPropertyGetter<BaseCovariantReturnService>(nameof(BaseCovariantReturnService.Property), typeof(BaseResult));
 
         Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -30,8 +30,8 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnFalse_WhenReturnTypesAreTheSame()
     {
-        var method = GetMethod<CovariantReturnTypes.BaseCovariantReturnService>(nameof(CovariantReturnTypes.BaseCovariantReturnService.Method), typeof(CovariantReturnTypes.BaseResult));
-        var covariantReturnMethod = GetMethod<CovariantReturnTypes.BaseCovariantReturnService>(nameof(CovariantReturnTypes.BaseCovariantReturnService.Method), typeof(CovariantReturnTypes.BaseResult));
+        var method = GetMethod<BaseCovariantReturnService>(nameof(BaseCovariantReturnService.Method), typeof(BaseResult));
+        var covariantReturnMethod = GetMethod<BaseCovariantReturnService>(nameof(BaseCovariantReturnService.Method), typeof(BaseResult));
 
         Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -39,8 +39,8 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnFalse_WhenReturnTypeIsNotAssignable()
     {
-        var method = GetMethod<CovariantReturnTypes.BaseCovariantReturnService>(nameof(CovariantReturnTypes.BaseCovariantReturnService.Method), typeof(CovariantReturnTypes.BaseResult));
-        var covariantReturnMethod = GetMethod<CovariantReturnTypes.CommonService>(nameof(CovariantReturnTypes.CommonService.Method), typeof(object));
+        var method = GetMethod<BaseCovariantReturnService>(nameof(BaseCovariantReturnService.Method), typeof(BaseResult));
+        var covariantReturnMethod = GetMethod<CommonService>(nameof(CommonService.Method), typeof(object));
 
         Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -48,8 +48,8 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnFalse_WhenParametersDiffer()
     {
-        var method = GetMethod<CovariantReturnTypes.CommonService>(nameof(CovariantReturnTypes.CommonService.Method), typeof(object));
-        var covariantReturnMethod = GetMethod<CovariantReturnTypes.GenericMethodLeafService>(nameof(CovariantReturnTypes.GenericMethodLeafService.Convert), typeof(CovariantReturnTypes.LeafResult), parameterCount: 1);
+        var method = GetMethod<CommonService>(nameof(CommonService.Method), typeof(object));
+        var covariantReturnMethod = GetMethod<GenericMethodLeafService>(nameof(GenericMethodLeafService.Convert), typeof(LeafResult), parameterCount: 1);
 
         Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -57,8 +57,8 @@ public class TypeExtensionsTests
     [Fact]
     public void IsOverriddenByCovariantReturnMethod_ShouldReturnTrue_WhenGenericMethodIsOverriddenWithCovariantReturnType()
     {
-        var method = GetMethod<CovariantReturnTypes.GenericMethodBaseService>(nameof(CovariantReturnTypes.GenericMethodBaseService.Convert), typeof(CovariantReturnTypes.BaseResult), parameterCount: 1);
-        var covariantReturnMethod = GetMethod<CovariantReturnTypes.GenericMethodLeafService>(nameof(CovariantReturnTypes.GenericMethodLeafService.Convert), typeof(CovariantReturnTypes.LeafResult), parameterCount: 1);
+        var method = GetMethod<GenericMethodBaseService>(nameof(GenericMethodBaseService.Convert), typeof(BaseResult), parameterCount: 1);
+        var covariantReturnMethod = GetMethod<GenericMethodLeafService>(nameof(GenericMethodLeafService.Convert), typeof(LeafResult), parameterCount: 1);
 
         Assert.True(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
