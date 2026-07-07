@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+// ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions
 {
     internal readonly struct CovariantReturnMethodInfo
