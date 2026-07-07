@@ -144,7 +144,7 @@ internal static class TypeExtensions
     /// Determines whether the specified method is overridden by a covariant return method.
     /// </summary>
     /// <param name="method"></param>
-    /// <param name="covariantReturnMethod">Assumes it is already a covariant return method.</param>
+    /// <param name="covariantReturnMethod"></param>
     /// <returns></returns>
     public static bool IsOverriddenByCovariantReturnMethod(this MethodInfo method, MethodInfo covariantReturnMethod)
     {
@@ -197,7 +197,7 @@ internal static class TypeExtensions
 
             foreach (var (a1, a2) in args1.Zip(args2))
             {
-                if (a1.GenericParameterPosition != a2.GenericParameterPosition)
+                if (a1.IsCovariantReturnEquivalentTo(a2) == false)
                     return false;
             }
         }
@@ -209,6 +209,9 @@ internal static class TypeExtensions
     {
         if (type.IsArray && other.IsArray)
         {
+            if (type.GetArrayRank() != other.GetArrayRank())
+                return false;
+
             // ReSharper disable once TailRecursiveCall
             return argumentComparer(type.GetElementType()!, other.GetElementType()!);
         }

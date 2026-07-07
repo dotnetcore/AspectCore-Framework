@@ -1,4 +1,6 @@
 #pragma warning disable CA1822 // Mark members as static
+#pragma warning disable IDE0060 // Remove unused parameter
+// ReSharper disable UnusedTypeParameter
 using System.Collections.Generic;
 
 namespace AspectCore.Tests.Extensions.TypeExtensionsTests;
@@ -172,5 +174,45 @@ public class TestTypes
     public class ConstrainedGenericReturnLeafService : ConstrainedGenericReturnBaseService
     {
         public override TValue Create<TValue>(TValue value) => value;
+    }
+
+    public class TypeGenericParameterSourceBaseService<TBase>
+    {
+        public virtual BaseResult Convert(TBase value) => new(nameof(TypeGenericParameterSourceBaseService<TBase>));
+    }
+
+    public class TypeGenericParameterSourceLeafService<TLeaf> : TypeGenericParameterSourceBaseService<BaseResult>
+    {
+        public LeafResult Convert(TLeaf value) => new(nameof(TypeGenericParameterSourceLeafService<TLeaf>));
+    }
+
+    public class ArrayRankBaseService
+    {
+        public virtual BaseResult Convert<TValue>(TValue[] value) => new(nameof(ArrayRankBaseService));
+    }
+
+    public class ArrayRankLeafService : ArrayRankBaseService
+    {
+        public LeafResult Convert<TValue>(TValue[,] value) => new(nameof(ArrayRankLeafService));
+    }
+
+    public class InvariantGenericReturnBaseService
+    {
+        public virtual List<BaseResult> Create() => [];
+    }
+
+    public class InvariantGenericReturnLeafService : InvariantGenericReturnBaseService
+    {
+        public new List<LeafResult> Create() => [];
+    }
+
+    public class GenericMethodWithoutParameterBaseService
+    {
+        public virtual BaseResult Create<TValue>() => new(nameof(GenericMethodWithoutParameterBaseService));
+    }
+
+    public class GenericMethodWithoutParameterLeafService : GenericMethodWithoutParameterBaseService
+    {
+        public override LeafResult Create<TValue>() => new(nameof(GenericMethodWithoutParameterLeafService));
     }
 }

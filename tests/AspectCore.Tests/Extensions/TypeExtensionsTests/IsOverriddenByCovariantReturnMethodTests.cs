@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System.Linq;
 using System;
 using System.Reflection;
@@ -96,7 +96,7 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void ShouldReturnTrue_WhenFinalOverrideInCovariantReturnChainOverridesBaseCovariantMethod()
+    public void ShouldReturnTrue_WhenFinalOrdinaryOverrideMatchesBaseResultMethodReflectedFromLeafType()
     {
         var method = GetMethod<LeafCovariantReturnService>(nameof(LeafCovariantReturnService.Method), typeof(BaseResult));
         var ordinaryOverrideMethod = GetMethod<OrdinaryOverrideLeafService>(nameof(OrdinaryOverrideLeafService.Method), typeof(LeafResult));
@@ -268,6 +268,15 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ShouldReturnFalse_WhenTypeGenericParametersComeFromDifferentDeclaringTypes()
+    {
+        var method = GetMethod(typeof(TypeGenericParameterSourceBaseService<>), nameof(TypeGenericParameterSourceBaseService<object>.Convert), typeof(BaseResult), parameterCount: 1);
+        var covariantReturnMethod = GetMethod(typeof(TypeGenericParameterSourceLeafService<>), nameof(TypeGenericParameterSourceLeafService<object>.Convert), typeof(LeafResult), parameterCount: 1);
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
     public void ShouldReturnTrue_WhenCovariantReturnUsesConstrainedGenericParameter()
     {
         var method = GetMethod<ConstrainedGenericReturnBaseService>(nameof(ConstrainedGenericReturnBaseService.Create), typeof(BaseResult), parameterCount: 1);
@@ -275,6 +284,36 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
             m => m.ReturnType.IsGenericParameter && m.GetParameters().Length == 1);
 
         Assert.True(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
+    public void ShouldReturnFalse_WhenGenericArrayParameterRanksDiffer()
+    {
+        var method = GetMethod<ArrayRankBaseService>(nameof(ArrayRankBaseService.Convert), typeof(BaseResult), parameterCount: 1);
+        var covariantReturnMethod = GetMethod<ArrayRankLeafService>(nameof(ArrayRankLeafService.Convert), typeof(LeafResult), parameterCount: 1);
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
+    public void ShouldReturnFalse_WhenInvariantGenericReturnArgumentsDiffer()
+    {
+        var method = GetMethod<InvariantGenericReturnBaseService>(nameof(InvariantGenericReturnBaseService.Create),
+            m => m.DeclaringType == typeof(InvariantGenericReturnBaseService) && m.ReturnType == typeof(System.Collections.Generic.List<BaseResult>));
+        var covariantReturnMethod = GetMethod<InvariantGenericReturnLeafService>(nameof(InvariantGenericReturnLeafService.Create),
+            m => m.DeclaringType == typeof(InvariantGenericReturnLeafService) && m.ReturnType == typeof(System.Collections.Generic.List<LeafResult>));
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
+    public void ShouldReturnFalse_WhenOnlyCovariantReturnMethodIsConstructedGenericMethod()
+    {
+        var method = GetMethod<GenericMethodWithoutParameterBaseService>(nameof(GenericMethodWithoutParameterBaseService.Create), typeof(BaseResult));
+        var covariantReturnMethod = GetMethod<GenericMethodWithoutParameterLeafService>(nameof(GenericMethodWithoutParameterLeafService.Create), typeof(LeafResult))
+            .MakeGenericMethod(typeof(string));
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
 
     private static MethodInfo GetMethod<T>(string name, Type returnType, int parameterCount = 0)
