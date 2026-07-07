@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using AspectCore.Extensions;
 using Xunit;
 using Xunit.Abstractions;
-using static AspectCore.Tests.CovariantReturnTypes;
+using static AspectCore.Tests.Extensions.TypeExtensionsTests.TestTypes;
 
 namespace AspectCore.Tests.Extensions.TypeExtensionsTests;
 
@@ -88,8 +88,8 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     [Fact]
     public void ShouldReturnFalse_WhenSecondMethodIsOrdinaryOverride()
     {
-        var method = GetMethod<OrdinaryOverrideBaseService>(nameof(OrdinaryOverrideBaseService.Method), typeof(BaseResult));
-        var ordinaryOverrideMethod = GetMethod<OrdinaryOverrideLeafService>(nameof(OrdinaryOverrideLeafService.Method), typeof(BaseResult));
+        var method = GetMethod<CommonService>(nameof(CommonService.Method), typeof(object));
+        var ordinaryOverrideMethod = GetMethod<OrdinaryOverrideService>(nameof(OrdinaryOverrideService.Method), typeof(object));
 
         Assert.False(method.IsOverriddenByCovariantReturnMethod(ordinaryOverrideMethod));
     }
@@ -97,8 +97,8 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     [Fact]
     public void ShouldReturnFalse_WhenSecondMethodIsOrdinaryOverrideOfCovariantLeaf()
     {
-        var method = GetMethod<BaseCovariantReturnService>(nameof(BaseCovariantReturnService.Method), typeof(BaseResult));
-        var ordinaryOverrideMethod = GetMethod<DerivedLeafCovariantReturnService>(nameof(DerivedLeafCovariantReturnService.Method), typeof(LeafResult));
+        var method = GetMethod<LeafCovariantReturnService>(nameof(LeafCovariantReturnService.Method), typeof(BaseResult));
+        var ordinaryOverrideMethod = GetMethod<OrdinaryOverrideLeafService>(nameof(OrdinaryOverrideLeafService.Method), typeof(LeafResult));
 
         Assert.True(ordinaryOverrideMethod.GetBaseDefinition() == GetMethod<LeafCovariantReturnService>(nameof(LeafCovariantReturnService.Method), typeof(LeafResult)).GetBaseDefinition());
         Assert.False(method.IsOverriddenByCovariantReturnMethod(ordinaryOverrideMethod));
@@ -324,7 +324,7 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     [Fact]
     public void Print()
     {
-        var methods = typeof(DerivedLeafCovariantReturnService).GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        var methods = typeof(DerivedOrdinaryOverrideLeafService).GetMethods(BindingFlags.Public | BindingFlags.Instance);
         foreach (var method in methods)
         {
             var dt = method.DeclaringType;
