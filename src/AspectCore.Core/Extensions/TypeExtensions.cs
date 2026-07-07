@@ -159,7 +159,16 @@ namespace AspectCore.Extensions
 
             foreach (var (p1, p2) in params1.Zip(params2))
             {
-                if (p1.ParameterType != p2.ParameterType)
+                var t1 = p1.ParameterType;
+                var t2 = p2.ParameterType;
+
+                if (t1 == t2)
+                    continue;
+
+                if (t1.IsGenericParameter == false || t2.IsGenericParameter == false)
+                    return false;
+
+                if (t1.GenericParameterPosition != t2.GenericParameterPosition)
                     return false;
             }
 
@@ -176,7 +185,7 @@ namespace AspectCore.Extensions
 
                 foreach (var (a1, a2) in args1.Zip(args2))
                 {
-                    if (a1 != a2)
+                    if (a1.GenericParameterPosition != a2.GenericParameterPosition)
                         return false;
                 }
             }
