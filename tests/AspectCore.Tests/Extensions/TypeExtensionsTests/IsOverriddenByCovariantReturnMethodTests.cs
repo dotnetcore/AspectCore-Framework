@@ -1,3 +1,4 @@
+#nullable enable
 using System.Linq;
 using System;
 using System.Reflection;
@@ -95,13 +96,13 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void ShouldReturnFalse_WhenSecondMethodIsOrdinaryOverrideOfCovariantLeaf()
+    public void ShouldReturnTrue_WhenFinalOverrideInCovariantReturnChainOverridesBaseCovariantMethod()
     {
         var method = GetMethod<LeafCovariantReturnService>(nameof(LeafCovariantReturnService.Method), typeof(BaseResult));
         var ordinaryOverrideMethod = GetMethod<OrdinaryOverrideLeafService>(nameof(OrdinaryOverrideLeafService.Method), typeof(LeafResult));
 
         Assert.True(ordinaryOverrideMethod.GetBaseDefinition() == GetMethod<LeafCovariantReturnService>(nameof(LeafCovariantReturnService.Method), typeof(LeafResult)).GetBaseDefinition());
-        Assert.False(method.IsOverriddenByCovariantReturnMethod(ordinaryOverrideMethod));
+        Assert.True(method.IsOverriddenByCovariantReturnMethod(ordinaryOverrideMethod));
     }
 
     [Fact]
@@ -270,9 +271,8 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     public void ShouldReturnTrue_WhenCovariantReturnUsesConstrainedGenericParameter()
     {
         var method = GetMethod<ConstrainedGenericReturnBaseService>(nameof(ConstrainedGenericReturnBaseService.Create), typeof(BaseResult), parameterCount: 1);
-        var covariantReturnMethod = GetMethod<ConstrainedGenericReturnLeafService>(
-            nameof(ConstrainedGenericReturnLeafService.Create),
-            method => method.ReturnType.IsGenericParameter && method.GetParameters().Length == 1);
+        var covariantReturnMethod = GetMethod<ConstrainedGenericReturnLeafService>(nameof(ConstrainedGenericReturnLeafService.Create),
+            m => m.ReturnType.IsGenericParameter && m.GetParameters().Length == 1);
 
         Assert.True(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -321,10 +321,16 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
             .GetMethod!;
     }
 
-    [Fact]
-    public void Print()
+    [Theory]
+    [InlineData(typeof(LeafCovariantReturnService))]
+    [InlineData(typeof(DerivedLeafCovariantReturnService))]
+    [InlineData(typeof(OrdinaryOverrideLeafService))]
+    [InlineData(typeof(DerivedOrdinaryOverrideLeafService))]
+    public void GetMethods_Print(Type type)
     {
-        var methods = typeof(DerivedOrdinaryOverrideLeafService).GetMethods(BindingFlags.Public | BindingFlags.Instance);
+        output.WriteLine($"{type.Name}'s Methods:");
+
+        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
         foreach (var method in methods)
         {
             var dt = method.DeclaringType;
@@ -335,8 +341,41 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
             if (attributes.Any(m => m.AttributeType == typeof(CompilerGeneratedAttribute)))
                 continue;
 
+            var isCrt = method.IsCovariantReturnMethod();
+
             var attributeNames = attributes.Select(a => a.AttributeType.Name);
-            output.WriteLine($"[{dt?.Name}.{method.Name}] Return Type: {method.ReturnType.Name}, Attributes: {string.Join(", ", attributeNames)}");
+            output.WriteLine($"[{dt?.Name}.{method.Name}] Return Type: {method.ReturnType.Name}, Covariant Return: {isCrt}, Attributes: {string.Join(", ", attributeNames)}");
+        }
+    }
+
+    [Theory]
+    [InlineData(typeof(NestedClass<,>.InnerClass<,>))]
+    [InlineData(typeof(NestedClass<int, string>.InnerClass<int, string>))]
+    public void GenericParameter_Print(Type type)
+    {
+        output.WriteLine("GenericTypeParameters:");
+        foreach (var param in type.GetTypeInfo().GenericTypeParameters)
+        {
+            output.WriteLine($"[{param.Name}]Declaring Type: {param.DeclaringType?.Name}, Declaring Method: {param.DeclaringMethod?.Name}");
+        }
+
+        var method = type.GetMethod("Method");
+        Assert.NotNull(method);
+
+        output.WriteLine("\nMethod Parameters:");
+        foreach (var param in method.GetParameters())
+        {
+            var pt = param.ParameterType;
+            var dm = pt.IsGenericParameter ? pt.DeclaringMethod : null;
+            output.WriteLine($"[{param.Name}]Type: {pt.Name}, Declaring Type: {pt.DeclaringType?.Name}, Declaring Method: {dm?.Name}");
+        }
+    }
+
+    public class NestedClass<T1, T2>
+    {
+        public class InnerClass<T3, T4>
+        {
+            public void Method<T5>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) { }
         }
     }
 }
