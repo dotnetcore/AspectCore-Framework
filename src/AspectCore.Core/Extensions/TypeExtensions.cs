@@ -150,6 +150,15 @@ namespace AspectCore.Extensions
             if (covariantReturnMethod.Name != method.Name)
                 return false;
 
+            if (method.IsConstructedGenericMethod())
+            {
+                if (covariantReturnMethod.IsConstructedGenericMethod() == false)
+                    return false;
+
+                method = method.GetGenericMethodDefinition();
+                covariantReturnMethod = covariantReturnMethod.GetGenericMethodDefinition();
+            }
+
             // return types should not be the same.
             if (covariantReturnMethod.ReturnType == method.ReturnType)
                 return false;
