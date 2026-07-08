@@ -95,7 +95,11 @@ public partial class CovariantReturnTypeTests
         AssertTypeValue<BaseResult>(baseService.Convert(new BaseResult("base")), v => Assert.Equal(nameof(GenericParameterSubstitutionBaseService<BaseResult>), v.Name));
         AssertTypeValue<LeafResult>(service.Convert("leaf"), v => Assert.Equal(nameof(GenericParameterSubstitutionLeafService<string>), v.Name));
     }
+}
 
+// a partial class is used here to separate the test classes from the test methods, for better organization.
+partial class CovariantReturnTypeTests
+{
     public class GenericMethodBaseService
     {
         public virtual BaseResult Convert<TValue>(TValue value) => new(nameof(GenericMethodBaseService));
