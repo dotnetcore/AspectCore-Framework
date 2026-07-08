@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-// ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions;
 
 [DebuggerDisplay("({OverriddenMethod.ReturnType.Name} {OverriddenMethod.Name}) -> ({CovariantReturnMethod.ReturnType.Name} {CovariantReturnMethod.Name})")]

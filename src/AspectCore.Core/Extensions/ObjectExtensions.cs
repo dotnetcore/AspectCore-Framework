@@ -1,5 +1,5 @@
 #nullable enable
-namespace AspectCore.Core.Extensions;
+namespace AspectCore.Extensions;
 
 internal static class ObjectExtensions
 {

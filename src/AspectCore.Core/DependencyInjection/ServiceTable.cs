@@ -116,7 +116,7 @@ namespace AspectCore.DependencyInjection
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             var elements = FindEnumerableElements(serviceType);
-            var enumerableServiceDefinition = new EnumerableServiceDefintion(serviceType, elementType, elements);
+            var enumerableServiceDefinition = new EnumerableServiceDefinition(serviceType, elementType, elements);
             _linkedServiceDefinitions[serviceType] = new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
             return enumerableServiceDefinition;
         }
@@ -129,7 +129,7 @@ namespace AspectCore.DependencyInjection
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             var elements = FindEnumerableElements(serviceType);
-            var enumerableServiceDefinition = new ManyEnumerableServiceDefintion(serviceType, elementType, elements);
+            var enumerableServiceDefinition = new ManyEnumerableServiceDefinition(serviceType, elementType, elements);
             _linkedServiceDefinitions[serviceType] = new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
             return enumerableServiceDefinition;
         }

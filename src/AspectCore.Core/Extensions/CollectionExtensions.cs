@@ -1,15 +1,15 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace System.Collections.Generic
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace System.Collections.Generic;
+
+internal static class CollectionExtensions
 {
-    internal static class CollectionExtensions
-    {
 #if NETSTANDARD2_0
-        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
-        {
-            return dictionary.TryGetValue(key, out var obj)
-                ? obj
-                : defaultValue;
-        }
-#endif
+    public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
+    {
+        return dictionary.TryGetValue(key, out var obj)
+            ? obj
+            : defaultValue;
     }
+#endif
 }

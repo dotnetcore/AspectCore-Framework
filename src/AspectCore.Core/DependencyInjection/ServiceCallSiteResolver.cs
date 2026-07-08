@@ -56,19 +56,19 @@ namespace AspectCore.DependencyInjection
                     return delegateServiceDefinition.ImplementationDelegate;
                 case TypeServiceDefinition typeServiceDefinition:
                     return ResolveTypeService(typeServiceDefinition);
-                case ManyEnumerableServiceDefintion manyEnumerableServiceDefinition:
+                case ManyEnumerableServiceDefinition manyEnumerableServiceDefinition:
                     return ResolveManyEnumerableService(manyEnumerableServiceDefinition);
-                case EnumerableServiceDefintion enumerableServiceDefinition:
+                case EnumerableServiceDefinition enumerableServiceDefinition:
                     return ResolveEnumerableService(enumerableServiceDefinition);
                 default:
                     return resolver => null;
             }
         }
 
-        private Func<ServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefintion manyEnumerableServiceDefintion)
+        private Func<ServiceResolver, object> ResolveManyEnumerableService(ManyEnumerableServiceDefinition manyEnumerableServiceDefinition)
         {
-            var elementDefinitions = manyEnumerableServiceDefintion.ServiceDefinitions.ToArray();
-            var elementType = manyEnumerableServiceDefintion.ElementType;
+            var elementDefinitions = manyEnumerableServiceDefinition.ServiceDefinitions.ToArray();
+            var elementType = manyEnumerableServiceDefinition.ElementType;
             return resolver =>
             {
                 var length = elementDefinitions.Length;
@@ -82,10 +82,10 @@ namespace AspectCore.DependencyInjection
             };
         }
 
-        private Func<ServiceResolver, object> ResolveEnumerableService(EnumerableServiceDefintion enumerableServiceDefintion)
+        private Func<ServiceResolver, object> ResolveEnumerableService(EnumerableServiceDefinition enumerableServiceDefinition)
         {
-            var elementDefinitions = enumerableServiceDefintion.ServiceDefinitions.ToArray();
-            var elementType = enumerableServiceDefintion.ElementType;
+            var elementDefinitions = enumerableServiceDefinition.ServiceDefinitions.ToArray();
+            var elementType = enumerableServiceDefinition.ElementType;
             return resolver =>
             {
                 var length = elementDefinitions.Length;

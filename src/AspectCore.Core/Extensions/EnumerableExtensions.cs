@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿#if NETSTANDARD2_0 || NETSTANDARD2_1
+using System.Collections.Generic;
+#endif
 
 // ReSharper disable once CheckNamespace
-namespace System.Linq
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+namespace System.Linq;
+
+internal static class EnumerableExtensions
 {
-    internal static class EnumerableExtensions
-    {
 #if NETSTANDARD2_0 || NETSTANDARD2_1
         public static IEnumerable<(TFirst First, TSecond Second)> Zip<TFirst, TSecond>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second)
         {
@@ -18,5 +21,4 @@ namespace System.Linq
             return new HashSet<TSource>(source, comparer);
         }
 #endif
-    }
 }
