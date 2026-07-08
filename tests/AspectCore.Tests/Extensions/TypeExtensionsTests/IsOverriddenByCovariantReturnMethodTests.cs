@@ -279,6 +279,15 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ShouldReturnFalse_WhenTypeGenericParametersComeFromDifferentDeclaringTypes_Emit()
+    {
+        var method = GetMethod(typeof(TypeGenericParameterSourceBaseService<>), nameof(TypeGenericParameterSourceBaseService<object>.Convert), typeof(BaseResult), parameterCount: 1);
+        var covariantReturnMethod = GetMethod(DynamicTypeGenericParameterSourceLeafService, "Convert", typeof(LeafResult), parameterCount: 1);
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
     public void ShouldReturnTrue_WhenCovariantReturnUsesConstrainedGenericParameter()
     {
         var method = GetMethod<ConstrainedGenericReturnBaseService>(nameof(ConstrainedGenericReturnBaseService.Create), typeof(BaseResult), parameterCount: 1);

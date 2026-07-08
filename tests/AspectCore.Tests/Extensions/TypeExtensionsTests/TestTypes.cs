@@ -1,7 +1,11 @@
 #pragma warning disable CA1822 // Mark members as static
 #pragma warning disable IDE0060 // Remove unused parameter
 // ReSharper disable UnusedTypeParameter
+using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using Xunit;
 
 namespace AspectCore.Tests.Extensions.TypeExtensionsTests;
 
@@ -235,4 +239,45 @@ public class TestTypes
     {
         public override LeafResult Create<TValue>() => new(nameof(GenericMethodWithoutParameterLeafService));
     }
+
+    private static Type CreateTypeGenericParameterSourceLeafService()
+    {
+        var assemblyName = new AssemblyName("DynamicTestTypes");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("DynamicTestTypes");
+
+        var typeBuilder = moduleBuilder.DefineType(
+            "TypeGenericParameterSourceLeafService`1",
+            TypeAttributes.Public | TypeAttributes.Class,
+            typeof(TypeGenericParameterSourceBaseService<>).MakeGenericType(typeof(BaseResult)));
+
+        var genericParameters = typeBuilder.DefineGenericParameters("TLeaf");
+        var tLeaf = genericParameters[0];
+
+        var methodBuilder = typeBuilder.DefineMethod(
+            "Convert",
+            MethodAttributes.Public
+            | MethodAttributes.Virtual
+            | MethodAttributes.NewSlot
+            | MethodAttributes.HideBySig,
+            typeof(LeafResult),
+            [tLeaf]);
+
+        var preserve = AspectCore.Extensions.TypeExtensions.PreserveBaseOverridesAttribute;
+        Assert.NotNull(preserve);
+
+        var ctor = preserve.GetConstructor(Type.EmptyTypes);
+        Assert.NotNull(ctor);
+
+        methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(ctor, []));
+
+        var il = methodBuilder.GetILGenerator();
+        il.Emit(OpCodes.Ldstr, "TypeGenericParameterSourceLeafService<TLeaf>");
+        il.Emit(OpCodes.Newobj, typeof(LeafResult).GetConstructor([typeof(string)])!);
+        il.Emit(OpCodes.Ret);
+
+        return typeBuilder.CreateTypeInfo().AsType();
+    }
+
+    public static readonly Type DynamicTypeGenericParameterSourceLeafService = CreateTypeGenericParameterSourceLeafService();
 }
