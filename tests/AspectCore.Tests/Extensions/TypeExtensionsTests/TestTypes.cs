@@ -260,7 +260,7 @@ public class TestTypes
             | MethodAttributes.Virtual
             | MethodAttributes.NewSlot
             | MethodAttributes.HideBySig,
-            typeof(object),
+            typeof(LeafResult),
             [tLeaf]);
 
         var preserve = AspectCore.Extensions.TypeExtensions.PreserveBaseOverridesAttribute;
