@@ -29,7 +29,7 @@ namespace AspectCore.DynamicProxy
         {
             if (proxyGenerator == null)
             {
-                throw new ArgumentNullException(nameof(ProxyTypeGenerator));
+                throw new ArgumentNullException(nameof(proxyGenerator));
             }
             return (TService)proxyGenerator.CreateClassProxy(typeof(TService), typeof(TImplementation), args ?? ArrayUtils.Empty<object>());
         }

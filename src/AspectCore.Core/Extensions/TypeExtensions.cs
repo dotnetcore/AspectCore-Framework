@@ -418,7 +418,8 @@ internal static class TypeExtensions
             if (p is null)
                 break;
 
-            p = p.GetGenericTypeDefinition();
+            if (p.IsConstructedGenericType)
+                p = p.GetGenericTypeDefinition();
         }
 
         return false;

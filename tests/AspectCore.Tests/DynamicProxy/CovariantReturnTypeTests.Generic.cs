@@ -1,4 +1,6 @@
-﻿using AspectCore.DynamicProxy;
+﻿#pragma warning disable IDE0060 // Remove unused parameter
+using AspectCore.DynamicProxy;
+using System.Collections.Generic;
 using Xunit;
 
 namespace AspectCore.Tests.DynamicProxy;
@@ -30,9 +32,9 @@ public partial class CovariantReturnTypeTests
         var byRefValue = "value";
 
         AssertTypeValue<LeafResult>(service.Direct("value"), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
-        AssertTypeValue<LeafResult>(service.Array(new[] { "value" }), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
-        AssertTypeValue<LeafResult>(service.List(new System.Collections.Generic.List<string> { "value" }), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
-        AssertTypeValue<LeafResult>(service.Dictionary(new System.Collections.Generic.Dictionary<string, string> { ["key"] = "value" }), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
+        AssertTypeValue<LeafResult>(service.Array(["value"]), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
+        AssertTypeValue<LeafResult>(service.List(["value"]), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
+        AssertTypeValue<LeafResult>(service.Dictionary(new Dictionary<string, string> { ["key"] = "value" }), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
         AssertTypeValue<LeafResult>(service.ByRef(ref byRefValue), v => Assert.Equal(nameof(GenericMethodShapeLeafService), v.Name));
     }
 
@@ -41,7 +43,7 @@ public partial class CovariantReturnTypeTests
     {
         var service = ProxyGenerator.CreateClassProxy<GenericMethodShapeLeafService>();
 
-        Assert.IsType<System.Collections.Generic.List<string>>(service.ReturnList<string>());
+        Assert.IsType<List<string>>(service.ReturnList<string>());
     }
 
     [Fact]
@@ -50,8 +52,45 @@ public partial class CovariantReturnTypeTests
         var service = ProxyGenerator.CreateClassProxy<TypeGenericShapeLeafService<string>>();
 
         AssertTypeValue<LeafResult>(service.Direct("value"), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.List(new System.Collections.Generic.List<string> { "value" }), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
-        Assert.IsType<System.Collections.Generic.List<string>>(service.ReturnList);
+        AssertTypeValue<LeafResult>(service.List(["value"]), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
+        Assert.IsType<List<string>>(service.ReturnList);
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericLeafCovariantReturnType_ShouldUseLeafMethodAndProperty()
+    {
+        var service = ProxyGenerator.CreateClassProxy<GenericLeafCovariantReturnService<string>>();
+
+        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
+        AssertTypeValue<LeafResult>(service.Method("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
+        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
+        AssertTypeValue<LeafResult>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericCommonCovariantReturnTypeAndInterfaceView_ShouldUseLeafMethodAndProperty()
+    {
+        // CreateClassProxy won't create a proxy for the interface
+        var service = Assert.IsAssignableFrom<IGenericCommonService<string>>(
+            ProxyGenerator.CreateClassProxy<GenericCommonService<string>>());
+
+        AssertTypeValue<string>(service.Property, v => Assert.Equal(nameof(GenericCommonService<string>), v));
+        AssertTypeValue<string>(service.Method("value"), v => Assert.Equal(nameof(GenericCommonService<string>), v));
+        AssertTypeValue<string>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericCommonService<string>) + nameof(ReturnTypeInterceptor), v));
+        AssertTypeValue<string>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericCommonService<string>) + nameof(ReturnTypeInterceptor), v));
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericLeafCovariantReturnTypeAndInterfaceView_ShouldUseLeafMethodAndProperty()
+    {
+        var service = Assert.IsAssignableFrom<IGenericCommonService<string>>(
+            ProxyGenerator.CreateClassProxy<GenericLeafCovariantReturnService<string>>());
+
+        // CreateClassProxy won't create a proxy for the interface
+        AssertTypeValue<string>(service.Property, v => Assert.Equal(nameof(GenericCommonService<string>), v));
+        AssertTypeValue<string>(service.Method("value"), v => Assert.Equal(nameof(GenericCommonService<string>), v));
+        AssertTypeValue<string>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericCommonService<string>) + nameof(ReturnTypeInterceptor), v));
+        AssertTypeValue<string>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericCommonService<string>) + nameof(ReturnTypeInterceptor), v));
     }
 
     [Fact]
@@ -60,8 +99,8 @@ public partial class CovariantReturnTypeTests
         var service = ProxyGenerator.CreateClassProxy<TypeGenericShapeBaseService<string>, TypeGenericShapeLeafService<string>>();
 
         AssertTypeValue<LeafResult>(service.Direct("value"), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.List(new System.Collections.Generic.List<string> { "value" }), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
-        Assert.IsType<System.Collections.Generic.List<string>>(service.ReturnList);
+        AssertTypeValue<LeafResult>(service.List(["value"]), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
+        Assert.IsType<List<string>>(service.ReturnList);
     }
 
     [Fact]
@@ -95,6 +134,16 @@ public partial class CovariantReturnTypeTests
         AssertTypeValue<BaseResult>(baseService.Convert(new BaseResult("base")), v => Assert.Equal(nameof(GenericParameterSubstitutionBaseService<BaseResult>), v.Name));
         AssertTypeValue<LeafResult>(service.Convert("leaf"), v => Assert.Equal(nameof(GenericParameterSubstitutionLeafService<string>), v.Name));
     }
+
+    [Fact]
+    public void CreateClassProxy_ForConstrainedGenericCovariantReturn_ShouldPreserveGenericReturnType()
+    {
+        var service = ProxyGenerator.CreateClassProxy<ConstrainedGenericReturnLeafService>();
+        var value = new LeafResult("leaf");
+
+        Assert.Same(value, service.Create(value));
+    }
+
 }
 
 // a partial class is used here to separate the test classes from the test methods, for better organization.
@@ -116,13 +165,13 @@ partial class CovariantReturnTypeTests
 
         public virtual BaseResult Array<TValue>(TValue[] value) => new(nameof(GenericMethodShapeBaseService));
 
-        public virtual BaseResult List<TValue>(System.Collections.Generic.List<TValue> value) => new(nameof(GenericMethodShapeBaseService));
+        public virtual BaseResult List<TValue>(List<TValue> value) => new(nameof(GenericMethodShapeBaseService));
 
-        public virtual BaseResult Dictionary<TValue>(System.Collections.Generic.Dictionary<string, TValue> value) => new(nameof(GenericMethodShapeBaseService));
+        public virtual BaseResult Dictionary<TValue>(Dictionary<string, TValue> value) => new(nameof(GenericMethodShapeBaseService));
 
         public virtual BaseResult ByRef<TValue>(ref TValue value) => new(nameof(GenericMethodShapeBaseService));
 
-        public virtual System.Collections.Generic.IEnumerable<TValue> ReturnList<TValue>() => [];
+        public virtual IEnumerable<TValue> ReturnList<TValue>() => [];
     }
 
     public class GenericMethodShapeLeafService : GenericMethodShapeBaseService
@@ -131,34 +180,34 @@ partial class CovariantReturnTypeTests
 
         public override LeafResult Array<TValue>(TValue[] value) => new(nameof(GenericMethodShapeLeafService));
 
-        public override LeafResult List<TValue>(System.Collections.Generic.List<TValue> value) => new(nameof(GenericMethodShapeLeafService));
+        public override LeafResult List<TValue>(List<TValue> value) => new(nameof(GenericMethodShapeLeafService));
 
-        public override LeafResult Dictionary<TValue>(System.Collections.Generic.Dictionary<string, TValue> value) => new(nameof(GenericMethodShapeLeafService));
+        public override LeafResult Dictionary<TValue>(Dictionary<string, TValue> value) => new(nameof(GenericMethodShapeLeafService));
 
         public override LeafResult ByRef<TValue>(ref TValue value) => new(nameof(GenericMethodShapeLeafService));
 
-        public override System.Collections.Generic.List<TValue> ReturnList<TValue>() => [];
+        public override List<TValue> ReturnList<TValue>() => [];
     }
 
     public class TypeGenericShapeBaseService<TValue>
     {
         public virtual BaseResult Direct(TValue value) => new(nameof(TypeGenericShapeBaseService<TValue>));
 
-        public virtual BaseResult List(System.Collections.Generic.List<TValue> value) => new(nameof(TypeGenericShapeBaseService<TValue>));
+        public virtual BaseResult List(List<TValue> value) => new(nameof(TypeGenericShapeBaseService<TValue>));
 
-        public virtual System.Collections.Generic.IEnumerable<TValue> ReturnList => [];
+        public virtual IEnumerable<TValue> ReturnList => [];
     }
 
     public class TypeGenericShapeLeafService<TValue> : TypeGenericShapeBaseService<TValue>
     {
         public override LeafResult Direct(TValue value) => new(nameof(TypeGenericShapeLeafService<TValue>));
 
-        public override LeafResult List(System.Collections.Generic.List<TValue> value) => new(nameof(TypeGenericShapeLeafService<TValue>));
+        public override LeafResult List(List<TValue> value) => new(nameof(TypeGenericShapeLeafService<TValue>));
 
-        public override System.Collections.Generic.List<TValue> ReturnList { get; } = [];
+        public override List<TValue> ReturnList { get; } = [];
     }
 
-    public interface IGenericCommonService<TValue>
+    public interface IGenericCommonService<in TValue>
     {
         object Property { get; }
         object Method(TValue value);
@@ -170,12 +219,12 @@ partial class CovariantReturnTypeTests
 
     public class GenericCommonService<TValue> : IGenericCommonService<TValue>
     {
-        public virtual object Property { get; } = nameof(Property);
-        public virtual object Method(TValue value) => nameof(Method);
+        public virtual object Property { get; } = nameof(GenericCommonService<TValue>);
+        public virtual object Method(TValue value) => nameof(GenericCommonService<TValue>);
 
-        public virtual object InterceptedProperty { [ReturnTypeInterceptor] get; } = nameof(InterceptedProperty);
+        public virtual object InterceptedProperty { [ReturnTypeInterceptor] get; } = nameof(GenericCommonService<TValue>);
         [ReturnTypeInterceptor]
-        public virtual object InterceptedMethod(TValue value) => nameof(InterceptedMethod);
+        public virtual object InterceptedMethod(TValue value) => nameof(GenericCommonService<TValue>);
     }
 
     public class GenericCovariantReturnService<TValue> : GenericCommonService<TValue>
@@ -206,5 +255,16 @@ partial class CovariantReturnTypeTests
     public class GenericParameterSubstitutionLeafService<TLeaf> : GenericParameterSubstitutionBaseService<BaseResult>
     {
         public LeafResult Convert(TLeaf value) => new(nameof(GenericParameterSubstitutionLeafService<TLeaf>));
+    }
+
+    public class ConstrainedGenericReturnBaseService
+    {
+        public virtual BaseResult Create<TValue>(TValue value) where TValue : LeafResult
+            => value;
+    }
+
+    public class ConstrainedGenericReturnLeafService : ConstrainedGenericReturnBaseService
+    {
+        public override TValue Create<TValue>(TValue value) => value;
     }
 }

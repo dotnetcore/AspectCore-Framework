@@ -99,7 +99,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 methodConstants: null);
         }
 
-        private MethodNode BuildStubMethod(MethodInfo method)
+        private static MethodNode BuildStubMethod(MethodInfo method)
         {
             var genericParameters = GenericParameterNodeFactory.FromMethod(method);
             var parameters = ParameterNodeFactory.FromMethod(method);
@@ -117,7 +117,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 overridesMethod: method);
         }
 
-        private PropertyNode BuildStubProperty(PropertyInfo property)
+        private static PropertyNode BuildStubProperty(PropertyInfo property)
         {
             var backingField = new FieldNode(
                 $"<{property.Name}>k__BackingField",
@@ -132,7 +132,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 getMethod = new MethodNode(
                     property.GetMethod,
                     implementationMethod: null,
-                    property.GetMethod.Name,
+                    property.GetMethod!.Name,
                     MethodBuilderConstants.InterfaceMethodAttributes,
                     new BackingFieldGetBody(backingField.Name),
                     parameters: ParameterNodeFactory.FromMethod(property.GetMethod),
@@ -146,7 +146,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 setMethod = new MethodNode(
                     property.SetMethod,
                     implementationMethod: null,
-                    property.SetMethod.Name,
+                    property.SetMethod!.Name,
                     MethodBuilderConstants.InterfaceMethodAttributes,
                     new BackingFieldSetBody(backingField.Name),
                     parameters: ParameterNodeFactory.FromMethod(property.SetMethod),
