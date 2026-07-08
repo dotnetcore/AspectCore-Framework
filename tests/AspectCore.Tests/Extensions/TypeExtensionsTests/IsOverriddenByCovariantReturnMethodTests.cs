@@ -1,6 +1,8 @@
-﻿#nullable enable
+#nullable enable
+#pragma warning disable IDE0060 // Remove unused parameter
 using System.Linq;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AspectCore.Extensions;
@@ -198,8 +200,8 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     [Fact]
     public void ShouldReturnTrue_WhenGenericMethodReturnTypeContainsMethodGenericParameter()
     {
-        var method = GetGenericReturnMethod<GenericMethodShapeBaseService>(nameof(GenericMethodShapeBaseService.ReturnList), typeof(System.Collections.Generic.IEnumerable<>));
-        var covariantReturnMethod = GetGenericReturnMethod<GenericMethodShapeLeafService>(nameof(GenericMethodShapeLeafService.ReturnList), typeof(System.Collections.Generic.List<>));
+        var method = GetGenericReturnMethod<GenericMethodShapeBaseService>(nameof(GenericMethodShapeBaseService.ReturnList), typeof(IEnumerable<>));
+        var covariantReturnMethod = GetGenericReturnMethod<GenericMethodShapeLeafService>(nameof(GenericMethodShapeLeafService.ReturnList), typeof(List<>));
 
         Assert.True(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -225,8 +227,8 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     [Fact]
     public void ShouldReturnTrue_WhenReturnTypeContainsTypeGenericParameter()
     {
-        var method = GetGenericReturnMethod(typeof(TypeGenericShapeBaseService<>), nameof(TypeGenericShapeBaseService<object>.ReturnList), typeof(System.Collections.Generic.IEnumerable<>));
-        var covariantReturnMethod = GetGenericReturnMethod(typeof(TypeGenericShapeLeafService<>), nameof(TypeGenericShapeLeafService<object>.ReturnList), typeof(System.Collections.Generic.List<>));
+        var method = GetGenericReturnMethod(typeof(TypeGenericShapeBaseService<>), nameof(TypeGenericShapeBaseService<object>.ReturnList), typeof(IEnumerable<>));
+        var covariantReturnMethod = GetGenericReturnMethod(typeof(TypeGenericShapeLeafService<>), nameof(TypeGenericShapeLeafService<object>.ReturnList), typeof(List<>));
 
         Assert.True(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -296,12 +298,30 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
+    public void ShouldReturnFalse_WhenGenericJaggedArrayElementRanksDiffer()
+    {
+        var method = GetMethod<JaggedArrayRankBaseService>(nameof(JaggedArrayRankBaseService.Convert), typeof(BaseResult), parameterCount: 1);
+        var covariantReturnMethod = GetMethod<JaggedArrayRankLeafService>(nameof(JaggedArrayRankLeafService.Convert), typeof(LeafResult), parameterCount: 1);
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
+    public void ShouldReturnFalse_WhenGenericArrayNestingDepthsDiffer()
+    {
+        var method = GetMethod<ArrayNestingBaseService>(nameof(ArrayNestingBaseService.Convert), typeof(BaseResult), parameterCount: 1);
+        var covariantReturnMethod = GetMethod<ArrayNestingLeafService>(nameof(ArrayNestingLeafService.Convert), typeof(LeafResult), parameterCount: 1);
+
+        Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
+    }
+
+    [Fact]
     public void ShouldReturnFalse_WhenInvariantGenericReturnArgumentsDiffer()
     {
         var method = GetMethod<InvariantGenericReturnBaseService>(nameof(InvariantGenericReturnBaseService.Create),
-            m => m.DeclaringType == typeof(InvariantGenericReturnBaseService) && m.ReturnType == typeof(System.Collections.Generic.List<BaseResult>));
+            m => m.DeclaringType == typeof(InvariantGenericReturnBaseService) && m.ReturnType == typeof(List<BaseResult>));
         var covariantReturnMethod = GetMethod<InvariantGenericReturnLeafService>(nameof(InvariantGenericReturnLeafService.Create),
-            m => m.DeclaringType == typeof(InvariantGenericReturnLeafService) && m.ReturnType == typeof(System.Collections.Generic.List<LeafResult>));
+            m => m.DeclaringType == typeof(InvariantGenericReturnLeafService) && m.ReturnType == typeof(List<LeafResult>));
 
         Assert.False(method.IsOverriddenByCovariantReturnMethod(covariantReturnMethod));
     }
@@ -361,10 +381,7 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Theory]
-    [InlineData(typeof(LeafCovariantReturnService))]
-    [InlineData(typeof(DerivedLeafCovariantReturnService))]
-    [InlineData(typeof(OrdinaryOverrideLeafService))]
-    [InlineData(typeof(DerivedOrdinaryOverrideLeafService))]
+    [InlineData(typeof(MixedGenericShapeLeafService<>))]
     public void GetMethods_Print(Type type)
     {
         output.WriteLine($"{type.Name}'s Methods:");

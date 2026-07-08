@@ -196,6 +196,26 @@ public class TestTypes
         public LeafResult Convert<TValue>(TValue[,] value) => new(nameof(ArrayRankLeafService));
     }
 
+    public class JaggedArrayRankBaseService
+    {
+        public virtual BaseResult Convert<TValue>(TValue[][] value) => new(nameof(JaggedArrayRankBaseService));
+    }
+
+    public class JaggedArrayRankLeafService : JaggedArrayRankBaseService
+    {
+        public LeafResult Convert<TValue>(TValue[][,] value) => new(nameof(JaggedArrayRankLeafService));
+    }
+
+    public class ArrayNestingBaseService
+    {
+        public virtual BaseResult Convert<TValue>(TValue[] value) => new(nameof(ArrayNestingBaseService));
+    }
+
+    public class ArrayNestingLeafService : ArrayNestingBaseService
+    {
+        public LeafResult Convert<TValue>(TValue[][] value) => new(nameof(ArrayNestingLeafService));
+    }
+
     public class InvariantGenericReturnBaseService
     {
         public virtual List<BaseResult> Create() => [];

@@ -143,22 +143,16 @@ internal static class TypeExtensions
     /// <summary>
     /// Determines whether the specified method is overridden by a covariant return method.
     /// </summary>
-    /// <param name="method"></param>
-    /// <param name="covariantReturnMethod"></param>
+    /// <param name="method">The method that potentially has a covariant return type override.</param>
+    /// <param name="covariantReturnMethod">The method that potentially overrides <paramref name="method"/> with a covariant return type.</param>
     /// <returns></returns>
     public static bool IsOverriddenByCovariantReturnMethod(this MethodInfo method, MethodInfo covariantReturnMethod)
     {
-        if (covariantReturnMethod.Name != method.Name)
+        if (covariantReturnMethod.IsInCovariantReturnChain() == false)
             return false;
 
-        if (method.IsConstructedGenericMethod())
-        {
-            if (covariantReturnMethod.IsConstructedGenericMethod() == false)
-                return false;
-
-            method = method.GetGenericMethodDefinition();
-            covariantReturnMethod = covariantReturnMethod.GetGenericMethodDefinition();
-        }
+        if (covariantReturnMethod.Name != method.Name)
+            return false;
 
         // return types should not be the same.
         if (covariantReturnMethod.ReturnType == method.ReturnType)
@@ -186,6 +180,9 @@ internal static class TypeExtensions
 
         var isGeneric = covariantReturnMethod.IsGenericMethod;
         if (isGeneric != method.IsGenericMethod)
+            return false;
+
+        if (method.IsGenericMethodDefinition != covariantReturnMethod.IsGenericMethodDefinition)
             return false;
 
         if (isGeneric)
@@ -219,28 +216,22 @@ internal static class TypeExtensions
         if (type.IsGenericType == false || other.IsGenericType == false)
             return false;
 
-        if (type.IsConstructedGenericType)
-        {
-            if (other.IsConstructedGenericType == false)
-                return false;
+        if (type.IsConstructedGenericType != other.IsConstructedGenericType)
+            return false;
 
-            type = type.GetGenericTypeDefinition();
-            other = other.GetGenericTypeDefinition();
-        }
-
-        if (type.IsGenericTypeDefinition)
-        {
-            if (other.IsGenericTypeDefinition == false)
-                return false;
-
-            if (typeDefinitionComparer(type, other) == false)
-                return false;
-        }
+        if (type.IsGenericTypeDefinition != other.IsGenericTypeDefinition)
+            return false;
 
         var args1 = type.GetGenericArguments();
         var args2 = other.GetGenericArguments();
 
         if (args1.Length != args2.Length)
+            return false;
+
+        var d1 = type.GetGenericTypeDefinition();
+        var d2 = other.GetGenericTypeDefinition();
+
+        if (typeDefinitionComparer(d1, d2) == false)
             return false;
 
         foreach (var (a1, a2) in args1.Zip(args2))
@@ -250,6 +241,17 @@ internal static class TypeExtensions
         }
 
         return true;
+    }
+
+    public static bool IsGenericParameterCovariant(this Type type)
+    {
+        if (type.IsGenericParameter == false)
+            return false;
+
+        var variance = type.GenericParameterAttributes & GenericParameterAttributes.VarianceMask;
+
+        // Check against the Covariant enum value
+        return variance == GenericParameterAttributes.Covariant;
     }
 
 
@@ -280,7 +282,7 @@ internal static class TypeExtensions
         var p = other;
         while (true)
         {
-            if (type == p)
+            if (type.IsAssignableFrom(p))
                 return true;
 
             if (p.IsGenericTypeDefinition == false)
@@ -288,7 +290,10 @@ internal static class TypeExtensions
 
             foreach (var it in p.GetInterfaces())
             {
-                if (it.IsGenericType && it.GetGenericTypeDefinition() == type)
+                if (it.IsGenericType == false)
+                    continue;
+
+                if (type.IsAssignableFrom(it.GetGenericTypeDefinition()))
                     return true;
             }
 
@@ -297,8 +302,7 @@ internal static class TypeExtensions
             if (p is null)
                 break;
 
-            if (p.IsConstructedGenericType)
-                p = p.GetGenericTypeDefinition();
+            p = p.GetGenericTypeDefinition();
         }
 
         return false;
@@ -328,7 +332,11 @@ internal static class TypeExtensions
         return type.IsAssignableFrom(other)
                || type.IsAssignableFromGenericTypeDefinition(other)
                || AreEquivalentGenericParameters(type, other)
-               || AreEquivalentGenericTypes(type, other, IsCovariantReturnAssignableFrom, (a, b) => a.IsAssignableFromGenericTypeDefinition(b));
+               || AreEquivalentGenericTypes(type, other,
+                   (a, b) => a.IsGenericParameterCovariant()
+                       ? a.IsCovariantReturnAssignableFrom(b)
+                       : a.IsCovariantReturnEquivalentTo(b),
+                   (a, b) => a.IsAssignableFromGenericTypeDefinition(b));
     }
 
     public static bool IsCovariantReturnEquivalentTo(this Type type, Type other)
