@@ -173,16 +173,14 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             (MethodInfo, bool Skip) FindCovariantReturnMethod(MethodInfo method)
             {
                 var covariantReturn = covariantReturnMethods
-                    .Where(m => m.OverriddenMethod.IsSameBaseDefinition(method))
+                    .Where(m => method.IsOverriddenByCovariantReturnMethod(m.CovariantReturnMethod))
                     .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
                     .FirstOrDefault();
 
                 var overridden = covariantReturn.OverriddenMethod;
                 if (overridden == null)
                     return (null, false);
-
-                // TODO: when method is also a covariant return method, it should be skipped as well.
-
+                
                 if (method.DeclaringType == method.ReflectedType)
                 {
                     // the 'method' is declared in the _serviceType, and it is overridden by a covariant-return method in the _implType.
@@ -248,8 +246,11 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
             (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)
             {
+                if(property.GetMethod is not {} getter)
+                    return (null, false);
+
                 var covariantReturn = covariantReturnMethods
-                    .Where(m => IsOverriddenByCovariantReturnProperty(property, m))
+                    .Where(m => getter.IsOverriddenByCovariantReturnMethod(m.CovariantReturnMethod))
                     .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
                     .FirstOrDefault();
 
@@ -257,33 +258,18 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 if (overridden == null)
                     return (null, false);
 
-                // If the property's getter is the base definition of a covariant-return override chain,
-                // the actual covariant-return getter will not appear in _serviceType's property list.
-                // In that case, use CovariantReturnMethod instead.
-                //
-                // Otherwise, the covariant-return property will be visited in a later iteration,
-                // so skip the current property to avoid duplicate processing.
-                return overridden.GetBaseDefinition() == property.GetMethod
-                    ? (covariantReturn.CovariantReturnMethod, false)
-                    : (null, true);
-            }
-
-            bool IsOverriddenByCovariantReturnProperty(PropertyInfo property, CovariantReturnMethodInfo info)
-            {
-                // this case occurs when the property is not overridden in the serviceType.
-                var get = property.GetMethod;
-                if (info.OverriddenMethod.IsSameBaseDefinition(get))
-                    return true;
-
-                // this case occurs when the property is overridden in the serviceType.
-                // in this case, the property type is super class of (and not the same as) the getter's type.
-                var covariantReturn = info.CovariantReturnMethod;
-                if (covariantReturn.IsSameBaseDefinition(get)
-                    && covariantReturn.ReturnType != property.PropertyType
-                    && property.PropertyType.IsAssignableFrom(covariantReturn.ReturnType))
-                    return true;
-
-                return false;
+                if (getter.DeclaringType == getter.ReflectedType)
+                {
+                    // the 'getter' is declared in the _serviceType, and it is overridden by a covariant-return method in the _implType.
+                    // In this case, use CovariantReturnMethod for both serviceMethod and implMethod.
+                    return (covariantReturn.CovariantReturnMethod, false);
+                }
+                else
+                {
+                    // the 'getter' is declared in a base class of the _serviceType, and it is overridden by a covariant-return method in the _implType.
+                    // In this case, the covariant-return method will be visited in a later iteration when the base class is processed, so skip the current method to avoid conflicts.
+                    return (null, true);
+                }
             }
         }
 

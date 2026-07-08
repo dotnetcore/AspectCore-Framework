@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance
 using System;
 using System.Collections.Generic;
 using System.Linq;
