@@ -414,9 +414,10 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Theory]
-    [InlineData(typeof(NestedClass<,>.InnerClass<,>))]
-    [InlineData(typeof(NestedClass<int, string>.InnerClass<int, string>))]
-    public void GenericParameter_Print(Type type)
+    [InlineData(typeof(NestedClass<,>.InnerClass<,>), "Method")]
+    [InlineData(typeof(NestedClass<int, string>.InnerClass<int, string>), "Method")]
+    [InlineData(typeof(MixedGenericShapeLeafService<>), "TypeAndMethod")]
+    public void GenericParameter_Print(Type type, string methodName)
     {
         output.WriteLine("GenericTypeParameters:");
         foreach (var param in type.GetTypeInfo().GenericTypeParameters)
@@ -424,10 +425,11 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
             output.WriteLine($"[{param.Name}]Declaring Type: {param.DeclaringType?.Name}, Declaring Method: {param.DeclaringMethod?.Name}");
         }
 
-        var method = type.GetMethod("Method");
+        var method = type.GetMethod(methodName, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
         Assert.NotNull(method);
 
-        output.WriteLine("\nMethod Parameters:");
+        output.WriteLine("");
+        output.WriteLine("Method Parameters:");
         foreach (var param in method.GetParameters())
         {
             var pt = param.ParameterType;

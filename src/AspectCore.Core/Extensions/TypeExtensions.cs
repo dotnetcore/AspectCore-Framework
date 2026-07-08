@@ -243,17 +243,19 @@ internal static class TypeExtensions
         return true;
     }
 
+    /// <summary>
+    /// Determines whether the specified generic parameter type is covariant.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns><see langword="true"/> if the specified type is covariant; otherwise, <see langword="false"/>.</returns>
     public static bool IsGenericParameterCovariant(this Type type)
     {
         if (type.IsGenericParameter == false)
             return false;
 
         var variance = type.GenericParameterAttributes & GenericParameterAttributes.VarianceMask;
-
-        // Check against the Covariant enum value
         return variance == GenericParameterAttributes.Covariant;
     }
-
 
     // for covariant return types, the generic parameter position must be the same.
     // the declaring method/type is different, we only check the null state here.
@@ -266,6 +268,9 @@ internal static class TypeExtensions
             return false;
 
         if (type.DeclaringMethod.IsSameNullState(other.DeclaringMethod) == false)
+            return false;
+
+        if (type.DeclaringType.IsSameNullState(other.DeclaringType) == false)
             return false;
 
         if (type.DeclaringType.IsSameNullState(other.DeclaringType) == false)
