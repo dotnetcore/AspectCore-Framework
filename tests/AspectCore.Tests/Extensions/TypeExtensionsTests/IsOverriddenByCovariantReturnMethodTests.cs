@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 #pragma warning disable IDE0060 // Remove unused parameter
 using System.Linq;
 using System;
@@ -270,7 +270,7 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void ShouldReturnFalse_WhenTypeGenericParametersComeFromDifferentDeclaringTypes()
+    public void ShouldReturnFalse_WhenBaseTypeGenericParameterIsSubstitutedByConcreteType()
     {
         var method = GetMethod(typeof(TypeGenericParameterSourceBaseService<>), nameof(TypeGenericParameterSourceBaseService<object>.Convert), typeof(BaseResult), parameterCount: 1);
         var covariantReturnMethod = GetMethod(typeof(TypeGenericParameterSourceLeafService<>), nameof(TypeGenericParameterSourceLeafService<object>.Convert), typeof(LeafResult), parameterCount: 1);
@@ -279,7 +279,7 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void ShouldReturnFalse_WhenTypeGenericParametersComeFromDifferentDeclaringTypes_Emit()
+    public void ShouldReturnFalse_WhenEmittedCovariantReturnCandidateUsesUnrelatedTypeGenericParameter()
     {
         var method = GetMethod(typeof(TypeGenericParameterSourceBaseService<>), nameof(TypeGenericParameterSourceBaseService<object>.Convert), typeof(BaseResult), parameterCount: 1);
         var covariantReturnMethod = GetMethod(DynamicTypeGenericParameterSourceLeafService, "Convert", typeof(LeafResult), parameterCount: 1);

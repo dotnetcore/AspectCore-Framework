@@ -1,9 +1,8 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AspectCore.Core.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions;
@@ -154,16 +153,19 @@ internal static class TypeExtensions
         if (covariantReturnMethod.Name != method.Name)
             return false;
 
-        // return types should not be the same.
-        if (covariantReturnMethod.ReturnType == method.ReturnType)
-            return false;
-
-        if (method.ReturnType.IsCovariantReturnAssignableFrom(covariantReturnMethod.ReturnType) == false)
-            return false;
-
         if (method.DeclaringType is not { } dt1
             || covariantReturnMethod.DeclaringType is not { } dt2
             || dt1.IsCovariantReturnAssignableFrom(dt2) == false)
+            return false;
+
+        var genericParameterMap = CreateGenericParameterMap(method, covariantReturnMethod);
+        var methodReturnType = method.ReturnType.SubstituteGenericParameters(genericParameterMap);
+
+        // return types should not be the same.
+        if (covariantReturnMethod.ReturnType == methodReturnType)
+            return false;
+
+        if (methodReturnType.IsCovariantReturnAssignableFrom(covariantReturnMethod.ReturnType) == false)
             return false;
 
         var params1 = covariantReturnMethod.GetParameters();
@@ -174,7 +176,8 @@ internal static class TypeExtensions
 
         foreach (var (p1, p2) in params1.Zip(params2))
         {
-            if (p1.ParameterType.IsCovariantReturnEquivalentTo(p2.ParameterType) == false)
+            var parameterType = p2.ParameterType.SubstituteGenericParameters(genericParameterMap);
+            if (p1.ParameterType.IsCovariantReturnEquivalentTo(parameterType) == false)
                 return false;
         }
 
@@ -194,12 +197,126 @@ internal static class TypeExtensions
 
             foreach (var (a1, a2) in args1.Zip(args2))
             {
-                if (a1.IsCovariantReturnEquivalentTo(a2) == false)
+                if (a1.IsCovariantReturnEquivalentTo(a2.SubstituteGenericParameters(genericParameterMap)) == false)
                     return false;
             }
         }
 
         return true;
+    }
+
+    private static IReadOnlyDictionary<Type, Type> CreateGenericParameterMap(MethodInfo method, MethodInfo covariantReturnMethod)
+    {
+        var result = new Dictionary<Type, Type>();
+
+        if (method.DeclaringType is { } declaringType && covariantReturnMethod.DeclaringType is { } covariantDeclaringType)
+            AddTypeGenericParameterMap(declaringType, covariantDeclaringType, result);
+
+        if (method.IsGenericMethod && covariantReturnMethod.IsGenericMethod)
+        {
+            var args1 = method.GetGenericArguments();
+            var args2 = covariantReturnMethod.GetGenericArguments();
+            foreach (var (a1, a2) in args1.Zip(args2))
+            {
+                if (a1.IsGenericParameter)
+                    result[a1] = a2;
+            }
+        }
+
+        return result;
+    }
+
+    private static void AddTypeGenericParameterMap(Type declaringType, Type covariantDeclaringType, Dictionary<Type, Type> result)
+    {
+        if (declaringType.IsGenericType == false)
+            return;
+
+        var projectedDeclaringType = FindMatchingBaseType(covariantDeclaringType, declaringType);
+        if (projectedDeclaringType is null || projectedDeclaringType.IsGenericType == false)
+            return;
+
+        var genericParameters = declaringType.GetGenericTypeDefinition().GetGenericArguments();
+        var genericArguments = projectedDeclaringType.GetGenericArguments();
+        if (genericParameters.Length != genericArguments.Length)
+            return;
+
+        foreach (var (parameter, argument) in genericParameters.Zip(genericArguments))
+        {
+            result[parameter] = argument;
+        }
+    }
+
+    private static Type? FindMatchingBaseType(Type type, Type declaringType)
+    {
+        var declaringTypeDefinition = declaringType.IsGenericType
+            ? declaringType.GetGenericTypeDefinition()
+            : declaringType;
+
+        foreach (var candidate in EnumerateBaseTypesAndInterfaces(type))
+        {
+            if (candidate.IsGenericType)
+            {
+                if (candidate.GetGenericTypeDefinition() == declaringTypeDefinition)
+                    return candidate;
+            }
+            else if (candidate == declaringTypeDefinition)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<Type> EnumerateBaseTypesAndInterfaces(Type type)
+    {
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            yield return current;
+
+            foreach (var @interface in current.GetInterfaces())
+            {
+                yield return @interface;
+            }
+        }
+    }
+
+    private static Type SubstituteGenericParameters(this Type type, IReadOnlyDictionary<Type, Type> genericParameterMap)
+    {
+        if (type.IsGenericParameter)
+        {
+            return genericParameterMap.GetValueOrDefault(type, type);
+        }
+
+        if (type.HasElementType)
+        {
+            var elementType = type.GetElementType()!.SubstituteGenericParameters(genericParameterMap);
+            if (elementType == type.GetElementType())
+                return type;
+
+            if (type.IsArray)
+                return type.GetArrayRank() == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType(type.GetArrayRank());
+
+            if (type.IsByRef)
+                return elementType.MakeByRefType();
+
+            if (type.IsPointer)
+                return elementType.MakePointerType();
+
+            return type;
+        }
+
+        if (type.IsGenericType && type.IsGenericTypeDefinition == false)
+        {
+            var args = type.GetGenericArguments();
+            var substitutedArgs = args.Select(a => a.SubstituteGenericParameters(genericParameterMap)).ToArray();
+            if (args.SequenceEqual(substitutedArgs))
+                return type;
+
+            return type.GetGenericTypeDefinition().MakeGenericType(substitutedArgs);
+        }
+
+        return type;
     }
 
     private static bool AreEquivalentGenericTypes(Type type, Type other, Func<Type, Type, bool> argumentComparer, Func<Type, Type, bool> typeDefinitionComparer)
@@ -257,8 +374,6 @@ internal static class TypeExtensions
         return variance == GenericParameterAttributes.Covariant;
     }
 
-    // for covariant return types, the generic parameter position must be the same.
-    // the declaring method/type is different, we only check the null state here.
     private static bool AreEquivalentGenericParameters(Type type, Type other)
     {
         if (type.IsGenericParameter == false || other.IsGenericParameter == false)
@@ -267,16 +382,10 @@ internal static class TypeExtensions
         if (type.GenericParameterPosition != other.GenericParameterPosition)
             return false;
 
-        if (type.DeclaringMethod.IsSameNullState(other.DeclaringMethod) == false)
+        if (type.DeclaringMethod != other.DeclaringMethod)
             return false;
 
-        if (type.DeclaringType.IsSameNullState(other.DeclaringType) == false)
-            return false;
-
-        if (type.DeclaringType.IsSameNullState(other.DeclaringType) == false)
-            return false;
-
-        return true;
+        return type.DeclaringType == other.DeclaringType;
     }
 
     public static bool IsAssignableFromGenericTypeDefinition(this Type type, Type other)
