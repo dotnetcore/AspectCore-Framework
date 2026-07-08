@@ -2,12 +2,14 @@
 #pragma warning disable CA1859 // Use concrete types when possible for improved performance
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
 namespace AspectCore.Extensions;
 
+[DebuggerDisplay("({OverriddenMethod.ReturnType.Name} {OverriddenMethod.Name}) -> ({CovariantReturnMethod.ReturnType.Name} {CovariantReturnMethod.Name})")]
 internal readonly struct CovariantReturnMethodInfo
 {
     /// <summary>

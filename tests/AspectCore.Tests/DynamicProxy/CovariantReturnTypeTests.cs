@@ -164,7 +164,7 @@ partial class CovariantReturnTypeTests
         public override LeafResult InterceptedMethod() => new(nameof(OrdinaryOverrideService));
     }
 
-    // this class just inherits from OrdinaryOverrideService, and does not override any members.
+    //this class just inherits from OrdinaryOverrideService, and does not override any members.
     public class DerivedOrdinaryOverrideService : OrdinaryOverrideService;
 }
 

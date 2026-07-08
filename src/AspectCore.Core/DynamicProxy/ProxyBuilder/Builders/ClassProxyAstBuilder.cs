@@ -180,7 +180,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 var overridden = covariantReturn.OverriddenMethod;
                 if (overridden == null)
                     return (null, false);
-                
+
                 if (method.DeclaringType == method.ReflectedType)
                 {
                     // the 'method' is declared in the _serviceType, and it is overridden by a covariant-return method in the _implType.
@@ -246,8 +246,18 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
             (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)
             {
-                if(property.GetMethod is not {} getter)
+                if (property.GetMethod is not { } getter)
                     return (null, false);
+
+                // covariant return type is not supported for set method, so skip it.
+                if (property.CanWrite)
+                    return (null, false);
+
+                // property is inherited from base class, and the getter is overridden by a covariant return type method in the implType.
+                // in this case, we need to skip the property to avoid conflicts when building the proxy type.
+                if (property.PropertyType != getter.ReturnType
+                   && getter.IsCovariantReturnMethod())
+                    return (null, true);
 
                 var covariantReturn = covariantReturnMethods
                     .Where(m => getter.IsOverriddenByCovariantReturnMethod(m.CovariantReturnMethod))
