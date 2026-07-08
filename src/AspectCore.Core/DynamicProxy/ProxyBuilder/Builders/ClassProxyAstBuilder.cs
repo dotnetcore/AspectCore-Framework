@@ -256,7 +256,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 // property is inherited from base class, and the getter is overridden by a covariant return type method in the implType.
                 // in this case, we need to skip the property to avoid conflicts when building the proxy type.
                 if (property.PropertyType != getter.ReturnType
-                   && getter.IsCovariantReturnMethod())
+                   && getter.IsInCovariantReturnChain())
                     return (null, true);
 
                 var covariantReturn = covariantReturnMethods
