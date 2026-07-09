@@ -78,6 +78,8 @@ partial class CovariantReturnTypeTests
         public override LeafResult InterceptedMethod() => new(nameof(LeafCovariantReturnService));
     }
 
+    public class DerivedLeafCovariantReturnService : LeafCovariantReturnService;
+
     // this class just does ordinary overriding.
     public class OrdinaryOverrideService : LeafCovariantReturnService
     {

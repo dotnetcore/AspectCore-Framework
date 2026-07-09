@@ -12,7 +12,7 @@ using static AspectCore.Tests.Extensions.TypeExtensionsTests.TestTypes;
 
 namespace AspectCore.Tests.Extensions.TypeExtensionsTests;
 
-public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
+public class IsOverriddenByCovariantReturnMethodTests
 {
     [Fact]
     public void ShouldReturnTrue_WhenMethodIsOverriddenWithCovariantReturnType()
@@ -387,62 +387,5 @@ public class IsOverriddenByCovariantReturnMethodTests(ITestOutputHelper output)
         return typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Single(property => property.Name == name && property.PropertyType == propertyType)
             .GetMethod!;
-    }
-
-    [Theory]
-    [InlineData(typeof(MixedGenericShapeLeafService<>))]
-    public void GetMethods_Print(Type type)
-    {
-        output.WriteLine($"{type.Name}'s Methods:");
-
-        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-        foreach (var method in methods)
-        {
-            var dt = method.DeclaringType;
-            if (dt == typeof(object))
-                continue;
-
-            var attributes = method.GetCustomAttributesData();
-            if (attributes.Any(m => m.AttributeType == typeof(CompilerGeneratedAttribute)))
-                continue;
-
-            var isCrt = method.IsCovariantReturnMethod();
-
-            var attributeNames = attributes.Select(a => a.AttributeType.Name);
-            output.WriteLine($"[{dt?.Name}.{method.Name}] Return Type: {method.ReturnType.Name}, Covariant Return: {isCrt}, Attributes: {string.Join(", ", attributeNames)}");
-        }
-    }
-
-    [Theory]
-    [InlineData(typeof(NestedClass<,>.InnerClass<,>), "Method")]
-    [InlineData(typeof(NestedClass<int, string>.InnerClass<int, string>), "Method")]
-    [InlineData(typeof(MixedGenericShapeLeafService<>), "TypeAndMethod")]
-    public void GenericParameter_Print(Type type, string methodName)
-    {
-        output.WriteLine("GenericTypeParameters:");
-        foreach (var param in type.GetTypeInfo().GenericTypeParameters)
-        {
-            output.WriteLine($"[{param.Name}]Declaring Type: {param.DeclaringType?.Name}, Declaring Method: {param.DeclaringMethod?.Name}");
-        }
-
-        var method = type.GetMethod(methodName, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-        Assert.NotNull(method);
-
-        output.WriteLine("");
-        output.WriteLine("Method Parameters:");
-        foreach (var param in method.GetParameters())
-        {
-            var pt = param.ParameterType;
-            var dm = pt.IsGenericParameter ? pt.DeclaringMethod : null;
-            output.WriteLine($"[{param.Name}]Type: {pt.Name}, Declaring Type: {pt.DeclaringType?.Name}, Declaring Method: {dm?.Name}");
-        }
-    }
-
-    public class NestedClass<T1, T2>
-    {
-        public class InnerClass<T3, T4>
-        {
-            public void Method<T5>(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) { }
-        }
     }
 }

@@ -30,14 +30,14 @@ namespace AspectCore.Extensions.Configuration.Tests
     public class ValueConfigService
     {
         [ConfigurationValue("age", "creator")] 
-        private int age;
+        private readonly int _age = default!;
 
         [ConfigurationValue("name", "creator")]
-        private string name;
+        private readonly string _name = default!;
 
         public override string ToString()
         {
-            return $"{name}-{age}";
+            return $"{_name}-{_age}";
         }
     }
 }

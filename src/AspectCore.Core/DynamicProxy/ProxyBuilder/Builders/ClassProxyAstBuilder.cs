@@ -136,6 +136,9 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             if (method.Attributes.HasFlag(MethodAttributes.FamORAssem))
                 attributes |= MethodAttributes.FamORAssem;
 
+            if (implMethod.IsCovariantReturnMethod())
+                attributes |= MethodAttributes.NewSlot;
+
             var node = InterfaceImplBuilder.BuildProxyMethod(
                 serviceMethod: method,
                 implMethod: implMethod,
