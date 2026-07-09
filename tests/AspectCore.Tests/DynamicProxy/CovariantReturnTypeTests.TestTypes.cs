@@ -338,6 +338,8 @@ partial class CovariantReturnTypeTests
         public override LeafResult InterceptedMethod(TValue value) => new(nameof(GenericLeafCovariantReturnService<TValue>));
     }
 
+    public class GenericDerivedLeafCovariantReturnService<TValue> : GenericLeafCovariantReturnService<TValue>;
+
     public class GenericParameterSubstitutionBaseService<TBase>
     {
         public virtual BaseResult Convert(TBase value) => new(nameof(GenericParameterSubstitutionBaseService<TBase>));

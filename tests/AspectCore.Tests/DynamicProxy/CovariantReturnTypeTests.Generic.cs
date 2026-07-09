@@ -7,6 +7,15 @@ namespace AspectCore.Tests.DynamicProxy;
 
 public partial class CovariantReturnTypeTests
 {
+    private static void AssertGenericCommonServiceReturns<T>(IGenericCommonService<string> service, string expectedName)
+        where T : BaseResult
+    {
+        AssertTypeValue<T>(service.Property, v => Assert.Equal(expectedName, v.Name));
+        AssertTypeValue<T>(service.Method("value"), v => Assert.Equal(expectedName, v.Name));
+        AssertTypeValue<T>(service.InterceptedProperty, v => Assert.Equal(expectedName + nameof(ReturnTypeInterceptor), v.Name));
+        AssertTypeValue<T>(service.InterceptedMethod("value"), v => Assert.Equal(expectedName + nameof(ReturnTypeInterceptor), v.Name));
+    }
+
     [Fact]
     public void CreateClassProxy_ForGenericMethodCovariantReturn_ShouldUseLeafMethod()
     {
@@ -61,10 +70,7 @@ public partial class CovariantReturnTypeTests
     {
         var service = ProxyGenerator.CreateClassProxy<GenericLeafCovariantReturnService<string>>();
 
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.Method("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
     }
 
     [Fact]
@@ -73,10 +79,7 @@ public partial class CovariantReturnTypeTests
         var service = Assert.IsAssignableFrom<IGenericCommonService<string>>(
             ProxyGenerator.CreateClassProxy<GenericLeafCovariantReturnService<string>>());
 
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.Method("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
     }
 
     [Fact]
@@ -85,10 +88,16 @@ public partial class CovariantReturnTypeTests
         var service = Assert.IsAssignableFrom<GenericCovariantReturnService<string>>(
             ProxyGenerator.CreateClassProxy<GenericLeafCovariantReturnService<string>>());
 
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.Method("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericDerivedLeafCovariantReturnTypeAndInterfaceView_ShouldUseInheritedLeafMembers()
+    {
+        var service = Assert.IsAssignableFrom<IGenericCommonService<string>>(
+            ProxyGenerator.CreateClassProxy<GenericDerivedLeafCovariantReturnService<string>>());
+
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
     }
 
     [Fact]
@@ -99,6 +108,32 @@ public partial class CovariantReturnTypeTests
         AssertTypeValue<LeafResult>(service.Direct("value"), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
         AssertTypeValue<LeafResult>(service.List(["value"]), v => Assert.Equal(nameof(TypeGenericShapeLeafService<string>), v.Name));
         Assert.IsType<List<string>>(service.ReturnList);
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericBaseServiceAndLeafImplementation_ShouldUseLeafMethodAndProperty()
+    {
+        var service = ProxyGenerator.CreateClassProxy<GenericCommonService<string>, GenericLeafCovariantReturnService<string>>();
+
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericBaseServiceAndLeafImplementationInterfaceView_ShouldUseLeafMethodAndProperty()
+    {
+        var service = Assert.IsAssignableFrom<IGenericCommonService<string>>(
+            ProxyGenerator.CreateClassProxy<GenericCommonService<string>, GenericLeafCovariantReturnService<string>>());
+
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForGenericCovariantServiceAndLeafImplementationInterfaceView_ShouldUseLeafMethodAndProperty()
+    {
+        var service = Assert.IsAssignableFrom<IGenericCommonService<string>>(
+            ProxyGenerator.CreateClassProxy<GenericCovariantReturnService<string>, GenericLeafCovariantReturnService<string>>());
+
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
     }
 
     [Fact]
@@ -117,10 +152,15 @@ public partial class CovariantReturnTypeTests
     {
         var service = ProxyGenerator.CreateInterfaceProxy<IGenericCommonService<string>, GenericLeafCovariantReturnService<string>>();
 
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.Method("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod("value"), v => Assert.Equal(nameof(GenericLeafCovariantReturnService<string>) + nameof(ReturnTypeInterceptor), v.Name));
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
+    }
+
+    [Fact]
+    public void CreateInterfaceProxy_ForGenericInterfaceAndDerivedLeafImplementation_ShouldUseInheritedLeafMembers()
+    {
+        var service = ProxyGenerator.CreateInterfaceProxy<IGenericCommonService<string>, GenericDerivedLeafCovariantReturnService<string>>();
+
+        AssertGenericCommonServiceReturns<LeafResult>(service, nameof(GenericLeafCovariantReturnService<string>));
     }
 
     [Fact]
