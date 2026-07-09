@@ -50,16 +50,6 @@ partial class CovariantReturnTypeTests
         public virtual object InterceptedMethod() => nameof(CommonService);
     }
 
-    public class DerivedCommonService : CommonService
-    {
-        public override object Property { get; } = nameof(DerivedCommonService);
-        public override object Method() => nameof(DerivedCommonService);
-
-        public override object InterceptedProperty { [ReturnTypeInterceptor] get; } = nameof(DerivedCommonService);
-        [ReturnTypeInterceptor]
-        public override object InterceptedMethod() => nameof(DerivedCommonService);
-    }
-
     public class BaseCovariantReturnService : CommonService
     {
         public override BaseResult Property { get; } = new(nameof(BaseCovariantReturnService));
@@ -92,7 +82,7 @@ partial class CovariantReturnTypeTests
 
     public class DerivedLeafCovariantReturnService : LeafCovariantReturnService;
 
-    // this class just does ordinary overriding.
+    // This class uses ordinary overrides after the covariant-return chain.
     public class OrdinaryOverrideService : LeafCovariantReturnService
     {
         public override LeafResult Property { get; } = new(nameof(OrdinaryOverrideService));
@@ -103,7 +93,7 @@ partial class CovariantReturnTypeTests
         public override LeafResult InterceptedMethod() => new(nameof(OrdinaryOverrideService));
     }
 
-    //this class just inherits from OrdinaryOverrideService, and does not override any members.
+    // This class inherits the ordinary overrides without adding new members.
     public class DerivedOrdinaryOverrideService : OrdinaryOverrideService;
 
     public class MethodOnlyCommonService

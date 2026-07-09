@@ -12,7 +12,7 @@ namespace AspectCore.Extensions;
 internal readonly struct CovariantReturnMethodInfo
 {
     /// <summary>
-    /// The method that defines the covariant return type —
+    /// The method that defines the covariant return type,
     /// i.e., the overriding method that returns a more derived type.
     /// </summary>
     public readonly MethodInfo CovariantReturnMethod;
@@ -26,11 +26,11 @@ internal readonly struct CovariantReturnMethodInfo
     /// Gets the method that is overridden or implemented by <see cref="CovariantReturnMethod"/>.
     /// </summary>
     /// <remarks>
-    /// This <see cref="MethodInfo"/> is **reflected from the derived type**, not necessarily
+    /// This <see cref="MethodInfo"/> is reflected from the derived type, not necessarily
     /// the base definition returned by <see cref="MethodInfo.GetBaseDefinition()"/>.
     /// <para>
     /// In other words, it represents the version of the base or interface method as seen
-    /// through the derived class’s reflection context, which may differ from the canonical
+    /// through the derived class's reflection context, which may differ from the canonical
     /// base definition when covariant return types are involved.
     /// </para>
     /// </remarks>
@@ -42,6 +42,12 @@ internal readonly struct CovariantReturnMethodInfo
     /// </summary>
     public readonly HashSet<MethodInfo> InterfaceDeclarations;
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="CovariantReturnMethodInfo"/>.
+    /// </summary>
+    /// <param name="covariantReturnMethod">The overriding method whose return type is more specific.</param>
+    /// <param name="overriddenMethod">The base or interface method matched to <paramref name="covariantReturnMethod"/>.</param>
+    /// <param name="interfaceDeclarations">The interface declarations implemented by <paramref name="covariantReturnMethod"/>.</param>
     public CovariantReturnMethodInfo(MethodInfo covariantReturnMethod, MethodInfo overriddenMethod, HashSet<MethodInfo> interfaceDeclarations)
     {
         InterfaceDeclarations = interfaceDeclarations;
@@ -53,6 +59,9 @@ internal readonly struct CovariantReturnMethodInfo
 
 internal static class TypeExtensions
 {
+    /// <summary>
+    /// Gets the runtime marker attribute used by the CLR to preserve covariant-return base overrides.
+    /// </summary>
     public static readonly Type? PreserveBaseOverridesAttribute = Type.GetType("System.Runtime.CompilerServices.PreserveBaseOverridesAttribute", false);
 
     /// <summary>
@@ -113,17 +122,13 @@ internal static class TypeExtensions
     }
 
     /// <summary>
-    /// Gets the inheritance depth of the specified type.
+    /// Gets the inheritance depth of the specified type, excluding the <see cref="object"/> level.
     /// </summary>
     /// <param name="type">The type whose inheritance depth is calculated.</param>
     /// <returns>
-    /// The inheritance depth of <paramref name="type"/>.
-    /// Returns 0 for <see cref="object"/>, 1 for a class that directly inherits from <see cref="object"/>,
-    /// 2 for its derived class, and so on.
+    /// The inheritance depth of <paramref name="type"/> after subtracting the <see cref="object"/> level.
+    /// A type that directly inherits from <see cref="object"/> returns 0, and each derived class adds 1.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="type"/> is <see langword="null"/>.
-    /// </exception>
     public static int GetInheritanceDepth(this Type? type)
     {
         if (type is null)
@@ -138,15 +143,18 @@ internal static class TypeExtensions
             current = current.BaseType;
         }
 
-        return depth - 1; // 去掉 object 自己那一层
+        return depth - 1;
     }
 
     /// <summary>
-    /// Determines whether the specified method is overridden by a covariant return method.
+    /// Determines whether a method is overridden by another method through a covariant-return override.
     /// </summary>
-    /// <param name="method">The method that potentially has a covariant return type override.</param>
-    /// <param name="covariantReturnMethod">The method that potentially overrides <paramref name="method"/> with a covariant return type.</param>
-    /// <returns></returns>
+    /// <param name="method">The base, interface, or less-derived method to match.</param>
+    /// <param name="covariantReturnMethod">The candidate method that may override <paramref name="method"/> with a more specific return type.</param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="covariantReturnMethod"/> is a covariant-return override of
+    /// <paramref name="method"/>; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool IsOverriddenByCovariantReturnMethod(this MethodInfo method, MethodInfo covariantReturnMethod)
     {
         if (covariantReturnMethod.IsInCovariantReturnChain() == false)
@@ -155,31 +163,31 @@ internal static class TypeExtensions
         if (covariantReturnMethod.Name != method.Name)
             return false;
 
-        if (method.DeclaringType is not { } dt1
-            || covariantReturnMethod.DeclaringType is not { } dt2
-            || dt1.IsCovariantReturnAssignableFrom(dt2) == false)
+        if (method.DeclaringType is not { } methodDeclaringType
+            || covariantReturnMethod.DeclaringType is not { } covariantDeclaringType
+            || methodDeclaringType.IsCovariantReturnAssignableFrom(covariantDeclaringType) == false)
             return false;
 
         var genericParameterMap = CreateGenericParameterMap(method, covariantReturnMethod);
         var methodReturnType = method.ReturnType.SubstituteGenericParameters(genericParameterMap);
 
-        // return types should not be the same.
+        // Covariant return overrides must narrow the return type.
         if (covariantReturnMethod.ReturnType == methodReturnType)
             return false;
 
         if (methodReturnType.IsCovariantReturnAssignableFrom(covariantReturnMethod.ReturnType) == false)
             return false;
 
-        var params1 = covariantReturnMethod.GetParameters();
-        var params2 = method.GetParameters();
+        var covariantParameters = covariantReturnMethod.GetParameters();
+        var methodParameters = method.GetParameters();
 
-        if (params1.Length != params2.Length)
+        if (covariantParameters.Length != methodParameters.Length)
             return false;
 
-        foreach (var (p1, p2) in params1.Zip(params2))
+        foreach (var (covariantParameter, methodParameter) in covariantParameters.Zip(methodParameters))
         {
-            var parameterType = p2.ParameterType.SubstituteGenericParameters(genericParameterMap);
-            if (p1.ParameterType.IsCovariantReturnEquivalentTo(parameterType) == false)
+            var parameterType = methodParameter.ParameterType.SubstituteGenericParameters(genericParameterMap);
+            if (covariantParameter.ParameterType.IsCovariantReturnEquivalentTo(parameterType) == false)
                 return false;
         }
 
@@ -192,14 +200,14 @@ internal static class TypeExtensions
 
         if (isGeneric)
         {
-            var args1 = covariantReturnMethod.GetGenericArguments();
-            var args2 = method.GetGenericArguments();
-            if (args1.Length != args2.Length)
+            var covariantGenericArguments = covariantReturnMethod.GetGenericArguments();
+            var methodGenericArguments = method.GetGenericArguments();
+            if (covariantGenericArguments.Length != methodGenericArguments.Length)
                 return false;
 
-            foreach (var (a1, a2) in args1.Zip(args2))
+            foreach (var (covariantGenericArgument, methodGenericArgument) in covariantGenericArguments.Zip(methodGenericArguments))
             {
-                if (a1.IsCovariantReturnEquivalentTo(a2.SubstituteGenericParameters(genericParameterMap)) == false)
+                if (covariantGenericArgument.IsCovariantReturnEquivalentTo(methodGenericArgument.SubstituteGenericParameters(genericParameterMap)) == false)
                     return false;
             }
         }
@@ -207,6 +215,12 @@ internal static class TypeExtensions
         return true;
     }
 
+    /// <summary>
+    /// Builds a map from generic parameters on the base method or declaring type to their matching parameters or arguments on the covariant method.
+    /// </summary>
+    /// <param name="method">The method whose generic parameters should be projected.</param>
+    /// <param name="covariantReturnMethod">The candidate covariant-return method that supplies projected parameters or arguments.</param>
+    /// <returns>A dictionary used to substitute generic parameters before comparing signatures.</returns>
     private static IReadOnlyDictionary<Type, Type> CreateGenericParameterMap(MethodInfo method, MethodInfo covariantReturnMethod)
     {
         var result = new Dictionary<Type, Type>();
@@ -216,18 +230,24 @@ internal static class TypeExtensions
 
         if (method.IsGenericMethod && covariantReturnMethod.IsGenericMethod)
         {
-            var args1 = method.GetGenericArguments();
-            var args2 = covariantReturnMethod.GetGenericArguments();
-            foreach (var (a1, a2) in args1.Zip(args2))
+            var methodGenericArguments = method.GetGenericArguments();
+            var covariantGenericArguments = covariantReturnMethod.GetGenericArguments();
+            foreach (var (methodGenericArgument, covariantGenericArgument) in methodGenericArguments.Zip(covariantGenericArguments))
             {
-                if (a1.IsGenericParameter)
-                    result[a1] = a2;
+                if (methodGenericArgument.IsGenericParameter)
+                    result[methodGenericArgument] = covariantGenericArgument;
             }
         }
 
         return result;
     }
 
+    /// <summary>
+    /// Adds mappings for generic parameters declared on the base declaring type.
+    /// </summary>
+    /// <param name="declaringType">The type that declares the base or less-derived method.</param>
+    /// <param name="covariantDeclaringType">The type that declares the covariant-return method.</param>
+    /// <param name="result">The map receiving generic parameter substitutions.</param>
     private static void AddTypeGenericParameterMap(Type declaringType, Type covariantDeclaringType, Dictionary<Type, Type> result)
     {
         if (declaringType.IsGenericType == false)
@@ -248,6 +268,14 @@ internal static class TypeExtensions
         }
     }
 
+    /// <summary>
+    /// Finds the base type or interface on <paramref name="type"/> that corresponds to <paramref name="declaringType"/>.
+    /// </summary>
+    /// <param name="type">The derived type to inspect.</param>
+    /// <param name="declaringType">The declaring type whose constructed form should be located.</param>
+    /// <returns>
+    /// The matching constructed base type or interface, or <see langword="null"/> if no matching type is found.
+    /// </returns>
     private static Type? FindMatchingBaseType(Type type, Type declaringType)
     {
         var declaringTypeDefinition = declaringType.IsGenericType
@@ -270,6 +298,11 @@ internal static class TypeExtensions
         return null;
     }
 
+    /// <summary>
+    /// Enumerates a type, its base types, and the interfaces visible from each level.
+    /// </summary>
+    /// <param name="type">The type whose inheritance graph should be traversed.</param>
+    /// <returns>The type itself, followed by base types and implemented interfaces.</returns>
     private static IEnumerable<Type> EnumerateBaseTypesAndInterfaces(Type type)
     {
         for (var current = type; current is not null; current = current.BaseType)
@@ -283,6 +316,12 @@ internal static class TypeExtensions
         }
     }
 
+    /// <summary>
+    /// Replaces generic parameters inside a type with their mapped generic parameters or concrete generic arguments.
+    /// </summary>
+    /// <param name="type">The type whose generic parameters should be substituted.</param>
+    /// <param name="genericParameterMap">The substitution map created from the compared methods.</param>
+    /// <returns>The substituted type, or the original type when no substitution is required.</returns>
     private static Type SubstituteGenericParameters(this Type type, IReadOnlyDictionary<Type, Type> genericParameterMap)
     {
         if (type.IsGenericParameter)
@@ -321,6 +360,14 @@ internal static class TypeExtensions
         return type;
     }
 
+    /// <summary>
+    /// Compares array and generic type shapes using custom comparers for generic arguments and type definitions.
+    /// </summary>
+    /// <param name="type">The first type to compare.</param>
+    /// <param name="other">The second type to compare.</param>
+    /// <param name="argumentComparer">The comparer used for generic arguments or array element types.</param>
+    /// <param name="typeDefinitionComparer">The comparer used for generic type definitions.</param>
+    /// <returns><see langword="true"/> if the two types have compatible generic or array shapes; otherwise, <see langword="false"/>.</returns>
     private static bool AreEquivalentGenericTypes(Type type, Type other, Func<Type, Type, bool> argumentComparer, Func<Type, Type, bool> typeDefinitionComparer)
     {
         if (type.IsArray && other.IsArray)
@@ -341,21 +388,21 @@ internal static class TypeExtensions
         if (type.IsGenericTypeDefinition != other.IsGenericTypeDefinition)
             return false;
 
-        var args1 = type.GetGenericArguments();
-        var args2 = other.GetGenericArguments();
+        var genericArguments = type.GetGenericArguments();
+        var otherGenericArguments = other.GetGenericArguments();
 
-        if (args1.Length != args2.Length)
+        if (genericArguments.Length != otherGenericArguments.Length)
             return false;
 
-        var d1 = type.GetGenericTypeDefinition();
-        var d2 = other.GetGenericTypeDefinition();
+        var genericTypeDefinition = type.GetGenericTypeDefinition();
+        var otherGenericTypeDefinition = other.GetGenericTypeDefinition();
 
-        if (typeDefinitionComparer(d1, d2) == false)
+        if (typeDefinitionComparer(genericTypeDefinition, otherGenericTypeDefinition) == false)
             return false;
 
-        foreach (var (a1, a2) in args1.Zip(args2))
+        foreach (var (genericArgument, otherGenericArgument) in genericArguments.Zip(otherGenericArguments))
         {
-            if (argumentComparer(a1, a2) == false)
+            if (argumentComparer(genericArgument, otherGenericArgument) == false)
                 return false;
         }
 
@@ -363,7 +410,7 @@ internal static class TypeExtensions
     }
 
     /// <summary>
-    /// Determines whether the specified generic parameter type is covariant.
+    /// Determines whether the specified type is a covariant generic parameter.
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <returns><see langword="true"/> if the specified type is covariant; otherwise, <see langword="false"/>.</returns>
@@ -376,6 +423,15 @@ internal static class TypeExtensions
         return variance == GenericParameterAttributes.Covariant;
     }
 
+    /// <summary>
+    /// Determines whether two generic parameters represent the same generic slot.
+    /// </summary>
+    /// <param name="type">The first generic parameter to compare.</param>
+    /// <param name="other">The second generic parameter to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if both parameters have the same position and declaring method or type; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     private static bool AreEquivalentGenericParameters(Type type, Type other)
     {
         if (type.IsGenericParameter == false || other.IsGenericParameter == false)
@@ -390,41 +446,55 @@ internal static class TypeExtensions
         return type.DeclaringType == other.DeclaringType;
     }
 
+    /// <summary>
+    /// Determines whether a generic type definition is assignable from another type or generic type definition.
+    /// </summary>
+    /// <param name="type">The generic type definition that may be assignable from <paramref name="other"/>.</param>
+    /// <param name="other">The type or generic type definition to test.</param>
+    /// <returns><see langword="true"/> if <paramref name="type"/> is assignable from <paramref name="other"/>; otherwise, <see langword="false"/>.</returns>
     public static bool IsAssignableFromGenericTypeDefinition(this Type type, Type other)
     {
         if (type.IsGenericTypeDefinition == false)
             return false;
 
-        var p = other;
+        var current = other;
         while (true)
         {
-            if (type.IsAssignableFrom(p))
+            if (type.IsAssignableFrom(current))
                 return true;
 
-            if (p.IsGenericTypeDefinition == false)
+            if (current.IsGenericTypeDefinition == false)
                 return false;
 
-            foreach (var it in p.GetInterfaces())
+            foreach (var implementedInterface in current.GetInterfaces())
             {
-                if (it.IsGenericType == false)
+                if (implementedInterface.IsGenericType == false)
                     continue;
 
-                if (type.IsAssignableFrom(it.GetGenericTypeDefinition()))
+                if (type.IsAssignableFrom(implementedInterface.GetGenericTypeDefinition()))
                     return true;
             }
 
-            p = p.BaseType;
+            current = current.BaseType;
 
-            if (p is null)
+            if (current is null)
                 break;
 
-            if (p.IsConstructedGenericType)
-                p = p.GetGenericTypeDefinition();
+            if (current.IsConstructedGenericType)
+                current = current.GetGenericTypeDefinition();
         }
 
         return false;
     }
 
+    /// <summary>
+    /// Normalizes matching by-ref wrappers before comparing the underlying types.
+    /// </summary>
+    /// <param name="type">The first type, replaced with its element type when it is by-ref.</param>
+    /// <param name="other">The second type, replaced with its element type when it is by-ref.</param>
+    /// <returns>
+    /// <see langword="true"/> if both types are either by-ref or not by-ref; otherwise, <see langword="false"/>.
+    /// </returns>
     private static bool TryUnwrapByRef(ref Type type, ref Type other)
     {
         if (type.IsByRef != other.IsByRef)
@@ -441,6 +511,15 @@ internal static class TypeExtensions
         return true;
     }
 
+    /// <summary>
+    /// Determines whether one type can accept another type in covariant-return matching.
+    /// </summary>
+    /// <param name="type">The expected base or less-derived type.</param>
+    /// <param name="other">The candidate derived or more-specific type.</param>
+    /// <returns>
+    /// <see langword="true"/> if <paramref name="other"/> is assignable to <paramref name="type"/> under
+    /// covariant-return rules; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool IsCovariantReturnAssignableFrom(this Type type, Type other)
     {
         if (TryUnwrapByRef(ref type, ref other) == false)
@@ -456,6 +535,15 @@ internal static class TypeExtensions
                    (a, b) => a.IsAssignableFromGenericTypeDefinition(b));
     }
 
+    /// <summary>
+    /// Determines whether two types are equivalent for covariant-return signature matching.
+    /// </summary>
+    /// <param name="type">The first type to compare.</param>
+    /// <param name="other">The second type to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the two types are exactly equivalent after accounting for generic parameters and
+    /// by-ref wrappers; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool IsCovariantReturnEquivalentTo(this Type type, Type other)
     {
         if (TryUnwrapByRef(ref type, ref other) == false)

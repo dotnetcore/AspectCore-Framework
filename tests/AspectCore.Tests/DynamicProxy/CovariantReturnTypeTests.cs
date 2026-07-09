@@ -1,12 +1,7 @@
 ﻿using AspectCore.DynamicProxy;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace AspectCore.Tests.DynamicProxy;
 
@@ -31,27 +26,23 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
     
     [Fact]
-    public void CreateClassProxy_ForCovariantReturnType_ShouldUseStringReturnType()
+    public void CreateClassProxy_ForFirstCovariantOverride_ShouldUseBaseResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<BaseCovariantReturnService>();
-        AssertTypeValue<BaseResult>(service.Method(), v => Assert.Equal(nameof(BaseCovariantReturnService), v.Name));
-        AssertTypeValue<BaseResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(BaseCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<BaseResult>(service.Property, v => Assert.Equal(nameof(BaseCovariantReturnService), v.Name));
-        AssertTypeValue<BaseResult>(service.InterceptedProperty, v => Assert.Equal(nameof(BaseCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<BaseResult>(service, nameof(BaseCovariantReturnService));
     }
 
     [Fact]
-    public void CreateClassProxy_ForDerivedCovariantReturnType_ShouldUseOverriddenInterceptedMembers()
+    public void CreateClassProxy_ForMidCovariantOverride_ShouldUseMidResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<MidCovariantReturnService>();
-        AssertTypeValue<MidResult>(service.Property, v => Assert.Equal(nameof(MidCovariantReturnService), v.Name));
-        AssertTypeValue<MidResult>(service.Method(), v => Assert.Equal(nameof(MidCovariantReturnService), v.Name));
-        AssertTypeValue<MidResult>(service.InterceptedProperty, v => Assert.Equal(nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<MidResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<MidResult>(service, nameof(MidCovariantReturnService));
     }
 
     [Fact]
-    public void CreateClassProxy_ForLeafCovariantReturnType_ShouldUseLeafInterceptedMembers()
+    public void CreateClassProxy_ForLeafCovariantOverride_ShouldUseLeafResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<LeafCovariantReturnService>();
 
@@ -59,7 +50,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForLeafCovariantReturnTypeAndInterfaceView_ShouldUseLeafMethodAndProperty()
+    public void CreateClassProxy_ForLeafCovariantOverrideAsInterface_ShouldUseLeafResultMembers()
     {
         var service = Assert.IsAssignableFrom<ICommonService>(ProxyGenerator.CreateClassProxy<LeafCovariantReturnService>());
 
@@ -67,7 +58,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForLeafCovariantReturnTypeAndBaseClassView_ShouldUseLeafMethodAndProperty()
+    public void CreateClassProxy_ForLeafCovariantOverrideAsBaseClass_ShouldUseLeafResultMembers()
     {
         var service = Assert.IsAssignableFrom<MidCovariantReturnService>(ProxyGenerator.CreateClassProxy<LeafCovariantReturnService>());
 
@@ -75,7 +66,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForDerivedLeafCovariantReturnTypeAndInterfaceView_ShouldUseInheritedLeafMembers()
+    public void CreateClassProxy_ForDerivedLeafOverrideAsInterface_ShouldUseInheritedLeafResultMembers()
     {
         var service = Assert.IsAssignableFrom<ICommonService>(ProxyGenerator.CreateClassProxy<DerivedLeafCovariantReturnService>());
 
@@ -83,37 +74,31 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForOrdinaryOverrideAfterCovariantReturnChain_ShouldUseOrdinaryOverrideMembers()
+    public void CreateClassProxy_ForOrdinaryOverrideAfterCovariantReturnChain_ShouldUseOrdinaryOverrideResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<OrdinaryOverrideService>();
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(OrdinaryOverrideService), v.Name));
-        AssertTypeValue<LeafResult>(service.Method(), v => Assert.Equal(nameof(OrdinaryOverrideService), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(OrdinaryOverrideService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(OrdinaryOverrideService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<LeafResult>(service, nameof(OrdinaryOverrideService));
     }
 
     [Fact]
-    public void CreateClassProxy_ForDerivedOrdinaryOverrideAfterCovariantReturnChain_ShouldUseInheritedOrdinaryOverrideMembers()
+    public void CreateClassProxy_ForDerivedOrdinaryOverrideAfterCovariantReturnChain_ShouldUseInheritedOrdinaryOverrideResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<DerivedOrdinaryOverrideService>();
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(OrdinaryOverrideService), v.Name));
-        AssertTypeValue<LeafResult>(service.Method(), v => Assert.Equal(nameof(OrdinaryOverrideService), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(OrdinaryOverrideService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(OrdinaryOverrideService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<LeafResult>(service, nameof(OrdinaryOverrideService));
     }
 
     [Fact]
-    public void CreateClassProxy_ForBaseServiceAndCovariantImplementation_ShouldUseStringReturnType()
+    public void CreateClassProxy_ForBaseServiceAndFirstCovariantImplementation_ShouldUseBaseResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<CommonService, BaseCovariantReturnService>();
-        AssertTypeValue<BaseResult>(service.Property, v => Assert.Equal(nameof(BaseCovariantReturnService), v.Name));
-        AssertTypeValue<BaseResult>(service.Method(), v => Assert.Equal(nameof(BaseCovariantReturnService), v.Name));
-        AssertTypeValue<BaseResult>(service.InterceptedProperty, v => Assert.Equal(nameof(BaseCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<BaseResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(BaseCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<BaseResult>(service, nameof(BaseCovariantReturnService));
     }
 
     [Fact]
-    public void CreateClassProxy_ForBaseServiceAndDerivedImplementation_ShouldUseDerivedInterceptedMembers()
+    public void CreateClassProxy_ForBaseServiceAndMidImplementation_ShouldUseMidResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<CommonService, MidCovariantReturnService>();
 
@@ -121,7 +106,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForBaseServiceAndLeafImplementation_ShouldUseLeafInterceptedMembers()
+    public void CreateClassProxy_ForBaseServiceAndLeafImplementation_ShouldUseLeafResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<CommonService, LeafCovariantReturnService>();
 
@@ -129,7 +114,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForBaseServiceAndLeafImplementationInterfaceView_ShouldUseLeafInterceptedMembers()
+    public void CreateClassProxy_ForBaseServiceAndLeafImplementationAsInterface_ShouldUseLeafResultMembers()
     {
         var service = Assert.IsAssignableFrom<ICommonService>(
             ProxyGenerator.CreateClassProxy<CommonService, LeafCovariantReturnService>());
@@ -138,17 +123,15 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForCovariantServiceAndDerivedImplementation_ShouldUseDerivedInterceptedMembers()
+    public void CreateClassProxy_ForCovariantServiceAndMidImplementation_ShouldUseMidResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<BaseCovariantReturnService, MidCovariantReturnService>();
-        AssertTypeValue<MidResult>(service.Method(), v => Assert.Equal(nameof(MidCovariantReturnService), v.Name));
-        AssertTypeValue<MidResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<MidResult>(service.Property, v => Assert.Equal(nameof(MidCovariantReturnService), v.Name));
-        AssertTypeValue<MidResult>(service.InterceptedProperty, v => Assert.Equal(nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<MidResult>(service, nameof(MidCovariantReturnService));
     }
 
     [Fact]
-    public void CreateClassProxy_ForCovariantServiceAndLeafImplementation_ShouldUseLeafInterceptedMembers()
+    public void CreateClassProxy_ForCovariantServiceAndLeafImplementation_ShouldUseLeafResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<BaseCovariantReturnService, LeafCovariantReturnService>();
 
@@ -156,7 +139,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForCovariantServiceAndLeafImplementationInterfaceView_ShouldUseLeafInterceptedMembers()
+    public void CreateClassProxy_ForCovariantServiceAndLeafImplementationAsInterface_ShouldUseLeafResultMembers()
     {
         var service = Assert.IsAssignableFrom<ICommonService>(
             ProxyGenerator.CreateClassProxy<BaseCovariantReturnService, LeafCovariantReturnService>());
@@ -165,37 +148,31 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateClassProxy_ForLeafServiceAndOrdinaryOverrideImplementation_ShouldUseOrdinaryOverrideMembers()
+    public void CreateClassProxy_ForLeafServiceAndOrdinaryOverrideImplementation_ShouldUseOrdinaryOverrideResultMembers()
     {
         var service = ProxyGenerator.CreateClassProxy<LeafCovariantReturnService, OrdinaryOverrideService>();
-        AssertTypeValue<LeafResult>(service.Method(), v => Assert.Equal(nameof(OrdinaryOverrideService), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(OrdinaryOverrideService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(OrdinaryOverrideService), v.Name));
-        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(OrdinaryOverrideService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<LeafResult>(service, nameof(OrdinaryOverrideService));
     }
 
     [Fact]
-    public void CreateInterfaceProxy_ForBaseInterfaceAndCovariantImplementation_ShouldUseStringReturnType()
+    public void CreateInterfaceProxy_ForBaseInterfaceAndFirstCovariantImplementation_ShouldUseBaseResultMembers()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<ICommonService, BaseCovariantReturnService>();
-        AssertTypeValue<BaseResult>(service.Property, v => Assert.Equal(nameof(BaseCovariantReturnService), v.Name));
-        AssertTypeValue<BaseResult>(service.Method(), v => Assert.Equal(nameof(BaseCovariantReturnService), v.Name));
-        AssertTypeValue<BaseResult>(service.InterceptedProperty, v => Assert.Equal(nameof(BaseCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<BaseResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(BaseCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<BaseResult>(service, nameof(BaseCovariantReturnService));
     }
 
     [Fact]
-    public void CreateInterfaceProxy_ForBaseInterfaceAndDerivedImplementation_ShouldUseDerivedInterceptedMembers()
+    public void CreateInterfaceProxy_ForBaseInterfaceAndMidImplementation_ShouldUseMidResultMembers()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<ICommonService, MidCovariantReturnService>();
-        AssertTypeValue<MidResult>(service.Property, v => Assert.Equal(nameof(MidCovariantReturnService), v.Name));
-        AssertTypeValue<MidResult>(service.Method(), v => Assert.Equal(nameof(MidCovariantReturnService), v.Name));
-        AssertTypeValue<MidResult>(service.InterceptedProperty, v => Assert.Equal(nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
-        AssertTypeValue<MidResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(MidCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+
+        AssertCommonServiceReturns<MidResult>(service, nameof(MidCovariantReturnService));
     }
 
     [Fact]
-    public void CreateInterfaceProxy_ForBaseInterfaceAndLeafImplementation_ShouldUseLeafInterceptedMembers()
+    public void CreateInterfaceProxy_ForBaseInterfaceAndLeafImplementation_ShouldUseLeafResultMembers()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<ICommonService, LeafCovariantReturnService>();
 
@@ -203,7 +180,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateInterfaceProxy_ForBaseInterfaceAndDerivedLeafImplementation_ShouldUseInheritedLeafMembers()
+    public void CreateInterfaceProxy_ForBaseInterfaceAndDerivedLeafImplementation_ShouldUseInheritedLeafResultMembers()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<ICommonService, DerivedLeafCovariantReturnService>();
 
@@ -211,7 +188,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void CreateInterfaceProxy_ForBaseInterfaceAndOrdinaryOverrideImplementation_ShouldUseOrdinaryOverrideMembers()
+    public void CreateInterfaceProxy_ForBaseInterfaceAndOrdinaryOverrideImplementation_ShouldUseOrdinaryOverrideResultMembers()
     {
         var service = ProxyGenerator.CreateInterfaceProxy<ICommonService, OrdinaryOverrideService>();
 
