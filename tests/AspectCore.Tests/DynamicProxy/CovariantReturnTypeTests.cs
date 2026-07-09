@@ -142,9 +142,20 @@ public partial class CovariantReturnTypeTests(ITestOutputHelper output) : Dynami
     }
 
     [Fact]
-    public void CreateClassProxy_ForLeafCovariantReturnTypeAndInterfaceMethodView_ShouldUseLeafMethodAndProperty()
+    public void CreateClassProxy_ForLeafCovariantReturnTypeAndInterfaceView_ShouldUseLeafMethodAndProperty()
     {
         var service = Assert.IsAssignableFrom<ICommonService>(ProxyGenerator.CreateClassProxy<LeafCovariantReturnService>());
+
+        AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(LeafCovariantReturnService), v.Name));
+        AssertTypeValue<LeafResult>(service.Method(), v => Assert.Equal(nameof(LeafCovariantReturnService), v.Name));
+        AssertTypeValue<LeafResult>(service.InterceptedProperty, v => Assert.Equal(nameof(LeafCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+        AssertTypeValue<LeafResult>(service.InterceptedMethod(), v => Assert.Equal(nameof(LeafCovariantReturnService) + nameof(ReturnTypeInterceptor), v.Name));
+    }
+
+    [Fact]
+    public void CreateClassProxy_ForLeafCovariantReturnTypeAndBaseClassView_ShouldUseLeafMethodAndProperty()
+    {
+        var service = Assert.IsAssignableFrom<MidCovariantReturnService>(ProxyGenerator.CreateClassProxy<LeafCovariantReturnService>());
 
         AssertTypeValue<LeafResult>(service.Property, v => Assert.Equal(nameof(LeafCovariantReturnService), v.Name));
         AssertTypeValue<LeafResult>(service.Method(), v => Assert.Equal(nameof(LeafCovariantReturnService), v.Name));
