@@ -25,23 +25,21 @@ namespace AspectCore.Extensions.Reflection
             }
 
             return dictionary.GetOrAdd(method, m =>
-            {
-                // the method may be a reflected method, so get the base definition and then check equality.
-                var baseDef = method.GetBaseDefinition();
-                foreach (var property in m.DeclaringType.GetTypeInfo().GetProperties())
-                {
-                    if (property.CanRead && property.GetMethod == baseDef)
-                    {
-                        return property;
-                    }
+             {
+                 foreach (var property in m.DeclaringType.GetTypeInfo().GetProperties())
+                 {
+                     if (property.CanRead && property.GetMethod == m)
+                     {
+                         return property;
+                     }
 
-                    if (property.CanWrite && property.SetMethod == baseDef)
-                    {
-                        return property;
-                    }
-                }
-                return null;
-            });
+                     if (property.CanWrite && property.SetMethod == m)
+                     {
+                         return property;
+                     }
+                 }
+                 return null;
+             });
         }
     }
 }
