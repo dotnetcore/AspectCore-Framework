@@ -97,11 +97,18 @@ public partial class CovariantReturnTypeTests(ITestOutputHelper output) : Dynami
             output.WriteLine("");
         }
 
+        Assert.Equal(service.Property.Name, proxy.Property.Name);
+        Assert.Equal(service.Method().Name, proxy.Method().Name);
+        Assert.Equal(service.InterceptedProperty.Name + nameof(ReturnTypeInterceptor), proxy.InterceptedProperty.Name);
+        Assert.Equal(service.InterceptedMethod().Name + nameof(ReturnTypeInterceptor), proxy.InterceptedMethod().Name);
+
         var serviceInter = (ICommonService)service;
         var proxyInter = (ICommonService)proxy;
 
-        Assert.Equal(service.Method().Name, proxy.Method().Name);
+        AssertEqual<LeafResult>(serviceInter.Property, proxyInter.Property, (e, a) => Assert.Equal(e.Name, a.Name));
         AssertEqual<LeafResult>(serviceInter.Method(), proxyInter.Method(), (e, a) => Assert.Equal(e.Name, a.Name));
+        AssertEqual<LeafResult>(serviceInter.InterceptedProperty, proxyInter.InterceptedProperty, (e, a) => Assert.Equal(e.Name + nameof(ReturnTypeInterceptor), a.Name));
+        AssertEqual<LeafResult>(serviceInter.InterceptedMethod(), proxyInter.InterceptedMethod(), (e, a) => Assert.Equal(e.Name + nameof(ReturnTypeInterceptor), a.Name));
     }
 
     [Fact]
