@@ -297,7 +297,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
             MethodInfo FindCovariantReturnGetter(PropertyInfo property)
             {
-                if (!property.CanRead)
+                if (property.CanRead == false || property.CanWrite)
                     return null;
 
                 return covariantReturnMethods

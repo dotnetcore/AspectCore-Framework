@@ -285,11 +285,14 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
         private void BuildAdditionalInterfaceMembers(List<MethodNode> methods, List<PropertyNode> properties, List<MethodConstantNode> methodConstants)
         {
+            var covariantReturnMethods = _implType.GetCovariantReturnMethods();
+
             foreach (var iface in _additionalInterfaces)
             {
                 foreach (var method in iface.GetTypeInfo().DeclaredMethods.Where(x => !x.IsPropertyBinding()))
                 {
-                    var implMethod = InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
+                    var covariantReturnMethod = FindCovariantReturnMethod(method);
+                    var implMethod = covariantReturnMethod ?? InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
                     var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
                     var node = InterfaceImplBuilder.BuildProxyMethod(
                         method, implMethod, method.GetName(),
@@ -304,8 +307,9 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
                     if (property.CanRead)
                     {
+                        var covariantReturnGetter = FindCovariantReturnGetter(property);
                         var method = property.GetMethod;
-                        var implMethod = InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
+                        var implMethod = covariantReturnGetter ?? InterfaceImplBuilder.ResolveImplementationMethod(method, _implType);
                         var body = MethodBodyFactory.DecideBody(method, implMethod, _aspectValidator, _serviceType);
                         getMethod = InterfaceImplBuilder.BuildProxyMethod(
                             method, implMethod, method.GetName(),
@@ -330,6 +334,27 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
                     properties.Add(new PropertyNode(property.GetDisplayName(), property.PropertyType, property.Attributes, attrs, getMethod, setMethod));
                 }
+            }
+
+            MethodInfo FindCovariantReturnMethod(MethodInfo interfaceMethod)
+            {
+                return covariantReturnMethods
+                    .Where(m => m.InterfaceDeclarations.Contains(interfaceMethod))
+                    .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
+                    .FirstOrDefault()
+                    .CovariantReturnMethod;
+            }
+
+            MethodInfo FindCovariantReturnGetter(PropertyInfo property)
+            {
+                if (property.CanRead == false || property.CanWrite)
+                    return null;
+
+                return covariantReturnMethods
+                    .Where(m => m.InterfaceDeclarations.Contains(property.GetMethod))
+                    .OrderByDescending(m => m.InheritanceDepth) // find most concrete covariant return method
+                    .FirstOrDefault()
+                    .CovariantReturnMethod;
             }
         }
     }

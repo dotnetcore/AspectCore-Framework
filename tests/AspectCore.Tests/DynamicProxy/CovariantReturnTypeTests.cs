@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace AspectCore.Tests.DynamicProxy;
 
-public partial class CovariantReturnTypeTests(ITestOutputHelper output) : DynamicProxyTestBase
+public partial class CovariantReturnTypeTests : DynamicProxyTestBase
 {
     /// <summary>
     /// Verifies that an object is exactly the given type (and not a derived type), and that it satisfies the given predicate.
@@ -20,97 +20,7 @@ public partial class CovariantReturnTypeTests(ITestOutputHelper output) : Dynami
         var v = Assert.IsType<T>(value);
         action(v);
     }
-
-    private static void AssertEqual<T>(object expected, object actual, Action<T, T> action)
-    {
-        var e = Assert.IsType<T>(expected);
-        var a = Assert.IsType<T>(actual);
-        action(e, a);
-    }
-
-    public readonly record struct EnumFlag<TEnum>(TEnum Value, string Name) where TEnum : struct, Enum;
-
-    public static IEnumerable<EnumFlag<TEnum>> GetAtomicFlags<TEnum>(TEnum value, params string[] preferredNames) where TEnum : struct, Enum
-    {
-        var rawValue = Convert.ToUInt64(value);
-
-        var preferredByRawValue = typeof(TEnum)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Where(f => preferredNames.Contains(f.Name))
-            .ToDictionary(
-                f => Convert.ToUInt64(f.GetValue(null)!),
-                f => new EnumFlag<TEnum>((TEnum)f.GetValue(null)!, f.Name));
-
-        var seen = new HashSet<ulong>();
-
-        foreach (var field in typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static))
-        {
-            var flag = (TEnum)field.GetValue(null)!;
-            var rawFlag = Convert.ToUInt64(flag);
-
-            if (rawFlag == 0)
-                continue;
-
-            if ((rawFlag & (rawFlag - 1)) != 0)
-                continue;
-
-            if ((rawValue & rawFlag) != rawFlag)
-                continue;
-
-            if (!seen.Add(rawFlag))
-                continue;
-
-            if (preferredByRawValue.TryGetValue(rawFlag, out var preferred))
-                yield return preferred;
-            else
-                yield return new EnumFlag<TEnum>(flag, field.Name);
-        }
-    }
-
-    [Fact]
-    public void Print()
-    {
-        var service = new DerivedLeafCovariantReturnService();
-        var proxy = ProxyGenerator.CreateClassProxy<LeafCovariantReturnService>();
-
-        var skip = new[] { nameof(ToString), nameof(GetType), nameof(object.Equals), nameof(GetHashCode) };
-
-        foreach (var obj in new[] { service, proxy })
-        {
-            var type = obj.GetType();
-            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-
-            output.WriteLine($"{type.FullName}'s methods:");
-            foreach (var method in methods)
-            {
-                if (method.IsDefined(typeof(CompilerGeneratedAttribute)))
-                    continue;
-
-                if (skip.Contains(method.Name))
-                    continue;
-
-                var attrs = method.GetCustomAttributesData().Select(m => m.AttributeType.Name);
-                var flags = GetAtomicFlags(method.Attributes, nameof(MethodAttributes.NewSlot)).Select(m => m.Name.ToString());
-
-                output.WriteLine($"[{method.Name}]DeclaringType: {method.DeclaringType?.Name}, ReturnType: {method.ReturnType.Name}, Attributes: {string.Join(", ", attrs)}, MethodAttributes: {string.Join(", ", flags)}");
-            }
-            output.WriteLine("");
-        }
-
-        Assert.Equal(service.Property.Name, proxy.Property.Name);
-        Assert.Equal(service.Method().Name, proxy.Method().Name);
-        Assert.Equal(service.InterceptedProperty.Name + nameof(ReturnTypeInterceptor), proxy.InterceptedProperty.Name);
-        Assert.Equal(service.InterceptedMethod().Name + nameof(ReturnTypeInterceptor), proxy.InterceptedMethod().Name);
-
-        var serviceInter = (ICommonService)service;
-        var proxyInter = (ICommonService)proxy;
-
-        AssertEqual<LeafResult>(serviceInter.Property, proxyInter.Property, (e, a) => Assert.Equal(e.Name, a.Name));
-        AssertEqual<LeafResult>(serviceInter.Method(), proxyInter.Method(), (e, a) => Assert.Equal(e.Name, a.Name));
-        AssertEqual<LeafResult>(serviceInter.InterceptedProperty, proxyInter.InterceptedProperty, (e, a) => Assert.Equal(e.Name + nameof(ReturnTypeInterceptor), a.Name));
-        AssertEqual<LeafResult>(serviceInter.InterceptedMethod(), proxyInter.InterceptedMethod(), (e, a) => Assert.Equal(e.Name + nameof(ReturnTypeInterceptor), a.Name));
-    }
-
+    
     [Fact]
     public void CreateClassProxy_ForCovariantReturnType_ShouldUseStringReturnType()
     {

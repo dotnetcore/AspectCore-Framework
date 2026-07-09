@@ -1,4 +1,5 @@
-﻿using AspectCore.DynamicProxy;
+﻿using System;
+using AspectCore.DynamicProxy;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +17,8 @@ partial class CovariantReturnTypeTests
             {
                 case BaseResult returnValue:
                 {
-                    returnValue.Name += nameof(ReturnTypeInterceptor);
+                    var name = returnValue.Name + nameof(ReturnTypeInterceptor);
+                    context.ReturnValue = (BaseResult)Activator.CreateInstance(returnValue.GetType(), [name]);
                     break;
                 }
                 case string str:
@@ -46,6 +48,16 @@ partial class CovariantReturnTypeTests
         public virtual object InterceptedProperty { [ReturnTypeInterceptor] get; } = nameof(CommonService);
         [ReturnTypeInterceptor]
         public virtual object InterceptedMethod() => nameof(CommonService);
+    }
+
+    public class DerivedCommonService : CommonService
+    {
+        public override object Property { get; } = nameof(DerivedCommonService);
+        public override object Method() => nameof(DerivedCommonService);
+
+        public override object InterceptedProperty { [ReturnTypeInterceptor] get; } = nameof(DerivedCommonService);
+        [ReturnTypeInterceptor]
+        public override object InterceptedMethod() => nameof(DerivedCommonService);
     }
 
     public class BaseCovariantReturnService : CommonService
