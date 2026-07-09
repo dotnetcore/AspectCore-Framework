@@ -35,7 +35,7 @@ public class CovariantReturnTypeWithInterceptorTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void Test1()
+    public void CreateClassProxy_ForOrdinaryOverride_ShouldApplyBaseServiceInterceptor()
     {
         var proxy = ProxyGenerator.CreateClassProxy<BaseService, DerivedBaseService>();
         Assert.Equal("derived:intercepted", proxy.Method().Name);
@@ -43,7 +43,7 @@ public class CovariantReturnTypeWithInterceptorTests : DynamicProxyTestBase
     }
 
     [Fact]
-    public void Test2()
+    public void CreateClassProxy_ForCovariantOverride_ShouldApplyBaseServiceInterceptor()
     {
         var proxy = ProxyGenerator.CreateClassProxy<BaseService, CovariantReturnService>();
         Assert.Equal("crt:intercepted", proxy.Method().Name);
@@ -52,7 +52,7 @@ public class CovariantReturnTypeWithInterceptorTests : DynamicProxyTestBase
 
 
     [Fact]
-    public void Test3()
+    public void CreateClassProxy_ForCovariantProperty_ShouldKeepPropertyTypeAlignedWithGetterReturnType()
     {
         const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 
