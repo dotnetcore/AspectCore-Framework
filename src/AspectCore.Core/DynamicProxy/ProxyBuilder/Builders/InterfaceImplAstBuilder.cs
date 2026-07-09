@@ -114,7 +114,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 parameters,
                 genericParameters,
                 attributes,
-                overridesMethod: method);
+                overridesMethod: method,
+                predicateMethod: method);
         }
 
         private static PropertyNode BuildStubProperty(PropertyInfo property)
@@ -138,7 +139,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     parameters: ParameterNodeFactory.FromMethod(property.GetMethod),
                     genericParameters: GenericParameterNodeFactory.FromMethod(property.GetMethod),
                     attributes: AttributeNodeFactory.FromCustomAttributes(property.GetMethod.CustomAttributes),
-                    overridesMethod: property.GetMethod);
+                    overridesMethod: property.GetMethod,
+                    predicateMethod: property.GetMethod);
             }
 
             if (property.CanWrite)
@@ -152,7 +154,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     parameters: ParameterNodeFactory.FromMethod(property.SetMethod),
                     genericParameters: GenericParameterNodeFactory.FromMethod(property.SetMethod),
                     attributes: AttributeNodeFactory.FromCustomAttributes(property.SetMethod.CustomAttributes),
-                    overridesMethod: property.SetMethod);
+                    overridesMethod: property.SetMethod,
+                    predicateMethod: property.SetMethod);
             }
 
             var attrs = AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes);
@@ -247,9 +250,9 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             {
                 var covariantReturnMethod = FindCovariantReturnMethod(method);
                 var implMethod = covariantReturnMethod ?? ResolveImplementationMethod(method, resolvedImplType);
-                var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, interfaceType);
+                var body = MethodBodyFactory.DecideBody(method, implMethod, method, aspectValidator, interfaceType);
                 var node = BuildProxyMethod(method, implMethod, method.Name,
-                    MethodBuilderConstants.InterfaceMethodAttributes, body, method, methodConstants);
+                    MethodBuilderConstants.InterfaceMethodAttributes, body, method, method, methodConstants);
                 methods.Add(node);
             }
 
@@ -260,9 +263,9 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 {
                     var covariantReturnMethod = FindCovariantReturnMethod(method);
                     var implMethod = covariantReturnMethod ?? ResolveImplementationMethod(method, resolvedImplType);
-                    var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, interfaceType);
+                    var body = MethodBodyFactory.DecideBody(method, implMethod, method, aspectValidator, interfaceType);
                     var node = BuildProxyMethod(method, implMethod, method.GetName(),
-                        MethodBuilderConstants.ExplicitMethodAttributes, body, method, methodConstants);
+                        MethodBuilderConstants.ExplicitMethodAttributes, body, method, method, methodConstants);
                     methods.Add(node);
                 }
             }
@@ -326,19 +329,19 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             {
                 var method = property.GetMethod;
                 var implMethod = covariantReturnGetter ?? ResolveImplementationMethod(method, implType);
-                var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, serviceType);
+                var body = MethodBodyFactory.DecideBody(method, implMethod, method, aspectValidator, serviceType);
                 var overrides = methodAttrs == MethodBuilderConstants.ExplicitMethodAttributes ? method : method;
                 getMethod = BuildProxyMethod(method, implMethod, methodAttrs == MethodBuilderConstants.ExplicitMethodAttributes ? method.GetName() : method.Name,
-                    methodAttrs, body, method, methodConstants);
+                    methodAttrs, body, method, method, methodConstants);
             }
 
             if (property.CanWrite)
             {
                 var method = property.SetMethod;
                 var implMethod = ResolveImplementationMethod(method, implType);
-                var body = MethodBodyFactory.DecideBody(method, implMethod, aspectValidator, serviceType);
+                var body = MethodBodyFactory.DecideBody(method, implMethod, method, aspectValidator, serviceType);
                 setMethod = BuildProxyMethod(method, implMethod, methodAttrs == MethodBuilderConstants.ExplicitMethodAttributes ? method.GetName() : method.Name,
-                    methodAttrs, body, method, methodConstants);
+                    methodAttrs, body, method, method, methodConstants);
             }
 
             var attrs = new List<AttributeNode>
@@ -357,6 +360,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             MethodAttributes attributes,
             MethodBodyNode body,
             MethodInfo overridesMethod,
+            MethodInfo predicateMethod,
             List<MethodConstantNode> methodConstants)
         {
             var genericParams = GenericParameterNodeFactory.FromMethod(serviceMethod);
@@ -374,11 +378,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 var serviceKey = $"service{serviceMethod.GetDisplayName()}";
                 var implKey = $"impl{implMethod.GetDisplayName()}";
                 var proxyKey = $"proxy{serviceMethod.GetDisplayName()}";
+                var predicateKey = $"predicate{predicateMethod.GetDisplayName()}";
 
                 methodConstants.Add(new MethodConstantNode(serviceKey, serviceMethod));
                 methodConstants.Add(new MethodConstantNode(implKey, implMethod));
                 // proxyMethod will be the generated MethodBuilder - stored as null, resolved during visit
                 methodConstants.Add(new MethodConstantNode(proxyKey, null));
+                methodConstants.Add(new MethodConstantNode(predicateKey, predicateMethod));
             }
 
             return new MethodNode(
@@ -390,7 +396,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 parameters,
                 genericParams,
                 attrs,
-                overridesMethod);
+                overridesMethod,
+                predicateMethod);
         }
 
         internal static MethodInfo ResolveImplementationMethod(MethodInfo method, Type implType)

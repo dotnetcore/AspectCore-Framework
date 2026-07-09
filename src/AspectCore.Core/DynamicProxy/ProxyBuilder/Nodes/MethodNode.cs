@@ -24,6 +24,11 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
 
         public MethodInfo OverridesMethod { get; }
 
+        /// <summary>
+        /// Gets the method used to evaluate configured <see cref="AspectCore.Configuration.AspectPredicate"/> filters.
+        /// </summary>
+        public MethodInfo PredicateMethod { get; }
+
         public MethodNode(
             MethodInfo serviceMethod,
             MethodInfo implementationMethod,
@@ -33,7 +38,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
             IReadOnlyList<ParameterNode> parameters,
             IReadOnlyList<GenericParameterNode> genericParameters,
             IReadOnlyList<AttributeNode> attributes,
-            MethodInfo overridesMethod)
+            MethodInfo overridesMethod,
+            MethodInfo predicateMethod)
         {
             ServiceMethod = serviceMethod ?? throw new ArgumentNullException(nameof(serviceMethod));
             ImplementationMethod = implementationMethod;
@@ -44,6 +50,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
             GenericParameters = genericParameters ?? Array.Empty<GenericParameterNode>();
             Attributes = attributes ?? Array.Empty<AttributeNode>();
             OverridesMethod = overridesMethod;
+            PredicateMethod = predicateMethod;
         }
 
         public override void Accept(IProxyBuilderVisitor visitor) => visitor.VisitMethod(this);

@@ -55,7 +55,7 @@ namespace AspectCore.Extensions.Windsor
             });
             var proxyMethod = proxyTypeInfo.GetMethodBySignature(invocation.Method);
             var activator = new AspectActivatorFactory(_aspectContextFactory, builderFactory, _aspectConfiguration).Create();
-            var activatorContext = new AspectActivatorContext(invocation.Method, invocation.MethodInvocationTarget, proxyMethod, invocation.InvocationTarget, invocation.Proxy,
+            var activatorContext = new AspectActivatorContext(invocation.Method, invocation.MethodInvocationTarget, proxyMethod, invocation.Method, invocation.InvocationTarget, invocation.Proxy,
                 invocation.Arguments);
             var reflector = InterceptUtils.GetInvokeReflector(invocation.Method);
             invocation.ReturnValue = reflector.Invoke(activator, activatorContext);

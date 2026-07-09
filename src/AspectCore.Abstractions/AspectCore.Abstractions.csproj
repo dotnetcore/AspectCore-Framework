@@ -4,6 +4,7 @@
 
 	<PropertyGroup>
 		<Description>The abstract design of the AspectCore framework.</Description>
+    <RootNamespace>AspectCore</RootNamespace>
 		<AssemblyTitle>AspectCore.Abstractions</AssemblyTitle>
 		<AssemblyName>AspectCore.Abstractions</AssemblyName>
 		<PackageId>AspectCore.Abstractions</PackageId>

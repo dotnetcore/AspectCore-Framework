@@ -10,12 +10,12 @@ using AspectCore.Utils;
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    internal sealed class RuntimeAspectContext : AspectContext,IDisposable
+    internal sealed class RuntimeAspectContext : AspectContext, IDisposable
     {
         private volatile IDictionary<string, object> _data;
-        private IServiceProvider _serviceProvider;
-        private MethodInfo _implementationMethod;
-        private object _implementation;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly MethodInfo _implementationMethod;
+        private readonly object _implementation;
         private bool _disposedValue = false;
 
         public override IServiceProvider ServiceProvider
@@ -52,6 +52,11 @@ namespace AspectCore.DynamicProxy
 
         public override MethodInfo ProxyMethod { get; }
 
+        /// <summary>
+        /// Gets the method used to evaluate configured <see cref="AspectCore.Configuration.AspectPredicate"/> filters.
+        /// </summary>
+        public override MethodInfo PredicateMethod { get; }
+
         public override object Proxy { get; }
 
         public override MethodInfo ImplementationMethod => _implementationMethod;
@@ -59,7 +64,7 @@ namespace AspectCore.DynamicProxy
         public override object Implementation => _implementation;
 
         public RuntimeAspectContext(
-            IServiceProvider serviceProvider, MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod,
+            IServiceProvider serviceProvider, MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod, MethodInfo predicateMethod,
             object targetInstance, object proxyInstance, object[] parameters)
         {
             _serviceProvider = serviceProvider;
@@ -69,6 +74,7 @@ namespace AspectCore.DynamicProxy
             ProxyMethod = proxyMethod;
             Proxy = proxyInstance;
             Parameters = parameters;
+            PredicateMethod = predicateMethod;
         }
 
         public override async Task Complete()

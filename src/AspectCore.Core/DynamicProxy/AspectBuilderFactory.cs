@@ -27,22 +27,22 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            return (IAspectBuilder)_aspectCaching.GetOrAdd(GetKey(context.ServiceMethod, context.ImplementationMethod), key => Create((Tuple<MethodInfo, MethodInfo>)key));
+            return (IAspectBuilder)_aspectCaching.GetOrAdd(GetKey(context.ServiceMethod, context.ImplementationMethod, context.PredicateMethod), key => Create((Tuple<MethodInfo, MethodInfo, MethodInfo>)key));
         }
 
-        private IAspectBuilder Create(Tuple<MethodInfo, MethodInfo> tuple)
+        private IAspectBuilder Create(Tuple<MethodInfo, MethodInfo, MethodInfo> tuple)
         {
             var aspectBuilder = new AspectBuilder(context => context.Complete(), null);
 
-            foreach (var interceptor in _interceptorCollector.Collect(tuple.Item1, tuple.Item2))
+            foreach (var interceptor in _interceptorCollector.Collect(tuple.Item1, tuple.Item2, tuple.Item3))
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
 
             return aspectBuilder;
         }
 
-        private object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        private static object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod)
         {
-            return Tuple.Create(serviceMethod, implementationMethod);
+            return Tuple.Create(serviceMethod, implementationMethod, predicateMethod);
         }
     }
 }

@@ -75,7 +75,7 @@ namespace AspectCore.Extensions.AspectScope
             bool TryInlineImpl(AspectContext ctx)
             {
                 return _interceptorCollector.
-                    Collect(ctx.ServiceMethod, ctx.ImplementationMethod).
+                    Collect(ctx.ServiceMethod, ctx.ImplementationMethod, ctx.PredicateMethod).
                     Where(x => x.GetType() == interceptor.GetType()).
                     Any(x => TryRelate(ctx, x));
             }

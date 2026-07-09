@@ -473,18 +473,21 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
         {
             var serviceMethod = node.ServiceMethod;
             var implementationMethod = node.ImplementationMethod;
+            var predicateMethod = node.PredicateMethod;
 
             if (node.IsGeneric)
             {
                 il.EmitMethod(serviceMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                 il.EmitMethod(implementationMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
                 il.EmitMethod(methodBuilder.MakeGenericMethod(methodBuilder.GetGenericArguments()));
+                il.EmitMethod(predicateMethod.MakeGenericMethod(methodBuilder.GetGenericArguments()));
             }
             else
             {
                 var serviceKey = $"service{serviceMethod.GetDisplayName()}";
                 var implKey = $"impl{implementationMethod.GetDisplayName()}";
                 var proxyKey = $"proxy{serviceMethod.GetDisplayName()}";
+                var predicateKey = $"predicate{predicateMethod.GetDisplayName()}";
 
                 // Store the proxy method builder in constants
                 _ctx.MethodConstants.AddMethod(proxyKey, methodBuilder);
@@ -492,6 +495,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
                 _ctx.MethodConstants.LoadMethod(il, serviceKey);
                 _ctx.MethodConstants.LoadMethod(il, implKey);
                 _ctx.MethodConstants.LoadMethod(il, proxyKey);
+                _ctx.MethodConstants.LoadMethod(il, predicateKey);
             }
 
             il.EmitThis();

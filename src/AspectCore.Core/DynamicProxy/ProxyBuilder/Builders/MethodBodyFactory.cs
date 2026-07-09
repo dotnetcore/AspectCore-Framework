@@ -14,6 +14,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
         public static MethodBodyNode DecideBody(
             MethodInfo serviceMethod,
             MethodInfo implementationMethod,
+            MethodInfo predicateMethod,
             IAspectValidator validator,
             Type serviceType)
         {
@@ -21,7 +22,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 return BuildDelegationBody(serviceMethod, implementationMethod, serviceType);
 
             if (validator.Validate(serviceMethod, true) || validator.Validate(implementationMethod, false))
-                return BuildAspectActivatorBody(serviceMethod, implementationMethod);
+                return BuildAspectActivatorBody(serviceMethod, implementationMethod, predicateMethod);
 
             return BuildDelegationBody(serviceMethod, implementationMethod, serviceType);
         }
@@ -46,11 +47,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
         public static AspectActivatorBody BuildAspectActivatorBody(
             MethodInfo serviceMethod,
-            MethodInfo implementationMethod)
+            MethodInfo implementationMethod,
+            MethodInfo predicateMethod)
         {
             return new AspectActivatorBody(
                 serviceMethod,
                 implementationMethod,
+                predicateMethod,
                 serviceMethod.IsGenericMethodDefinition,
                 DetermineReturnKind(serviceMethod),
                 serviceMethod.ReturnType);

@@ -19,7 +19,7 @@ namespace AspectCore.Extensions.AspectScope
         {
             var aspectBuilder = new AspectBuilder(ctx => ctx.Complete(), null);
 
-            foreach (var interceptor in _interceptorCollector.Collect(context.ServiceMethod, context.ImplementationMethod))
+            foreach (var interceptor in _interceptorCollector.Collect(context.ServiceMethod, context.ImplementationMethod, context.PredicateMethod))
             {
                 if (interceptor is IScopeInterceptor scopedInterceptor)
                 {
