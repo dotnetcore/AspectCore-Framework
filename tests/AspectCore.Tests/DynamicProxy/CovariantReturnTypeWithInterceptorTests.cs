@@ -8,17 +8,20 @@ public class CovariantReturnTypeWithInterceptorTests : DynamicProxyTestBase
 {
     public class BaseService
     {
+        public virtual BaseResult Property { get; } = new("base");
         public virtual BaseResult Method() => new("base");
     }
 
     public class DerivedBaseService : BaseService
     {
+        public override BaseResult Property { get; } = new("derived");
         public override BaseResult Method() => new("derived");
     }
 
-    public class LeafService : BaseService
+    public class CovariantReturnService : BaseService
     {
-        public override LeafResult Method() => new("leaf");
+        public override LeafResult Property { get; } = new("crt");
+        public override LeafResult Method() => new("crt");
     }
 
     protected override void Configure(IAspectConfiguration configuration)
@@ -35,12 +38,14 @@ public class CovariantReturnTypeWithInterceptorTests : DynamicProxyTestBase
     {
         var service = ProxyGenerator.CreateClassProxy<BaseService, DerivedBaseService>();
         Assert.Equal("derived:intercepted", service.Method().Name);
+        Assert.Equal("derived:intercepted", service.Property.Name);
     }
 
     [Fact]
     public void Test2()
     {
-        var service = ProxyGenerator.CreateClassProxy<BaseService, LeafService>();
-        Assert.Equal("leaf:intercepted", service.Method().Name);
+        var service = ProxyGenerator.CreateClassProxy<BaseService, CovariantReturnService>();
+        Assert.Equal("crt:intercepted", service.Method().Name);
+        Assert.Equal("crt:intercepted", service.Property.Name);
     }
 }
