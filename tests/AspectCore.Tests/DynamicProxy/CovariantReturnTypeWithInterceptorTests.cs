@@ -1,4 +1,5 @@
-﻿using AspectCore.Configuration;
+﻿using System.Reflection;
+using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
 using Xunit;
 
@@ -36,16 +37,37 @@ public class CovariantReturnTypeWithInterceptorTests : DynamicProxyTestBase
     [Fact]
     public void Test1()
     {
-        var service = ProxyGenerator.CreateClassProxy<BaseService, DerivedBaseService>();
-        Assert.Equal("derived:intercepted", service.Method().Name);
-        Assert.Equal("derived:intercepted", service.Property.Name);
+        var proxy = ProxyGenerator.CreateClassProxy<BaseService, DerivedBaseService>();
+        Assert.Equal("derived:intercepted", proxy.Method().Name);
+        Assert.Equal("derived:intercepted", proxy.Property.Name);
     }
 
     [Fact]
     public void Test2()
     {
-        var service = ProxyGenerator.CreateClassProxy<BaseService, CovariantReturnService>();
-        Assert.Equal("crt:intercepted", service.Method().Name);
-        Assert.Equal("crt:intercepted", service.Property.Name);
+        var proxy = ProxyGenerator.CreateClassProxy<BaseService, CovariantReturnService>();
+        Assert.Equal("crt:intercepted", proxy.Method().Name);
+        Assert.Equal("crt:intercepted", proxy.Property.Name);
+    }
+
+
+    [Fact]
+    public void Test3()
+    {
+        const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
+
+        var proxy = ProxyGenerator.CreateClassProxy<BaseService, CovariantReturnService>();
+        {
+            var property = proxy.GetType().GetProperty(nameof(BaseService.Property), flags);
+            Assert.NotNull(property);
+            Assert.Equal(property.PropertyType, property.GetMethod?.ReturnType);
+        }
+
+        var service = new CovariantReturnService();
+        {
+            var property = service.GetType().GetProperty(nameof(BaseService.Property), flags);
+            Assert.NotNull(property);
+            Assert.Equal(property.PropertyType, property.GetMethod?.ReturnType);
+        }
     }
 }

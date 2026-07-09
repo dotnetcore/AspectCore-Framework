@@ -209,6 +209,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 MethodNode getMethod = null;
                 MethodNode setMethod = null;
 
+                var propertyType = property.PropertyType;
+
                 if (property.CanRead)
                 {
                     var (covariantReturnGetter, skip) = FindCovariantReturnPropertyGetter(property);
@@ -219,6 +221,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     var (serviceMethod, implMethod) = covariantReturnGetter is null
                         ? (method, InterfaceImplBuilder.ResolveImplementationMethod(method, _implType))
                         : (covariantReturnGetter, covariantReturnGetter);
+
+                    propertyType = serviceMethod.ReturnType;
 
                     // when property.GetMethod is a covariant return type method, we need to define an override for it.
                     // otherwise, the typeBuilder.CreateTypeInfo() will run forever.
@@ -242,7 +246,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 };
                 attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
-                properties.Add(new PropertyNode(property.Name, property.PropertyType, property.Attributes, attrs, getMethod, setMethod));
+                properties.Add(new PropertyNode(property.Name, propertyType, property.Attributes, attrs, getMethod, setMethod));
             }
 
             (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)
