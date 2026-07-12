@@ -207,23 +207,29 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             return true;
         }
 
-        // Internal 类型：检查是否有 InternalsVisibleTo
+        // Internal 类型：Source Generator 生成的代码在同一程序集中，因此可见
         if (type.DeclaredAccessibility == Accessibility.Internal)
         {
-            // 检查生成器所在的程序集是否有权限访问
-            // Source Generator 在编译期间运行，与目标程序集在同一个编译上下文中
-            // 因此 internal 类型应该是可见的
+            if (type.ContainingType is not null)
+            {
+                return IsTypeAccessible(type.ContainingType, compilation);
+            }
             return true;
         }
 
-        // Protected、Private 等类型不可见
-        if (type.DeclaredAccessibility is Accessibility.Protected or Accessibility.ProtectedOrInternal)
+        // ProtectedOrInternal：同一程序集可见（生成的代码在同一程序集）
+        if (type.DeclaredAccessibility == Accessibility.ProtectedOrInternal)
         {
-            // Protected 类型只有在继承场景下可见，对于代理生成通常不可见
-            // 但如果类型在同一个程序集中，可能是可见的
-            return true; // 简化处理，假设在同一个程序集中可见
+            if (type.ContainingType is not null)
+            {
+                return IsTypeAccessible(type.ContainingType, compilation);
+            }
+            return true;
         }
 
+        // Protected、ProtectedAndInternal、Private：生成的代理类无法访问
+        // Protected 只能在包含类或派生类中访问
+        // Private 只能在包含类中访问
         return false;
     }
 

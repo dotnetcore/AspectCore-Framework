@@ -15,10 +15,11 @@ internal static class ProxyEmitter
             return null;
         }
 
-        if (entry.ServiceType.GetMembers().OfType<IEventSymbol>().Any())
+        // Check events on this interface and all inherited interfaces.
+        var allEvents = GetAllInterfaces(entry.ServiceType).SelectMany(i => i.GetMembers().OfType<IEventSymbol>()).ToList();
+        if (allEvents.Count > 0)
         {
-            var ev = entry.ServiceType.GetMembers().OfType<IEventSymbol>().First();
-            context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedEvent(entry.ServiceType, ev));
+            context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedEvent(entry.ServiceType, allEvents[0]));
             return null;
         }
 
@@ -152,47 +153,73 @@ internal static class ProxyEmitter
         sb.AppendLine("        }");
     }
 
+    private static IEnumerable<INamedTypeSymbol> GetAllInterfaces(INamedTypeSymbol iface)
+    {
+        yield return iface;
+        foreach (var baseIface in iface.AllInterfaces)
+        {
+            yield return baseIface;
+        }
+    }
+
     private static void EmitInterfaceStubMembers(StringBuilder sb, INamedTypeSymbol iface)
     {
-        // properties
-        foreach (var prop in iface.GetMembers().OfType<IPropertySymbol>())
+        // Collect properties from this interface and all inherited interfaces.
+        var seenProperties = new HashSet<string>();
+        foreach (var ifaceType in GetAllInterfaces(iface))
         {
-            var typeName = prop.Type.ToGlobalName();
-            if (prop.IsIndexer)
+            foreach (var prop in ifaceType.GetMembers().OfType<IPropertySymbol>())
             {
-                // minimal indexer stub
-                sb.Append("        public ").Append(typeName).Append(" this[");
-                sb.Append(string.Join(", ", prop.Parameters.Select(p => $"{p.Type.ToGlobalName()} {p.Name}")));
-                sb.AppendLine("]");
-                sb.AppendLine("        {");
-                if (prop.GetMethod is not null)
-                    sb.AppendLine($"            get => default({typeName});");
-                if (prop.SetMethod is not null)
-                    sb.AppendLine("            set { }");
-                sb.AppendLine("        }");
+                var key = prop.IsIndexer
+                    ? $"this[{string.Join(",", prop.Parameters.Select(p => p.Type.ToDisplayString()))}]"
+                    : prop.Name;
+                if (!seenProperties.Add(key)) continue;
+
+                var typeName = prop.Type.ToGlobalName();
+                if (prop.IsIndexer)
+                {
+                    // minimal indexer stub
+                    sb.Append("        public ").Append(typeName).Append(" this[");
+                    sb.Append(string.Join(", ", prop.Parameters.Select(p => $"{p.Type.ToGlobalName()} {p.Name}")));
+                    sb.AppendLine("]");
+                    sb.AppendLine("        {");
+                    if (prop.GetMethod is not null)
+                        sb.AppendLine($"            get => default({typeName});");
+                    if (prop.SetMethod is not null)
+                        sb.AppendLine("            set { }");
+                    sb.AppendLine("        }");
+                }
+                else
+                {
+                    sb.Append("        public ").Append(typeName).Append(' ').Append(prop.Name).AppendLine();
+                    sb.AppendLine("        {");
+                    if (prop.GetMethod is not null)
+                        sb.AppendLine($"            get => default({typeName});");
+                    if (prop.SetMethod is not null)
+                        sb.AppendLine("            set { }");
+                    sb.AppendLine("        }");
+                }
+                sb.AppendLine();
             }
-            else
-            {
-                sb.Append("        public ").Append(typeName).Append(' ').Append(prop.Name).AppendLine();
-                sb.AppendLine("        {");
-                if (prop.GetMethod is not null)
-                    sb.AppendLine($"            get => default({typeName});");
-                if (prop.SetMethod is not null)
-                    sb.AppendLine("            set { }");
-                sb.AppendLine("        }");
-            }
-            sb.AppendLine();
         }
 
-        // methods
+        // methods: collect from this interface and all inherited interfaces.
         // Only emit stubs for abstract members. For default interface methods, omit the member so that
         // runtime dispatch can use the DIM implementation.
-        foreach (var method in iface.GetMembers().OfType<IMethodSymbol>()
-                     .Where(m => m.MethodKind == MethodKind.Ordinary)
-                     .Where(m => m.IsAbstract))
+        var seenMethods = new HashSet<string>();
+        foreach (var ifaceType in GetAllInterfaces(iface))
         {
-            EmitStubMethod(sb, method);
-            sb.AppendLine();
+            foreach (var method in ifaceType.GetMembers().OfType<IMethodSymbol>()
+                         .Where(m => m.MethodKind == MethodKind.Ordinary)
+                         .Where(m => m.IsAbstract))
+            {
+                // Deduplicate by method signature (name + parameter types)
+                var sig = method.Name + "(" + string.Join(",", method.Parameters.Select(p => p.Type.ToDisplayString())) + ")";
+                if (!seenMethods.Add(sig)) continue;
+
+                EmitStubMethod(sb, method);
+                sb.AppendLine();
+            }
         }
     }
 
@@ -222,35 +249,56 @@ internal static class ProxyEmitter
 
     private static void EmitInterfaceProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol iface, INamedTypeSymbol? implementationType, string proxyName, string ifaceName)
     {
+        // Collect methods and properties from this interface and all inherited interfaces.
+        // Track the declaring interface type for each member so we can generate correct typeof() lookups.
+        var allMethods = new List<(IMethodSymbol Method, INamedTypeSymbol DeclaringInterface)>();
+        var allProps = new List<(IPropertySymbol Prop, INamedTypeSymbol DeclaringInterface)>();
+        var seenMethodSigs = new HashSet<string>();
+        var seenPropKeys = new HashSet<string>();
+
+        foreach (var ifaceType in GetAllInterfaces(iface))
+        {
+            foreach (var method in ifaceType.GetMembers().OfType<IMethodSymbol>()
+                         .Where(m => m.MethodKind == MethodKind.Ordinary))
+            {
+                var sig = method.Name + "(" + string.Join(",", method.Parameters.Select(p => p.Type.ToDisplayString())) + ")";
+                if (seenMethodSigs.Add(sig)) allMethods.Add((method, ifaceType));
+            }
+            foreach (var prop in ifaceType.GetMembers().OfType<IPropertySymbol>())
+            {
+                var key = prop.IsIndexer
+                    ? $"this[{string.Join(",", prop.Parameters.Select(p => p.Type.ToDisplayString()))}]"
+                    : prop.Name;
+                if (seenPropKeys.Add(key)) allProps.Add((prop, ifaceType));
+            }
+        }
+
         // meta cache
         sb.AppendLine("        private static class __Meta");
         sb.AppendLine("        {");
 
-        var methods = iface.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Ordinary).ToList();
-        var props = iface.GetMembers().OfType<IPropertySymbol>().ToList();
-
-        foreach (var m in methods)
+        foreach (var (m, declIface) in allMethods)
         {
-            EmitMethodMeta(sb, iface, implementationType, proxyName, m);
+            EmitMethodMeta(sb, declIface, implementationType, proxyName, m);
         }
-        foreach (var p in props)
+        foreach (var (p, declIface) in allProps)
         {
-            if (p.GetMethod is not null) EmitMethodMeta(sb, iface, implementationType, proxyName, p.GetMethod);
-            if (p.SetMethod is not null) EmitMethodMeta(sb, iface, implementationType, proxyName, p.SetMethod);
+            if (p.GetMethod is not null) EmitMethodMeta(sb, declIface, implementationType, proxyName, p.GetMethod);
+            if (p.SetMethod is not null) EmitMethodMeta(sb, declIface, implementationType, proxyName, p.SetMethod);
         }
 
         sb.AppendLine("        }");
         sb.AppendLine();
 
         // properties
-        foreach (var prop in props)
+        foreach (var (prop, _) in allProps)
         {
             EmitProxyProperty(sb, iface, implementationType, proxyName, ifaceName, prop);
             sb.AppendLine();
         }
 
         // methods
-        foreach (var method in methods)
+        foreach (var (method, _) in allMethods)
         {
             EmitProxyMethod(sb, iface, implementationType, proxyName, ifaceName, method, callTargetExpr: $"_implementation.{method.Name}");
             sb.AppendLine();

@@ -48,7 +48,8 @@ internal static class ProxyEngineTestSupport
                 serviceContext.AddInstance<IProxyTypeGenerator>(
                     new SourceGeneratedProxyTypeGenerator(
                         new AspectValidatorBuilder(serviceContext.Configuration),
-                        engineOptions));
+                        engineOptions,
+                        Array.Empty<ISourceGeneratedProxyRegistry>()));
             }
 
             configureService?.Invoke(serviceContext);

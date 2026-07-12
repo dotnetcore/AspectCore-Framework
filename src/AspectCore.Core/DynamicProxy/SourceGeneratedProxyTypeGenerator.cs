@@ -29,7 +29,7 @@ namespace AspectCore.DynamicProxy
         public SourceGeneratedProxyTypeGenerator(
             IAspectValidatorBuilder aspectValidatorBuilder,
             ProxyEngineOptions options,
-            IEnumerable<ISourceGeneratedProxyRegistry> registries = null)
+            IEnumerable<ISourceGeneratedProxyRegistry> registries)
         {
             if (aspectValidatorBuilder == null) throw new ArgumentNullException(nameof(aspectValidatorBuilder));
             _dynamicProxy = new ProxyTypeGenerator(aspectValidatorBuilder);
