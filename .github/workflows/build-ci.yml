@@ -7,11 +7,6 @@ on:
       - '!**/*.md'
   workflow_dispatch:
     inputs:
-      publish-github-package:
-        type: boolean
-        description: 'Github Package push'
-        default: true
-        required: false
       publish-myget-package:
         type: boolean
         description: 'MyGet Package push'
@@ -28,8 +23,12 @@ jobs:
         fetch-depth: 0
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.x
+      with: # Install all required versions explicitly, since some frameworks may be missing from the image if they have been removed due to end of support.
+        dotnet-version: | 
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
         
     - name: Build Reason
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
@@ -73,31 +72,19 @@ jobs:
         done
       
     - name: Package
-      if: ${{ inputs.publish-github-package || inputs.publish-myget-package}}
+      if: ${{ inputs.publish-myget-package }}
       shell: bash
       run: |
         for project in $(find ./src -name "*.csproj"); do
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
         done
-
-    - name: Install GitHub Package Tool
-      if: ${{ inputs.publish-github-package}}
-      run: dotnet tool install gpr -g
       
     - name: Publish CI Packages
-      if: ${{ inputs.publish-github-package || inputs.publish-myget-package}}
+      if: ${{ inputs.publish-myget-package }}
       shell: bash
       run: |
         for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
           echo "$package": Pushing $package...
-
-          if [ "${{ inputs.publish-github-package }}" = "true" ]; then
-            # GitHub
-            echo "Pushing to GitHub Package Registry..."
-            gpr push "$package" -k ${{ secrets.GITHUB_TOKEN }} || echo "Skipping: Package push failed or already exists."
-          else
-            echo "Skipping: Pushing to GitHub Package Registry is disabled."
-          fi
 
           # MyGet
           if [ "${{ inputs.publish-myget-package }}" = "true" ]; then
