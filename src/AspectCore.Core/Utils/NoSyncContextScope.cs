@@ -2,19 +2,19 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AspectCore.Core.Utils
+namespace AspectCore.Utils
 {
     internal static class NoSyncContextScope
     {
         // See: https://stackoverflow.com/questions/28305968/use-task-run-in-synchronous-method-to-avoid-deadlock-waiting-on-async-method
-        private static IDisposable Enter()
+        private static Disposable Enter()
         {
             var context = SynchronizationContext.Current;
             SynchronizationContext.SetSynchronizationContext(null);
             return new Disposable(context);
         }
 
-        private struct Disposable : IDisposable
+        private readonly struct Disposable : IDisposable
         {
             private readonly SynchronizationContext _synchronizationContext;
 

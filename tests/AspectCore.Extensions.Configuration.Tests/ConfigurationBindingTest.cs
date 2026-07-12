@@ -23,21 +23,21 @@ namespace AspectCore.Extensions.Configuration.Tests
             container.AddConfigurationInject();
             container.AddType<BindConfigService>();
             var service = container.Build().Resolve<BindConfigService>();
-            Assert.Equal(service.ToString(), "lemon-24");
+            Assert.Equal("lemon-24", service.ToString());
         }
     }
 
     public class Config
     {
         public string Name { get; set; }
-        
+
         public int Age { get; set; }
     }
 
     public class BindConfigService
     {
         [ConfigurationBinding("creator")]
-        private Config _config;
+        private readonly Config _config = default!;
 
         public override string ToString()
         {

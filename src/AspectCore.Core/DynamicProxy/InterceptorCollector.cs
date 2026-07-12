@@ -44,7 +44,7 @@ namespace AspectCore.DynamicProxy
             _aspectCaching = aspectCachingProvider.GetAspectCaching(nameof(InterceptorCollector));
         }
 
-        public IEnumerable<IInterceptor> Collect(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        public IEnumerable<IInterceptor> Collect(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod)
         {
             if (serviceMethod == null)
             {
@@ -57,22 +57,22 @@ namespace AspectCore.DynamicProxy
 
             return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(GetKey(serviceMethod, implementationMethod), key =>
             {
-               return HandleInjector(CollectFromService(serviceMethod).
+               return HandleInjector(CollectFromService(serviceMethod, predicateMethod).
                     Concat(CollectFromAdditionalSelector(serviceMethod, implementationMethod)).
                     HandleSort().
                     HandleMultiple()).Distinct().ToArray();
             });
         }
 
-        private object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        private static object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod)
         {
             return Tuple.Create(serviceMethod, implementationMethod);
         }
 
-        private IEnumerable<IInterceptor> CollectFromService(MethodInfo serviceMethod)
+        private IEnumerable<IInterceptor> CollectFromService(MethodInfo serviceMethod, MethodInfo predicateMethod)
         {
             var inherited = CollectFromInherited(serviceMethod);
-            var selected = CollectFromSelector(serviceMethod);
+            var selected = CollectFromSelector(predicateMethod);
             return inherited.Concat(selected);
         }
 
@@ -89,7 +89,7 @@ namespace AspectCore.DynamicProxy
                 var interfaceMethod = interfaceType.GetTypeInfo().GetDeclaredMethodBySignature(new MethodSignature(method));
                 if (interfaceMethod != null)
                 {
-                    interceptors.AddRange(CollectFromService(interfaceMethod).Where(x => x.Inherited));
+                    interceptors.AddRange(CollectFromService(interfaceMethod, interfaceMethod).Where(x => x.Inherited));
                 }
             }
             interceptors.AddRange(CollectFromBase(method));

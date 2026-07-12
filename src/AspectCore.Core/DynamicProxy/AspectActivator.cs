@@ -1,8 +1,8 @@
 ﻿using AspectCore.Configuration;
-using AspectCore.Core.Utils;
 using System;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+using AspectCore.Utils;
 
 namespace AspectCore.DynamicProxy
 {
@@ -29,7 +29,7 @@ namespace AspectCore.DynamicProxy
                 var task = aspectBuilder.Build()(context);
                 if (task.IsFaulted)
                 {
-                    ExceptionDispatchInfo.Capture(task.Exception.InnerException).Throw();
+                    ExceptionDispatchInfo.Capture(task.Exception.InnerException!).Throw();
                 }
                 if (!task.IsCompleted)
                 {

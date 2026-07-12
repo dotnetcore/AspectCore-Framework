@@ -8,31 +8,31 @@ namespace AspectCoreTest.LightInject
 {
     public class AsyncService
     {
-        [AsyncIncreament]
-        public virtual void DonotGet(int num)
+        [AsyncIncrement]
+        public virtual void DoNotGet(int num)
         {
         }
 
-        [AsyncIncreament]
-        public virtual Task DonotGetAsync(int num)
+        [AsyncIncrement]
+        public virtual Task DoNotGetAsync(int num)
         {
             return Task.CompletedTask;
         }
 
-        [AsyncIncreament]
+        [AsyncIncrement]
         public virtual int Get(int num)
         {
             return num;
         }
 
-        [AsyncIncreament]
+        [AsyncIncrement]
         public virtual async Task<int> GetAsyncWithTask(int num)
         {
             await Task.Delay(100);
             return num;
         }
 
-        [AsyncIncreament]
+        [AsyncIncrement]
         public virtual async ValueTask<int> GetAsyncWithValueTask(int num)
         {
             await Task.Delay(100);
@@ -59,25 +59,25 @@ namespace AspectCoreTest.LightInject
 
         [Theory]
         [MemberData(nameof(GetNumbers))]
-        public void TestIncreamentForVoid(int input)
+        public void TestIncrementForVoid(int input)
         {
             var container = CreateContainer();
             var service = container.GetInstance<AsyncService>();
-            service.DonotGet(input);
+            service.DoNotGet(input);
         }
 
         [Theory]
         [MemberData(nameof(GetNumbers))]
-        public async Task TestIncreamentForTask(int input)
+        public async Task TestIncrementForTask(int input)
         {
             var container = CreateContainer();
             var service = container.GetInstance<AsyncService>();
-            await service.DonotGetAsync(input);
+            await service.DoNotGetAsync(input);
         }
 
         [Theory]
         [MemberData(nameof(GetNumbers))]
-        public void TestIncreamentForResult(int input)
+        public void TestIncrementForResult(int input)
         {
             var container = CreateContainer();
             var service = container.GetInstance<AsyncService>();
@@ -86,7 +86,7 @@ namespace AspectCoreTest.LightInject
 
         [Theory]
         [MemberData(nameof(GetNumbers))]
-        public async Task TestIncreamentForTaskResult(int input)
+        public async Task TestIncrementForTaskResult(int input)
         {
             var container = CreateContainer();
             var service = container.GetInstance<AsyncService>();
@@ -95,7 +95,7 @@ namespace AspectCoreTest.LightInject
 
         [Theory]
         [MemberData(nameof(GetNumbers))]
-        public async Task TestIncreamentForValueTaskResult(int input)
+        public async Task TestIncrementForValueTaskResult(int input)
         {
             var container = CreateContainer();
             var service = container.GetInstance<AsyncService>();

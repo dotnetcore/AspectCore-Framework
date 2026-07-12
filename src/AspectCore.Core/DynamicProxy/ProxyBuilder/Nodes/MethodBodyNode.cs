@@ -53,16 +53,22 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
 
         public MethodInfo ImplementationMethod { get; }
 
+        /// <summary>
+        /// Gets the method used to evaluate configured <see cref="AspectCore.Configuration.AspectPredicate"/> filters.
+        /// </summary>
+        public MethodInfo PredicateMethod { get; }
+
         public bool IsGeneric { get; }
 
         public ReturnKind ReturnKind { get; }
 
         public Type ReturnType { get; }
 
-        public AspectActivatorBody(MethodInfo serviceMethod, MethodInfo implementationMethod, bool isGeneric, ReturnKind returnKind, Type returnType)
+        public AspectActivatorBody(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod, bool isGeneric, ReturnKind returnKind, Type returnType)
         {
             ServiceMethod = serviceMethod ?? throw new ArgumentNullException(nameof(serviceMethod));
             ImplementationMethod = implementationMethod ?? throw new ArgumentNullException(nameof(implementationMethod));
+            PredicateMethod = predicateMethod ?? throw new ArgumentNullException(nameof(predicateMethod));
             IsGeneric = isGeneric;
             ReturnKind = returnKind;
             ReturnType = returnType;

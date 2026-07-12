@@ -24,6 +24,11 @@ namespace AspectCore.DynamicProxy
 
         public abstract MethodInfo ProxyMethod { get; }
 
+        /// <summary>
+        /// Gets the method used to evaluate configured <see cref="AspectCore.Configuration.AspectPredicate"/> filters.
+        /// </summary>
+        public abstract MethodInfo PredicateMethod { get; }
+
         public abstract object Proxy { get; }
 
         public abstract Task Break();

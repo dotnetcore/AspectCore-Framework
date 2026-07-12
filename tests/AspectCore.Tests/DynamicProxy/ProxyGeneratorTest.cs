@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using AspectCore.Configuration;
@@ -61,6 +61,8 @@ namespace AspectCore.Tests.DynamicProxy
             , Predicates.ForService("*BaseService"));
         }
 
+        public interface IService { }
+
         public class Service : F_IService
         {
             public Guid Id { get; set; }
@@ -80,6 +82,4 @@ namespace AspectCore.Tests.DynamicProxy
             }
         }
     }
-
-    public interface IService { }
 }

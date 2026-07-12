@@ -29,20 +29,20 @@ namespace AspectCore.Extensions.DependencyInjection.Test.Issues
 
         public interface IUserAppService
         {
-            int ExcuteTimes { get; }
+            int ExecuteTimes { get; }
 
-            [Test(Times = new int[] { 10, 100 })]
+            [Test(Times = new[] { 10, 100 })]
             string DisplayName(string firstName, string lastName);
         }
 
         public class UserAppService : IUserAppService
         {
-            private int _excuteTimes;
-            public int ExcuteTimes => _excuteTimes;
+            private int _executeTimes;
+            public int ExecuteTimes => _executeTimes;
 
             public string DisplayName(string firstName, string lastName)
             {
-                Interlocked.Increment(ref _excuteTimes);
+                Interlocked.Increment(ref _executeTimes);
                 var fullName = $"{firstName} {lastName}";
                 return fullName;
             }
@@ -59,7 +59,7 @@ namespace AspectCore.Extensions.DependencyInjection.Test.Issues
             var usrAppSrv = sp.GetRequiredService<IUserAppService>();
             var name = usrAppSrv.DisplayName("gain", "loss");
             Assert.Equal("gain loss", name);
-            Assert.Equal(10 + 100, usrAppSrv.ExcuteTimes);
+            Assert.Equal(10 + 100, usrAppSrv.ExecuteTimes);
         }
     }
 }

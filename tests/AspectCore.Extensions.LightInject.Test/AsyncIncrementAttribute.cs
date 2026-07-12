@@ -5,7 +5,7 @@ using AspectCore.DynamicProxy;
 namespace AspectCoreTest.LightInject
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class AsyncIncreamentAttribute : AbstractInterceptorAttribute
+    public class AsyncIncrementAttribute : AbstractInterceptorAttribute
     {
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {

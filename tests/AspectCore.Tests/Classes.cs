@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.DependencyInjection;
@@ -274,4 +274,13 @@ namespace AspectCore.Tests
             return true;
         }
     }
+
+    public class BaseResult(string name)
+    {
+        public string Name { get; set; } = name;
+    }
+
+    public class MidResult(string name) : BaseResult(name);
+
+    public class LeafResult(string name) : MidResult(name);
 }

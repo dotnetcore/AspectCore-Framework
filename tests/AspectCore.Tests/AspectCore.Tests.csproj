@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\sign.props" />
   <PropertyGroup>
     <TargetFrameworks>net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <LangVersion>13.0</LangVersion>
   </PropertyGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

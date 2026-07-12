@@ -2,6 +2,7 @@
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
     <Description>The implementation of the AspectCore framework.</Description>
+    <RootNamespace>AspectCore</RootNamespace>
     <AssemblyTitle>AspectCore.Core</AssemblyTitle>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>AspectCore.Core</AssemblyName>
