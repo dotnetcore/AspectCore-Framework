@@ -88,7 +88,7 @@ namespace AspectCore.DynamicProxy
             var returnValue = aspectContext.ReturnValue;
             if (returnValue == null)
             {
-                return null;
+                return Task.FromResult<object>(null);
             }
 
             var returnTypeInfo = returnValue.GetType().GetTypeInfo();
