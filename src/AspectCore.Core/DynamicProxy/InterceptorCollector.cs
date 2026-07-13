@@ -55,18 +55,19 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(implementationMethod));
             }
 
-            return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(GetKey(serviceMethod, implementationMethod), key =>
+            return (IEnumerable<IInterceptor>)_aspectCaching.GetOrAdd(GetKey(serviceMethod, implementationMethod, predicateMethod), key =>
             {
-               return HandleInjector(CollectFromService(serviceMethod, predicateMethod).
-                    Concat(CollectFromAdditionalSelector(serviceMethod, implementationMethod)).
-                    HandleSort().
-                    HandleMultiple()).ToArray();
+                return HandleInjector(CollectFromService(serviceMethod, predicateMethod)
+                        .Concat(CollectFromAdditionalSelector(serviceMethod, implementationMethod))
+                        .HandleSort()
+                        .HandleMultiple())
+                    .ToArray();
             });
         }
 
-        private static object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        private static object GetKey(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod)
         {
-            return Tuple.Create(serviceMethod, implementationMethod);
+            return Tuple.Create(serviceMethod, implementationMethod, predicateMethod);
         }
 
         private IEnumerable<IInterceptor> CollectFromService(MethodInfo serviceMethod, MethodInfo predicateMethod)
