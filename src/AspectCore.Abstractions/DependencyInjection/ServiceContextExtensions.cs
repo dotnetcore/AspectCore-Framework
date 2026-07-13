@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using AspectCore.DynamicProxy;
 
 namespace AspectCore.DependencyInjection
 {
@@ -81,6 +83,51 @@ namespace AspectCore.DependencyInjection
             }
 
             serviceDefinitions.ForEach(t => serviceContext.Remove(t));
+            return serviceContext;
+        }
+
+        /// <summary>
+        /// 配置 AOP 后端引擎（DynamicProxy / SourceGenerator / Auto）。
+        /// 
+        /// ServiceContext 下该配置会被运行时解析并用于选择 IProxyTypeGenerator 的实现。
+        /// </summary>
+        public static IServiceContext ConfigureDynamicProxyEngine(this IServiceContext serviceContext, Action<ProxyEngineOptions> configure)
+        {
+            if (serviceContext == null)
+            {
+                throw new ArgumentNullException(nameof(serviceContext));
+            }
+
+            var existing = serviceContext
+                .OfType<InstanceServiceDefinition>()
+                .LastOrDefault(x => x.ServiceType == typeof(ProxyEngineOptions));
+
+            var options = (ProxyEngineOptions)existing?.ImplementationInstance ?? new ProxyEngineOptions();
+            configure?.Invoke(options);
+
+            if (existing != null)
+            {
+                serviceContext.Remove(existing);
+            }
+
+            serviceContext.AddInstance(options);
+            return serviceContext;
+        }
+
+        /// <summary>
+        /// 手动注册生成的 registry（用于 AOT/trim 场景避免 assembly 扫描不可用）。
+        /// </summary>
+        public static IServiceContext AddSourceGeneratedProxyRegistry(this IServiceContext serviceContext, ISourceGeneratedProxyRegistry registry)
+        {
+            if (serviceContext == null)
+            {
+                throw new ArgumentNullException(nameof(serviceContext));
+            }
+            if (registry == null)
+            {
+                throw new ArgumentNullException(nameof(registry));
+            }
+            serviceContext.AddInstance<ISourceGeneratedProxyRegistry>(registry);
             return serviceContext;
         }
 

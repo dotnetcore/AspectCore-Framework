@@ -36,6 +36,48 @@ namespace AspectCore.Extensions.DependencyInjection
             return services;
         }
 
+        /// <summary>
+        /// 配置 AOP 后端引擎（DynamicProxy / SourceGenerator / Auto）。
+        /// 
+        /// 该 API 为显式 opt-in：不影响既有 ConfigureDynamicProxy(...) 的语义，
+        /// 且在未调用时默认行为保持 DynamicProxy。
+        /// </summary>
+        public static IServiceCollection ConfigureDynamicProxyEngine(this IServiceCollection services, Action<ProxyEngineOptions> configure)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            var optionsService = services.LastOrDefault(x => x.ServiceType == typeof(ProxyEngineOptions) && x.ImplementationInstance != null);
+            var options = (ProxyEngineOptions)optionsService?.ImplementationInstance ?? new ProxyEngineOptions();
+            configure?.Invoke(options);
+
+            if (optionsService == null)
+            {
+                services.AddSingleton(options);
+            }
+
+            // opt-in 后切换 IProxyTypeGenerator，但仍可按 options 回退 DynamicProxy
+            services.Replace(ServiceDescriptor.Singleton<IProxyTypeGenerator, SourceGeneratedProxyTypeGenerator>());
+
+            return services;
+        }
+
+        /// <summary>
+        /// 手动注册生成的 registry（用于 AOT/trim 场景避免 assembly 扫描不可用）。
+        /// </summary>
+        public static IServiceCollection AddSourceGeneratedProxyRegistry<TRegistry>(this IServiceCollection services)
+            where TRegistry : class, ISourceGeneratedProxyRegistry
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+            services.AddSingleton<ISourceGeneratedProxyRegistry, TRegistry>();
+            return services;
+        }
+
         internal static IServiceCollection TryAddDynamicProxyServices(this IServiceCollection services)
         {
             if (services == null)

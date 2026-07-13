@@ -263,3 +263,5 @@ publish.*.bat
 
 BenchmarkDotNet.Artifacts/
 tools/
+.omc
+.oh-my-code

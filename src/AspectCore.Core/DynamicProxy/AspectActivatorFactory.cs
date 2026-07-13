@@ -4,7 +4,7 @@ using System;
 namespace AspectCore.DynamicProxy
 {
     [NonAspect]
-    public sealed class AspectActivatorFactory : IAspectActivatorFactory
+    public sealed class AspectActivatorFactory : IAspectActivatorFactory, IAspectConfigurationAccessor
     {
         private readonly IAspectContextFactory _aspectContextFactory;
         private readonly IAspectBuilderFactory _aspectBuilderFactory;
@@ -21,5 +21,7 @@ namespace AspectCore.DynamicProxy
         {
             return new AspectActivator(_aspectContextFactory, _aspectBuilderFactory, _aspectConfiguration);
         }
+
+        public IAspectConfiguration AspectConfiguration => _aspectConfiguration;
     }
 }

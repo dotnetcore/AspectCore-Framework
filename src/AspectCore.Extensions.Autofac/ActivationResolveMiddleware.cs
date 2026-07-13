@@ -112,7 +112,23 @@ namespace AspectCore.Extensions.Autofac
             else
             {
                 proxyType = proxyTypeGenerator.CreateInterfaceProxyType(interfaceType, limitType);
-                instance = Activator.CreateInstance(proxyType, new object[] { context.Resolve<IAspectActivatorFactory>(), context.Instance });
+                // Try 3-parameter constructor first (SG-generated proxies: IAspectActivatorFactory, IServiceProvider, serviceType)
+                var ctorWithSp = proxyType.GetTypeInfo().GetConstructor(
+                    new Type[] { typeof(IAspectActivatorFactory), typeof(IServiceProvider), interfaceType });
+                if (ctorWithSp != null)
+                {
+                    instance = ctorWithSp.Invoke(new object[]
+                    {
+                        context.Resolve<IAspectActivatorFactory>(),
+                        context.Resolve<IServiceProvider>(),
+                        context.Instance
+                    });
+                }
+                else
+                {
+                    // Fallback: legacy 2-parameter constructor (DynamicProxy: IAspectActivatorFactory, serviceType)
+                    instance = Activator.CreateInstance(proxyType, new object[] { context.Resolve<IAspectActivatorFactory>(), context.Instance });
+                }
             }
 
             var propertyInjector = context.Resolve<IPropertyInjectorFactory>().Create(instance.GetType());
