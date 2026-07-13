@@ -1,38 +1,41 @@
 name: Build for PR
-on: 
+on:
   pull_request:
 
 jobs:
   build-and-test:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Setup .NET Core
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with: # Install all required versions explicitly, since some frameworks may be missing from the image if they have been removed due to end of support.
-        dotnet-version: | 
+        dotnet-version: |
           6.0.x
-          7.0.x
           8.0.x
           9.0.x
-        
+          10.0.x
+
     - name: Build Reason
-      run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
-      
+      run: "echo ref: ${{github.ref}} event: ${{github.event_name}} os: ${{ matrix.os }}"
+
     - name: Build
       shell: bash
       run: |
         for project in $(find ./src -name "*.csproj"); do
           dotnet build --configuration Release $project
         done
-      
+
     - name: Run Tests
       shell: bash
       run: |
         for project in $(find ./tests -name "*.csproj"); do
           dotnet test --configuration Release $project
         done
-      
