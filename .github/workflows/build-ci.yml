@@ -1,7 +1,7 @@
 name: Build
-on: 
+on:
   push:
-    branches: 
+    branches:
       - master
     paths:
       - '!**/*.md'
@@ -14,26 +14,32 @@ on:
         required: false
 
 jobs:
-  build-test-pack:
-    runs-on: windows-latest
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Setup .NET Core
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with: # Install all required versions explicitly, since some frameworks may be missing from the image if they have been removed due to end of support.
-        dotnet-version: | 
+        dotnet-version: |
           6.0.x
           7.0.x
           8.0.x
           9.0.x
-        
+          10.0.x
+
     - name: Build Reason
-      run: "echo ref: ${{github.ref}} event: ${{github.event_name}}"
-      
+      run: "echo ref: ${{github.ref}} event: ${{github.event_name}} os: ${{ matrix.os }}"
+
     - name: Build Version
+      if: matrix.os == 'windows-latest'
       shell: pwsh
       run: |
         $versionPropsPath = "./build/version.props"
@@ -43,44 +49,44 @@ jobs:
         $versionPatch = $versionProps.Project.PropertyGroup.VersionPatch
         $versionQuality = $versionProps.Project.PropertyGroup.VersionQuality
         $versionPrefix = "$versionMajor.$versionMinor.$versionPatch"
-        
+
         if (-not [string]::IsNullOrWhiteSpace($versionQuality)) {
           $versionPrefix = "$versionPrefix.$versionQuality"
         }
-        
+
         $tag = git tag --points-at HEAD
         if ([string]::IsNullOrWhiteSpace($tag)) {
           $timestamp = Get-Date -Format "yyyyMMddHHmmss"
           $versionPrefix = "$versionPrefix-preview-$timestamp"
         }
-        
+
         echo "Full Version: $versionPrefix"
         Add-Content -Path $Env:GITHUB_ENV -Value "FULL_VERSION=$versionPrefix"
-      
+
     - name: Build
       shell: bash
       run: |
         for project in $(find ./src -name "*.csproj"); do
           dotnet build --configuration Release $project -p:Version=${{ env.FULL_VERSION }}
         done
-      
+
     - name: Run Tests
       shell: bash
       run: |
         for project in $(find ./tests -name "*.csproj"); do
           dotnet test --configuration Release $project
         done
-      
+
     - name: Package
-      if: ${{ inputs.publish-myget-package }}
+      if: matrix.os == 'windows-latest' && inputs.publish-myget-package
       shell: bash
       run: |
         for project in $(find ./src -name "*.csproj"); do
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
         done
-      
+
     - name: Publish CI Packages
-      if: ${{ inputs.publish-myget-package }}
+      if: matrix.os == 'windows-latest' && inputs.publish-myget-package
       shell: bash
       run: |
         for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
