@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.ProxyBuilder.Nodes;
+using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 {
@@ -34,11 +35,21 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
         {
             if (serviceType.GetTypeInfo().IsInterface || !implementationMethod.IsExplicit())
             {
+                // When the implementation type is not visible to the proxy (e.g. an internal class
+                // in a different assembly), calling the implementation method directly will throw
+                // MethodAccessException. In that case, fall back to calling through the interface
+                // method, which works regardless of the visibility of the implementing type.
+                // See issue #274.
+                var implTypeIsVisible = implementationMethod.DeclaringType?.GetTypeInfo().IsVisible() ?? true;
+                var targetMethod = implementationMethod.IsExplicit() || !implTypeIsVisible
+                    ? serviceMethod
+                    : implementationMethod;
+
                 return new DirectDelegationBody(
                     TargetFieldName,
-                    implementationMethod.IsExplicit() ? serviceMethod : implementationMethod,
+                    targetMethod,
                     serviceMethod,
-                    implementationMethod.IsCallvirt(),
+                    targetMethod.IsCallvirt(),
                     serviceType);
             }
 
