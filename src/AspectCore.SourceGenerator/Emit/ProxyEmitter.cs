@@ -765,6 +765,7 @@ internal static class ProxyEmitter
         sb.AppendLine("                __serviceMethod,");
         sb.AppendLine("                __implMethod,");
         sb.AppendLine("                __proxyMethod,");
+        sb.AppendLine("                __serviceMethod, // predicateMethod");
         sb.AppendLine("                _implementation,");
         sb.AppendLine("                this,");
         sb.AppendLine("                __args);");
@@ -820,7 +821,7 @@ internal static class ProxyEmitter
             sb.AppendLine("                if (__invokeTask.IsFaulted)");
             sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
             sb.AppendLine("                if (!__invokeTask.IsCompleted)");
-            sb.AppendLine("                    global::AspectCore.Core.Utils.NoSyncContextScope.Run(__invokeTask);");
+            sb.AppendLine("                    global::AspectCore.Utils.NoSyncContextScope.Run(__invokeTask);");
             if (rk == ReturnKindKind.Sync)
             {
                 sb.AppendLine($"                __ret = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
