@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -60,6 +61,29 @@ public class KeyedServiceTests
         //不同实例
         Assert.Equal(1, keyd2Service.Get());
         Assert.Equal(1000, keyd2Service.GetIntercept());
+    }
+
+    [Fact]
+    public void GetKeydService_WithServiceContext()
+    {
+        // Regression test for #326: keyed services should not throw when using
+        // UseServiceContext / ToServiceContext path.
+        var services = new ServiceCollection();
+        services.AddKeyedScoped<IKeydService, KeydService>("key1");
+        services.AddKeyedScoped<IKeydService, KeydService>("key2");
+
+        // This used to throw:
+        //   System.InvalidOperationException: This service descriptor is keyed.
+        //   Your service provider may not support keyed services.
+        var serviceContext = services.ToServiceContext();
+        var serviceProvider = serviceContext.Build();
+
+        // Resolve via the AspectCore container (key info is not preserved,
+        // so we verify the service is at least resolvable by its service type).
+        var keydService = serviceProvider.GetService<IKeydService>();
+        Assert.NotNull(keydService);
+        Assert.Equal(1, keydService.Get());
+        Assert.Equal(1000, keydService.GetIntercept());
     }
 #endif
 }
