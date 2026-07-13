@@ -13,8 +13,10 @@ internal static class RegistryEmitter
         sb.AppendLine();
         sb.AppendLine("using System;");
         sb.AppendLine();
+
         sb.AppendLine("[assembly: global::AspectCore.DynamicProxy.AspectCoreSourceGeneratedProxyRegistryAttribute(typeof(global::AspectCore.SourceGenerated.AspectCoreSourceGeneratedProxyRegistry))]");
         sb.AppendLine();
+
         sb.AppendLine("namespace AspectCore.SourceGenerated");
         sb.AppendLine("{");
         sb.AppendLine("    /// <summary>");
@@ -27,32 +29,34 @@ internal static class RegistryEmitter
         sb.AppendLine("            if (serviceType is null) throw new ArgumentNullException(nameof(serviceType));");
         sb.AppendLine("            proxyType = null;");
         sb.AppendLine();
+        sb.AppendLine("            // Normalize: for generic types, compare against the open generic definition.");
+        sb.AppendLine("            var serviceKey = serviceType.IsGenericType ? serviceType.GetGenericTypeDefinition() : serviceType;");
+        sb.AppendLine();
 
         foreach (var e in entries)
         {
-            var serviceName = e.ServiceType.ToGlobalName();
-            var implName = e.ImplementationType?.ToGlobalName();
-            var proxyFullName = $"global::{e.ProxyNamespace}.{e.ProxyTypeName}";
+            var serviceTypeOf = GetTypeOfExpression(e.ServiceType);
+            var implTypeOf = e.ImplementationType != null ? GetTypeOfExpression(e.ImplementationType) : null;
+            var proxyTypeOf = GetProxyTypeOfExpression(e);
             var kindExpr = e.Kind == ProxyKind.Interface
                 ? "global::AspectCore.DynamicProxy.SourceGeneratedProxyKind.Interface"
                 : "global::AspectCore.DynamicProxy.SourceGeneratedProxyKind.Class";
 
             sb.Append("            if (kind == ").Append(kindExpr)
-              .Append(" && serviceType == typeof(").Append(serviceName).Append(")");
+              .Append(" && serviceKey == ").Append(serviceTypeOf);
 
             if (e.Kind == ProxyKind.Interface)
             {
-                // For this node's type-level trigger, interface proxy is registered for implementationType==null.
                 sb.Append(" && implementationType == null");
             }
             else
             {
-                sb.Append(" && implementationType == typeof(").Append(implName).Append(")");
+                sb.Append(" && implementationType != null && (implementationType.IsGenericType ? implementationType.GetGenericTypeDefinition() : implementationType) == ").Append(implTypeOf);
             }
 
             sb.AppendLine(")");
             sb.AppendLine("            {");
-            sb.Append("                proxyType = typeof(").Append(proxyFullName).AppendLine(");");
+            sb.Append("                proxyType = ").Append(proxyTypeOf).AppendLine(";");
             sb.AppendLine("                return true;");
             sb.AppendLine("            }");
         }
@@ -64,5 +68,34 @@ internal static class RegistryEmitter
         sb.AppendLine("}");
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Generates a typeof() expression for a type symbol. For generic types, produces the open
+    /// generic form: typeof(MyService&lt;,&gt;) for arity 2, etc.
+    /// </summary>
+    private static string GetTypeOfExpression(INamedTypeSymbol type)
+    {
+        var ns = type.ContainingNamespace?.ToDisplayString() ?? string.Empty;
+        var fullName = string.IsNullOrEmpty(ns) ? type.Name : $"global::{ns}.{type.Name}";
+        if (!type.IsGenericType)
+        {
+            return $"typeof({fullName})";
+        }
+        var arity = type.TypeParameters.Length;
+        var commas = new string(',', arity - 1);
+        return $"typeof({fullName}<{commas}>)";
+    }
+
+    private static string GetProxyTypeOfExpression(ProxyEntry e)
+    {
+        var fullName = $"global::{e.ProxyNamespace}.{e.ProxyTypeName}";
+        var arity = e.ServiceType.IsGenericType ? e.ServiceType.TypeParameters.Length : 0;
+        if (arity <= 0)
+        {
+            return $"typeof({fullName})";
+        }
+        var commas = new string(',', arity - 1);
+        return $"typeof({fullName}<{commas}>)";
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
@@ -135,57 +136,145 @@ namespace AspectCore.Extensions.DependencyInjection
         }
 #endif
 
+#if NET7_0_OR_GREATER
+        [RequiresDynamicCode("Uses ConstructorInfo.Invoke to create proxy instances. Source-generated proxies are preferred for AOT.")]
+#endif
         private static Func<IServiceProvider, object> CreateFactory(ServiceDescriptor descriptor, Type proxyType)
         {
-            var proxyConstructor = proxyType.GetTypeInfo().GetConstructor(new Type[] {typeof(IAspectActivatorFactory), descriptor.ServiceType});
-            var reflector = proxyConstructor.GetReflector();
-            if (descriptor.ImplementationInstance != null)
+            // Try 3-parameter constructor first (IAspectActivatorFactory, IServiceProvider, serviceType)
+            var ctor3 = proxyType.GetTypeInfo().GetConstructor(
+                new Type[] { typeof(IAspectActivatorFactory), typeof(IServiceProvider), descriptor.ServiceType });
+            if (ctor3 != null)
             {
-                var implementationInstance = descriptor.ImplementationInstance;
-                return provider => reflector.Invoke(provider.GetRequiredService<IAspectActivatorFactory>(), implementationInstance);
-            }
-            else if (descriptor.ImplementationFactory != null)
-            {
-                var implementationFactory = descriptor.ImplementationFactory;
-                return provider => reflector.Invoke(provider.GetRequiredService<IAspectActivatorFactory>(), implementationFactory(provider));
-            }
-            else
-            {
-                var implementationType = descriptor.ImplementationType;
-                return provider =>
+                var reflector3 = ctor3.GetReflector();
+                if (descriptor.ImplementationInstance != null)
                 {
-                    var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
-                    var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
-                    return reflector.Invoke(aspectActivatorFactory, instance);
-                };
+                    var implementationInstance = descriptor.ImplementationInstance;
+                    return provider => reflector3.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(),
+                        provider, implementationInstance);
+                }
+                else if (descriptor.ImplementationFactory != null)
+                {
+                    var implementationFactory = descriptor.ImplementationFactory;
+                    return provider => reflector3.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(),
+                        provider, implementationFactory(provider));
+                }
+                else
+                {
+                    var implementationType = descriptor.ImplementationType;
+                    return provider =>
+                    {
+                        var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
+                        var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
+                        return reflector3.Invoke(aspectActivatorFactory, provider, instance);
+                    };
+                }
             }
+
+            // Fallback: legacy 2-parameter constructor (IAspectActivatorFactory, serviceType)
+            var ctor2 = proxyType.GetTypeInfo().GetConstructor(
+                new Type[] { typeof(IAspectActivatorFactory), descriptor.ServiceType });
+            if (ctor2 != null)
+            {
+                var reflector2 = ctor2.GetReflector();
+                if (descriptor.ImplementationInstance != null)
+                {
+                    var implementationInstance = descriptor.ImplementationInstance;
+                    return provider => reflector2.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(), implementationInstance);
+                }
+                else if (descriptor.ImplementationFactory != null)
+                {
+                    var implementationFactory = descriptor.ImplementationFactory;
+                    return provider => reflector2.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(), implementationFactory(provider));
+                }
+                else
+                {
+                    var implementationType = descriptor.ImplementationType;
+                    return provider =>
+                    {
+                        var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
+                        var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
+                        return reflector2.Invoke(aspectActivatorFactory, instance);
+                    };
+                }
+            }
+
+            throw new InvalidOperationException($"Cannot find suitable constructor on proxy type '{proxyType.FullName}'.");
         }
 
 #if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
+        [RequiresDynamicCode("Uses ConstructorInfo.Invoke to create proxy instances. Source-generated proxies are preferred for AOT.")]
+#endif
         private static Func<IServiceProvider, object, object> CreateKeyedFactory(ServiceDescriptor descriptor, Type proxyType)
         {
-            var proxyConstructor = proxyType.GetTypeInfo().GetConstructor(new Type[] {typeof(IAspectActivatorFactory), descriptor.ServiceType});
-            var reflector = proxyConstructor.GetReflector();
-            if (descriptor.KeyedImplementationInstance != null)
+            // Try 3-parameter constructor first (IAspectActivatorFactory, IServiceProvider, serviceType)
+            var ctor3 = proxyType.GetTypeInfo().GetConstructor(
+                new Type[] { typeof(IAspectActivatorFactory), typeof(IServiceProvider), descriptor.ServiceType });
+            if (ctor3 != null)
             {
-                var implementationInstance = descriptor.KeyedImplementationInstance;
-                return (provider, serviceKey) => reflector.Invoke(provider.GetRequiredService<IAspectActivatorFactory>(), implementationInstance);
-            }
-            else if (descriptor.KeyedImplementationFactory != null)
-            {
-                var implementationFactory = descriptor.KeyedImplementationFactory;
-                return (provider, serviceKey) => reflector.Invoke(provider.GetRequiredService<IAspectActivatorFactory>(), implementationFactory(provider, serviceKey));
-            }
-            else
-            {
-                var implementationType = descriptor.KeyedImplementationType;
-                return (provider, serviceKey) =>
+                var reflector3 = ctor3.GetReflector();
+                if (descriptor.KeyedImplementationInstance != null)
                 {
-                    var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
-                    var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
-                    return reflector.Invoke(aspectActivatorFactory, instance);
-                };
+                    var implementationInstance = descriptor.KeyedImplementationInstance;
+                    return (provider, serviceKey) => reflector3.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(),
+                        provider, implementationInstance);
+                }
+                else if (descriptor.KeyedImplementationFactory != null)
+                {
+                    var implementationFactory = descriptor.KeyedImplementationFactory;
+                    return (provider, serviceKey) => reflector3.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(),
+                        provider, implementationFactory(provider, serviceKey));
+                }
+                else
+                {
+                    var implementationType = descriptor.KeyedImplementationType;
+                    return (provider, serviceKey) =>
+                    {
+                        var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
+                        var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
+                        return reflector3.Invoke(aspectActivatorFactory, provider, instance);
+                    };
+                }
             }
+
+            // Fallback: legacy 2-parameter constructor (IAspectActivatorFactory, serviceType)
+            var ctor2 = proxyType.GetTypeInfo().GetConstructor(
+                new Type[] { typeof(IAspectActivatorFactory), descriptor.ServiceType });
+            if (ctor2 != null)
+            {
+                var reflector2 = ctor2.GetReflector();
+                if (descriptor.KeyedImplementationInstance != null)
+                {
+                    var implementationInstance = descriptor.KeyedImplementationInstance;
+                    return (provider, serviceKey) => reflector2.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(), implementationInstance);
+                }
+                else if (descriptor.KeyedImplementationFactory != null)
+                {
+                    var implementationFactory = descriptor.KeyedImplementationFactory;
+                    return (provider, serviceKey) => reflector2.Invoke(
+                        provider.GetRequiredService<IAspectActivatorFactory>(), implementationFactory(provider, serviceKey));
+                }
+                else
+                {
+                    var implementationType = descriptor.KeyedImplementationType;
+                    return (provider, serviceKey) =>
+                    {
+                        var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
+                        var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
+                        return reflector2.Invoke(aspectActivatorFactory, instance);
+                    };
+                }
+            }
+
+            throw new InvalidOperationException($"Cannot find suitable constructor on proxy type '{proxyType.FullName}'.");
         }
 #endif
     }

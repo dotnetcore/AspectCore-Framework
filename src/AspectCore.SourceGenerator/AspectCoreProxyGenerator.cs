@@ -14,6 +14,7 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        // Type-level candidates from the current compilation's syntax trees (fast path)
         var candidateTypes = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (node, _) => node is TypeDeclarationSyntax tds && tds.AttributeLists.Count > 0,
@@ -21,11 +22,105 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             .Where(static x => x is not null)
             .Select(static (x, _) => x!);
 
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(candidateTypes.Collect()), static (spc, input) =>
+        // Also discover candidates from referenced assemblies (multi-assembly support)
+        var referencedAssemblyCandidates = context.CompilationProvider
+            .SelectMany(static (compilation, _) => GetReferencedAssemblyCandidates(compilation));
+
+        var allCandidates = candidateTypes.Collect()
+            .Combine(referencedAssemblyCandidates.Collect())
+            .Select(static (pair, _) => pair.Left.Concat(pair.Right).ToImmutableArray());
+
+        context.RegisterSourceOutput(context.CompilationProvider.Combine(allCandidates), static (spc, input) =>
         {
             var (compilation, candidates) = input;
             Execute(spc, compilation, candidates);
         });
+    }
+
+    /// <summary>
+    /// Discovers types decorated with [AspectCoreGenerateProxy] in referenced assemblies.
+    /// This enables multi-assembly scenarios where the attribute is placed in a referenced library.
+    /// </summary>
+    private static ImmutableArray<INamedTypeSymbol> GetReferencedAssemblyCandidates(Compilation compilation)
+    {
+        var attrSymbol = compilation.GetTypeByMetadataName(GenerateProxyAttributeMetadataName);
+        if (attrSymbol is null)
+            return ImmutableArray<INamedTypeSymbol>.Empty;
+
+        var results = new List<INamedTypeSymbol>();
+
+        // Scan all referenced assemblies
+        foreach (var referencedAssembly in compilation.References)
+        {
+            var assemblySymbol = compilation.GetAssemblyOrModuleSymbol(referencedAssembly) as IAssemblySymbol;
+            if (assemblySymbol is null)
+                continue;
+
+            // Check if the assembly has the attribute at assembly level
+            var hasAssemblyAttr = assemblySymbol.GetAttributes()
+                .Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attrSymbol));
+
+            if (hasAssemblyAttr)
+            {
+                // Assembly-level: discover all eligible types
+                foreach (var type in EnumerateAssemblyTypes(assemblySymbol.GlobalNamespace))
+                {
+                    if (IsEligibleForAutoProxy(type))
+                        results.Add(type);
+                }
+            }
+            else
+            {
+                // Type-level: only discover types that explicitly carry the attribute
+                foreach (var type in EnumerateAssemblyTypes(assemblySymbol.GlobalNamespace))
+                {
+                    if (type.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attrSymbol)))
+                        results.Add(type);
+                }
+            }
+        }
+
+        return results.ToImmutableArray();
+    }
+
+    private static IEnumerable<INamedTypeSymbol> EnumerateAssemblyTypes(INamespaceSymbol ns)
+    {
+        foreach (var type in ns.GetTypeMembers())
+            yield return type;
+        foreach (var childNs in ns.GetNamespaceMembers())
+        {
+            foreach (var type in EnumerateAssemblyTypes(childNs))
+                yield return type;
+        }
+    }
+
+    private static bool IsEligibleForAutoProxy(INamedTypeSymbol type)
+    {
+        if (type.ContainingType is not null) return false; // skip nested
+        if (type.IsStatic) return false;
+        if (type.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal)) return false;
+
+        if (type.TypeKind == TypeKind.Class)
+        {
+            if (type.IsSealed && !type.IsAbstract) return false;
+            // Must have at least one overridable member
+            foreach (var member in type.GetMembers())
+            {
+                if (member is IMethodSymbol m && m.MethodKind == MethodKind.Ordinary &&
+                    !m.IsStatic && m.IsVirtual && !m.IsSealed &&
+                    m.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+                    return true;
+                if (member is IPropertySymbol p && !p.IsStatic && p.IsVirtual && !p.IsSealed &&
+                    p.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+                    return true;
+            }
+            return false;
+        }
+
+        if (type.TypeKind == TypeKind.Interface)
+            return true;
+
+        return false;
     }
 
     private static INamedTypeSymbol? GetCandidate(GeneratorSyntaxContext ctx)
@@ -56,10 +151,11 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
 
     private static void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<INamedTypeSymbol> candidates)
     {
-        // NOTE: 本节点先实现 Attribute 触发：只处理 type-level [AspectCoreGenerateProxy]。
-        // - class: 默认生成 class proxy (serviceType=implType=该类)
-        // - interface: 默认生成 interface proxy（生成两种 ctor：无 target / 带 target）
-        // assembly-level mapping / 带参数 mapping 在后续节点补齐。
+        // Supports:
+        // - type-level [AspectCoreGenerateProxy]: explicit per-type proxy generation
+        // - assembly-level [AspectCoreGenerateProxy]: auto-generate for all eligible types in the assembly
+        // - class: generates class proxy (serviceType=implType=该类)
+        // - interface: generates interface proxy (无 target / 带 target)
 
         var attrSymbol = compilation.GetTypeByMetadataName(GenerateProxyAttributeMetadataName);
         if (attrSymbol is null)
@@ -68,8 +164,23 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             return;
         }
 
+        // Check for assembly-level attribute
+        var hasAssemblyLevelAttr = compilation.Assembly.GetAttributes()
+            .Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attrSymbol));
+
+        // Collect all candidate types: explicit type-level + auto-discovered from assembly-level
+        var allCandidates = new HashSet<INamedTypeSymbol>(NamedTypeSymbolEqualityComparer.Instance);
+        foreach (var t in candidates)
+            allCandidates.Add(t);
+
+        if (hasAssemblyLevelAttr)
+        {
+            foreach (var t in GetAssemblyEligibleTypes(compilation, attrSymbol))
+                allCandidates.Add(t);
+        }
+
         var entries = new List<ProxyEntry>();
-        foreach (var type in candidates.Distinct(NamedTypeSymbolEqualityComparer.Instance))
+        foreach (var type in allCandidates.Distinct(NamedTypeSymbolEqualityComparer.Instance))
         {
             var attrData = type.GetAttributes().FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attrSymbol));
             if (attrData is null)
@@ -77,11 +188,8 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
                 continue;
             }
 
-            if (type.IsGenericType)
-            {
-                context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedGenericType(type));
-                continue;
-            }
+            // Generic types are supported for class proxy (generic params forwarded).
+            // Interface proxy for generic interfaces is also supported.
 
             if (type.ContainingType is not null)
             {
@@ -252,6 +360,92 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             }
         }
 
+        return false;
+    }
+
+    /// <summary>
+    /// Discovers all eligible types in the assembly for auto-proxy generation when
+    /// [assembly: AspectCoreGenerateProxy] is used. Eligible types are public classes
+    /// and interfaces that are not sealed (for classes), not nested, not abstract (for classes),
+    /// and have at least one overridable member.
+    /// </summary>
+    private static IEnumerable<INamedTypeSymbol> GetAssemblyEligibleTypes(Compilation compilation, INamedTypeSymbol attrSymbol)
+    {
+        var globalNamespace = compilation.GlobalNamespace;
+        foreach (var type in EnumerateAllTypes(globalNamespace))
+        {
+            // Skip types that already have explicit type-level attribute (they'll be handled separately)
+            if (type.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attrSymbol)))
+                continue;
+
+            // Skip nested types
+            if (type.ContainingType is not null)
+                continue;
+
+            // Skip types that are not public or internal
+            if (type.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal))
+                continue;
+
+            // For classes: must not be sealed (unless abstract), and must have at least one overridable member
+            if (type.TypeKind == TypeKind.Class)
+            {
+                if (type.IsSealed && !type.IsAbstract)
+                    continue;
+                if (type.IsStatic)
+                    continue;
+                // Check if there's at least one overridable method or property
+                if (!HasAnyOverridableMember(type))
+                    continue;
+            }
+            else if (type.TypeKind == TypeKind.Interface)
+            {
+                // Interfaces are always eligible
+            }
+            else
+            {
+                continue;
+            }
+
+            // Skip types with events (not supported)
+            if (type.GetMembers().OfType<IEventSymbol>().Any())
+                continue;
+
+            yield return type;
+        }
+    }
+
+    private static IEnumerable<INamedTypeSymbol> EnumerateAllTypes(INamespaceSymbol ns)
+    {
+        foreach (var type in ns.GetTypeMembers())
+        {
+            yield return type;
+        }
+        foreach (var childNs in ns.GetNamespaceMembers())
+        {
+            foreach (var type in EnumerateAllTypes(childNs))
+            {
+                yield return type;
+            }
+        }
+    }
+
+    private static bool HasAnyOverridableMember(INamedTypeSymbol type)
+    {
+        foreach (var member in type.GetMembers())
+        {
+            if (member is IMethodSymbol m && m.MethodKind == MethodKind.Ordinary &&
+                !m.IsStatic && m.IsVirtual && !m.IsSealed &&
+                m.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+            {
+                return true;
+            }
+            if (member is IPropertySymbol p &&
+                !p.IsStatic && p.IsVirtual && !p.IsSealed &&
+                p.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+            {
+                return true;
+            }
+        }
         return false;
     }
 }

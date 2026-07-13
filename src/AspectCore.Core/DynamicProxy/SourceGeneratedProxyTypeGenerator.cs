@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -89,6 +90,13 @@ namespace AspectCore.DynamicProxy
 
             if (TryResolveFromRegistries(serviceType, lookupImplType, kind, out var proxyType))
             {
+                // If the service type is a closed generic and the resolved proxy type is an open generic,
+                // close it with the same type arguments.
+                if (serviceType.IsGenericType && !serviceType.IsGenericTypeDefinition &&
+                    proxyType.IsGenericTypeDefinition)
+                {
+                    proxyType = proxyType.MakeGenericType(serviceType.GetGenericArguments());
+                }
                 _cache[key] = proxyType;
                 return proxyType;
             }
@@ -137,6 +145,7 @@ namespace AspectCore.DynamicProxy
             return false;
         }
 
+        [UnconditionalSuppressMessage("TrimAnalyzer", "IL2026:RequiresUnreferencedCode", Justification = "ScanRegistries gracefully handles reflection failures and falls back to manual registries.")]
         private void EnsureScannedRegistries()
         {
             if (_scanned) return;
@@ -148,6 +157,7 @@ namespace AspectCore.DynamicProxy
             }
         }
 
+        [RequiresUnreferencedCode("Uses reflection to discover source-generated proxy registries across all loaded assemblies.")]
         private static IReadOnlyList<ISourceGeneratedProxyRegistry> ScanRegistries()
         {
             var registries = new List<ISourceGeneratedProxyRegistry>();

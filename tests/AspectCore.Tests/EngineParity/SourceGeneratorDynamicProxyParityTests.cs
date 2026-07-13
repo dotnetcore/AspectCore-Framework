@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AspectCore.Configuration;
+using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
 using Xunit;
 
 namespace AspectCore.Tests.EngineParity;
@@ -368,6 +370,149 @@ public class SourceGeneratorDynamicProxyParityTests
         Assert.DoesNotContain(nameof(NonAspectPredicateService.NotInterceptedByPredicate), callSet);
     }
 
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void Interceptor_PropertyInjection_Should_Work(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddTyped<PropertyInjectionInterceptor>(Predicates.ForService("*PropertyInjectionService"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null,
+            configureService: serviceContext =>
+            {
+                serviceContext.AddDelegate<PropertyInjectionDependency>(_ => new PropertyInjectionDependency { Value = "injected" });
+            });
+
+        var proxy = proxyGenerator.CreateClassProxy<PropertyInjectionService>();
+        Assert.Equal("injected", proxy.GetValue());
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void ServiceInstance_PropertyInjection_Should_Work(ProxyEngine engine)
+    {
+        // Verify that when a service with [FromServiceContext] properties is resolved
+        // through the DI container (which triggers PropertyInjectorCallback), the
+        // properties are injected correctly. This tests the full DI resolution path.
+        var builder = new ServiceContext();
+        builder.Configuration.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next),
+            Predicates.ForService("*ServiceWithPropertyInjection"));
+        builder.AddDelegate<PropertyInjectionDependency>(_ => new PropertyInjectionDependency { Value = "svc-injected" });
+        builder.AddType<ServiceWithPropertyInjection>();
+
+        // Set engine options for SG
+        var engineOptions = new ProxyEngineOptions
+        {
+            Engine = engine,
+            Strict = engine == ProxyEngine.SourceGenerator,
+            AllowRuntimeFallback = engine == ProxyEngine.SourceGenerator ? false : (bool?)null,
+        };
+        builder.AddInstance(engineOptions);
+        if (engine != ProxyEngine.DynamicProxy)
+        {
+            builder.RemoveAll(typeof(IProxyTypeGenerator));
+            builder.AddInstance<IProxyTypeGenerator>(
+                new SourceGeneratedProxyTypeGenerator(
+                    new AspectValidatorBuilder(builder.Configuration),
+                    engineOptions,
+                    Array.Empty<ISourceGeneratedProxyRegistry>()));
+        }
+
+        var resolver = builder.Build();
+        var service = resolver.Resolve<ServiceWithPropertyInjection>();
+        Assert.NotNull(service);
+        Assert.Equal("svc-injected", service.Echo());
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void ParameterAspect_Should_Work(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.EnableParameterAspect();
+                cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next),
+                    Predicates.ForService("*ParameterService"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<ParameterService>();
+        // The NotNull parameter interceptor should throw for null input
+        Assert.Throws<ArgumentNullException>(() => proxy.Greet(null!));
+        Assert.Equal("Hello, World", proxy.Greet("World"));
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void GenericClassProxy_Should_Work(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    // Double the return value to prove interception works
+                    if (ctx.ReturnValue is int i)
+                        ctx.ReturnValue = i * 2;
+                }, Predicates.ForService("*GenericService*"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        // Create generic proxy with int type argument
+        var proxy = proxyGenerator.CreateClassProxy(typeof(GenericService<int>), typeof(GenericService<int>), Array.Empty<object>());
+        Assert.NotNull(proxy);
+
+        // Verify the proxy is actually a proxy (intercepts calls)
+        var echoMethod = proxy.GetType().GetMethod("Echo");
+        Assert.NotNull(echoMethod);
+
+        // Call Echo(21) - interceptor doubles the return value
+        var result = echoMethod.Invoke(proxy, new object[] { 21 });
+        Assert.Equal(42, result); // 21 * 2 from interceptor
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void GenericClassProxy_WithConstraint_Should_Work(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next),
+                    Predicates.ForService("*GenericServiceWithConstraint*"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy(
+            typeof(GenericServiceWithConstraint<string>),
+            typeof(GenericServiceWithConstraint<string>),
+            Array.Empty<object>());
+        Assert.NotNull(proxy);
+
+        var method = proxy.GetType().GetMethod("FirstOrDefault");
+        Assert.NotNull(method);
+
+        // Test with non-empty array
+        var result = method.Invoke(proxy, new object[] { new[] { "hello", "world" } });
+        Assert.Equal("hello", result);
+
+        // Test with empty array
+        result = method.Invoke(proxy, new object[] { Array.Empty<string>() });
+        Assert.Null(result);
+    }
+
     private sealed record AspectSnapshot(
         Type ServiceDeclaringType,
         MethodInfo? ServiceMethod,
@@ -521,4 +666,62 @@ public class NonAspectPredicateService
 public class MissingProxyService
 {
     public virtual int Get() => 1;
+}
+
+// ── Property Injection test types ──────────────────────────────────────
+
+public class PropertyInjectionDependency
+{
+    public string Value { get; set; } = "";
+}
+
+public class PropertyInjectionInterceptor : AbstractInterceptor
+{
+    [FromServiceContext]
+    public PropertyInjectionDependency Dependency { get; set; } = null!;
+
+    public override Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        context.ReturnValue = Dependency?.Value ?? "null";
+        return Task.CompletedTask;
+    }
+}
+
+[AspectCoreGenerateProxy]
+public class PropertyInjectionService
+{
+    public virtual string GetValue() => "original";
+}
+
+[AspectCoreGenerateProxy]
+public class ServiceWithPropertyInjection
+{
+    [FromServiceContext]
+    public PropertyInjectionDependency Dependency { get; set; } = null!;
+
+    public virtual string Echo() => Dependency?.Value ?? "null";
+}
+
+// ── Parameter Aspect test types ────────────────────────────────────────
+
+[AspectCoreGenerateProxy]
+public class ParameterService
+{
+    public virtual string Greet([NotNull] string name) => $"Hello, {name}";
+}
+
+// ── Generic Class Proxy test types ─────────────────────────────────────
+
+[AspectCoreGenerateProxy]
+public class GenericService<T>
+{
+    public virtual T Echo(T value) => value;
+
+    public virtual string Describe(T value) => typeof(T).Name + ": " + value;
+}
+
+[AspectCoreGenerateProxy]
+public class GenericServiceWithConstraint<T> where T : class
+{
+    public virtual T? FirstOrDefault(T[] items) => items.Length > 0 ? items[0] : null;
 }

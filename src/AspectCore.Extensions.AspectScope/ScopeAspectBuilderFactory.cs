@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.AspectScope
@@ -26,6 +27,32 @@ namespace AspectCore.Extensions.AspectScope
                     if (!_aspectContextScheduler.TryRelate(context, scopedInterceptor))
                         continue;
                 }
+                aspectBuilder.AddAspectDelegate(interceptor.Invoke);
+            }
+
+            return aspectBuilder;
+        }
+
+        /// <summary>
+        /// Scope-aware GetBuilder: returns a builder with ALL interceptors (no scope filtering)
+        /// since scope suppression requires a per-call context to determine the active call chain.
+        /// </summary>
+        public IAspectBuilder GetBuilder(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        {
+            return GetBuilder(serviceMethod, implementationMethod, serviceMethod);
+        }
+
+        /// <summary>
+        /// Scope-aware GetBuilder with predicate method: returns a builder with ALL interceptors
+        /// (no scope filtering) since scope suppression requires a per-call context to determine
+        /// the active call chain.
+        /// </summary>
+        public IAspectBuilder GetBuilder(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod)
+        {
+            var aspectBuilder = new AspectBuilder(ctx => ctx.Complete(), null);
+
+            foreach (var interceptor in _interceptorCollector.Collect(serviceMethod, implementationMethod, predicateMethod))
+            {
                 aspectBuilder.AddAspectDelegate(interceptor.Invoke);
             }
 

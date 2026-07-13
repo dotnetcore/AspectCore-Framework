@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AspectCore.DynamicProxy;
@@ -100,6 +101,7 @@ namespace AspectCore.DependencyInjection
             };
         }
 
+        [RequiresDynamicCode("Uses ConstructorInfo.Invoke to create proxy instances. Source-generated proxies are preferred for AOT.")]
         private Func<ServiceResolver, object> ResolveProxyService(ProxyServiceDefinition proxyServiceDefinition)
         {
             if (proxyServiceDefinition.ServiceType.GetTypeInfo().IsClass)
@@ -107,10 +109,31 @@ namespace AspectCore.DependencyInjection
                 return ResolveTypeService(proxyServiceDefinition.ClassProxyServiceDefinition);
             }
 
-            var proxyConstructor = proxyServiceDefinition.ProxyType.GetTypeInfo().GetConstructor(new Type[] {typeof(IAspectActivatorFactory), proxyServiceDefinition.ServiceType});
-            var reflector = proxyConstructor.GetReflector();
-            var serviceResolver = Resolve(proxyServiceDefinition.ServiceDefinition);
-            return resolver => reflector.Invoke(resolver.ResolveRequired<IAspectActivatorFactory>(), serviceResolver(resolver));
+            var proxyConstructor = proxyServiceDefinition.ProxyType.GetTypeInfo().GetConstructor(
+                new Type[] { typeof(IAspectActivatorFactory), typeof(IServiceProvider), proxyServiceDefinition.ServiceType });
+            if (proxyConstructor != null)
+            {
+                var reflector = proxyConstructor.GetReflector();
+                var serviceResolver = Resolve(proxyServiceDefinition.ServiceDefinition);
+                return resolver => reflector.Invoke(
+                    resolver.ResolveRequired<IAspectActivatorFactory>(),
+                    resolver.ResolveRequired<IServiceProvider>(),
+                    serviceResolver(resolver));
+            }
+
+            // Fallback: legacy 2-parameter constructor (IAspectActivatorFactory, serviceType)
+            proxyConstructor = proxyServiceDefinition.ProxyType.GetTypeInfo().GetConstructor(
+                new Type[] { typeof(IAspectActivatorFactory), proxyServiceDefinition.ServiceType });
+            if (proxyConstructor != null)
+            {
+                var reflector = proxyConstructor.GetReflector();
+                var serviceResolver = Resolve(proxyServiceDefinition.ServiceDefinition);
+                return resolver => reflector.Invoke(
+                    resolver.ResolveRequired<IAspectActivatorFactory>(),
+                    serviceResolver(resolver));
+            }
+
+            throw new InvalidOperationException($"Cannot find suitable constructor on proxy type '{proxyServiceDefinition.ProxyType.FullName}'.");
         }
 
         private Func<ServiceResolver, object> ResolveTypeService(TypeServiceDefinition typeServiceDefinition)

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using AspectCore.DynamicProxy;
 
 namespace AspectCore.Extensions.Windsor
@@ -18,6 +19,18 @@ namespace AspectCore.Extensions.Windsor
         public IAspectBuilder Create(AspectContext context)
         {
             var builder = _aspectBuilderFactory.Create(context);
+            return new AspectBuilder(_complete, builder.Delegates.ToList());
+        }
+
+        public IAspectBuilder GetBuilder(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        {
+            var builder = _aspectBuilderFactory.GetBuilder(serviceMethod, implementationMethod);
+            return new AspectBuilder(_complete, builder.Delegates.ToList());
+        }
+
+        public IAspectBuilder GetBuilder(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod)
+        {
+            var builder = _aspectBuilderFactory.GetBuilder(serviceMethod, implementationMethod, predicateMethod);
             return new AspectBuilder(_complete, builder.Delegates.ToList());
         }
     }

@@ -27,7 +27,25 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            return (IAspectBuilder)_aspectCaching.GetOrAdd(GetKey(context.ServiceMethod, context.ImplementationMethod, context.PredicateMethod), key => Create((Tuple<MethodInfo, MethodInfo, MethodInfo>)key));
+            return GetBuilder(context.ServiceMethod, context.ImplementationMethod, context.PredicateMethod);
+        }
+
+        public IAspectBuilder GetBuilder(MethodInfo serviceMethod, MethodInfo implementationMethod)
+        {
+            return GetBuilder(serviceMethod, implementationMethod, serviceMethod);
+        }
+
+        public IAspectBuilder GetBuilder(MethodInfo serviceMethod, MethodInfo implementationMethod, MethodInfo predicateMethod)
+        {
+            if (serviceMethod == null)
+            {
+                throw new ArgumentNullException(nameof(serviceMethod));
+            }
+            if (implementationMethod == null)
+            {
+                throw new ArgumentNullException(nameof(implementationMethod));
+            }
+            return (IAspectBuilder)_aspectCaching.GetOrAdd(GetKey(serviceMethod, implementationMethod, predicateMethod), key => Create((Tuple<MethodInfo, MethodInfo, MethodInfo>)key));
         }
 
         private IAspectBuilder Create(Tuple<MethodInfo, MethodInfo, MethodInfo> tuple)
