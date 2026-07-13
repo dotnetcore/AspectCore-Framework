@@ -43,7 +43,16 @@ namespace AspectCore.Extensions.DependencyInjection
 
             if (descriptor.ServiceType.GetTypeInfo().IsClass)
             {
-                if (descriptor.ImplementationType == null)
+#if NET8_0_OR_GREATER
+                // For keyed services, KeyedImplementationType must be used instead of ImplementationType
+                // (accessing ImplementationType on a keyed descriptor throws InvalidOperationException).
+                var hasImplementationType = descriptor.IsKeyedService
+                    ? descriptor.KeyedImplementationType != null
+                    : descriptor.ImplementationType != null;
+#else
+                var hasImplementationType = descriptor.ImplementationType != null;
+#endif
+                if (!hasImplementationType)
                 {
                     return false;
                 }
