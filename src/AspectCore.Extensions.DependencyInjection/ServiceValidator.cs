@@ -36,9 +36,21 @@ namespace AspectCore.Extensions.DependencyInjection
                 return false;
             }
 
+            // For factory-registered services, the factory return type is the service type itself
+            // (e.g. AddScoped<IService>(sp => new Service()) → Func<IServiceProvider, IService>),
+            // so GetImplementationType returns the interface, not the concrete class.
+            // In that case we fall back to the service type for proxy generation; the real
+            // implementation instance will be provided by the factory at resolve time.
             if (!implementationType.GetTypeInfo().IsClass)
             {
-                return false;
+                if (IsFactoryRegistered(descriptor) && descriptor.ServiceType.GetTypeInfo().IsInterface)
+                {
+                    implementationType = descriptor.ServiceType;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             if (descriptor.ServiceType.GetTypeInfo().IsClass)
@@ -62,6 +74,17 @@ namespace AspectCore.Extensions.DependencyInjection
             return _aspectValidator.Validate(descriptor.ServiceType, true) || _aspectValidator.Validate(implementationType, false);
         }
 
+
+        private static bool IsFactoryRegistered(ServiceDescriptor descriptor)
+        {
+#if NET8_0_OR_GREATER
+            return descriptor.IsKeyedService
+                ? descriptor.KeyedImplementationFactory != null
+                : descriptor.ImplementationFactory != null;
+#else
+            return descriptor.ImplementationFactory != null;
+#endif
+        }
 
         private Type GetImplementationType(ServiceDescriptor descriptor)
         {
