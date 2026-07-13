@@ -30,7 +30,6 @@ jobs:
       with: # Install all required versions explicitly, since some frameworks may be missing from the image if they have been removed due to end of support.
         dotnet-version: |
           6.0.x
-          7.0.x
           8.0.x
           9.0.x
           10.0.x
