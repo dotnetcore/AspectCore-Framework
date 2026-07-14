@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
+#if NET8_0_OR_GREATER
 namespace AspectCore.Extensions.DependencyInjection.Test
 {
     /// <summary>
@@ -156,3 +157,6 @@ namespace AspectCore.Extensions.DependencyInjection.Test
         }
     }
 }
+
+
+#endif
