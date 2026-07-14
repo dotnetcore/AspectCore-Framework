@@ -87,20 +87,8 @@ jobs:
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
         done
 
-    - name: Publish Preview Packages to MyGet
-      if: matrix.os == 'windows-latest' && github.event_name == 'push'
-      shell: bash
-      run: |
-        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
-          echo "Pushing $package to MyGet (preview)..."
-          dotnet nuget push "$package" \
-            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
-            --api-key ${{ secrets.MYGET_API_KEY }} \
-            --skip-duplicate || echo "Skipping: Package push failed or already exists."
-        done
-
-    - name: Publish CI Packages (manual)
-      if: matrix.os == 'windows-latest' && github.event_name == 'workflow_dispatch' && inputs.publish-myget-package
+    - name: Publish Packages to MyGet
+      if: matrix.os == 'windows-latest' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish-myget-package))
       shell: bash
       run: |
         for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
