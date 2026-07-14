@@ -138,6 +138,7 @@ jobs:
     - name: Create PR for version bump
       uses: peter-evans/create-pull-request@v6
       with:
+        base: master
         commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} after release"
         title: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
         body: |
