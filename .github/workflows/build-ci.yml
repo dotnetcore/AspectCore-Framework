@@ -83,7 +83,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
-        for project in $(find ./src -name "*.csproj"); do
+        for project in $(find ./src -name "*.csproj" ! -name "AspectCore.SourceGenerator.csproj"); do
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
         done
 
