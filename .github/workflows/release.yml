@@ -1,0 +1,151 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+
+    - name: Build Reason
+      run: "echo ref: ${{github.ref}} event: ${{github.event_name}} os: ${{ matrix.os }}"
+
+    - name: Extract Version from Tag
+      shell: pwsh
+      run: |
+        # Extract version from tag: v2.4.0 -> 2.4.0, v2.4.0-preview1 -> 2.4.0-preview1
+        $tag = "${{ github.ref_name }}"
+        $version = $tag.TrimStart('v')
+        echo "Full Version: $version"
+        Add-Content -Path $Env:GITHUB_ENV -Value "FULL_VERSION=$version"
+
+    - name: Build
+      shell: bash
+      run: |
+        for project in $(find ./src -name "*.csproj"); do
+          dotnet build --configuration Release $project -p:Version=${{ env.FULL_VERSION }}
+        done
+
+    - name: Run Tests
+      shell: bash
+      run: |
+        for project in $(find ./tests -name "*.csproj"); do
+          dotnet test --configuration Release $project
+        done
+
+    - name: Package
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      run: |
+        for project in $(find ./src -name "*.csproj"); do
+          dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
+        done
+
+    - name: Publish Release Packages to MyGet
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      run: |
+        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
+          echo "Pushing $package to MyGet (release)..."
+          dotnet nuget push "$package" \
+            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
+            --api-key ${{ secrets.MYGET_API_KEY }} \
+            --skip-duplicate || echo "Skipping: Package push failed or already exists."
+        done
+
+    - name: Publish Release Packages to NuGet.org
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      run: |
+        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
+          echo "Pushing $package to NuGet.org (release)..."
+          dotnet nuget push "$package" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate || echo "Skipping: Package push failed or already exists."
+        done
+
+    - name: Create GitHub Release
+      if: matrix.os == 'windows-latest'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          artifacts/packages/*.nupkg
+          artifacts/packages/*.snupkg
+        generate_release_notes: true
+
+  update-version:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Extract Version from Tag
+      shell: pwsh
+      run: |
+        $tag = "${{ github.ref_name }}"
+        $version = $tag.TrimStart('v')
+        # Split version: 2.5.0 -> major=2, minor=5, patch=0
+        $parts = $version -split '\.'
+        $major = $parts[0]
+        $minor = $parts[1]
+        $patch = ($parts[2] -split '-')[0]
+        # Bump to next minor for future preview packages: 2.5.0 -> 2.6.0
+        $nextMinor = [int]$minor + 1
+        $nextPatch = 0
+        echo "MAJOR=$major" >> $env:GITHUB_ENV
+        echo "MINOR=$nextMinor" >> $env:GITHUB_ENV
+        echo "PATCH=$nextPatch" >> $env:GITHUB_ENV
+        echo "Released version: $major.$minor.$patch, next preview base: $major.$nextMinor.$nextPatch"
+
+    - name: Update version.props
+      shell: pwsh
+      run: |
+        $path = "./build/version.props"
+        [xml]$xml = Get-Content $path
+        $xml.Project.PropertyGroup.VersionMajor = $env:MAJOR
+        $xml.Project.PropertyGroup.VersionMinor = $env:MINOR
+        $xml.Project.PropertyGroup.VersionPatch = $env:PATCH
+        $xml.Project.PropertyGroup.VersionQuality = ""
+        $xml.Save($path)
+        echo "Updated version.props to $($env:MAJOR).$($env:MINOR).$($env:PATCH)"
+
+    - name: Create PR for version bump
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} after release"
+        title: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
+        body: |
+          Auto-generated version bump after release of tag `${{ github.ref_name }}`.
+
+          Updated `build/version.props` to the next minor version so that
+          subsequent preview packages use the correct base version.
+
+          Note: For patch releases (e.g. 2.6.1), update `build/version.props` manually.
+        branch: chore/version-bump-${{ github.ref_name }}
+        delete-branch: true
