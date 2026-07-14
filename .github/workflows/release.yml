@@ -3,6 +3,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to bump to (e.g. 2.6.0). Only used by manual trigger.'
+        required: true
+        default: '2.6.0'
 
 permissions:
   contents: write
@@ -108,7 +114,9 @@ jobs:
         generate_release_notes: true
 
   update-version:
-    needs: build-and-test
+    # For tag pushes: only bump version for stable releases (not pre-releases like beta/rc/alpha)
+    # For manual trigger: always run
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.ref_name, '-') }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -116,23 +124,29 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Extract Version from Tag
+    - name: Extract Version
       shell: pwsh
       run: |
-        $tag = "${{ github.ref_name }}"
-        $version = $tag.TrimStart('v')
-        # Split version: 2.5.0 -> major=2, minor=5, patch=0
+        if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') {
+          # Manual trigger: use the input version
+          $version = "${{ github.event.inputs.version }}"
+        } else {
+          # Tag trigger: extract from tag and bump to next minor
+          $tag = "${{ github.ref_name }}"
+          $version = $tag.TrimStart('v')
+          $parts = $version -split '\.'
+          $major = $parts[0]
+          $minor = $parts[1]
+          $patch = ($parts[2] -split '-')[0]
+          # Bump to next minor: 2.5.0 -> 2.6.0
+          $version = "$major.$([int]$minor + 1).0"
+        }
+
         $parts = $version -split '\.'
-        $major = $parts[0]
-        $minor = $parts[1]
-        $patch = ($parts[2] -split '-')[0]
-        # Bump to next minor for future preview packages: 2.5.0 -> 2.6.0
-        $nextMinor = [int]$minor + 1
-        $nextPatch = 0
-        echo "MAJOR=$major" >> $env:GITHUB_ENV
-        echo "MINOR=$nextMinor" >> $env:GITHUB_ENV
-        echo "PATCH=$nextPatch" >> $env:GITHUB_ENV
-        echo "Released version: $major.$minor.$patch, next preview base: $major.$nextMinor.$nextPatch"
+        echo "MAJOR=$($parts[0])" >> $env:GITHUB_ENV
+        echo "MINOR=$($parts[1])" >> $env:GITHUB_ENV
+        echo "PATCH=$($parts[2])" >> $env:GITHUB_ENV
+        echo "Version to bump: $version"
 
     - name: Update version.props
       shell: pwsh
@@ -150,14 +164,15 @@ jobs:
       uses: peter-evans/create-pull-request@v6
       with:
         base: master
-        commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} after release"
+        token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+        commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
         title: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
         body: |
-          Auto-generated version bump after release of tag `${{ github.ref_name }}`.
+          Auto-generated version bump.
 
-          Updated `build/version.props` to the next minor version so that
+          Updated `build/version.props` to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} so that
           subsequent preview packages use the correct base version.
 
           Note: For patch releases (e.g. 2.6.1), update `build/version.props` manually.
-        branch: chore/version-bump-${{ github.ref_name }}
+        branch: chore/version-bump-${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         delete-branch: true
