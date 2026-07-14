@@ -109,6 +109,8 @@ jobs:
 
   update-version:
     needs: build-and-test
+    # Only bump version for stable releases (not pre-releases like beta/rc/alpha)
+    if: ${{ !contains(github.ref_name, '-') }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -150,6 +152,7 @@ jobs:
       uses: peter-evans/create-pull-request@v6
       with:
         base: master
+        token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
         commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} after release"
         title: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
         body: |
