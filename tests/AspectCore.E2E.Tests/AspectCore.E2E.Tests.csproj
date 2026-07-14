@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\sign.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0;net6.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AspectCore.E2E.Tests</RootNamespace>
+    <AssemblyName>AspectCore.E2E.Tests</AssemblyName>
+    <PackageId>AspectCore.E2E.Tests</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\..\src\AspectCore.Extensions.DependencyInjection\AspectCore.Extensions.DependencyInjection.csproj" />
+    <!-- Source generator is referenced as an analyzer so the E2E tests exercise
+         the real compile-time proxy generation path, matching production usage. -->
+    <ProjectReference Include="..\..\src\AspectCore.SourceGenerator\AspectCore.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>
