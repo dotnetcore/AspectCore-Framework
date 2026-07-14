@@ -11,6 +11,9 @@ permissions:
 
 jobs:
   build-and-test:
+    permissions:
+      id-token: write
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -76,6 +79,13 @@ jobs:
             --skip-duplicate || echo "Skipping: Package push failed or already exists."
         done
 
+    - name: NuGet login (OIDC → temp API key)
+      if: matrix.os == 'windows-latest'
+      uses: NuGet/login@v1
+      id: nuget_login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
     - name: Publish Release Packages to NuGet.org
       if: matrix.os == 'windows-latest'
       shell: bash
@@ -84,6 +94,7 @@ jobs:
           echo "Pushing $package to NuGet.org (release)..."
           dotnet nuget push "$package" \
             --source "https://api.nuget.org/v3/index.json" \
+            --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} \
             --skip-duplicate || echo "Skipping: Package push failed or already exists."
         done
 
@@ -138,6 +149,7 @@ jobs:
     - name: Create PR for version bump
       uses: peter-evans/create-pull-request@v6
       with:
+        base: master
         commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }} after release"
         title: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
         body: |
