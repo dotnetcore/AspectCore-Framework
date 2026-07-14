@@ -13,6 +13,9 @@ on:
         default: true
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     strategy:
@@ -38,7 +41,6 @@ jobs:
       run: "echo ref: ${{github.ref}} event: ${{github.event_name}} os: ${{ matrix.os }}"
 
     - name: Build Version
-      if: matrix.os == 'windows-latest'
       shell: pwsh
       run: |
         $versionPropsPath = "./build/version.props"
@@ -77,28 +79,33 @@ jobs:
         done
 
     - name: Package
-      if: matrix.os == 'windows-latest' && inputs.publish-myget-package
+      if: matrix.os == 'windows-latest'
       shell: bash
       run: |
         for project in $(find ./src -name "*.csproj"); do
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} -p:SymbolPackageFormat=snupkg --include-source --output ./artifacts/packages
         done
 
-    - name: Publish CI Packages
-      if: matrix.os == 'windows-latest' && inputs.publish-myget-package
+    - name: Publish Preview Packages to MyGet
+      if: matrix.os == 'windows-latest' && github.event_name == 'push'
       shell: bash
       run: |
         for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
-          echo "$package": Pushing $package...
+          echo "Pushing $package to MyGet (preview)..."
+          dotnet nuget push "$package" \
+            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
+            --api-key ${{ secrets.MYGET_API_KEY }} \
+            --skip-duplicate || echo "Skipping: Package push failed or already exists."
+        done
 
-          # MyGet
-          if [ "${{ inputs.publish-myget-package }}" = "true" ]; then
-            echo "Pushing to MyGet..."
-            dotnet nuget push "$package" \
-              --source "https://www.myget.org/F/aspectcore/api/v2/package" \
-              --api-key ${{ secrets.MYGET_API_TOKEN }} \
-              --skip-duplicate || echo "Skipping: Package push failed or already exists."
-          else
-            echo "Skipping: Pushing to MyGet Package Registry is disabled."
-          fi
+    - name: Publish CI Packages (manual)
+      if: matrix.os == 'windows-latest' && github.event_name == 'workflow_dispatch' && inputs.publish-myget-package
+      shell: bash
+      run: |
+        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
+          echo "Pushing $package to MyGet..."
+          dotnet nuget push "$package" \
+            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
+            --api-key ${{ secrets.MYGET_API_KEY }} \
+            --skip-duplicate || echo "Skipping: Package push failed or already exists."
         done
