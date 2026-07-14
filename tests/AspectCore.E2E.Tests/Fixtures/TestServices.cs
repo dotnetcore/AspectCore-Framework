@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
+using AspectCore.DynamicProxy.Parameters;
 
 namespace AspectCore.E2E.Tests.Fixtures;
 
@@ -300,6 +302,333 @@ public sealed class AsyncExceptionInterceptorAttribute : AbstractInterceptorAttr
         {
             InterceptorLog.Entries.Add($"Caught:{ex.GetType().Name}");
             throw;
+        }
+    }
+}
+
+// ============================================================================
+// Generic service types — used by GenericServiceScenarios.
+// ============================================================================
+
+/// <summary>
+/// Generic interface with a generic method and a regular method.
+/// </summary>
+public interface IGenericRepository<T>
+{
+    T GetById(int id);
+    IEnumerable<T> GetAll();
+    TResult Transform<TResult>(T input, Func<T, TResult> selector);
+}
+
+/// <summary>
+/// Real implementation of IGenericRepository — no mocks.
+/// </summary>
+public class GenericRepository<T> : IGenericRepository<T>
+    where T : class, new()
+{
+    public T GetById(int id)
+    {
+        var item = new T();
+        return item;
+    }
+
+    public IEnumerable<T> GetAll()
+    {
+        return new[] { new T(), new T() };
+    }
+
+    public TResult Transform<TResult>(T input, Func<T, TResult> selector)
+    {
+        return selector(input);
+    }
+}
+
+/// <summary>
+/// Generic interface with multiple type parameters.
+/// </summary>
+public interface IPairService<TKey, TValue>
+{
+    KeyValuePair<TKey, TValue> CreatePair(TKey key, TValue value);
+    TKey GetKey(KeyValuePair<TKey, TValue> pair);
+    TValue GetValue(KeyValuePair<TKey, TValue> pair);
+}
+
+/// <summary>
+/// Real implementation of IPairService — no mocks.
+/// </summary>
+public class PairService<TKey, TValue> : IPairService<TKey, TValue>
+{
+    public KeyValuePair<TKey, TValue> CreatePair(TKey key, TValue value)
+        => new(key, value);
+
+    public TKey GetKey(KeyValuePair<TKey, TValue> pair) => pair.Key;
+
+    public TValue GetValue(KeyValuePair<TKey, TValue> pair) => pair.Value;
+}
+
+/// <summary>
+/// Generic interface with ref/out parameters on generic methods.
+/// </summary>
+public interface IGenericParameterService<T>
+{
+    void EchoRef(ref T value);
+    void GetOutput(out T output);
+    T Swap(ref T first, ref T second);
+}
+
+/// <summary>
+/// Real implementation of IGenericParameterService — no mocks.
+/// </summary>
+public class GenericParameterService<T> : IGenericParameterService<T>
+{
+    public void EchoRef(ref T value)
+    {
+        // ref is preserved as-is
+    }
+
+    public void GetOutput(out T output)
+    {
+        output = default!;
+    }
+
+    public T Swap(ref T first, ref T second)
+    {
+        (first, second) = (second, first);
+        return first;
+    }
+}
+
+// ============================================================================
+// Service with a method that calls another injected proxied service — used by
+// ComplexInterceptorScenarios for nested interceptor calls.
+// ============================================================================
+
+public interface IInnerService
+{
+    string Process(int input);
+}
+
+public class InnerService : IInnerService
+{
+    public virtual string Process(int input) => $"inner({input})";
+}
+
+public interface INestedCallService
+{
+    string Outer(int input);
+}
+
+public class NestedCallService : INestedCallService
+{
+    private readonly IInnerService _inner;
+
+    public NestedCallService(IInnerService inner)
+    {
+        _inner = inner;
+    }
+
+    // Outer calls an injected IInnerService — when both are proxied, this
+    // triggers a nested interceptor invocation.
+    public virtual string Outer(int input)
+    {
+        return $"outer({_inner.Process(input)})";
+    }
+}
+
+// ============================================================================
+// Service that throws exceptions — used by ErrorHandlingScenarios.
+// ============================================================================
+
+public interface IThrowingService
+{
+    string DoWork(string input);
+    Task<string> DoWorkAsync(string input);
+    void ThrowImmediately();
+    Task ThrowAsyncImmediately();
+}
+
+public class ThrowingService : IThrowingService
+{
+    public string DoWork(string input)
+    {
+        if (input == "fail")
+        {
+            throw new InvalidOperationException("sync failure");
+        }
+        return $"worked:{input}";
+    }
+
+    public Task<string> DoWorkAsync(string input)
+    {
+        if (input == "fail")
+        {
+            throw new InvalidOperationException("async failure");
+        }
+        return Task.FromResult($"worked:{input}");
+    }
+
+    public void ThrowImmediately()
+    {
+        throw new NotSupportedException("not supported");
+    }
+
+    public Task ThrowAsyncImmediately()
+    {
+        throw new TimeoutException("timed out");
+    }
+}
+
+// ============================================================================
+// Service with a dependency that is injected via constructor — used by
+// ComplexInterceptorScenarios for DI-into-interceptor tests.
+// ============================================================================
+
+public interface IMessageProvider
+{
+    string GetMessage();
+}
+
+public class MessageProvider : IMessageProvider
+{
+    public string GetMessage() => "hello-from-provider";
+}
+
+// ============================================================================
+// Interceptor that resolves a service from the DI container via
+// AspectContext.ServiceProvider — used by ComplexInterceptorScenarios.
+// </summary>
+public sealed class DiAwareInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override async Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        // Resolve a real service from the DI container via the context.
+        var provider = context.ServiceProvider.GetService(typeof(IMessageProvider)) as IMessageProvider;
+        var msg = provider?.GetMessage() ?? "no-provider";
+        InterceptorLog.Entries.Add($"DiAware.Resolved:{msg}");
+        await context.Invoke(next);
+        // Append the provider message to the return value.
+        if (context.ReturnValue is string s)
+        {
+            context.ReturnValue = s + ":" + msg;
+        }
+    }
+}
+
+// ============================================================================
+// Interceptor that caches results using a static cache — used by
+// ComplexInterceptorScenarios. The cache key is the method name + first parameter.
+// ============================================================================
+
+public sealed class CachingInterceptorAttribute : AbstractInterceptorAttribute
+{
+    private static readonly Dictionary<string, object> _cache = new();
+
+    public override async Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        var parameters = context.GetParameters();
+        var cacheKey = context.ServiceMethod.Name + ":" + (parameters.Count > 0 ? parameters[0].Value?.ToString() : "");
+
+        lock (_cache)
+        {
+            if (_cache.TryGetValue(cacheKey, out var cached))
+            {
+                InterceptorLog.Entries.Add($"Caching.Hit:{cacheKey}");
+                context.ReturnValue = cached;
+                return;
+            }
+        }
+
+        InterceptorLog.Entries.Add($"Caching.Miss:{cacheKey}");
+        await context.Invoke(next);
+
+        lock (_cache)
+        {
+            _cache[cacheKey] = context.ReturnValue;
+        }
+    }
+
+    public static void ClearCache()
+    {
+        lock (_cache)
+        {
+            _cache.Clear();
+        }
+    }
+}
+
+// ============================================================================
+// Interceptor that validates parameters and throws on invalid input — used by
+// ComplexInterceptorScenarios.
+// ============================================================================
+
+public sealed class ValidationInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override async Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        var parameters = context.GetParameters();
+        if (parameters.Count > 0 && parameters[0].Value is string s && s == "invalid")
+        {
+            throw new ArgumentException("Parameter cannot be 'invalid'", parameters[0].Name);
+        }
+        await context.Invoke(next);
+    }
+}
+
+// ============================================================================
+// Interceptor that records entry/exit timing — used by
+// ComplexInterceptorScenarios.
+// ============================================================================
+
+public sealed class TimingInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override async Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        var sw = Stopwatch.StartNew();
+        InterceptorLog.Entries.Add($"Timing.Enter:{context.ServiceMethod.Name}");
+        await context.Invoke(next);
+        sw.Stop();
+        InterceptorLog.Entries.Add($"Timing.Exit:{context.ServiceMethod.Name}:{sw.ElapsedMilliseconds}ms");
+    }
+}
+
+// ============================================================================
+// Interceptor that catches and swallows exceptions — used by
+// ErrorHandlingScenarios.
+// ============================================================================
+
+public sealed class SwallowExceptionInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override async Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        try
+        {
+            await context.Invoke(next);
+        }
+        catch (Exception ex)
+        {
+            InterceptorLog.Entries.Add($"Swallowed:{ex.GetType().Name}");
+            context.ReturnValue = "swallowed";
+        }
+    }
+}
+
+// ============================================================================
+// Interceptor that catches and rethrows with a different exception type — used
+// by ErrorHandlingScenarios.
+// ============================================================================
+
+public sealed class RethrowDifferentInterceptorAttribute : AbstractInterceptorAttribute
+{
+    public override async Task Invoke(AspectContext context, AspectDelegate next)
+    {
+        try
+        {
+            await context.Invoke(next);
+        }
+        catch (Exception ex)
+        {
+            InterceptorLog.Entries.Add($"Rethrew:{ex.GetType().Name}");
+            throw new ApplicationException("wrapped by interceptor", ex);
         }
     }
 }
