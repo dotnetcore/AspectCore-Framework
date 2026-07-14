@@ -3,7 +3,7 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  build-and-test-pr:
     strategy:
       fail-fast: false
       matrix:
