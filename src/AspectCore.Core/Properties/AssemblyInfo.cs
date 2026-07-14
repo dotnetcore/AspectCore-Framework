@@ -30,9 +30,9 @@ using System.Runtime.InteropServices;
 #endif
 
 #if DEBUG
-[assembly: InternalsVisibleTo("AspectCore.Tests")]
+[assembly: InternalsVisibleTo("AspectCore.Core.Tests")]
 #else
-[assembly: InternalsVisibleTo("AspectCore.Tests, PublicKey=" +
+[assembly: InternalsVisibleTo("AspectCore.Core.Tests, PublicKey=" +
                               "0024000004800000940000000602000000240000525341310004000001000100E5A34DFA0BD597" +
                               "39067521C28B809E6653358A008148F35C8D3357DC02D90EF3EB3365FB55903BDCD14DBFE2B73A" +
                               "10361C71C948B5FFCEC2BF17E6C7A2EF98494D34D6E00D671B32566D153B8139D1CAA0D5A9B071" +
