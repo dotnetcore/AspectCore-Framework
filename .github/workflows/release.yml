@@ -164,9 +164,11 @@ jobs:
       uses: peter-evans/create-pull-request@v6
       with:
         base: master
-        token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
         title: "chore: bump version to ${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}"
+        author: "github-actions[bot] <41898275+github-actions[bot]@users.noreply.github.com>"
+        committer: "github-actions[bot] <41898275+github-actions[bot]@users.noreply.github.com>"
         body: |
           Auto-generated version bump.
 
