@@ -61,7 +61,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Hosti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.AspNetCore", "src\AspectCore.Extensions.AspNetCore\AspectCore.Extensions.AspNetCore.csproj", "{6D1211BC-34A4-4D17-B3D5-3D51F19F9D81}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Tests", "tests\AspectCore.Tests\AspectCore.Tests.csproj", "{D58DB130-DC4F-4E88-BA19-558CAB4DB542}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Core.Tests", "tests\AspectCore.Core.Tests\AspectCore.Core.Tests.csproj", "{D58DB130-DC4F-4E88-BA19-558CAB4DB542}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCore.Extensions.Configuration.Tests", "tests\AspectCore.Extensions.Configuration.Tests\AspectCore.Extensions.Configuration.Tests.csproj", "{677D3CD4-2B4B-4E09-A671-5014F2D85261}"
 EndProject

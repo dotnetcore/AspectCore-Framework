@@ -138,6 +138,42 @@ namespace AspectCore.Extensions.Reflection.Test
         {
             return default(T);
         }
+
+        public void VoidMethod() { }
+
+        public static void StaticVoidMethod() { }
+
+        public void VoidMethodWithParams(int a, string b) { }
+
+        public int Add(int a, int b) => a + b;
+
+        public static int StaticAdd(int a, int b) => a + b;
+
+        public string Concat(string a, int b) => a + b;
+
+        public void ModifyRef(ref int value) => value *= 2;
+
+        public void ModifyOut(out string value) => value = "output";
+
+        public void ModifyMultipleRef(ref int a, ref int b)
+        {
+            a *= 2;
+            b *= 2;
+        }
+
+        public void ModifyRefAndOut(ref int a, out string b)
+        {
+            a *= 2;
+            b = "result";
+        }
+
+        public static void StaticModifyRef(ref int value) => value *= 3;
+
+        public static void StaticModifyOut(out string value) => value = "static_output";
+
+        public int GetInt() => 42;
+
+        public static int StaticGetInt() => 99;
     }
 
     public class SubMethodFakes : MethodFakes
@@ -162,5 +198,11 @@ namespace AspectCore.Extensions.Reflection.Test
         {
             return value.ToString();
         }
+
+        public void VoidMethod() { }
+
+        public int Add(int a, int b) => a + b;
+
+        public void ModifyRef(ref int value) => value *= 2;
     }
 }
