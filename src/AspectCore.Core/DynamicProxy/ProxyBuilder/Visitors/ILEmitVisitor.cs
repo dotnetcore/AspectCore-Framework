@@ -625,18 +625,36 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
 
         private CustomAttributeBuilder BuildCustomAttribute(CustomAttributeData data)
         {
-            if (data.NamedArguments != null)
+            // For generic attribute types (C# 11 feature: [SomeAttribute<T>]),
+            // data.AttributeType is already the closed generic type. We resolve the
+            // constructor from the closed generic type directly to ensure the
+            // CustomAttributeBuilder receives a constructor compatible with the
+            // closed type, rather than one from the open generic definition.
+            var attributeType = data.AttributeType;
+            var constructor = data.Constructor;
+
+            if (attributeType.IsGenericType)
             {
-                var attributeTypeInfo = data.AttributeType.GetTypeInfo();
-                var constructorArgs = data.ConstructorArguments.Select(ReadAttributeValue).ToArray();
-                var namedProperties = data.NamedArguments.Where(n => !n.IsField).Select(n => attributeTypeInfo.GetProperty(n.MemberName)).ToArray();
-                var propertyValues = data.NamedArguments.Where(n => !n.IsField).Select(n => ReadAttributeValue(n.TypedValue)).ToArray();
-                var namedFields = data.NamedArguments.Where(n => n.IsField).Select(n => attributeTypeInfo.GetField(n.MemberName)).ToArray();
-                var fieldValues = data.NamedArguments.Where(n => n.IsField).Select(n => ReadAttributeValue(n.TypedValue)).ToArray();
-                return new CustomAttributeBuilder(data.Constructor, constructorArgs, namedProperties, propertyValues, namedFields, fieldValues);
+                var parameterTypes = data.ConstructorArguments.Select(a => a.ArgumentType).ToArray();
+                var resolvedConstructor = attributeType.GetConstructor(parameterTypes);
+                if (resolvedConstructor != null)
+                {
+                    constructor = resolvedConstructor;
+                }
             }
 
-            return new CustomAttributeBuilder(data.Constructor, data.ConstructorArguments.Select(c => c.Value).ToArray());
+            if (data.NamedArguments != null)
+            {
+                var attributeTypeInfo = attributeType.GetTypeInfo();
+                var constructorArgs = data.ConstructorArguments.Select(ReadAttributeValue).ToArray();
+                var namedProperties = data.NamedArguments.Where(n => !n.IsField).Select(n => attributeTypeInfo.GetProperty(n.MemberName)).Where(p => p != null).ToArray();
+                var propertyValues = data.NamedArguments.Where(n => !n.IsField && attributeTypeInfo.GetProperty(n.MemberName) != null).Select(n => ReadAttributeValue(n.TypedValue)).ToArray();
+                var namedFields = data.NamedArguments.Where(n => n.IsField).Select(n => attributeTypeInfo.GetField(n.MemberName)).Where(f => f != null).ToArray();
+                var fieldValues = data.NamedArguments.Where(n => n.IsField && attributeTypeInfo.GetField(n.MemberName) != null).Select(n => ReadAttributeValue(n.TypedValue)).ToArray();
+                return new CustomAttributeBuilder(constructor, constructorArgs, namedProperties, propertyValues, namedFields, fieldValues);
+            }
+
+            return new CustomAttributeBuilder(constructor, data.ConstructorArguments.Select(c => c.Value).ToArray());
         }
 
         private static object ReadAttributeValue(CustomAttributeTypedArgument argument)
