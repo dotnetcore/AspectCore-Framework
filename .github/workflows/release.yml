@@ -54,6 +54,7 @@ jobs:
     - name: Build
       shell: bash
       run: |
+        set -e
         for project in $(find ./src -name "*.csproj"); do
           dotnet build --configuration Release $project -p:Version=${{ env.FULL_VERSION }}
         done
@@ -61,6 +62,7 @@ jobs:
     - name: Run Tests
       shell: bash
       run: |
+        set -e
         for project in $(find ./tests -name "*.csproj"); do
           dotnet test --configuration Release $project
         done
@@ -69,21 +71,35 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
+        set -e
+        rm -rf ./artifacts/packages
+        mkdir -p ./artifacts/packages
         for project in $(find ./src -name "*.csproj"); do
           dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} --include-source --output ./artifacts/packages
         done
 
-    - name: Publish Release Packages to MyGet
+    - name: Verify All Packages Created
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
-        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
-          echo "Pushing $package to MyGet (release)..."
-          dotnet nuget push "$package" \
-            --source "https://www.myget.org/F/aspectcore/api/v2/package" \
-            --api-key ${{ secrets.MYGET_API_KEY }} \
-            --skip-duplicate || echo "Skipping: Package push failed or already exists."
-        done
+        set -e
+        echo "=== Verifying all packages were created ==="
+        expected_count=$(find ./src -name "*.csproj" | wc -l)
+        actual_count=$(find ./artifacts/packages/ -name "*.nupkg" | wc -l)
+        echo "Expected: $expected_count packages, Found: $actual_count packages"
+        if [ "$actual_count" -ne "$expected_count" ]; then
+          echo "ERROR: Package count mismatch! Expected $expected_count but found $actual_count"
+          echo "Missing packages:"
+          for project in $(find ./src -name "*.csproj"); do
+            name=$(basename $(dirname $project))
+            if ! find ./artifacts/packages/ -name "${name}.*.nupkg" | grep -q .; then
+              echo "  MISSING: $name"
+            fi
+          done
+          exit 1
+        fi
+        echo "All $actual_count packages created successfully"
+        ls -la ./artifacts/packages/*.nupkg
 
     - name: NuGet login (OIDC → temp API key)
       if: matrix.os == 'windows-latest'
@@ -92,17 +108,83 @@ jobs:
       with:
         user: ${{ secrets.NUGET_USER }}
 
-    - name: Publish Release Packages to NuGet.org
+    - name: Publish Packages to NuGet.org (with retry)
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
-        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
-          echo "Pushing $package to NuGet.org (release)..."
-          dotnet nuget push "$package" \
-            --source "https://api.nuget.org/v3/index.json" \
-            --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} \
-            --skip-duplicate || echo "Skipping: Package push failed or already exists."
+        set -e
+        echo "=== Publishing packages to NuGet.org ==="
+        failed_packages=()
+        for package in $(find ./artifacts/packages/ -name "*.nupkg"); do
+          name=$(basename $package)
+          success=false
+          for attempt in 1 2 3; do
+            echo "Publishing $name (attempt $attempt/3)..."
+            if dotnet nuget push "$package" \
+              --source "https://api.nuget.org/v3/index.json" \
+              --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} \
+              --skip-duplicate 2>&1; then
+              success=true
+              echo "SUCCESS: $name"
+              break
+            else
+              echo "WARN: Failed to publish $name (attempt $attempt)"
+              sleep 5
+            fi
+          done
+          if [ "$success" = false ]; then
+            echo "ERROR: Failed to publish $name after 3 attempts"
+            failed_packages+=("$name")
+          fi
         done
+
+        if [ ${#failed_packages[@]} -gt 0 ]; then
+          echo "=== FAILED PACKAGES ==="
+          for pkg in "${failed_packages[@]}"; do
+            echo "  FAILED: $pkg"
+          done
+          exit 1
+        fi
+        echo "=== All packages published successfully ==="
+
+    - name: Publish Packages to MyGet (with retry)
+      if: matrix.os == 'windows-latest'
+      shell: bash
+      run: |
+        set -e
+        echo "=== Publishing packages to MyGet ==="
+        failed_packages=()
+        for package in $(find ./artifacts/packages/ -name "*.nupkg" -o -name "*.snupkg"); do
+          name=$(basename $package)
+          success=false
+          for attempt in 1 2 3; do
+            echo "Pushing $name to MyGet (attempt $attempt/3)..."
+            if dotnet nuget push "$package" \
+              --source "https://www.myget.org/F/aspectcore/api/v2/package" \
+              --api-key ${{ secrets.MYGET_API_KEY }} \
+              --skip-duplicate 2>&1; then
+              success=true
+              echo "SUCCESS: $name"
+              break
+            else
+              echo "WARN: Failed to push $name (attempt $attempt)"
+              sleep 5
+            fi
+          done
+          if [ "$success" = false ]; then
+            echo "ERROR: Failed to push $name after 3 attempts"
+            failed_packages+=("$name")
+          fi
+        done
+
+        if [ ${#failed_packages[@]} -gt 0 ]; then
+          echo "=== FAILED PACKAGES (MyGet) ==="
+          for pkg in "${failed_packages[@]}"; do
+            echo "  FAILED: $pkg"
+          done
+          exit 1
+        fi
+        echo "=== All packages published to MyGet successfully ==="
 
     - name: Create GitHub Release
       if: matrix.os == 'windows-latest'
