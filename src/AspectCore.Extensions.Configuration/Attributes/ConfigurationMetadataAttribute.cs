@@ -8,7 +8,7 @@ namespace AspectCore.Extensions.Configuration
         public abstract string[] Sections { get; }
         public abstract string Key { get; }
         public abstract ConfigurationBindType Type { get; }
-        
+
         public string GetSection()
         {
             if (Sections == null || Sections.Length == 0)
@@ -16,7 +16,7 @@ namespace AspectCore.Extensions.Configuration
                 return null;
             }
 
-            if (Sections.Length ==1)
+            if (Sections.Length == 1)
             {
                 return Sections[0];
             }

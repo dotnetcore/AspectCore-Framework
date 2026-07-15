@@ -25,7 +25,7 @@ namespace AspectCore.Extensions.DependencyInjection
             }
 
             var configurationService = services.LastOrDefault(x => x.ServiceType == typeof(IAspectConfiguration) && x.ImplementationInstance != null);
-            var configuration = (IAspectConfiguration) configurationService?.ImplementationInstance ?? new AspectConfiguration();
+            var configuration = (IAspectConfiguration)configurationService?.ImplementationInstance ?? new AspectConfiguration();
             configure?.Invoke(configuration);
 
             if (configurationService == null)

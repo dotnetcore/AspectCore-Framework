@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AspectCoreTest.Autofac
 {
-   public class AdditionalInterceptorSelectorTests
+    public class AdditionalInterceptorSelectorTests
     {
         [Fact]
         public void ImplementationMethod_Test()

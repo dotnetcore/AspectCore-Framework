@@ -36,14 +36,14 @@ namespace AspectCore.DynamicProxy
                     await valueTask;
                     break;
                 default:
-                {
-                    var type = returnValue.GetType().GetTypeInfo();
-                    if (type.IsValueTaskWithResult())
                     {
-                        await ValueTaskWithResultToTask(returnValue, type);
+                        var type = returnValue.GetType().GetTypeInfo();
+                        if (type.IsValueTaskWithResult())
+                        {
+                            await ValueTaskWithResultToTask(returnValue, type);
+                        }
+                        break;
                     }
-                    break;
-                }
             }
         }
 

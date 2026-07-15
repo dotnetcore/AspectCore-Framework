@@ -53,7 +53,7 @@ namespace AspectCore.Configuration
         }
 
         private static NonAspectPredicateCollection AddMicrosoft(this NonAspectPredicateCollection collection)
-        {        
+        {
             collection.AddNamespace("Microsoft.*");
             return collection;
         }

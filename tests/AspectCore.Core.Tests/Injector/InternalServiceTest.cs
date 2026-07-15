@@ -13,7 +13,7 @@ namespace AspectCore.Core.Tests.Injector
         {
             var serviceResolver = ServiceResolver.Resolve<IServiceResolver>();
             Assert.Equal(ServiceResolver, serviceResolver);
-            using(var scopedServiceResolver = ServiceResolver.CreateScope())
+            using (var scopedServiceResolver = ServiceResolver.CreateScope())
             {
                 Assert.Equal(scopedServiceResolver, scopedServiceResolver.Resolve<IServiceResolver>());
             }

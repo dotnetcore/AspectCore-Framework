@@ -21,7 +21,7 @@ namespace AspectCore.DynamicProxy
 
         public object[] Parameters { get; }
 
-        public AspectActivatorContext(MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod, MethodInfo predicateMethod, 
+        public AspectActivatorContext(MethodInfo serviceMethod, MethodInfo targetMethod, MethodInfo proxyMethod, MethodInfo predicateMethod,
             object targetInstance, object proxyInstance, object[] parameters)
         {
             ServiceMethod = serviceMethod;

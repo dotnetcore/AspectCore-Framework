@@ -45,7 +45,7 @@ namespace AspectCore.DynamicProxy
             }
             return _interceptorType == other._interceptorType;
         }
-        
+
         public override bool Equals(object obj)
         {
             var other = obj as ServiceInterceptorAttribute;

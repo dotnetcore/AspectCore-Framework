@@ -149,7 +149,7 @@ namespace AspectCoreTest.Autofac.Issues
             var taskService = container.Resolve<ITaskService>();
             Assert.Equal(3, taskService.Run()); // Intercept twice
         }
-        
+
 
 
         [Fact]

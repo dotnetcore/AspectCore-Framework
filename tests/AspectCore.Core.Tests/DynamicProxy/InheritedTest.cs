@@ -39,7 +39,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             string GetName();
         }
 
-        public interface INamedService:INamed
+        public interface INamedService : INamed
         {
         }
 

@@ -16,7 +16,7 @@ namespace AspectCore.Core.Tests.Injector
             Assert.NotEqual(accessor1.Value, ServiceResolver.Resolve<ITransient>());
             using (var scope = ServiceResolver.CreateScope())
             {
-                var accessor2= scope.Resolve<ITransientServiceAccessor<ITransient>>();
+                var accessor2 = scope.Resolve<ITransientServiceAccessor<ITransient>>();
                 Assert.Equal(accessor1, accessor2);
                 Assert.NotEqual(accessor1.Value, accessor2.Value);
             }

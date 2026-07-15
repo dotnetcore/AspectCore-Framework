@@ -70,7 +70,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var fakes = (StructFakes)reflector.Invoke(args);
             Assert.IsType<StructFakes>(fakes);
             Assert.Equal("Parametric constructor with ref param.", fakes.Name);
-            Assert.Equal(fakes.Name, args[0]); 
+            Assert.Equal(fakes.Name, args[0]);
             Assert.NotEqual(fakes.Name, args[2]);
             Assert.Equal("t", args[2]);
         }

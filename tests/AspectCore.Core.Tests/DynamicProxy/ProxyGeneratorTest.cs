@@ -53,7 +53,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
         protected override void Configure(IAspectConfiguration configuration)
         {
             configuration.Interceptors.AddDelegate((ctx, next) => next(ctx), Predicates.ForService("IService"));
-            configuration.Interceptors.AddDelegate( async (ctx, next) =>
+            configuration.Interceptors.AddDelegate(async (ctx, next) =>
             {
                 await next(ctx);
                 ctx.ReturnValue = "CreateClassProxy";

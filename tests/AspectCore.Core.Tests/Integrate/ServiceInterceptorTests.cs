@@ -39,7 +39,7 @@ namespace AspectCore.Core.Tests.Integrate
             public override async Task Invoke(AspectContext context, AspectDelegate next)
             {
                 await next(context);
-                var val = (int) context.ReturnValue;
+                var val = (int)context.ReturnValue;
                 context.ReturnValue = val + 1;
             }
         }

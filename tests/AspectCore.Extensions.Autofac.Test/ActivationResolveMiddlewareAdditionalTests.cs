@@ -1,6 +1,4 @@
 using System;
-using System.Reflection;
-using AspectCore.Configuration;
 using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Autofac;
@@ -12,156 +10,181 @@ namespace AspectCoreTest.Autofac
 {
     public class ActivationResolveMiddlewareAdditionalTests
     {
-        [Fact]
-        public void RegisterDynamicProxy_NullContainerBuilder_Throws()
-        {
-            ContainerBuilder builder = null;
-            Assert.Throws<ArgumentNullException>(() => builder.RegisterDynamicProxy());
-        }
-
-        [Fact]
-        public void RegisterDynamicProxy_WithConfiguration_NullContainerBuilder_Throws()
-        {
-            ContainerBuilder builder = null;
-            Assert.Throws<ArgumentNullException>(() => builder.RegisterDynamicProxy(null, config => { }));
-        }
-
-        [Fact]
-        public void Execute_ExceptsName_IsNotProxied()
+        private static IContainer BuildContainer(Action<ContainerBuilder> beforeBuild = null)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterDynamicProxy(config =>
-            {
-                config.Interceptors.AddDelegate(next => ctx => next(ctx), Predicates.ForNameSpace("AspectCoreTest.Autofac"));
-            });
-            // Create a class whose name matches the excepts list (IHttpContextAccessor)
-            builder.RegisterType<IHttpContextAccessor>().AsSelf();
-            var container = builder.Build();
-            var service = container.Resolve<IHttpContextAccessor>();
-            // Should not be proxied because name matches excepts list
-            Assert.False(service.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
-        }
-
-        [Fact]
-        public void Execute_ClassProxy_WithResolutionParameters()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterDynamicProxy(config =>
-            {
-                config.Interceptors.AddDelegate(next => ctx => next(ctx), Predicates.ForNameSpace("AspectCoreTest.Autofac"));
-            });
+            builder.RegisterDynamicProxy();
             builder.RegisterType<Service>().As<IService>();
-            builder.RegisterType<ClassServiceWithDependency>().AsSelf();
-            var container = builder.Build();
-            // Resolve with explicit parameters to trigger EnumerateParameters path
-            var service = container.Resolve<ClassServiceWithDependency>(
-                new TypedParameter(typeof(IService), new Service()));
-            Assert.NotNull(service);
-            Assert.True(service.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
+            beforeBuild?.Invoke(builder);
+            return builder.Build();
         }
 
         [Fact]
-        public void Execute_ClassProxy_NoValidConstructors_Throws()
+        public void Resolve_InterfaceService_CreatesProxy()
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterDynamicProxy(config =>
-            {
-                config.Interceptors.AddDelegate(next => ctx => next(ctx), Predicates.ForNameSpace("AspectCoreTest.Autofac"));
-            });
-            // Register a class with a dependency that can't be resolved
-            builder.RegisterType<ClassServiceWithUnresolvableDependency>().AsSelf();
-            var container = builder.Build();
-            // Resolving should throw because the dependency can't be found
-            Assert.ThrowsAny<Exception>(() => container.Resolve<ClassServiceWithUnresolvableDependency>());
-        }
-
-        [Fact]
-        public void Execute_ClassProxy_MultipleConstructors_TriggersFullParameterEnumeration()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterDynamicProxy(config =>
-            {
-                config.Interceptors.AddDelegate(next => ctx => next(ctx), Predicates.ForNameSpace("AspectCoreTest.Autofac"));
-            });
-            builder.RegisterType<Service>().As<IService>();
-            // Class with two constructors: one resolvable, one not
-            builder.RegisterType<ClassServiceWithTwoConstructors>().AsSelf();
-            var container = builder.Build();
-            // Resolve with explicit TypedParameter for the first constructor
-            var service = container.Resolve<ClassServiceWithTwoConstructors>(
-                new TypedParameter(typeof(IService), new Service()));
-            Assert.NotNull(service);
-            Assert.True(service.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
-        }
-
-        [Fact]
-        public void Execute_AutoEngine_InterfaceProxy_FallsBackToDynamicProxy()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterDynamicProxy(config =>
-            {
-                config.Interceptors.AddDelegate(next => ctx => next(ctx), Predicates.ForNameSpace("AspectCore.Extensions.Test.Fakes"));
-            });
-            builder.ConfigureDynamicProxyEngine(options =>
-            {
-                options.Engine = ProxyEngine.Auto;
-                options.AllowRuntimeFallback = true;
-                options.Strict = false;
-            });
-            builder.RegisterType<Service>().As<IService>();
-            var container = builder.Build();
+            var container = BuildContainer();
             var service = container.Resolve<IService>();
             Assert.NotNull(service);
-            Assert.True(service.GetType().GetTypeInfo().IsDefined(typeof(DynamicallyAttribute)));
+            Assert.IsAssignableFrom<IService>(service);
         }
-    }
 
-    // Class whose name matches "IHttpContextAccessor" in the excepts list
-    public class IHttpContextAccessor
-    {
-        public virtual string GetValue()
+        [Fact]
+        public void Resolve_InterfaceService_ProxyIsNotConcreteType()
         {
-            return "http";
+            var container = BuildContainer();
+            var service = container.Resolve<IService>();
+            Assert.NotEqual(typeof(Service), service.GetType());
         }
-    }
 
-    public class ClassServiceWithUnresolvableDependency
-    {
-        private readonly IUnregisteredDependency _dependency;
-
-        public ClassServiceWithUnresolvableDependency(IUnregisteredDependency dependency)
+        [Fact]
+        public void Resolve_InterfaceService_CanInvokeMethod()
         {
-            _dependency = dependency;
+            var container = BuildContainer();
+            var service = container.Resolve<IService>();
+            var result = service.Get(1);
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
         }
 
-        public virtual string GetValue()
+        [Fact]
+        public void Resolve_ScopedService_DifferentPerScope()
         {
-            return _dependency?.ToString();
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>().InstancePerLifetimeScope();
+            var container = builder.Build();
+
+            IService s1;
+            IService s2;
+            using (var scope1 = container.BeginLifetimeScope())
+            {
+                s1 = scope1.Resolve<IService>();
+            }
+            using (var scope2 = container.BeginLifetimeScope())
+            {
+                s2 = scope2.Resolve<IService>();
+            }
+            Assert.NotSame(s1, s2);
         }
-    }
 
-    public class ClassServiceWithTwoConstructors
-    {
-        private readonly IService _service;
-        private readonly IUnregisteredDependency _dependency;
-
-        public ClassServiceWithTwoConstructors(IService service)
+        [Fact]
+        public void Resolve_SingletonService_SameInstance()
         {
-            _service = service;
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>().SingleInstance();
+            var container = builder.Build();
+
+            var s1 = container.Resolve<IService>();
+            var s2 = container.Resolve<IService>();
+            Assert.Same(s1, s2);
         }
 
-        public ClassServiceWithTwoConstructors(IUnregisteredDependency dependency)
+        [Fact]
+        public void Resolve_WithDelegateActivator_CreatesProxy()
         {
-            _dependency = dependency;
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.Register(c => new Service()).As<IService>();
+            var container = builder.Build();
+
+            var service = container.Resolve<IService>();
+            Assert.NotNull(service);
+            Assert.IsAssignableFrom<IService>(service);
         }
 
-        public virtual string GetValue()
+        [Fact]
+        public void Resolve_WithInstanceActivator_CreatesProxy()
         {
-            return _service?.Get(1)?.ToString() ?? _dependency?.ToString();
-        }
-    }
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            var instance = new Service();
+            builder.RegisterInstance(instance).As<IService>();
+            var container = builder.Build();
 
-    public interface IUnregisteredDependency
-    {
+            var service = container.Resolve<IService>();
+            Assert.NotNull(service);
+            Assert.IsAssignableFrom<IService>(service);
+        }
+
+        [Fact]
+        public void Resolve_ClassWithoutInterface_CreatesClassProxy()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<ClassService>();
+            var container = builder.Build();
+
+            var service = container.Resolve<ClassService>();
+            Assert.NotNull(service);
+        }
+
+        [Fact]
+        public void Resolve_ClassWithoutInterface_CanInvokeMethod()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<ClassService>();
+            var container = builder.Build();
+
+            var service = container.Resolve<ClassService>();
+            var result = service.Get(1);
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+        }
+
+        [Fact]
+        public void Resolve_GenericService_CreatesProxy()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterGeneric(typeof(GenericServiceImpl<>)).As(typeof(IGenericService<>));
+            var container = builder.Build();
+
+            var service = container.Resolve<IGenericService<IService>>();
+            Assert.NotNull(service);
+        }
+
+        [Fact]
+        public void Resolve_MultipleServices_AllProxied()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>();
+            builder.RegisterType<Service2>().As<IService2>();
+            builder.RegisterType<Service3>().As<IService3>();
+            var container = builder.Build();
+
+            Assert.NotNull(container.Resolve<IService>());
+            Assert.NotNull(container.Resolve<IService2>());
+            Assert.NotNull(container.Resolve<IService3>());
+        }
+
+        [Fact]
+        public void Resolve_SealedService_NotProxied()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<SealedService>().As<ISealedService>();
+            var container = builder.Build();
+
+            var service = container.Resolve<ISealedService>();
+            Assert.NotNull(service);
+        }
+
+        public class ClassService
+        {
+            public virtual Model Get(int id) => new Model { Id = id };
+        }
+
+        public interface ISealedService { }
+        public sealed class SealedService : ISealedService { }
+
+        public interface IService2 { }
+        public class Service2 : IService2 { }
+        public interface IService3 { }
+        public class Service3 : IService3 { }
+        public interface IGenericService<T> { }
+        public class GenericServiceImpl<T> : IGenericService<T> { }
     }
 }

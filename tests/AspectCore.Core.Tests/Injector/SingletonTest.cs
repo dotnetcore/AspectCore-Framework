@@ -21,7 +21,7 @@ namespace AspectCore.Core.Tests.Injector
                     Assert.Equal(singleton1, singleton2);
                     Assert.Equal(singleton1, singleton3);
                     Assert.Equal(singleton2, singleton3);
-                }      
+                }
             }
         }
 

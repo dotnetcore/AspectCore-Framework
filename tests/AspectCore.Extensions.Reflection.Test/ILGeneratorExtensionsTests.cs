@@ -506,7 +506,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitLoadArg(0);
                 il.EmitConvertToType(typeof(int[]), typeof(Array));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(int[]) }, new object[] { new int[] { 1, 2, 3 } });
+            }, new Type[] { typeof(int[]) }, new object[] { new int[] { 1, 2, 3 } });
             Assert.Equal(3, result.Length);
         }
 
@@ -1863,7 +1863,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(1);
                 il.EmitLoadElement(typeof(int));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(int[]) }, new object[] { new int[] { 10, 20, 30 } });
+            }, new Type[] { typeof(int[]) }, new object[] { new int[] { 10, 20, 30 } });
             Assert.Equal(20, result);
         }
 
@@ -1876,7 +1876,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(string));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(string[]) }, new object[] { new string[] { "hello", "world" } });
+            }, new Type[] { typeof(string[]) }, new object[] { new string[] { "hello", "world" } });
             Assert.Equal("hello", result);
         }
 
@@ -1889,7 +1889,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(long));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(long[]) }, new object[] { new long[] { 42L } });
+            }, new Type[] { typeof(long[]) }, new object[] { new long[] { 42L } });
             Assert.Equal(42L, result);
         }
 
@@ -1902,7 +1902,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(byte));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(byte[]) }, new object[] { new byte[] { 42 } });
+            }, new Type[] { typeof(byte[]) }, new object[] { new byte[] { 42 } });
             Assert.Equal((byte)42, result);
         }
 
@@ -1915,7 +1915,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(double));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(double[]) }, new object[] { new double[] { 42.5 } });
+            }, new Type[] { typeof(double[]) }, new object[] { new double[] { 42.5 } });
             Assert.Equal(42.5, result);
         }
 
@@ -1928,7 +1928,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(float));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(float[]) }, new object[] { new float[] { 42.5f } });
+            }, new Type[] { typeof(float[]) }, new object[] { new float[] { 42.5f } });
             Assert.Equal(42.5f, result);
         }
 
@@ -1941,7 +1941,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(TestEnum));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(TestEnum[]) }, new object[] { new TestEnum[] { TestEnum.Value1 } });
+            }, new Type[] { typeof(TestEnum[]) }, new object[] { new TestEnum[] { TestEnum.Value1 } });
             Assert.Equal(TestEnum.Value1, result);
         }
 
@@ -1954,7 +1954,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(short));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(short[]) }, new object[] { new short[] { 42 } });
+            }, new Type[] { typeof(short[]) }, new object[] { new short[] { 42 } });
             Assert.Equal((short)42, result);
         }
 
@@ -1967,7 +1967,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(ushort));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(ushort[]) }, new object[] { new ushort[] { 42 } });
+            }, new Type[] { typeof(ushort[]) }, new object[] { new ushort[] { 42 } });
             Assert.Equal((ushort)42, result);
         }
 
@@ -1980,7 +1980,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(uint));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(uint[]) }, new object[] { new uint[] { 42 } });
+            }, new Type[] { typeof(uint[]) }, new object[] { new uint[] { 42 } });
             Assert.Equal(42u, result);
         }
 
@@ -1993,7 +1993,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(ulong));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(ulong[]) }, new object[] { new ulong[] { 42 } });
+            }, new Type[] { typeof(ulong[]) }, new object[] { new ulong[] { 42 } });
             Assert.Equal(42ul, result);
         }
 
@@ -2006,7 +2006,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(sbyte));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(sbyte[]) }, new object[] { new sbyte[] { -42 } });
+            }, new Type[] { typeof(sbyte[]) }, new object[] { new sbyte[] { -42 } });
             Assert.Equal((sbyte)-42, result);
         }
 
@@ -2019,7 +2019,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(char));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(char[]) }, new object[] { new char[] { 'A' } });
+            }, new Type[] { typeof(char[]) }, new object[] { new char[] { 'A' } });
             Assert.Equal('A', result);
         }
 
@@ -2032,7 +2032,7 @@ namespace AspectCore.Extensions.Reflection.Test
                 il.EmitInt(0);
                 il.EmitLoadElement(typeof(bool));
                 il.Emit(OpCodes.Ret);
-}, new Type[] { typeof(bool[]) }, new object[] { new bool[] { true } });
+            }, new Type[] { typeof(bool[]) }, new object[] { new bool[] { true } });
             Assert.True(result);
         }
 

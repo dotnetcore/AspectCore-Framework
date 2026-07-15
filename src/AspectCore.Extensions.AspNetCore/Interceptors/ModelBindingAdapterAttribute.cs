@@ -23,7 +23,7 @@ namespace AspectCore.Extensions.AspNetCore
                     var dataState = GetDataState(context.Implementation);
                     if (dataState != null)
                     {
-                        foreach(var error in dataState.Errors)
+                        foreach (var error in dataState.Errors)
                         {
                             modelState.AddModelError(error.Key, error.ErrorMessage);
                         }

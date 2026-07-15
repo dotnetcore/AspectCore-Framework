@@ -96,7 +96,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var value = refactor.GetStaticValue();
             Assert.Equal(State.Start, value);
         }
-        
+
         [Fact]
         public void Enum_Underlying_Get()
         {
@@ -104,7 +104,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var value = refactor.GetStaticValue();
             Assert.Equal(Day.Sun, value);
         }
-        
+
         [Fact]
         public void Enum_Flag_Get()
         {
@@ -128,7 +128,7 @@ namespace AspectCore.Extensions.Reflection.Test
         [AttributeFakes2(typeof(FieldFakes<>), Name = "Lemon", Obj = null)]
         public static T StaticFiled;
 
-        [AttributeFakes3(typeof(int), typeof(long), Ids = new int[] {1, 2, 3})]
+        [AttributeFakes3(typeof(int), typeof(long), Ids = new int[] { 1, 2, 3 })]
         public T InstanceField;
     }
 

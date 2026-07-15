@@ -9,7 +9,7 @@ namespace AspectCore.DynamicProxy
     {
         public IEnumerable<IInterceptor> Select(MethodInfo method)
         {
-            foreach(var attribute in method.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
+            foreach (var attribute in method.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
             {
                 if (attribute is IInterceptor interceptor)
                     yield return interceptor;

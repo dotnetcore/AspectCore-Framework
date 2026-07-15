@@ -50,9 +50,9 @@ namespace AspectCore.Extensions.DependencyInjection.Test.Issues
         }
 
         public class CustomInterceptor : AbstractInterceptorAttribute
-    {
-        public override async Task Invoke(AspectContext context, AspectDelegate next) => await context.Invoke(next);
-    }
+        {
+            public override async Task Invoke(AspectContext context, AspectDelegate next) => await context.Invoke(next);
+        }
 
         [Fact]
         public void ConstructorSelectWithInterceptor_Test()
@@ -67,7 +67,7 @@ namespace AspectCore.Extensions.DependencyInjection.Test.Issues
             IServiceProvider serviceProvider = services.BuildDynamicProxyProvider();
             IExternalService service2 = serviceProvider.GetRequiredService<IExternalService>();
             string output = service2.SayHello();
-            
+
         }
     }
 }

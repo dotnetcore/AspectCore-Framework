@@ -24,7 +24,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var field = typeof(FieldFakes).GetTypeInfo().GetField("InstanceField");
             var fieldReflector = field.GetReflector();
             var customAttributeReflectors = fieldReflector.CustomAttributeReflectors.ToArray();
-            var attributeFakes = (AttributeFakes1) customAttributeReflectors[0].Invoke();
+            var attributeFakes = (AttributeFakes1)customAttributeReflectors[0].Invoke();
             Assert.Equal(100, attributeFakes.Id);
         }
 
@@ -34,7 +34,7 @@ namespace AspectCore.Extensions.Reflection.Test
             var field = typeof(FieldFakes<>).GetTypeInfo().GetField("StaticFiled");
             var fieldReflector = field.GetReflector();
             var customAttributeReflectors = fieldReflector.CustomAttributeReflectors.ToArray();
-            var attributeFakes = (AttributeFakes2) customAttributeReflectors[0].Invoke();
+            var attributeFakes = (AttributeFakes2)customAttributeReflectors[0].Invoke();
             Assert.Equal(100, attributeFakes.Id);
             Assert.Null(attributeFakes.Obj);
             Assert.Equal("Lemon", attributeFakes.Name);
@@ -47,8 +47,8 @@ namespace AspectCore.Extensions.Reflection.Test
             var field = typeof(FieldFakes<>).GetTypeInfo().GetField("InstanceField");
             var fieldReflector = field.GetReflector();
             var attributeFakes = fieldReflector.GetCustomAttribute<AttributeFakes3>();
-            var types = new Type[] {typeof(int), typeof(long)};
-            var ids = new int[] {1, 2, 3};
+            var types = new Type[] { typeof(int), typeof(long) };
+            var ids = new int[] { 1, 2, 3 };
             Assert.Equal(types.Length, attributeFakes.Types.Length);
             for (var i = 0; i < types.Length; i++)
             {

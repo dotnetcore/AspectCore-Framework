@@ -11,7 +11,7 @@ namespace AspectCore.DependencyInjection
     internal static class ServiceDefinitionExtensions
     {
         private static readonly ConcurrentDictionary<ServiceDefinition, bool> _callbackMap = new ConcurrentDictionary<ServiceDefinition, bool>();
-        
+
         internal static Type GetImplementationType(this ServiceDefinition serviceDefinition)
         {
             if (serviceDefinition is TypeServiceDefinition typeServiceDefinition)

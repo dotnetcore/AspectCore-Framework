@@ -12,7 +12,7 @@ public class InterfaceDefaultMethodsShouldBeUsedTests : DynamicProxyTestBase
         int Get() => 1;
     }
 
-    public class Service : IService{}
+    public class Service : IService { }
 
     [Fact]
     public void CreateInterfaceProxy_WithoutImplementationType_Test()

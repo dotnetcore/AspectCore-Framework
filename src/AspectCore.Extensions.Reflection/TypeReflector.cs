@@ -55,8 +55,8 @@ namespace AspectCore.Extensions.Reflection
             }
             else
             {
-                name= $"{GetFullDisplayName(typeInfo.DeclaringType.GetTypeInfo())}.{name}";
-            }          
+                name = $"{GetFullDisplayName(typeInfo.DeclaringType.GetTypeInfo())}.{name}";
+            }
             if (typeInfo.IsGenericType)
             {
                 var arguments = typeInfo.IsGenericTypeDefinition

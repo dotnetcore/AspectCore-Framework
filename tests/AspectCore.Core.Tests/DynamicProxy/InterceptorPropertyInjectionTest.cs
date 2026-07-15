@@ -10,7 +10,7 @@ using Xunit;
 
 namespace AspectCore.Core.Tests.DynamicProxy
 {
-    public class InterceptorPropertyInjectionTest: InjectorTestBase
+    public class InterceptorPropertyInjectionTest : InjectorTestBase
     {
         [Fact]
         public void Test()
@@ -47,5 +47,5 @@ namespace AspectCore.Core.Tests.DynamicProxy
         }
     }
 
-    
+
 }

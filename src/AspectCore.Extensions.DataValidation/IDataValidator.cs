@@ -7,4 +7,4 @@ namespace AspectCore.Extensions.DataValidation
     {
         void Validate(DataValidationContext context);
     }
-} 
+}
