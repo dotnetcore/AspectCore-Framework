@@ -7,7 +7,7 @@ set -e
 # Allow running on newer .NET runtimes
 export DOTNET_ROLL_FORWARD=Major
 
-UT_THRESHOLD=50
+UT_THRESHOLD=85
 E2E_THRESHOLD=50
 
 echo "=== Coverage Check ==="
