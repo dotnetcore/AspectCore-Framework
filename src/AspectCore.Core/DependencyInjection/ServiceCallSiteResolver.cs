@@ -32,7 +32,7 @@ namespace AspectCore.DependencyInjection
             {
                 return callSite;
             }
-            
+
             return resolver =>
             {
                 var instance = callSite(resolver);

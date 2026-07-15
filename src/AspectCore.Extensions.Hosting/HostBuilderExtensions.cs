@@ -41,7 +41,7 @@ namespace AspectCore.Extensions.Hosting
         {
             return hostBuilder.UseServiceProviderFactory(new ServiceContextProviderFactory());
         }
-        
+
         public static IHostBuilder UseDynamicProxy(this IHostBuilder hostBuilder)
         {
             if (hostBuilder == null)

@@ -7,12 +7,12 @@ using Xunit;
 
 namespace AspectCore.Core.Tests.Injector
 {
-    public class OpenClosedGenericsTests:InjectorTestBase
+    public class OpenClosedGenericsTests : InjectorTestBase
     {
         [Fact]
         public void ResolvesMixedOpenClosedGenericsAsEnumerable()
         {
-       
+
             var enumerable = ServiceResolver.Resolve<IEnumerable<IFakeOpenGenericService<PocoClass>>>().ToArray();
 
             Assert.Equal(3, enumerable.Length);
@@ -29,5 +29,5 @@ namespace AspectCore.Core.Tests.Injector
         }
     }
 
-   
+
 }

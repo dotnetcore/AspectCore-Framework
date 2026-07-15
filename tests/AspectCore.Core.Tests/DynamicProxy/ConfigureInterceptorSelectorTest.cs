@@ -15,7 +15,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             var result = service.GetVal(0);
             Assert.Equal(3, result);
         }
-        
+
         protected override void Configure(IAspectConfiguration configuration)
         {
             configuration.Interceptors.AddTyped<Intercept1>(Predicates.ForNameSpace("*"));
@@ -27,7 +27,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             public override async Task Invoke(AspectContext context, AspectDelegate next)
             {
                 await context.Invoke(next);
-                var result = (int) context.ReturnValue;
+                var result = (int)context.ReturnValue;
                 context.ReturnValue = result + 1;
             }
         }
@@ -37,7 +37,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             public override async Task Invoke(AspectContext context, AspectDelegate next)
             {
                 await context.Invoke(next);
-                var result = (int) context.ReturnValue;
+                var result = (int)context.ReturnValue;
                 context.ReturnValue = result + 2;
             }
         }

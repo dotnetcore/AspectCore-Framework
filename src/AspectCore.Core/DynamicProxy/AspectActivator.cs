@@ -38,7 +38,7 @@ namespace AspectCore.DynamicProxy
                     // task.GetAwaiter().GetResult();
                 }
 
-                return (TResult) context.ReturnValue;
+                return (TResult)context.ReturnValue;
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace AspectCore.DynamicProxy
             }
             catch (Exception ex)
             {
-                if (!_aspectConfiguration.ThrowAspectException || ex is AspectInvocationException _) 
+                if (!_aspectConfiguration.ThrowAspectException || ex is AspectInvocationException _)
                     throw;
 
                 throw new AspectInvocationException(context, ex);
@@ -104,12 +104,12 @@ namespace AspectCore.DynamicProxy
             {
                 var aspectBuilder = _aspectBuilderFactory.Create(context);
                 var invoke = aspectBuilder.Build()(context);
-                
+
                 if (invoke.IsFaulted)
                 {
                     ExceptionDispatchInfo.Capture(invoke.Exception.InnerException).Throw();
                 }
-                
+
                 if (!invoke.IsCompleted)
                 {
                     await invoke;

@@ -74,7 +74,7 @@ namespace AspectCore.DynamicProxy
                     continue;
                 }
                 if (!hashSet.Contains(interfaceType))
-                {      
+                {
                     if (interfaceType.GetTypeInfo().ContainsGenericParameters && type.GetTypeInfo().ContainsGenericParameters)
                     {
                         if (!hashSet.Contains(interfaceType.GetGenericTypeDefinition()))

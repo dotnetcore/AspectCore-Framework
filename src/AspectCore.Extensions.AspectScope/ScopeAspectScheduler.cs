@@ -83,10 +83,10 @@ namespace AspectCore.Extensions.AspectScope
 
         public void Release(AspectContext context)
         {
-            if(_entries.TryRemove(context, out _))
+            if (_entries.TryRemove(context, out _))
             {
                 Interlocked.Decrement(ref _version);
             }
-        }   
+        }
     }
 }

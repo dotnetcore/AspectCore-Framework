@@ -85,7 +85,7 @@ internal static class MethodInfoExtensions
 #if NETSTANDARD2_0
         return method.IsGenericMethod && !method.IsGenericMethodDefinition;
 #else
-            return method.IsConstructedGenericMethod;
+        return method.IsConstructedGenericMethod;
 #endif
     }
 }

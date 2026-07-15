@@ -67,13 +67,13 @@ namespace AspectCore.DependencyInjection
             if (!Contains(typeof(IServiceProvider)))
                 Scopeds.AddDelegate<IServiceProvider>(resolver => resolver);
             if (!Contains(typeof(IPropertyInjectorFactory)))
-                Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>(); 
+                Scopeds.AddType<IPropertyInjectorFactory, PropertyInjectorFactory>();
             if (!Contains(typeof(IScopeResolverFactory)))
                 Scopeds.AddDelegate<IScopeResolverFactory>(resolver => new ScopeResolverFactory(resolver));
             Singletons.AddInstance<IAspectConfiguration>(_configuration);
             if (!Contains(typeof(ITransientServiceAccessor<>)))
                 Singletons.AddType(typeof(ITransientServiceAccessor<>), typeof(TransientServiceAccessor<>));
-            
+
             //add service resolve callbacks
             Scopeds.AddType<IServiceResolveCallback, PropertyInjectorCallback>();
 

@@ -39,7 +39,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
 
     public class FakeRefParameter
     {
-        public virtual void Ref([Ref]ref string name, [Ref]ref int age)
+        public virtual void Ref([Ref] ref string name, [Ref] ref int age)
         {
         }
 

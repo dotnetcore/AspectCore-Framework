@@ -14,7 +14,7 @@ namespace AspectCore.Extensions.DependencyInjection
         }
 
         public DynamicProxyServiceProviderFactory(bool validateScopes)
-            : this(new ServiceProviderOptions() {ValidateScopes = validateScopes})
+            : this(new ServiceProviderOptions() { ValidateScopes = validateScopes })
         {
         }
 

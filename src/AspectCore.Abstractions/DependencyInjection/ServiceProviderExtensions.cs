@@ -12,7 +12,7 @@ namespace AspectCore.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
-            if(serviceProvider is IServiceResolver resolver)
+            if (serviceProvider is IServiceResolver resolver)
             {
                 return resolver.Resolve<T>();
             }

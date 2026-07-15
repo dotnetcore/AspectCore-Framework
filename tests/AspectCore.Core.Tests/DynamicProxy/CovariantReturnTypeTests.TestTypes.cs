@@ -16,16 +16,16 @@ partial class CovariantReturnTypeTests
             switch (context.ReturnValue)
             {
                 case BaseResult returnValue:
-                {
-                    var name = returnValue.Name + nameof(ReturnTypeInterceptor);
-                    context.ReturnValue = (BaseResult)Activator.CreateInstance(returnValue.GetType(), [name]);
-                    break;
-                }
+                    {
+                        var name = returnValue.Name + nameof(ReturnTypeInterceptor);
+                        context.ReturnValue = (BaseResult)Activator.CreateInstance(returnValue.GetType(), [name]);
+                        break;
+                    }
                 case string str:
-                {
-                    context.ReturnValue = str + nameof(ReturnTypeInterceptor);
-                    break;
-                }
+                    {
+                        context.ReturnValue = str + nameof(ReturnTypeInterceptor);
+                        break;
+                    }
             }
         }
     }

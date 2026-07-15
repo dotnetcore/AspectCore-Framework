@@ -15,7 +15,7 @@ namespace AspectCoreTest.Autofac
         {
             return new ContainerBuilder().RegisterDynamicProxy(config =>
             {
-                config.Interceptors.AddDelegate(next => ctx => next(ctx),Predicates.ForNameSpace("AspectCore.Extensions.Test.Fakes"));
+                config.Interceptors.AddDelegate(next => ctx => next(ctx), Predicates.ForNameSpace("AspectCore.Extensions.Test.Fakes"));
             });
         }
 

@@ -53,7 +53,7 @@ namespace AspectCore.Extensions.LightInject
 
             container.AddSingleton<IServiceFactory>(container);
             container.AddSingleton<IServiceContainer>(container);
-            
+
             container.AddSingleton<IAspectConfiguration>(aspectConfig)
                 .AddTransient(typeof(IManyEnumerable<>), typeof(ManyEnumerable<>))
                 .AddSingleton<IServiceProvider, LightInjectServiceResolver>()
@@ -97,7 +97,7 @@ namespace AspectCore.Extensions.LightInject
             container.AddSingleton<IProxyTypeGenerator, SourceGeneratedProxyTypeGenerator>();
             return container;
         }
-        
+
         private static Type GetImplType(this ServiceRegistration registration)
         {
             if (registration.FactoryExpression != null) // ByFactory

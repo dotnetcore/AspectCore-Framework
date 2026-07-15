@@ -65,7 +65,7 @@ namespace AspectCore.Extensions.Reflection
                     ilGen.EmitConvertFromObject(parameterTypes[i]);
                 }
             }
-            ilGen.Emit(OpCodes.Newobj, _reflectionInfo);        
+            ilGen.Emit(OpCodes.Newobj, _reflectionInfo);
             for (var i = 0; i < indexedLocals.Length; i++)
             {
                 ilGen.EmitLoadArg(0);

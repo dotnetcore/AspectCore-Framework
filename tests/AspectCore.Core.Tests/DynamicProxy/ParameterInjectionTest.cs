@@ -27,8 +27,8 @@ namespace AspectCore.Core.Tests.DynamicProxy
 
     public class AppService
     {
-        public virtual void Run([NotNull]string name)
+        public virtual void Run([NotNull] string name)
         {
-        } 
+        }
     }
 }

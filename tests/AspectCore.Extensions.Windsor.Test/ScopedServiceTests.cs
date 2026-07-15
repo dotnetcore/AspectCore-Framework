@@ -50,9 +50,9 @@ namespace AspectCoreTest.Windsor
         }
 
         [Intercept]
-        public  void Foo()
+        public void Foo()
         {
-            
+
         }
     }
 

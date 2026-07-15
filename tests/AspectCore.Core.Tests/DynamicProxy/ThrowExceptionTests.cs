@@ -42,7 +42,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             return Task.Run(() => throw new ArgumentException())
                 .ContinueWith(m => Console.WriteLine(m.Status), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
-        
+
         [Nothing]
         public virtual Task ThrowInSubTask()
         {

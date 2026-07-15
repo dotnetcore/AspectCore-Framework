@@ -55,4 +55,4 @@ namespace AspectCore.Extensions.Reflection
             }
         }
     }
-} 
+}

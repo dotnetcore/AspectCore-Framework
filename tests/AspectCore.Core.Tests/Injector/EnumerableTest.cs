@@ -7,7 +7,7 @@ using Xunit;
 
 namespace AspectCore.Core.Tests.Injector
 {
-    public class EnumerableTest:InjectorTestBase
+    public class EnumerableTest : InjectorTestBase
     {
         [Fact]
         public void Resolve_Enumerable()
@@ -25,7 +25,7 @@ namespace AspectCore.Core.Tests.Injector
             services.Transients.AddType<IService, Transient>();
             services.Singletons.AddType<IService, Singleton>();
             services.Scopeds.AddType<IService, Scoped>();
-            services.Transients.AddDelegate<IEnumerable<IService>>(r => new IService[] { new Transient(), new Transient() , new Transient() , new Transient() });
+            services.Transients.AddDelegate<IEnumerable<IService>>(r => new IService[] { new Transient(), new Transient(), new Transient(), new Transient() });
 
             var resolver = services.Build();
 

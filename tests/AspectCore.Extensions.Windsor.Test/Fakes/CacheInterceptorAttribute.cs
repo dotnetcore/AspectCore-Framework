@@ -37,7 +37,7 @@ namespace AspectCoreTest.Windsor.Fakes
             {
                 _cache[value.Id] = value;
             }
-            else if(context.ReturnValue is Task<Model> task && task.IsCompleted)
+            else if (context.ReturnValue is Task<Model> task && task.IsCompleted)
             {
                 var obj = await task;
                 _cache[obj.Id] = obj;

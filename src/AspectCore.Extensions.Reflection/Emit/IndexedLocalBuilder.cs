@@ -5,7 +5,7 @@ namespace AspectCore.Extensions.Reflection.Emit
 {
     public struct IndexedLocalBuilder
     {
-        public LocalBuilder LocalBuilder { get; }   
+        public LocalBuilder LocalBuilder { get; }
         public Type LocalType { get; }
         public int Index { get; }
         public int LocalIndex { get; }

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AspectCoreTest.LightInject
 {
-   public class AdditionalInterceptorSelectorTests
+    public class AdditionalInterceptorSelectorTests
     {
         [Fact]
         public void ImplementationMethod_Test()
