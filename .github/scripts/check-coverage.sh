@@ -12,16 +12,6 @@ echo "UT threshold: ${UT_THRESHOLD}%"
 echo "E2E threshold: ${E2E_THRESHOLD}%"
 echo ""
 
-# Build all projects
-echo "Building projects..."
-for project in $(find ./src -name "*.csproj"); do
-  dotnet build --configuration Release "$project" 2>/dev/null
-done
-for project in $(find ./tests -name "*.csproj"); do
-  dotnet build --configuration Release "$project" 2>/dev/null
-done
-echo ""
-
 # Function to run tests with coverage and extract coverage percentage
 run_coverage() {
   local project="$1"
@@ -29,13 +19,20 @@ run_coverage() {
 
   echo "Measuring: $label..."
 
+  # Clean up previous coverage files
+  rm -rf ./TestResults/coverage 2>/dev/null || true
+
   # Run test with coverage collection (net9.0 only for speed)
-  dotnet test "$project" --configuration Release --no-build -f net9.0 \
+  # Do NOT use --no-build: coverlet.msbuild needs to instrument the assembly at build time
+  dotnet test "$project" --configuration Release -f net9.0 \
     /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
     /p:CoverletOutput=./TestResults/coverage/ 2>&1 | tail -1
 
-  # Find the generated coverage file (net9.0)
-  coverage_file=$(find . -name "coverage.net9.0.cobertura.xml" -path "*TestResults*" 2>/dev/null | head -1)
+  # Find the generated coverage file - search broadly for any cobertura.xml
+  coverage_file=$(find . -name "*.cobertura.xml" -newer ./TestResults 2>/dev/null | head -1)
+  if [ -z "$coverage_file" ]; then
+    coverage_file=$(find . -name "*.cobertura.xml" 2>/dev/null | head -1)
+  fi
 
   if [ -n "$coverage_file" ] && [ -f "$coverage_file" ]; then
     # Extract line-rate from cobertura XML (e.g. line-rate="0.8278")
@@ -64,8 +61,6 @@ for test_project in $(find ./tests -name "*.csproj" ! -name "*E2E*"); do
     ut_coverages="$ut_coverages $last_line"
     ut_count=$((ut_count + 1))
   fi
-  # Clean up coverage file for next iteration
-  rm -f ./TestResults/coverage/coverage.net9.0.cobertura.xml 2>/dev/null || true
 done
 
 # Calculate average UT coverage
@@ -95,7 +90,6 @@ for test_project in $(find ./tests -name "*E2E*.csproj"); do
     e2e_coverages="$e2e_coverages $last_line"
     e2e_count=$((e2e_count + 1))
   fi
-  rm -f ./TestResults/coverage/coverage.net9.0.cobertura.xml 2>/dev/null || true
 done
 
 # Calculate average E2E coverage
@@ -133,9 +127,8 @@ fi
 
 if [ "$failed" -eq 1 ]; then
   echo ""
-  echo "WARNING: Coverage check did not meet thresholds. This is non-blocking for now."
-  echo "Please add more tests to meet the thresholds."
-  exit 0
+  echo "Coverage check FAILED. Please add more tests to meet the thresholds."
+  exit 1
 fi
 
 echo ""
