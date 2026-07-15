@@ -17,6 +17,9 @@ echo "Building projects..."
 for project in $(find ./src -name "*.csproj"); do
   dotnet build --configuration Release "$project" 2>/dev/null
 done
+for project in $(find ./tests -name "*.csproj"); do
+  dotnet build --configuration Release "$project" 2>/dev/null
+done
 echo ""
 
 # Function to run tests with coverage and extract coverage percentage
