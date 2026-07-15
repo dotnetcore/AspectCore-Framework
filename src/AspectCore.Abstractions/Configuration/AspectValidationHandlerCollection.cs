@@ -5,7 +5,7 @@ using AspectCore.DynamicProxy;
 
 namespace AspectCore.Configuration
 {
-    public class AspectValidationHandlerCollection: IEnumerable<IAspectValidationHandler>
+    public class AspectValidationHandlerCollection : IEnumerable<IAspectValidationHandler>
     {
         private readonly HashSet<IAspectValidationHandler> _sets = new HashSet<IAspectValidationHandler>(new ValidationHandlerEqualityComparer());
 
@@ -18,7 +18,7 @@ namespace AspectCore.Configuration
             _sets.Add(aspectValidationHandler);
             return this;
         }
-         
+
         public int Count => _sets.Count;
 
         public IEnumerator<IAspectValidationHandler> GetEnumerator()

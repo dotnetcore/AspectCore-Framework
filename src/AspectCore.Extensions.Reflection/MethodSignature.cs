@@ -6,7 +6,7 @@ namespace AspectCore.Extensions.Reflection
 {
     public struct MethodSignature
     {
-        private static readonly ConcurrentDictionary<Pair<MethodBase,string>, int> signatures = new ConcurrentDictionary<Pair<MethodBase, string>, int>();
+        private static readonly ConcurrentDictionary<Pair<MethodBase, string>, int> signatures = new ConcurrentDictionary<Pair<MethodBase, string>, int>();
 
         private readonly int _signature;
         public int Value => _signature;

@@ -34,7 +34,7 @@ namespace AspectCore.DynamicProxy
                     return true;
                 }
             }
-           
+
             return next(context);
         }
     }

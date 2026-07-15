@@ -9,7 +9,7 @@ namespace AspectCore.DependencyInjection
         private readonly PropertyReflector _reflector;
 
         internal PropertyResolver(Func<IServiceProvider, object> propertyFactory, PropertyReflector reflector)
-        {  
+        {
             _propertyFactory = propertyFactory;
             _reflector = reflector;
         }

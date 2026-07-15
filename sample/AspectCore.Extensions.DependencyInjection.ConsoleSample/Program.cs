@@ -78,10 +78,10 @@ namespace AspectCore.Extensions.DependencyInjection.ConsoleSample
     {
         [FromServiceContext]
         public ILogger Logger { get; set; }
-        
+
         public void Invoke()
         {
-           Logger?.Info("sample service invoke.");
+            Logger?.Info("sample service invoke.");
         }
     }
 

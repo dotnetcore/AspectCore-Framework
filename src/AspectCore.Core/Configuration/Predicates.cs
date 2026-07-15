@@ -10,9 +10,9 @@ namespace AspectCore.Configuration
             {
                 throw new ArgumentNullException(nameof(nameSpace));
             }
-            
+
             return method => nameSpace == method.DeclaringType.Namespace ||
-                             (method.DeclaringType.Namespace != null && 
+                             (method.DeclaringType.Namespace != null &&
                               method.DeclaringType.Namespace.Matches(nameSpace));
         }
 
@@ -82,7 +82,7 @@ namespace AspectCore.Configuration
             {
                 throw new ArgumentException("The base type is not allowed to be Sealed.");
             }
-            
+
             return methodInfo => baseOrInterfaceType.IsAssignableFrom(methodInfo.DeclaringType);
         }
     }

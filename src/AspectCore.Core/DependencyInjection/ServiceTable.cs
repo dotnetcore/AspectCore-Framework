@@ -128,7 +128,7 @@ namespace AspectCore.DependencyInjection
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
                 return value.Last.Value;
-            }    
+            }
             if (serviceType.IsConstructedGenericType)
             {
                 switch (serviceType.GetGenericTypeDefinition())

@@ -24,7 +24,7 @@ public partial class CovariantReturnTypeTests : DynamicProxyTestBase
         AssertTypeValue<T>(service.InterceptedProperty, v => Assert.Equal(expectedName + nameof(ReturnTypeInterceptor), v.Name));
         AssertTypeValue<T>(service.InterceptedMethod(), v => Assert.Equal(expectedName + nameof(ReturnTypeInterceptor), v.Name));
     }
-    
+
     [Fact]
     public void CreateClassProxy_ForFirstCovariantOverride_ShouldUseBaseResultMembers()
     {

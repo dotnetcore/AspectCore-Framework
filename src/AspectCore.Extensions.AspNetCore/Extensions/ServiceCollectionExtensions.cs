@@ -33,7 +33,7 @@ namespace AspectCore.Extensions.AspNetCore
                 throw new ArgumentNullException(nameof(services));
             }
             services.Replace(ServiceDescriptor.Transient<IDataValidator, AnnotationDataValidator>());
-            services.Replace(ServiceDescriptor.Transient<IPropertyValidator, AnnotationPropertyValidator>());     
+            services.Replace(ServiceDescriptor.Transient<IPropertyValidator, AnnotationPropertyValidator>());
             services.TryAddTransient<IDataStateFactory, DataStateFactory>();
             services.ConfigureDynamicProxy(config =>
             {

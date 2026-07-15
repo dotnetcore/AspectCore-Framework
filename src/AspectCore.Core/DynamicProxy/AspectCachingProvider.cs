@@ -15,7 +15,7 @@ namespace AspectCore.DynamicProxy
 
         public void Dispose()
         {
-            foreach(var caching in _cachings)
+            foreach (var caching in _cachings)
             {
                 caching.Value.Dispose();
             }

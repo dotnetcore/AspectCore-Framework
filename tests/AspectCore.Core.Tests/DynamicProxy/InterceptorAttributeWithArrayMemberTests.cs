@@ -53,7 +53,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
         {
             [Prop(TimesOfProp = new[] { 10, 100 })]
             int ExcuteWithProp(int initTimes);
-            
+
             [Field(TimesOfField = new[] { 10, 100 })]
             int ExcuteWithField(int initTimes);
 

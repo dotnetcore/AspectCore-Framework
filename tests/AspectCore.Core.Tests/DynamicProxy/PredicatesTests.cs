@@ -12,7 +12,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             var method = typeof(Transient).GetMethod(nameof(Transient.Foo));
             Assert.True(predicate(method));
         }
-        
+
         [Fact]
         public void ImplementInterface()
         {

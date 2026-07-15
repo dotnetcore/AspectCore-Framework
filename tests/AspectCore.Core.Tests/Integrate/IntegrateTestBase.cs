@@ -4,7 +4,7 @@ using AspectCore.DependencyInjection;
 
 namespace AspectCore.Core.Tests.Integrate
 {
-    public  class IntegrateTestBase
+    public class IntegrateTestBase
     {
         public IServiceResolver ServiceResolver { get; }
 

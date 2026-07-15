@@ -65,7 +65,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             return new ValueTask<string>("GetValueAsync");
         }
 
-        public virtual (string,string) GetTuple()
+        public virtual (string, string) GetTuple()
         {
             return ("GetTuple-Item1", "GetTuple-Item2");
         }

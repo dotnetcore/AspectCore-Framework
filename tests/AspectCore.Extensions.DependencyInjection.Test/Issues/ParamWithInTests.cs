@@ -28,7 +28,7 @@ namespace AspectCore.Extensions.DependencyInjection.Test.Issues
                 .BuildDynamicProxyProvider();
 
             var service = sp.GetRequiredService<IParamWithIn>();
-            ReadOnlyMemory<byte> bytes = new ReadOnlyMemory<byte>(new byte[] {0, 1, 2});
+            ReadOnlyMemory<byte> bytes = new ReadOnlyMemory<byte>(new byte[] { 0, 1, 2 });
             var obj = service.TestFunc("val1", bytes);
             Assert.NotNull(obj);
             Assert.Equal(bytes, obj);

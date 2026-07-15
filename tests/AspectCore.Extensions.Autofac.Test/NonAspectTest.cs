@@ -62,7 +62,7 @@ namespace AspectCoreTest.Autofac
         {
             return "le";
         }
-     
+
         public string MyNonAspect()
         {
             return "le";

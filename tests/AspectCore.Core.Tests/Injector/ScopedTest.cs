@@ -12,7 +12,7 @@ namespace AspectCore.Core.Tests.Injector
         public void Equal()
         {
             var scoped1 = ServiceResolver.Resolve<IScoped>();
-            using(var scopedResolver = ServiceResolver.CreateScope())
+            using (var scopedResolver = ServiceResolver.CreateScope())
             {
                 var scoped2 = scopedResolver.Resolve<IScoped>();
                 var scoped3 = scopedResolver.Resolve<IScoped>();

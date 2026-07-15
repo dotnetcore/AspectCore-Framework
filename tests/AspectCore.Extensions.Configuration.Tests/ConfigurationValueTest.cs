@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Xunit;
-using  AspectCore.DependencyInjection;
+using AspectCore.DependencyInjection;
 
 namespace AspectCore.Extensions.Configuration.Tests
 {
@@ -29,7 +29,7 @@ namespace AspectCore.Extensions.Configuration.Tests
 
     public class ValueConfigService
     {
-        [ConfigurationValue("age", "creator")] 
+        [ConfigurationValue("age", "creator")]
         private readonly int _age = default!;
 
         [ConfigurationValue("name", "creator")]

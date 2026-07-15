@@ -7,7 +7,7 @@ using Xunit;
 
 namespace AspectCore.Core.Tests.DynamicProxy
 {
-    public class NonAspectTest:DynamicProxyTestBase
+    public class NonAspectTest : DynamicProxyTestBase
     {
         [Fact]
         public void Aspect_Test()

@@ -22,7 +22,7 @@ namespace AspectCore.DynamicProxy.Parameters
                 return _emptyParameterCollection;
             }
             var parameters = new Parameter[length];
-            for(var i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 parameters[i] = new Parameter(aspectContext, i, reflectors[i]);
             }

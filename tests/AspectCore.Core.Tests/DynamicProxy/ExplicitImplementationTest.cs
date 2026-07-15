@@ -16,7 +16,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             var result2 = ((IFakeExplicitImplementation)service).GetVal2();
             Assert.Equal(1, result2);
         }
-        
+
         [Fact]
         public void ExplicitImplementation_Aspect_Test()
         {
