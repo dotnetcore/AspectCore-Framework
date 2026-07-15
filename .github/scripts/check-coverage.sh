@@ -26,11 +26,27 @@ run_coverage() {
   project_dir=$(dirname "$project")
   rm -rf "$project_dir/TestResults" 2>/dev/null || true
 
+  # Derive the source assembly name from the test project name
+  # e.g. AspectCore.Extensions.Windsor.Test -> [AspectCore.Extensions.Windsor]*
+  project_name=$(basename "$project_dir")
+  # Remove .Test or .Tests suffix
+  source_assembly="${project_name%.Test}"
+  source_assembly="${source_assembly%.Tests}"
+
+  # For E2E tests, include all AspectCore source assemblies (no specific source assembly)
+  local include_filter="[${source_assembly}]*"
+  if [[ "$project_name" == *"E2E"* ]]; then
+    include_filter="[AspectCore.Core]*%2c[AspectCore.Extensions.*]*%2c[AspectCore.Abstractions]*"
+  fi
+
   # Run test with coverage collection (net9.0 only for speed)
   # Do NOT use --no-build: coverlet.msbuild needs to instrument the assembly at build time
+  # Include only the source assembly to get accurate per-assembly coverage
   dotnet test "$project" --configuration Release -f net9.0 \
     /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
-    /p:CoverletOutput=./TestResults/ 2>&1 | tail -1 || true
+    /p:CoverletOutput=./TestResults/ \
+    "/p:Include=${include_filter}" \
+    2>&1 | tail -1 || true
 
   # Find the generated coverage file - it's in the test project's TestResults directory
   coverage_file=$(find "$project_dir/TestResults" -name "*.cobertura.xml" 2>/dev/null | head -1)
