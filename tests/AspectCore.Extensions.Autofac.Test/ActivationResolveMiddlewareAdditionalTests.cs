@@ -172,9 +172,105 @@ namespace AspectCoreTest.Autofac
             Assert.NotNull(service);
         }
 
+        [Fact]
+        public void Resolve_ClassWithConstructorDependency_CreatesProxy()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>();
+            builder.RegisterType<ClassWithDependency>();
+            var container = builder.Build();
+
+            var service = container.Resolve<ClassWithDependency>();
+            Assert.NotNull(service);
+            Assert.NotNull(service.GetService());
+        }
+
+        [Fact]
+        public void Resolve_ClassWithMultipleConstructorParams_CreatesProxy()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>();
+            builder.RegisterType<Service2>().As<IService2>();
+            builder.RegisterType<ClassWithMultipleDependencies>();
+            var container = builder.Build();
+
+            var service = container.Resolve<ClassWithMultipleDependencies>();
+            Assert.NotNull(service);
+            Assert.NotNull(service.GetService());
+            Assert.NotNull(service.GetService2());
+        }
+
+        [Fact]
+        public void Resolve_ClassWithVirtualMethod_ProxiedCorrectly()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>();
+            builder.RegisterType<ClassWithDependency>();
+            var container = builder.Build();
+
+            var service = container.Resolve<ClassWithDependency>();
+            var result = service.Get(1);
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+        }
+
+        [Fact]
+        public void Resolve_ClassWithConstructorDependency_ScopedLifetime()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterDynamicProxy();
+            builder.RegisterType<Service>().As<IService>().InstancePerLifetimeScope();
+            builder.RegisterType<ClassWithDependency>().InstancePerLifetimeScope();
+            var container = builder.Build();
+
+            ClassWithDependency s1;
+            ClassWithDependency s2;
+            using (var scope1 = container.BeginLifetimeScope())
+            {
+                s1 = scope1.Resolve<ClassWithDependency>();
+            }
+            using (var scope2 = container.BeginLifetimeScope())
+            {
+                s2 = scope2.Resolve<ClassWithDependency>();
+            }
+            Assert.NotSame(s1, s2);
+        }
+
         public class ClassService
         {
             public virtual Model Get(int id) => new Model { Id = id };
+        }
+
+        public class ClassWithDependency
+        {
+            private readonly IService _service;
+
+            public ClassWithDependency(IService service)
+            {
+                _service = service;
+            }
+
+            public IService GetService() => _service;
+
+            public virtual Model Get(int id) => _service.Get(id);
+        }
+
+        public class ClassWithMultipleDependencies
+        {
+            private readonly IService _service;
+            private readonly IService2 _service2;
+
+            public ClassWithMultipleDependencies(IService service, IService2 service2)
+            {
+                _service = service;
+                _service2 = service2;
+            }
+
+            public IService GetService() => _service;
+            public IService2 GetService2() => _service2;
         }
 
         public interface ISealedService { }
