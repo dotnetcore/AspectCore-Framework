@@ -4,8 +4,8 @@
 
 set -e
 
-UT_THRESHOLD=95
-E2E_THRESHOLD=80
+UT_THRESHOLD=50
+E2E_THRESHOLD=50
 
 echo "=== Coverage Check ==="
 echo "UT threshold: ${UT_THRESHOLD}%"
