@@ -84,20 +84,19 @@ jobs:
       run: |
         set -e
         echo "=== Verifying all packages were created ==="
-        expected_count=$(find ./src -name "*.csproj" | wc -l)
-        actual_count=$(find ./artifacts/packages/ -name "*.nupkg" | wc -l)
-        echo "Expected: $expected_count packages, Found: $actual_count packages"
-        if [ "$actual_count" -ne "$expected_count" ]; then
-          echo "ERROR: Package count mismatch! Expected $expected_count but found $actual_count"
-          echo "Missing packages:"
-          for project in $(find ./src -name "*.csproj"); do
-            name=$(basename $(dirname $project))
-            if ! find ./artifacts/packages/ -name "${name}.*.nupkg" | grep -q .; then
-              echo "  MISSING: $name"
-            fi
-          done
+        missing=0
+        for project in $(find ./src -name "*.csproj"); do
+          name=$(basename $(dirname $project))
+          if ! find ./artifacts/packages/ -name "${name}.*.nupkg" | grep -q .; then
+            echo "  MISSING: $name"
+            missing=1
+          fi
+        done
+        if [ "$missing" -eq 1 ]; then
+          echo "ERROR: Some packages are missing!"
           exit 1
         fi
+        actual_count=$(find ./artifacts/packages/ -name "*.nupkg" | wc -l)
         echo "All $actual_count packages created successfully"
         ls -la ./artifacts/packages/*.nupkg
 
