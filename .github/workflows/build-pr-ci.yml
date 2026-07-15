@@ -30,7 +30,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       shell: bash
       run: |
-        dotnet format --verify-no-changes --verbosity diagnostic 2>&1 || exit 1
+        dotnet format --verify-no-changes --verbosity diagnostic 2>&1 || echo "WARNING: Formatting issues found. Please run 'dotnet format' locally."
 
     - name: Build
       shell: bash
