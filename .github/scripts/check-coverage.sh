@@ -4,19 +4,15 @@
 
 set -e
 
-UT_THRESHOLD=35
+# Allow running on newer .NET runtimes
+export DOTNET_ROLL_FORWARD=Major
+
+UT_THRESHOLD=50
 E2E_THRESHOLD=50
 
 echo "=== Coverage Check ==="
 echo "UT threshold: ${UT_THRESHOLD}%"
 echo "E2E threshold: ${E2E_THRESHOLD}%"
-echo ""
-
-# Build all projects
-echo "Building projects..."
-for project in $(find ./src -name "*.csproj"); do
-  dotnet build --configuration Release "$project" 2>/dev/null
-done
 echo ""
 
 # Function to run tests with coverage and extract coverage percentage
@@ -26,13 +22,18 @@ run_coverage() {
 
   echo "Measuring: $label..."
 
-  # Run test with coverage collection (net9.0 only for speed)
-  dotnet test "$project" --configuration Release --no-build -f net9.0 \
-    /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
-    /p:CoverletOutput=./TestResults/coverage/ 2>&1 | tail -1
+  # Clean up previous coverage files in the test project's TestResults directory
+  project_dir=$(dirname "$project")
+  rm -rf "$project_dir/TestResults" 2>/dev/null || true
 
-  # Find the generated coverage file (net9.0)
-  coverage_file=$(find . -name "coverage.net9.0.cobertura.xml" -path "*TestResults*" 2>/dev/null | head -1)
+  # Run test with coverage collection (net9.0 only for speed)
+  # Do NOT use --no-build: coverlet.msbuild needs to instrument the assembly at build time
+  dotnet test "$project" --configuration Release -f net9.0 \
+    /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
+    /p:CoverletOutput=./TestResults/ 2>&1 | tail -1 || true
+
+  # Find the generated coverage file - it's in the test project's TestResults directory
+  coverage_file=$(find "$project_dir/TestResults" -name "*.cobertura.xml" 2>/dev/null | head -1)
 
   if [ -n "$coverage_file" ] && [ -f "$coverage_file" ]; then
     # Extract line-rate from cobertura XML (e.g. line-rate="0.8278")
@@ -61,8 +62,6 @@ for test_project in $(find ./tests -name "*.csproj" ! -name "*E2E*"); do
     ut_coverages="$ut_coverages $last_line"
     ut_count=$((ut_count + 1))
   fi
-  # Clean up coverage file for next iteration
-  rm -f ./TestResults/coverage/coverage.net9.0.cobertura.xml 2>/dev/null || true
 done
 
 # Calculate average UT coverage
@@ -92,7 +91,6 @@ for test_project in $(find ./tests -name "*E2E*.csproj"); do
     e2e_coverages="$e2e_coverages $last_line"
     e2e_count=$((e2e_count + 1))
   fi
-  rm -f ./TestResults/coverage/coverage.net9.0.cobertura.xml 2>/dev/null || true
 done
 
 # Calculate average E2E coverage
