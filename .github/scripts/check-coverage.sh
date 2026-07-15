@@ -4,6 +4,9 @@
 
 set -e
 
+# Allow running on newer .NET runtimes
+export DOTNET_ROLL_FORWARD=Major
+
 UT_THRESHOLD=50
 E2E_THRESHOLD=50
 
@@ -19,20 +22,18 @@ run_coverage() {
 
   echo "Measuring: $label..."
 
-  # Clean up previous coverage files
-  rm -rf ./TestResults/coverage 2>/dev/null || true
+  # Clean up previous coverage files in the test project's TestResults directory
+  project_dir=$(dirname "$project")
+  rm -rf "$project_dir/TestResults" 2>/dev/null || true
 
   # Run test with coverage collection (net9.0 only for speed)
   # Do NOT use --no-build: coverlet.msbuild needs to instrument the assembly at build time
   dotnet test "$project" --configuration Release -f net9.0 \
     /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
-    /p:CoverletOutput=./TestResults/coverage/ 2>&1 | tail -1
+    /p:CoverletOutput=./TestResults/ 2>&1 | tail -1 || true
 
-  # Find the generated coverage file - search broadly for any cobertura.xml
-  coverage_file=$(find . -name "*.cobertura.xml" -newer ./TestResults 2>/dev/null | head -1)
-  if [ -z "$coverage_file" ]; then
-    coverage_file=$(find . -name "*.cobertura.xml" 2>/dev/null | head -1)
-  fi
+  # Find the generated coverage file - it's in the test project's TestResults directory
+  coverage_file=$(find "$project_dir/TestResults" -name "*.cobertura.xml" 2>/dev/null | head -1)
 
   if [ -n "$coverage_file" ] && [ -f "$coverage_file" ]; then
     # Extract line-rate from cobertura XML (e.g. line-rate="0.8278")
