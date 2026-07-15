@@ -39,3 +39,10 @@ jobs:
         for project in $(find ./tests -name "*.csproj"); do
           dotnet test --configuration Release $project
         done
+
+    - name: Check Coverage
+      if: matrix.os == 'ubuntu-latest'
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh
