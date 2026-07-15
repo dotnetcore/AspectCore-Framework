@@ -75,7 +75,7 @@ jobs:
         rm -rf ./artifacts/packages
         mkdir -p ./artifacts/packages
         for project in $(find ./src -name "*.csproj"); do
-          dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} --include-source --output ./artifacts/packages
+          dotnet pack --configuration Release --no-build $project -p:PackageVersion=${{ env.FULL_VERSION }} --output ./artifacts/packages
         done
 
     - name: Verify All Packages Created
@@ -85,14 +85,15 @@ jobs:
         set -e
         echo "=== Verifying all packages were created ==="
         expected_count=$(find ./src -name "*.csproj" | wc -l)
-        actual_count=$(find ./artifacts/packages/ -name "*.nupkg" | wc -l)
+        # Count only .nupkg files, excluding .symbols.nupkg and .snupkg
+        actual_count=$(find ./artifacts/packages/ -name "*.nupkg" ! -name "*.symbols.nupkg" | wc -l)
         echo "Expected: $expected_count packages, Found: $actual_count packages"
         if [ "$actual_count" -ne "$expected_count" ]; then
           echo "ERROR: Package count mismatch! Expected $expected_count but found $actual_count"
           echo "Missing packages:"
           for project in $(find ./src -name "*.csproj"); do
             name=$(basename $(dirname $project))
-            if ! find ./artifacts/packages/ -name "${name}.*.nupkg" | grep -q .; then
+            if ! find ./artifacts/packages/ -name "${name}.*.nupkg" ! -name "*.symbols.nupkg" | grep -q .; then
               echo "  MISSING: $name"
             fi
           done
