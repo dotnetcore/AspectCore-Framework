@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Enable .NET analyzers (informational, not blocking) -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Default</AnalysisMode>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+  </PropertyGroup>
+</Project>
