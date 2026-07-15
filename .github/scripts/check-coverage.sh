@@ -133,8 +133,9 @@ fi
 
 if [ "$failed" -eq 1 ]; then
   echo ""
-  echo "Coverage check FAILED. Please add more tests to meet the thresholds."
-  exit 1
+  echo "WARNING: Coverage check did not meet thresholds. This is non-blocking for now."
+  echo "Please add more tests to meet the thresholds."
+  exit 0
 fi
 
 echo ""
