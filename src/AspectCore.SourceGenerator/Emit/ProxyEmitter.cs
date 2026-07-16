@@ -892,6 +892,13 @@ internal static class ProxyEmitter
 
     private static string EmitParameterDecl(IParameterSymbol p)
     {
+        // C# 11 scoped modifier (e.g. scoped ref T, scoped T).
+        // Detected via the compiler-generated [ScopedRef] attribute because
+        // IParameterSymbol.IsScoped is not available in Roslyn 4.10.0.
+        // Must come before ref/out/in in the declaration.
+        var isScoped = p.GetAttributes()
+            .Any(a => a.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.ScopedRefAttribute");
+        var scopedPrefix = isScoped ? "scoped " : "";
         var prefix = p.RefKind switch
         {
             RefKind.Ref => "ref ",
@@ -904,7 +911,7 @@ internal static class ProxyEmitter
         // so the generated proxy preserves params calling semantics.
         var paramsPrefix = p.IsParams ? "params " : "";
         var attrs = EmitAttributesInline(p);
-        return $"{attrs}{prefix}{paramsPrefix}{p.Type.ToGlobalName()} {p.Name}";
+        return $"{attrs}{scopedPrefix}{prefix}{paramsPrefix}{p.Type.ToGlobalName()} {p.Name}";
     }
 
     private static bool TryReportUnsupportedByRefLikeParams(INamedTypeSymbol serviceType, SourceProductionContext context)

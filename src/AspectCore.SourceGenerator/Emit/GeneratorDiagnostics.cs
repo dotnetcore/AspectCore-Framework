@@ -61,8 +61,16 @@ internal static class GeneratorDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
-    private static readonly DiagnosticDescriptor UnsupportedByRefLikeParamsDescriptor = new(
+    private static readonly DiagnosticDescriptor RefStructNotSupportedDescriptor = new(
         id: "ACSG008",
+        title: "无法为 ref struct 类型生成代理",
+        messageFormat: "无法为 ref struct 类型 '{0}' 生成代理。ref struct（如 Span<T>、ReadOnlySpan<T>）不能装箱、不能实现接口、不能作为类字段，因此无法进行 AOP 代理。",
+        category: "AspectCore.SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor UnsupportedByRefLikeParamsDescriptor = new(
+        id: "ACSG009",
         title: "AspectCore SourceGenerator 暂不支持 byref-like params 参数",
         messageFormat: "成员 '{0}' 包含 byref-like params 参数 '{1}'，当前版本的 Source Generator 暂不支持生成代理。",
         category: "AspectCore.SourceGenerator",
@@ -89,6 +97,9 @@ internal static class GeneratorDiagnostics
 
     public static Diagnostic NoAccessibleConstructor(INamedTypeSymbol symbol)
         => Diagnostic.Create(NoAccessibleConstructorDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
+
+    public static Diagnostic RefStructNotSupported(INamedTypeSymbol symbol)
+        => Diagnostic.Create(RefStructNotSupportedDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
 
     public static Diagnostic UnsupportedByRefLikeParams(IMethodSymbol method, IParameterSymbol parameter)
         => Diagnostic.Create(
