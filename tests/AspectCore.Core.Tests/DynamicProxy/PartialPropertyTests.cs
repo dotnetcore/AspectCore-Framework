@@ -127,6 +127,34 @@ public class PartialPropertyTests
 
     #endregion
 
+    #region Concrete Class - Partial Property with Implementation (verifies IsPartialDefinitionAccessor fix)
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void ConcreteClass_PartialProperty_WithImplementation_DelegatesToBase(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        // A non-abstract class has a partial property with both declaration and
+        // implementation parts. The proxy must delegate to the actual implementation,
+        // not emit a stub accessor that returns default. This verifies that
+        // IsPartialDefinitionAccessor correctly returns false for accessors with
+        // implementation bodies.
+        var proxy = proxyGenerator.CreateClassProxy<ConcretePartialPropertyWithImpl>();
+
+        proxy.Name = "concrete-impl";
+        Assert.Equal("concrete-impl", proxy.Name);
+    }
+
+    #endregion
+
     #region PropertyNode IsPartial Flag
 
     [Fact]
@@ -252,6 +280,25 @@ public partial interface IPartialPropertyMixedService
 public class PartialPropertyMixedImpl : IPartialPropertyMixedService
 {
     public string? Name => "stub-default";
+}
+
+// Non-abstract, non-sealed class: partial property with both declaration and
+// implementation parts. The accessor has a body (implementation), so the proxy
+// must delegate to it, not emit a stub accessor. This verifies the fix for the
+// [High] review comment: IsPartialDefinitionAccessor must check if the accessor
+// has an implementation body before treating it as declaration-only.
+[AspectCoreGenerateProxy]
+public partial class ConcretePartialPropertyWithImpl
+{
+    private string _name = "";
+
+    public partial string Name { get; set; }
+
+    public partial string Name
+    {
+        get => _name;
+        set => _name = value ?? "";
+    }
 }
 
 #endregion

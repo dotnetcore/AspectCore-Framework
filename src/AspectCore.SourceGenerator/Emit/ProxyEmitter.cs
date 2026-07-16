@@ -679,11 +679,20 @@ internal static class ProxyEmitter
     /// <summary>
     /// Determines whether the given property is a partial property (C# 13.0) by checking
     /// if any of its declaring syntax references has the <c>partial</c> keyword modifier.
+    /// <para>
+    /// Note: Only <see cref="PropertyDeclarationSyntax"/> is checked (not
+    /// <c>IndexerDeclarationSyntax</c>) because C# 13 partial properties do not support
+    /// indexers. If future Roslyn versions extend partial property support to indexers,
+    /// this method should be updated to also check <c>IndexerDeclarationSyntax</c>.
+    /// </para>
     /// </summary>
     private static bool IsPartialProperty(IPropertySymbol prop)
     {
         foreach (var syntaxRef in prop.DeclaringSyntaxReferences)
         {
+            // Only check PropertyDeclarationSyntax — indexers (IndexerDeclarationSyntax)
+            // are not supported by C# 13 partial properties, so they are intentionally
+            // not handled here. See method documentation for details.
             if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax pds)
             {
                 if (pds.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
@@ -717,8 +726,58 @@ internal static class ProxyEmitter
         if (!containingType.IsAbstract)
             return false;
 
-        // Abstract class: the accessor may be declaration-only. Treat it as a
-        // partial definition so a stub accessor is emitted.
+        // Abstract class: the accessor may or may not have an implementation part.
+        // Check if the accessor is abstract (no implementation) — an abstract accessor
+        // is declaration-only and requires a stub accessor to be emitted.
+        if (accessor.IsAbstract)
+            return true;
+
+        // Also verify by checking all declaring syntaxes of all same-named properties
+        // in the containing type for a body on the matching accessor. This handles
+        // edge cases where IsAbstract may not be set for declaration-only accessors.
+        bool isGet = accessor.MethodKind == MethodKind.PropertyGet;
+
+        foreach (var otherProp in containingType.GetMembers().OfType<IPropertySymbol>())
+        {
+            if (!string.Equals(otherProp.Name, prop.Name, StringComparison.Ordinal))
+                continue;
+
+            foreach (var syntaxRef in otherProp.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax pds)
+                {
+                    // Expression-bodied property (e.g. "partial string Name => value;")
+                    // counts as an implementation for the get accessor.
+                    if (pds.ExpressionBody is not null && isGet)
+                        return false; // has implementation body
+
+                    var accessorList = pds.AccessorList;
+                    if (accessorList is null) continue;
+
+                    foreach (var accessorDecl in accessorList.Accessors)
+                    {
+                        bool isCurrentGet = accessorDecl.IsKind(SyntaxKind.GetAccessorDeclaration);
+                        if (isCurrentGet == isGet)
+                        {
+                            if (accessorDecl.Body is not null || accessorDecl.ExpressionBody is not null)
+                                return false; // has implementation body
+                        }
+                    }
+                }
+            }
+        }
+
+        // Also check the accessor's own declaring syntaxes for a body.
+        foreach (var syntaxRef in accessor.DeclaringSyntaxReferences)
+        {
+            if (syntaxRef.GetSyntax() is AccessorDeclarationSyntax ads)
+            {
+                if (ads.Body is not null || ads.ExpressionBody is not null)
+                    return false; // has implementation body
+            }
+        }
+
+        // Abstract type with no body found -> declaration-only.
         return true;
     }
 

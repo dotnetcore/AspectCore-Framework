@@ -24,6 +24,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
         /// Gets a value indicating whether the property is declared as <c>partial</c>
         /// (C# 13.0 partial properties). When <c>true</c>, the property declaration
         /// and accessor implementations may be split across multiple source files.
+        /// <para>
+        /// Note: On the runtime dynamic proxy path (DynamicProxy engine), this value is
+        /// always <c>false</c> because the runtime operates on already-compiled types where
+        /// the compiler has merged partial declarations into a single property with complete
+        /// accessor bodies. This property is primarily used by the source generator path
+        /// (ProxyEngine.SourceGenerator) which operates on source-level symbols.
+        /// </para>
         /// </summary>
         public bool IsPartial { get; }
 
