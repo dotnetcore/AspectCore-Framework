@@ -61,6 +61,14 @@ internal static class GeneratorDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor RefStructNotSupportedDescriptor = new(
+        id: "ACSG008",
+        title: "无法为 ref struct 类型生成代理",
+        messageFormat: "无法为 ref struct 类型 '{0}' 生成代理。ref struct（如 Span<T>、ReadOnlySpan<T>）不能装箱、不能实现接口、不能作为类字段，因此无法进行 AOP 代理。",
+        category: "AspectCore.SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public static Diagnostic UnsupportedGenericType(INamedTypeSymbol symbol)
         => Diagnostic.Create(UnsupportedGenericTypeDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
 
@@ -81,5 +89,8 @@ internal static class GeneratorDiagnostics
 
     public static Diagnostic NoAccessibleConstructor(INamedTypeSymbol symbol)
         => Diagnostic.Create(NoAccessibleConstructorDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
+
+    public static Diagnostic RefStructNotSupported(INamedTypeSymbol symbol)
+        => Diagnostic.Create(RefStructNotSupportedDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
 }
 

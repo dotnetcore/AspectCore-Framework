@@ -29,6 +29,8 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(serviceType));
             }
+            RejectRefStruct(serviceType, nameof(serviceType));
+            RejectRefStruct(implementationType, nameof(implementationType));
             if (!serviceType.GetTypeInfo().IsClass)
             {
                 throw new ArgumentException($"Type '{serviceType}' should be class.", nameof(serviceType));
@@ -43,6 +45,7 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
+            RejectRefStruct(serviceType, nameof(serviceType));
             if (!serviceType.GetTypeInfo().IsInterface)
             {
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
@@ -57,6 +60,8 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
+            RejectRefStruct(serviceType, nameof(serviceType));
+            RejectRefStruct(implementationType, nameof(implementationType));
             if (!serviceType.GetTypeInfo().IsInterface)
             {
                 throw new ArgumentException($"Type '{serviceType}' should be interface.", nameof(serviceType));
@@ -85,6 +90,31 @@ namespace AspectCore.DynamicProxy
                         yield return interfaceType;
                     }
                 }
+            }
+        }
+
+
+        private static void RejectRefStruct(Type type, string paramName)
+        {
+            if (type == null)
+            {
+                return;
+            }
+            bool isRefStruct;
+#if NETSTANDARD2_0
+            isRefStruct = type.GetTypeInfo().GetCustomAttributes(false)
+                .Any(a => a.GetType().FullName == "System.Runtime.CompilerServices.IsByRefLikeAttribute");
+#else
+            isRefStruct = type.IsByRefLike;
+#endif
+            if (isRefStruct)
+            {
+                throw new NotSupportedException(
+                    $"Cannot create proxy for ref struct type '{type.FullName ?? type.Name}'. " +
+                    "Ref struct types (such as Span<T> and ReadOnlySpan<T>) cannot be boxed, " +
+                    "cannot implement interfaces, and cannot be stored as class fields, " +
+                    "which makes AOP proxy generation fundamentally impossible. " +
+                    "Use a regular struct or class instead.");
             }
         }
 

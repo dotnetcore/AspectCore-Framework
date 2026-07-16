@@ -98,6 +98,7 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
     {
         if (type.ContainingType is not null) return false; // skip nested
         if (type.IsStatic) return false;
+        if (type.IsRefLikeType) return false; // skip ref structs (cannot be boxed/interfaced/class fields)
         if (type.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal)) return false;
 
         if (type.TypeKind == TypeKind.Class)
@@ -201,6 +202,13 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             if (type.TypeKind == TypeKind.Class && type.IsSealed && !type.IsAbstract)
             {
                 context.ReportDiagnostic(GeneratorDiagnostics.SealedType(type));
+                continue;
+            }
+
+            // P0: 检查 ref struct 类型（ref struct 不能装箱、不能实现接口、不能作为类字段）
+            if (type.IsRefLikeType)
+            {
+                context.ReportDiagnostic(GeneratorDiagnostics.RefStructNotSupported(type));
                 continue;
             }
 
