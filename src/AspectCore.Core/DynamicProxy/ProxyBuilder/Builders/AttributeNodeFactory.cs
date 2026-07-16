@@ -20,6 +20,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             "System.Runtime.CompilerServices.IsByRefLikeAttribute",
             "System.Runtime.CompilerServices.IsExternalInitAttribute",
             "System.Runtime.CompilerServices.PreserveBaseOverridesAttribute",
+            "System.Runtime.CompilerServices.PrimaryConstructorParametersAttribute",
             "AspectCore.DynamicProxy.NonAspectAttribute",
             "AspectCore.DynamicProxy.DynamicallyAttribute"
         };

@@ -391,7 +391,8 @@ internal static class ProxyEmitter
                 // For generic base classes, constructor parameters may reference class-level type params.
                 // ToGlobalName() on a type parameter returns just the name (e.g. "T"), which matches
                 // the forwarded type params on the proxy class.
-                sb.Append(string.Join(", ", ctor.Parameters.Select(p => $"{p.Type.ToGlobalName()} {p.Name}")));
+                // Use EmitParameterDecl to preserve params (C# 13), ref/out/in, and forwarded attributes.
+                sb.Append(string.Join(", ", ctor.Parameters.Select(EmitParameterDecl)));
             }
             sb.Append(')');
             sb.Append(" : base(");
@@ -888,8 +889,12 @@ internal static class ProxyEmitter
             RefKind.In => "in ",
             _ => ""
         };
+        // C# 13 params collections (params IEnumerable<T>, params ReadOnlySpan<T>)
+        // and traditional params T[] are detected via IsParams. Emit the keyword
+        // so the generated proxy preserves params calling semantics.
+        var paramsPrefix = p.IsParams ? "params " : "";
         var attrs = EmitAttributesInline(p);
-        return $"{attrs}{prefix}{p.Type.ToGlobalName()} {p.Name}";
+        return $"{attrs}{prefix}{paramsPrefix}{p.Type.ToGlobalName()} {p.Name}";
     }
 
     private static string EmitArgument(IParameterSymbol p)
@@ -1047,6 +1052,7 @@ internal static class ProxyEmitter
         "System.Runtime.CompilerServices.IsByRefLikeAttribute",
         "System.Runtime.CompilerServices.IsExternalInitAttribute",
         "System.Runtime.CompilerServices.PreserveBaseOverridesAttribute",
+        "System.Runtime.CompilerServices.PrimaryConstructorParametersAttribute",
     };
 
     // Whitelist of attributes to forward on types, methods, and parameters.
@@ -1056,6 +1062,7 @@ internal static class ProxyEmitter
         "System.Diagnostics.CodeAnalysis.ExperimentalAttribute",
         "System.Runtime.CompilerServices.CollectionBuilderAttribute",
         "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute",
+        "System.ParamCollectionAttribute",
     };
 
     private static bool IsAspectCoreMarkerAttribute(INamedTypeSymbol attrType)
