@@ -61,6 +61,14 @@ internal static class GeneratorDiagnostics
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor UnsupportedByRefLikeParamsDescriptor = new(
+        id: "ACSG008",
+        title: "AspectCore SourceGenerator 暂不支持 byref-like params 参数",
+        messageFormat: "成员 '{0}' 包含 byref-like params 参数 '{1}'，当前版本的 Source Generator 暂不支持生成代理。",
+        category: "AspectCore.SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
     public static Diagnostic UnsupportedGenericType(INamedTypeSymbol symbol)
         => Diagnostic.Create(UnsupportedGenericTypeDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
 
@@ -81,5 +89,12 @@ internal static class GeneratorDiagnostics
 
     public static Diagnostic NoAccessibleConstructor(INamedTypeSymbol symbol)
         => Diagnostic.Create(NoAccessibleConstructorDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
+
+    public static Diagnostic UnsupportedByRefLikeParams(IMethodSymbol method, IParameterSymbol parameter)
+        => Diagnostic.Create(
+            UnsupportedByRefLikeParamsDescriptor,
+            parameter.Locations.FirstOrDefault() ?? method.Locations.FirstOrDefault(),
+            method.ToDisplayString(),
+            parameter.Name);
 }
 

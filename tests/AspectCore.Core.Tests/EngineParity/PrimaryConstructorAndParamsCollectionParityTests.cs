@@ -145,6 +145,70 @@ namespace AspectCore.Core.Tests.EngineParity
             Assert.Equal(6, result);
             Assert.Equal(1, callCount);
         }
+
+        [Theory]
+        [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+        public void ClassConstructor_WithParamsIEnumerable_Should_Work(ProxyEngine engine)
+        {
+            using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+                engine,
+                configureAspect: cfg =>
+                {
+                    cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+                },
+                strict: engine == ProxyEngine.SourceGenerator,
+                allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+            var proxy = proxyGenerator.CreateClassProxy<ParamsIEnumerableConstructorService>(
+                (IEnumerable<int>)new[] { 1, 2, 3, 4 });
+
+            Assert.True(proxy.IsProxy());
+            Assert.Equal(10, proxy.Total);
+            Assert.Equal(20, proxy.DoubleTotal());
+        }
+
+        [Theory]
+        [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+        public void ClassConstructor_WithParamsArray_Should_Work(ProxyEngine engine)
+        {
+            using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+                engine,
+                configureAspect: cfg =>
+                {
+                    cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+                },
+                strict: engine == ProxyEngine.SourceGenerator,
+                allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+            var proxy = proxyGenerator.CreateClassProxy<ParamsArrayConstructorService>(
+                new object[] { new[] { "a", "b", "c" } });
+
+            Assert.True(proxy.IsProxy());
+            Assert.Equal("a,b,c", proxy.Joined);
+            Assert.Equal("a,b,c!", proxy.Format());
+        }
+
+        [Theory]
+        [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+        public void ClassConstructor_WithLeadingParameterAndParams_Should_Work(ProxyEngine engine)
+        {
+            using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+                engine,
+                configureAspect: cfg =>
+                {
+                    cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+                },
+                strict: engine == ProxyEngine.SourceGenerator,
+                allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+            var proxy = proxyGenerator.CreateClassProxy<MixedParamsConstructorService>(
+                "prefix",
+                (IEnumerable<int>)new[] { 2, 4, 6 });
+
+            Assert.True(proxy.IsProxy());
+            Assert.Equal("prefix:12", proxy.Value);
+            Assert.Equal("prefix:12!", proxy.Format());
+        }
     }
 
     [AspectCoreGenerateProxy]
@@ -175,5 +239,44 @@ namespace AspectCore.Core.Tests.EngineParity
         {
             return string.Join(",", items);
         }
+    }
+
+    [AspectCoreGenerateProxy]
+    public class ParamsIEnumerableConstructorService
+    {
+        public ParamsIEnumerableConstructorService(params IEnumerable<int> values)
+        {
+            Total = values.Sum();
+        }
+
+        public int Total { get; }
+
+        public virtual int DoubleTotal() => Total * 2;
+    }
+
+    [AspectCoreGenerateProxy]
+    public class ParamsArrayConstructorService
+    {
+        public ParamsArrayConstructorService(params string[] items)
+        {
+            Joined = string.Join(",", items);
+        }
+
+        public string Joined { get; }
+
+        public virtual string Format() => Joined + "!";
+    }
+
+    [AspectCoreGenerateProxy]
+    public class MixedParamsConstructorService
+    {
+        public MixedParamsConstructorService(string prefix, params IEnumerable<int> values)
+        {
+            Value = prefix + ":" + values.Sum();
+        }
+
+        public string Value { get; }
+
+        public virtual string Format() => Value + "!";
     }
 }
