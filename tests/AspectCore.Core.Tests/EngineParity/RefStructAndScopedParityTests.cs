@@ -45,6 +45,7 @@ namespace AspectCore.Core.Tests.EngineParity
             Assert.Equal(1, callCount);
         }
 
+#if NET10_0_OR_GREATER
         [Theory]
         [MemberData(nameof(Engines))]
         public void ScopedIn_Parameter_Should_Work(ProxyEngine engine)
@@ -60,6 +61,7 @@ namespace AspectCore.Core.Tests.EngineParity
             var result = proxy.Compute(5);
             Assert.Equal(25, result);
         }
+#endif
 
         public static TheoryData<ProxyEngine> Engines => new()
         {
@@ -75,10 +77,11 @@ namespace AspectCore.Core.Tests.EngineParity
         {
             value = value * 1;
         }
-
+#if NET10_0_OR_GREATER
         public virtual int Compute(scoped in int value)
         {
             return value * value;
         }
+#endif
     }
 }
