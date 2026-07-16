@@ -7,8 +7,8 @@ set -e
 # Allow running on newer .NET runtimes
 export DOTNET_ROLL_FORWARD=Major
 
-UT_THRESHOLD=85
-E2E_THRESHOLD=50
+UT_THRESHOLD=95
+E2E_THRESHOLD=80
 
 echo "=== Coverage Check ==="
 echo "UT threshold: ${UT_THRESHOLD}%"
@@ -33,10 +33,12 @@ run_coverage() {
   source_assembly="${project_name%.Test}"
   source_assembly="${source_assembly%.Tests}"
 
-  # For E2E tests, include all AspectCore source assemblies (no specific source assembly)
+  # For E2E tests, include only Core and Abstractions assemblies.
+  # Extension assemblies (Reflection, DependencyInjection, Autofac, Windsor, etc.)
+  # have their own dedicated unit test projects and are measured separately.
   local include_filter="[${source_assembly}]*"
   if [[ "$project_name" == *"E2E"* ]]; then
-    include_filter="[AspectCore.Core]*%2c[AspectCore.Extensions.*]*%2c[AspectCore.Abstractions]*"
+    include_filter="[AspectCore.Core]*%2c[AspectCore.Abstractions]*"
   fi
 
   # Run test with coverage collection (net9.0 only for speed)

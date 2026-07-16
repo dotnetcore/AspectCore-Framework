@@ -51,6 +51,7 @@ internal static class ProxyEmitter
         // proxy
         sb.AppendLine("    [global::AspectCore.DynamicProxy.NonAspect]");
         sb.AppendLine("    [global::AspectCore.DynamicProxy.Dynamically]");
+        EmitAttributes(sb, entry.ServiceType, "    ");
         sb.AppendLine($"    public sealed class {proxyName} : {ifaceName}");
         sb.AppendLine("    {");
         sb.AppendLine("        private readonly global::AspectCore.DynamicProxy.IAspectActivatorFactory _activatorFactory;");
@@ -136,11 +137,12 @@ internal static class ProxyEmitter
 
         // Build generic type parameter string for class declaration
         var genericParamList = isGeneric
-            ? "<" + string.Join(", ", genericParams.Select(tp => tp.Name)) + ">"
+            ? "<" + string.Join(", ", genericParams.Select(EmitTypeParameterWithAttributes)) + ">"
             : string.Empty;
 
         sb.AppendLine("    [global::AspectCore.DynamicProxy.NonAspect]");
         sb.AppendLine("    [global::AspectCore.DynamicProxy.Dynamically]");
+        EmitAttributes(sb, entry.ServiceType, "    ");
         sb.Append($"    public sealed class {proxyName}{genericParamList} : {implName}");
 
         // Emit generic constraints for class-level type parameters
@@ -672,6 +674,7 @@ internal static class ProxyEmitter
 
     private static void EmitProxyMethod(StringBuilder sb, INamedTypeSymbol serviceType, INamedTypeSymbol? implementationType, string proxyTypeName, string declaredTypeName, IMethodSymbol method, string callTargetExpr, bool isOverride = false)
     {
+        EmitAttributes(sb, method, "        ");
         sb.Append("        public ");
         if (isOverride) sb.Append("override ");
         sb.Append(method.ReturnsVoid ? "void" : method.ReturnType.ToGlobalName());
@@ -885,7 +888,8 @@ internal static class ProxyEmitter
             RefKind.In => "in ",
             _ => ""
         };
-        return $"{prefix}{p.Type.ToGlobalName()} {p.Name}";
+        var attrs = EmitAttributesInline(p);
+        return $"{attrs}{prefix}{p.Type.ToGlobalName()} {p.Name}";
     }
 
     private static string EmitArgument(IParameterSymbol p)
@@ -960,7 +964,7 @@ internal static class ProxyEmitter
     private static string EmitGenericParameterList(IMethodSymbol method)
     {
         if (!method.IsGenericMethod) return string.Empty;
-        return $"<{string.Join(", ", method.TypeParameters.Select(tp => tp.Name))}>";
+        return $"<{string.Join(", ", method.TypeParameters.Select(EmitTypeParameterWithAttributes))}>";
     }
 
     // When invoking the target from within the same generic method, pass through the same type parameters.
@@ -1029,6 +1033,166 @@ internal static class ProxyEmitter
               .Append(string.Join(", ", parts))
               .AppendLine();
         }
+    }
+
+    // ── Attribute forwarding ──────────────────────────────────────────────
+
+    // Compiler-generated attributes that must never be forwarded.
+    private static readonly HashSet<string> CompilerGeneratedAttributeNames = new()
+    {
+        "System.Runtime.CompilerServices.NullableContextAttribute",
+        "System.Runtime.CompilerServices.NullableAttribute",
+        "System.Runtime.CompilerServices.CompilerGeneratedAttribute",
+        "System.Runtime.CompilerServices.IsReadOnlyAttribute",
+        "System.Runtime.CompilerServices.IsByRefLikeAttribute",
+        "System.Runtime.CompilerServices.IsExternalInitAttribute",
+        "System.Runtime.CompilerServices.PreserveBaseOverridesAttribute",
+    };
+
+    // Whitelist of attributes to forward on types, methods, and parameters.
+    // Type parameters use a separate rule (any non-blacklisted attribute is forwarded).
+    private static readonly HashSet<string> ForwardedAttributeNames = new()
+    {
+        "System.Diagnostics.CodeAnalysis.ExperimentalAttribute",
+        "System.Runtime.CompilerServices.CollectionBuilderAttribute",
+        "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute",
+    };
+
+    private static bool IsAspectCoreMarkerAttribute(INamedTypeSymbol attrType)
+    {
+        var ns = attrType.ContainingNamespace?.ToDisplayString();
+        return ns == "AspectCore.DynamicProxy" || ns == "AspectCore.Abstractions.DynamicProxy";
+    }
+
+    private static string GetFullAttributeName(INamedTypeSymbol attrType)
+    {
+        var ns = attrType.ContainingNamespace?.ToDisplayString();
+        return string.IsNullOrEmpty(ns) ? attrType.Name : $"{ns}.{attrType.Name}";
+    }
+
+    private static bool ShouldForwardAttribute(AttributeData attr, bool isTypeParameter)
+    {
+        var attrClass = attr.AttributeClass;
+        if (attrClass is null) return false;
+
+        var fullName = GetFullAttributeName(attrClass);
+
+        // Skip compiler-generated attributes.
+        if (CompilerGeneratedAttributeNames.Contains(fullName)) return false;
+
+        // Skip AspectCore marker attributes (already emitted or must not be duplicated).
+        if (IsAspectCoreMarkerAttribute(attrClass)) return false;
+
+        // For type parameters: forward any non-blacklisted attribute.
+        if (isTypeParameter) return true;
+
+        // For types, methods, and parameters: only forward whitelisted attributes.
+        return ForwardedAttributeNames.Contains(fullName);
+    }
+
+    private static string FormatTypedConstant(TypedConstant constant)
+    {
+        if (constant.Value is null) return "null";
+
+        switch (constant.Kind)
+        {
+            case TypedConstantKind.Type:
+                if (constant.Value is ITypeSymbol typeSymbol)
+                    return $"typeof({typeSymbol.ToGlobalName()})";
+                return "null";
+
+            case TypedConstantKind.Array:
+                var elements = ((ImmutableArray<TypedConstant>)constant.Value)
+                    .Select(FormatTypedConstant);
+                return $"new[] {{ {string.Join(", ", elements)} }}";
+
+            case TypedConstantKind.Enum:
+                return constant.Value.ToString() ?? "null";
+
+            case TypedConstantKind.Primitive:
+                if (constant.Value is string str)
+                    return $"\"{str.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"";
+                if (constant.Value is bool b)
+                    return b ? "true" : "false";
+                return constant.Value.ToString() ?? "null";
+
+            default:
+                return constant.Value.ToString() ?? "null";
+        }
+    }
+
+    private static string FormatAttributeArguments(AttributeData attr)
+    {
+        var args = new List<string>();
+
+        foreach (var arg in attr.ConstructorArguments)
+        {
+            args.Add(FormatTypedConstant(arg));
+        }
+
+        foreach (var named in attr.NamedArguments)
+        {
+            args.Add($"{named.Key} = {FormatTypedConstant(named.Value)}");
+        }
+
+        return string.Join(", ", args);
+    }
+
+    /// <summary>
+    /// Emits forwarded attributes for the given symbol, one per line, each prefixed with indent.
+    /// Skips compiler-generated and AspectCore marker attributes; forwards only whitelisted
+    /// attributes (or any non-blacklisted attribute when isTypeParameter is true).
+    /// </summary>
+    private static void EmitAttributes(StringBuilder sb, ISymbol symbol, string indent, bool isTypeParameter = false)
+    {
+        foreach (var attr in symbol.GetAttributes())
+        {
+            if (!ShouldForwardAttribute(attr, isTypeParameter)) continue;
+
+            var attrName = attr.AttributeClass!.ToGlobalName();
+            var args = FormatAttributeArguments(attr);
+
+            sb.Append(indent).Append('[').Append(attrName);
+            if (!string.IsNullOrEmpty(args))
+            {
+                sb.Append('(').Append(args).Append(')');
+            }
+            sb.AppendLine("]");
+        }
+    }
+
+    /// <summary>
+    /// Returns a string of forwarded attributes suitable for inline use (e.g. in parameter
+    /// declarations or type parameter lists). Returns an empty string when no attributes apply.
+    /// </summary>
+    private static string EmitAttributesInline(ISymbol symbol, bool isTypeParameter = false)
+    {
+        var sb = new StringBuilder();
+        foreach (var attr in symbol.GetAttributes())
+        {
+            if (!ShouldForwardAttribute(attr, isTypeParameter)) continue;
+
+            var attrName = attr.AttributeClass!.ToGlobalName();
+            var args = FormatAttributeArguments(attr);
+
+            sb.Append('[').Append(attrName);
+            if (!string.IsNullOrEmpty(args))
+            {
+                sb.Append('(').Append(args).Append(')');
+            }
+            sb.Append("] ");
+        }
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Emits a type parameter name with any forwarded attributes prepended (for C# 13
+    /// type parameter attributes such as [Experimental]).
+    /// </summary>
+    private static string EmitTypeParameterWithAttributes(ITypeParameterSymbol tp)
+    {
+        var attrs = EmitAttributesInline(tp, isTypeParameter: true);
+        return $"{attrs}{tp.Name}";
     }
 }
 
