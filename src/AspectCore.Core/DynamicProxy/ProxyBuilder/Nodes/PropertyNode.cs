@@ -20,6 +20,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
 
         public FieldNode BackingField { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the property is declared as <c>partial</c>
+        /// (C# 13.0 partial properties). When <c>true</c>, the property declaration
+        /// and accessor implementations may be split across multiple source files.
+        /// </summary>
+        public bool IsPartial { get; }
+
         public PropertyNode(
             string name,
             Type propertyType,
@@ -27,7 +34,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
             IReadOnlyList<AttributeNode> attributes,
             MethodNode getMethod,
             MethodNode setMethod,
-            FieldNode backingField = null)
+            FieldNode backingField = null,
+            bool isPartial = false)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             PropertyType = propertyType ?? throw new ArgumentNullException(nameof(propertyType));
@@ -36,6 +44,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
             GetMethod = getMethod;
             SetMethod = setMethod;
             BackingField = backingField;
+            IsPartial = isPartial;
         }
 
         public override void Accept(IProxyBuilderVisitor visitor) => visitor.VisitProperty(this);

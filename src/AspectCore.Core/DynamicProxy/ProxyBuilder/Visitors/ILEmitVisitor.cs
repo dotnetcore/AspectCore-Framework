@@ -284,6 +284,11 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
 
         public void VisitProperty(PropertyNode node)
         {
+            // Note: For partial properties (C# 13.0), the compiler has already merged
+            // the declaration and implementation into a single property with complete
+            // accessor bodies before this point. The IsPartial flag on PropertyNode is
+            // informational and primarily used by the source generator path.
+
             // Backing field for stub properties
             if (node.BackingField != null && !_ctx.Fields.ContainsKey(node.BackingField.Name))
             {

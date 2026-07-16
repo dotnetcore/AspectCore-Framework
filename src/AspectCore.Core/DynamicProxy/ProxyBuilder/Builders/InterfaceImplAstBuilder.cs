@@ -160,6 +160,9 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
             var attrs = AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes);
 
+            var isPartial = (property.GetMethod?.IsPartialMethod() ?? false)
+                || (property.SetMethod?.IsPartialMethod() ?? false);
+
             return new PropertyNode(
                 property.Name,
                 property.PropertyType,
@@ -167,7 +170,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 attrs,
                 getMethod,
                 setMethod,
-                backingField);
+                backingField,
+                isPartial: isPartial);
         }
 
         private ProxyTypeNode BuildProxyType(Type[] interfaceTypes)
@@ -350,7 +354,10 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             };
             attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
-            return new PropertyNode(name, property.PropertyType, property.Attributes, attrs, getMethod, setMethod);
+            var isPartial = (property.GetMethod?.IsPartialMethod() ?? false)
+                || (property.SetMethod?.IsPartialMethod() ?? false);
+
+            return new PropertyNode(name, property.PropertyType, property.Attributes, attrs, getMethod, setMethod, isPartial: isPartial);
         }
 
         internal static MethodNode BuildProxyMethod(
