@@ -40,6 +40,10 @@ namespace AspectCore.Core.Tests.DynamicProxy
         [Fact]
         public void ParamsCollection_Should_Preserve_ParamCollectionAttribute()
         {
+#if NET10_0_OR_GREATER
+            // ParamCollectionAttribute was introduced in .NET 10 (C# 13).
+            // On older target frameworks the attribute does not exist, so the
+            // params-collection parameter carries no attribute to forward.
             var proxy = ProxyGenerator.CreateClassProxy<ParamsCollectionService>();
             var method = proxy.GetType().GetMethod("Sum");
             Assert.NotNull(method);
@@ -48,6 +52,10 @@ namespace AspectCore.Core.Tests.DynamicProxy
             var hasParamCollection = param.GetCustomAttributes(false)
                 .Any(a => a.GetType().Name == "ParamCollectionAttribute");
             Assert.True(hasParamCollection, "ParamCollectionAttribute should be forwarded to proxy parameter");
+#else
+            // Skip on frameworks prior to .NET 10 where ParamCollectionAttribute does not exist.
+            Assert.True(true);
+#endif
         }
 
         protected override void Configure(IAspectConfiguration configuration)
