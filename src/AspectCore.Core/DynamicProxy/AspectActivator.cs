@@ -1,7 +1,9 @@
 ﻿using AspectCore.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.Utils;
 
@@ -147,7 +149,9 @@ namespace AspectCore.DynamicProxy
             return InvokeAsyncEnumerableCore<TResult>(activatorContext);
         }
 
-        private async IAsyncEnumerable<TResult> InvokeAsyncEnumerableCore<TResult>(AspectActivatorContext activatorContext)
+        private async IAsyncEnumerable<TResult> InvokeAsyncEnumerableCore<TResult>(
+            AspectActivatorContext activatorContext,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var context = _aspectContextFactory.CreateContext(activatorContext);
             try
@@ -158,8 +162,27 @@ namespace AspectCore.DynamicProxy
                     yield break;
                 }
 
-                await foreach (var item in asyncEnumerable)
+                await using var enumerator = asyncEnumerable.WithCancellation(cancellationToken).GetAsyncEnumerator();
+                while (true)
                 {
+                    TResult item;
+                    try
+                    {
+                        if (!await enumerator.MoveNextAsync())
+                        {
+                            break;
+                        }
+
+                        item = enumerator.Current;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!_aspectConfiguration.ThrowAspectException || ex is AspectInvocationException _)
+                            throw;
+
+                        throw new AspectInvocationException(context, ex);
+                    }
+
                     yield return item;
                 }
             }
