@@ -924,7 +924,7 @@ internal static class ProxyEmitter
 
     private static bool TryReportUnsupportedByRefLikeParams(INamedTypeSymbol serviceType, SourceProductionContext context)
     {
-        foreach (var method in GetProxyableMethods(serviceType))
+        foreach (var method in GetProxyableMethods(serviceType).Concat(GetProxyablePropertyAccessors(serviceType)))
         {
             var parameter = method.Parameters.FirstOrDefault(p => p.IsParams && IsByRefLikeType(p.Type));
             if (parameter is null)
@@ -950,6 +950,19 @@ internal static class ProxyEmitter
         }
 
         return false;
+    }
+
+    private static IEnumerable<IMethodSymbol> GetProxyablePropertyAccessors(INamedTypeSymbol serviceType)
+    {
+        var properties = serviceType.TypeKind == TypeKind.Interface
+            ? GetAllInterfaces(serviceType).SelectMany(i => i.GetMembers().OfType<IPropertySymbol>())
+            : serviceType.GetMembers().OfType<IPropertySymbol>();
+
+        return properties
+            .Where(p => p.IsIndexer)
+            .SelectMany(p => new[] { p.GetMethod, p.SetMethod })
+            .OfType<IMethodSymbol>()
+            .Where(m => serviceType.TypeKind == TypeKind.Interface || IsOverridable(m));
     }
 
     private static IEnumerable<IMethodSymbol> GetProxyableMethods(INamedTypeSymbol serviceType)
