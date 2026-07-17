@@ -86,6 +86,26 @@ namespace AspectCore.Core.Tests.DynamicProxy
         }
 
         [Fact]
+        public async Task AsyncEnumerable_Wraps_Exceptions_During_Disposal_When_Configured()
+        {
+            var proxyGenerator = new ProxyGeneratorBuilder()
+                .Configure(config =>
+                {
+                    config.ThrowAspectException = true;
+                    config.Interceptors.AddDelegate((context, next) => context.Invoke(next));
+                })
+                .Build();
+            var proxy = proxyGenerator.CreateClassProxy<AsyncStreamService>();
+
+            var enumerator = proxy.GetValuesWithFailingDispose().GetAsyncEnumerator();
+            Assert.True(await enumerator.MoveNextAsync());
+
+            var exception = await Assert.ThrowsAsync<AspectInvocationException>(async () => await enumerator.DisposeAsync());
+            Assert.IsType<InvalidOperationException>(exception.InnerException);
+            Assert.Equal(AsyncStreamService.DisposeExceptionMessage, exception.InnerException.Message);
+        }
+
+        [Fact]
         public async Task IAsyncDisposable_DisposeAsync_IsIntercepted()
         {
             var calls = 0;
@@ -107,6 +127,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
         public class AsyncStreamService
         {
             public const string ExceptionMessage = "async stream failure";
+            public const string DisposeExceptionMessage = "async stream disposal failure";
 
             public virtual async IAsyncEnumerable<int> GetValues()
             {
@@ -120,6 +141,19 @@ namespace AspectCore.Core.Tests.DynamicProxy
                 await Task.Yield();
                 yield return 1;
                 throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            public virtual async IAsyncEnumerable<int> GetValuesWithFailingDispose()
+            {
+                try
+                {
+                    yield return 1;
+                }
+                finally
+                {
+                    await Task.Yield();
+                    throw new InvalidOperationException(DisposeExceptionMessage);
+                }
             }
 
             public virtual async IAsyncEnumerable<int> GetValuesUntilCancelled([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

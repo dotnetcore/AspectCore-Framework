@@ -162,18 +162,37 @@ namespace AspectCore.DynamicProxy
                     yield break;
                 }
 
-                await using var enumerator = asyncEnumerable.WithCancellation(cancellationToken).GetAsyncEnumerator();
-                while (true)
+                var enumerator = asyncEnumerable.WithCancellation(cancellationToken).GetAsyncEnumerator();
+                try
                 {
-                    TResult item;
-                    try
+                    while (true)
                     {
-                        if (!await enumerator.MoveNextAsync())
+                        TResult item;
+                        try
                         {
-                            break;
+                            if (!await enumerator.MoveNextAsync())
+                            {
+                                break;
+                            }
+
+                            item = enumerator.Current;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (!_aspectConfiguration.ThrowAspectException || ex is AspectInvocationException _)
+                                throw;
+
+                            throw new AspectInvocationException(context, ex);
                         }
 
-                        item = enumerator.Current;
+                        yield return item;
+                    }
+                }
+                finally
+                {
+                    try
+                    {
+                        await enumerator.DisposeAsync();
                     }
                     catch (Exception ex)
                     {
@@ -182,8 +201,6 @@ namespace AspectCore.DynamicProxy
 
                         throw new AspectInvocationException(context, ex);
                     }
-
-                    yield return item;
                 }
             }
             finally
