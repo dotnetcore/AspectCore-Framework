@@ -43,6 +43,8 @@ public class PartialPropertyTests
         // The proxy should delegate to the base implementation.
         proxy.Name = "test";
         Assert.Equal("test", proxy.Name);
+        Assert.Equal(2, snapshots.Count);
+        Assert.Equal(new[] { "set_Name", "get_Name" }, snapshots.Select(snapshot => snapshot.ServiceMethodName));
     }
 
     #endregion
