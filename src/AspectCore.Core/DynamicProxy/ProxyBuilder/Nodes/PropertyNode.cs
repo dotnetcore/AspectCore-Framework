@@ -20,6 +20,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
 
         public FieldNode BackingField { get; }
 
+
         public PropertyNode(
             string name,
             Type propertyType,
