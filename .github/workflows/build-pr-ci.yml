@@ -57,9 +57,11 @@ jobs:
           dotnet test --configuration Release $project
         done
 
-  unit-test-coverage:
-    name: Unit Test Coverage
+  unit-test-execution:
+    name: Unit Test Execution
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -73,15 +75,137 @@ jobs:
           8.0.x
           9.0.x
           10.0.x
-    - name: Check Unit Test Coverage
-      shell: bash
+    - name: Collect unit test coverage
+      id: coverage
+      continue-on-error: true
       run: |
         chmod +x ./.github/scripts/check-coverage.sh
-        ./.github/scripts/check-coverage.sh unit
+        ./.github/scripts/check-coverage.sh collect unit --output coverage-results/unit.env
+    - name: Publish unit execution coverage check
+      if: ${{ steps.coverage.outcome == 'success' }}
+      uses: actions/github-script@v7
+      env:
+        COVERAGE: ${{ steps.coverage.outputs.coverage }}
+        THRESHOLD: ${{ steps.coverage.outputs.threshold }}
+        PROJECTS: ${{ steps.coverage.outputs.projects }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const coverage = process.env.COVERAGE;
+          const threshold = process.env.THRESHOLD;
+          const projects = process.env.PROJECTS;
+          const title = `Unit Test: passed (coverage ${coverage}% / min ${threshold}%)`;
+          const summary = [
+            "## Unit Test Execution",
+            "",
+            "All unit-test projects completed successfully.",
+            "",
+            `Coverage data was collected for **${projects}** projects: **${coverage}%** (threshold: **${threshold}%**).`,
+          ].join("\n");
 
-  e2e-test-coverage:
-    name: E2E Test Coverage
+          await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: title,
+            head_sha: context.payload.pull_request.head.sha,
+            status: "completed",
+            conclusion: "success",
+            output: { title: "Unit Test Execution", summary },
+          });
+    - name: Fail when unit test execution failed
+      if: ${{ steps.coverage.outcome != 'success' }}
+      shell: bash
+      run: exit 1
+    - name: Upload unit coverage result
+      if: ${{ steps.coverage.outcome == 'success' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-coverage-result
+        path: coverage-results/unit.env
+        if-no-files-found: error
+        retention-days: 1
+
+  unit-test-coverage-result:
+    name: Unit Test Coverage Result
+    needs: unit-test-execution
+    if: ${{ always() }}
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+    - name: Download unit coverage result
+      if: ${{ needs.unit-test-execution.result == 'success' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: unit-coverage-result
+        path: coverage-results
+    - name: Assert unit coverage
+      id: coverage
+      if: ${{ needs.unit-test-execution.result == 'success' }}
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh assert unit --input coverage-results/unit.env
+    - name: Set unit execution failure result
+      id: execution_failure
+      if: ${{ needs.unit-test-execution.result != 'success' }}
+      shell: bash
+      run: |
+        echo "coverage=unavailable" >> "$GITHUB_OUTPUT"
+        echo "threshold=95" >> "$GITHUB_OUTPUT"
+        echo "projects=0" >> "$GITHUB_OUTPUT"
+        echo "passed=false" >> "$GITHUB_OUTPUT"
+    - name: Publish unit coverage check
+      uses: actions/github-script@v7
+      env:
+        EXECUTION_RESULT: ${{ needs.unit-test-execution.result }}
+        COVERAGE: ${{ steps.coverage.outputs.coverage || steps.execution_failure.outputs.coverage }}
+        THRESHOLD: ${{ steps.coverage.outputs.threshold || steps.execution_failure.outputs.threshold }}
+        PROJECTS: ${{ steps.coverage.outputs.projects || steps.execution_failure.outputs.projects }}
+        PASSED: ${{ steps.coverage.outputs.passed || steps.execution_failure.outputs.passed }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const executionResult = process.env.EXECUTION_RESULT;
+          const coverage = process.env.COVERAGE;
+          const threshold = process.env.THRESHOLD;
+          const projects = process.env.PROJECTS;
+          const passed = process.env.PASSED === "true";
+          const available = /^\d+$/.test(coverage);
+          const conclusion = executionResult !== "success"
+            ? "failure"
+            : passed ? "success" : "failure";
+          const result = conclusion === "success" ? "✅ Passed" : "❌ Failed";
+          const title = available
+            ? `Unit Coverage: ${coverage}% / min ${threshold}%`
+            : `Unit Coverage: unavailable / min ${threshold}%`;
+          const summary = [
+            "## Unit Test Coverage",
+            "",
+            "| Current PR | Threshold | Projects | Result |",
+            "| --- | --- | --- | --- |",
+            `| ${available ? `${coverage}%` : "Unavailable"} | ${threshold}% | ${projects} | ${result} |`,
+            "",
+            executionResult === "success"
+              ? "The coverage result was collected by the Unit Test Execution job."
+              : `The Unit Test Execution job completed with \`${executionResult}\`; no valid coverage result was produced.`,
+          ].join("\n");
+
+          await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: title,
+            head_sha: context.payload.pull_request.head.sha,
+            status: "completed",
+            conclusion,
+            output: { title: "Unit Test Coverage", summary },
+          });
+
+  e2e-test-execution:
+    name: E2E Test Execution
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -95,11 +219,131 @@ jobs:
           8.0.x
           9.0.x
           10.0.x
-    - name: Check E2E Test Coverage
+    - name: Collect E2E test coverage
+      id: coverage
+      continue-on-error: true
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh collect e2e --output coverage-results/e2e.env
+    - name: Publish E2E execution coverage check
+      if: ${{ steps.coverage.outcome == 'success' }}
+      uses: actions/github-script@v7
+      env:
+        COVERAGE: ${{ steps.coverage.outputs.coverage }}
+        THRESHOLD: ${{ steps.coverage.outputs.threshold }}
+        PROJECTS: ${{ steps.coverage.outputs.projects }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const coverage = process.env.COVERAGE;
+          const threshold = process.env.THRESHOLD;
+          const projects = process.env.PROJECTS;
+          const title = `E2E Test: passed (coverage ${coverage}% / min ${threshold}%)`;
+          const summary = [
+            "## E2E Test Execution",
+            "",
+            "All E2E tests completed successfully.",
+            "",
+            `Coverage data was collected for **${projects}** projects: **${coverage}%** (threshold: **${threshold}%**).`,
+          ].join("\n");
+
+          await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: title,
+            head_sha: context.payload.pull_request.head.sha,
+            status: "completed",
+            conclusion: "success",
+            output: { title: "E2E Test Execution", summary },
+          });
+    - name: Fail when E2E test execution failed
+      if: ${{ steps.coverage.outcome != 'success' }}
+      shell: bash
+      run: exit 1
+    - name: Upload E2E coverage result
+      if: ${{ steps.coverage.outcome == 'success' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-coverage-result
+        path: coverage-results/e2e.env
+        if-no-files-found: error
+        retention-days: 1
+
+  e2e-test-coverage-result:
+    name: E2E Test Coverage Result
+    needs: e2e-test-execution
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+    - name: Download E2E coverage result
+      if: ${{ needs.e2e-test-execution.result == 'success' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: e2e-coverage-result
+        path: coverage-results
+    - name: Assert E2E coverage
+      id: coverage
+      if: ${{ needs.e2e-test-execution.result == 'success' }}
       shell: bash
       run: |
         chmod +x ./.github/scripts/check-coverage.sh
-        ./.github/scripts/check-coverage.sh e2e
+        ./.github/scripts/check-coverage.sh assert e2e --input coverage-results/e2e.env
+    - name: Set E2E execution failure result
+      id: execution_failure
+      if: ${{ needs.e2e-test-execution.result != 'success' }}
+      shell: bash
+      run: |
+        echo "coverage=unavailable" >> "$GITHUB_OUTPUT"
+        echo "threshold=80" >> "$GITHUB_OUTPUT"
+        echo "projects=0" >> "$GITHUB_OUTPUT"
+        echo "passed=false" >> "$GITHUB_OUTPUT"
+    - name: Publish E2E coverage check
+      uses: actions/github-script@v7
+      env:
+        EXECUTION_RESULT: ${{ needs.e2e-test-execution.result }}
+        COVERAGE: ${{ steps.coverage.outputs.coverage || steps.execution_failure.outputs.coverage }}
+        THRESHOLD: ${{ steps.coverage.outputs.threshold || steps.execution_failure.outputs.threshold }}
+        PROJECTS: ${{ steps.coverage.outputs.projects || steps.execution_failure.outputs.projects }}
+        PASSED: ${{ steps.coverage.outputs.passed || steps.execution_failure.outputs.passed }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const executionResult = process.env.EXECUTION_RESULT;
+          const coverage = process.env.COVERAGE;
+          const threshold = process.env.THRESHOLD;
+          const projects = process.env.PROJECTS;
+          const passed = process.env.PASSED === "true";
+          const available = /^\d+$/.test(coverage);
+          const conclusion = executionResult !== "success"
+            ? "failure"
+            : passed ? "success" : "failure";
+          const result = conclusion === "success" ? "✅ Passed" : "❌ Failed";
+          const title = available
+            ? `E2E Coverage: ${coverage}% / min ${threshold}%`
+            : `E2E Coverage: unavailable / min ${threshold}%`;
+          const summary = [
+            "## E2E Test Coverage",
+            "",
+            "| Current PR | Threshold | Projects | Result |",
+            "| --- | --- | --- | --- |",
+            `| ${available ? `${coverage}%` : "Unavailable"} | ${threshold}% | ${projects} | ${result} |`,
+            "",
+            executionResult === "success"
+              ? "The coverage result was collected by the E2E Test Execution job."
+              : `The E2E Test Execution job completed with \`${executionResult}\`; no valid coverage result was produced.`,
+          ].join("\n");
+
+          await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: title,
+            head_sha: context.payload.pull_request.head.sha,
+            status: "completed",
+            conclusion,
+            output: { title: "E2E Test Coverage", summary },
+          });
 
   codeql:
     runs-on: ubuntu-latest
