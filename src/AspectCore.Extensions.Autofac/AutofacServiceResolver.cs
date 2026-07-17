@@ -3,7 +3,6 @@ using AspectCore.DynamicProxy;
 using AspectCore.DependencyInjection;
 using Autofac;
 using Autofac.Core;
-using Autofac.Core.Lifetime;
 
 namespace AspectCore.Extensions.Autofac
 {
@@ -40,7 +39,7 @@ namespace AspectCore.Extensions.Autofac
             {
                 return _componentContext.ResolveOptional(serviceType);
             }
-            return _componentContext.ResolveKeyed(serviceKey, serviceType);
+            return _componentContext.ResolveOptionalService(new KeyedService(serviceKey, serviceType));
         }
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
