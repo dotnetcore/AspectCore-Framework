@@ -289,6 +289,7 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             return;
         }
 
+        var emittedEntries = new List<ProxyEntry>();
         foreach (var entry in entries)
         {
             var src = entry.Kind switch
@@ -301,10 +302,14 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             if (src is not null)
             {
                 context.AddSource($"{entry.ProxyTypeName}.g.cs", src);
+                emittedEntries.Add(entry);
             }
         }
 
-        context.AddSource("AspectCoreSourceGeneratedProxyRegistry.g.cs", RegistryEmitter.EmitRegistry(entries));
+        if (emittedEntries.Count > 0)
+        {
+            context.AddSource("AspectCoreSourceGeneratedProxyRegistry.g.cs", RegistryEmitter.EmitRegistry(emittedEntries));
+        }
     }
 
     /// <summary>
