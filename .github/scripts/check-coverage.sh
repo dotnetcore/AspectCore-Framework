@@ -49,6 +49,8 @@ run_coverage() {
   local coverage_file
   local line_rate
   local coverage_pct
+  local test_log
+  local test_status
 
   echo "Measuring: $label..." >&2
 
@@ -69,11 +71,24 @@ run_coverage() {
   fi
 
   # Do not use --no-build: coverlet.msbuild needs to instrument assemblies.
+  # Capture the pipeline status explicitly because this function's output is
+  # consumed through command substitution by collect_coverage.
+  set +e
+  test_log=$(mktemp)
   dotnet test "$project" --configuration Release -f net9.0 \
     /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
     /p:CoverletOutput=./TestResults/ \
     "/p:Include=${include_filter}" \
-    2>&1 | tail -1 >&2
+    > "$test_log" 2>&1
+  test_status=$?
+  tail -1 "$test_log" >&2
+  rm -f "$test_log"
+  set -e
+
+  if [[ "$test_status" -ne 0 ]]; then
+    echo "  Test execution failed for: $label" >&2
+    return "$test_status"
+  fi
 
   coverage_file=$(find "$project_dir/TestResults" -name "*.cobertura.xml" -print -quit)
   if [[ -n "$coverage_file" && -f "$coverage_file" ]]; then
@@ -114,7 +129,11 @@ collect_coverage() {
 
   echo "=== ${heading} Coverage Collection ==="
   while IFS= read -r test_project; do
-    coverage=$(run_coverage "$test_project" "$(basename "$(dirname "$test_project")")")
+    if ! coverage=$(run_coverage "$test_project" "$(basename "$(dirname "$test_project")")"); then
+      echo "FAIL: Test execution failed for ${test_project}." >&2
+      return 1
+    fi
+
     if [[ "$coverage" == "0" || -z "$coverage" ]]; then
       continue
     fi
