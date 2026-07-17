@@ -13,7 +13,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
         // framework (e.g. netstandard2.0) and would fail to resolve at compile time.
         // Do not add compiler attributes that affect call-site or construction
         // semantics and must be forwarded to proxy members/parameters, such as
-        // System.ParamCollectionAttribute,
+        // System.Runtime.CompilerServices.ParamCollectionAttribute,
         // System.Runtime.CompilerServices.CollectionBuilderAttribute, and
         // System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.
         private static readonly HashSet<string> SkippedAttributeFullNames = new HashSet<string>

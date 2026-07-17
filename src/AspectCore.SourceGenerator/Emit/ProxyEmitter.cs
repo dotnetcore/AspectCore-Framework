@@ -309,7 +309,7 @@ internal static class ProxyEmitter
         sb.Append("        public ");
         sb.Append(method.ReturnsVoid ? "void" : method.ReturnType.ToGlobalName());
         sb.Append(' ').Append(method.Name).Append(EmitGenericParameterList(method)).Append('(');
-        sb.Append(string.Join(", ", method.Parameters.Select(EmitParameterDecl)));
+        sb.Append(string.Join(", ", method.Parameters.Select(p => EmitParameterDecl(p))));
         sb.AppendLine(")");
         EmitGenericConstraints(sb, method, indent: "        ");
         sb.AppendLine("        {");
@@ -401,8 +401,11 @@ internal static class ProxyEmitter
                 // For generic base classes, constructor parameters may reference class-level type params.
                 // ToGlobalName() on a type parameter returns just the name (e.g. "T"), which matches
                 // the forwarded type params on the proxy class.
-                // Use EmitParameterDecl to preserve params (C# 13), ref/out/in, and forwarded attributes.
-                sb.Append(string.Join(", ", ctor.Parameters.Select(EmitParameterDecl)));
+                // Use EmitParameterDecl to preserve params (C# 13), ref/out/in, and
+                // scoped modifiers. Pass isConstructor: true so that call-site-specific
+                // attributes (e.g. [CallerArgumentExpression]) are not forwarded to the
+                // proxy constructor, which only passes arguments through to base().
+                sb.Append(string.Join(", ", ctor.Parameters.Select(p => EmitParameterDecl(p, isConstructor: true))));
             }
             sb.Append(')');
             sb.Append(" : base(");
@@ -690,7 +693,7 @@ internal static class ProxyEmitter
         if (isOverride) sb.Append("override ");
         sb.Append(method.ReturnsVoid ? "void" : method.ReturnType.ToGlobalName());
         sb.Append(' ').Append(method.Name).Append(EmitGenericParameterList(method)).Append('(');
-        sb.Append(string.Join(", ", method.Parameters.Select(EmitParameterDecl)));
+        sb.Append(string.Join(", ", method.Parameters.Select(p => EmitParameterDecl(p))));
         sb.AppendLine(")");
         EmitGenericConstraints(sb, method, indent: "        ");
         sb.AppendLine("        {");
@@ -890,7 +893,7 @@ internal static class ProxyEmitter
         }
     }
 
-    private static string EmitParameterDecl(IParameterSymbol p)
+    private static string EmitParameterDecl(IParameterSymbol p, bool isConstructor = false)
     {
         // C# 11 scoped modifier (e.g. scoped ref T, scoped T).
         // Detected via the compiler-generated [ScopedRef] attribute because
@@ -910,7 +913,12 @@ internal static class ProxyEmitter
         // and traditional params T[] are detected via IsParams. Emit the keyword
         // so the generated proxy preserves params calling semantics.
         var paramsPrefix = p.IsParams ? "params " : "";
-        var attrs = EmitAttributesInline(p);
+        // For constructor parameters, skip forwarded attributes: the proxy
+        // constructor merely passes arguments through to base(), so attributes
+        // like [CallerArgumentExpression] are meaningless and would trigger
+        // compiler warnings. The compiler synthesises [ParamCollection] itself
+        // when it sees the params keyword, so that must not be emitted either.
+        var attrs = isConstructor ? "" : EmitAttributesInline(p);
         return $"{attrs}{scopedPrefix}{prefix}{paramsPrefix}{p.Type.ToGlobalName()} {p.Name}";
     }
 
@@ -1123,12 +1131,16 @@ internal static class ProxyEmitter
 
     // Whitelist of attributes to forward on types, methods, and parameters.
     // Type parameters use a separate rule (any non-blacklisted attribute is forwarded).
+    //
+    // NOTE: System.Runtime.CompilerServices.ParamCollectionAttribute is intentionally
+    // NOT listed here. The compiler synthesises it automatically when the `params`
+    // keyword is used on a collection type. Emitting it explicitly alongside `params`
+    // would cause CS0674 ("Use the `params` keyword instead").
     private static readonly HashSet<string> ForwardedAttributeNames = new()
     {
         "System.Diagnostics.CodeAnalysis.ExperimentalAttribute",
         "System.Runtime.CompilerServices.CollectionBuilderAttribute",
         "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute",
-        "System.ParamCollectionAttribute",
     };
 
     private static bool IsAspectCoreMarkerAttribute(INamedTypeSymbol attrType)

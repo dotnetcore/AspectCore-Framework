@@ -33,7 +33,7 @@ namespace AspectCore.Core.Tests.EngineParity
 
         [Theory]
         [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
-        public void RecordPrimaryConstructor_Should_Work(ProxyEngine engine)
+        public void RecordStylePrimaryConstructor_Should_Work(ProxyEngine engine)
         {
             using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
                 engine,
@@ -44,7 +44,7 @@ namespace AspectCore.Core.Tests.EngineParity
                 strict: engine == ProxyEngine.SourceGenerator,
                 allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
 
-            var proxy = proxyGenerator.CreateClassProxy<RecordPrimaryConstructorParityService>(99, "world");
+            var proxy = proxyGenerator.CreateClassProxy<RecordStylePrimaryConstructorParityService>(99, "world");
             Assert.True(proxy.IsProxy());
             Assert.Equal(99, proxy.Value);
             Assert.Equal("world", proxy.Label);
@@ -148,6 +148,29 @@ namespace AspectCore.Core.Tests.EngineParity
 
         [Theory]
         [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+        public void PrimaryConstructor_WithParamsCollection_Should_Work(ProxyEngine engine)
+        {
+            using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+                engine,
+                configureAspect: cfg =>
+                {
+                    cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+                },
+                strict: engine == ProxyEngine.SourceGenerator,
+                allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+            var proxy = proxyGenerator.CreateClassProxy<PrimaryConstructorWithParamsCollectionService>(
+                3,
+                (IEnumerable<int>)new[] { 2, 4, 6 });
+
+            Assert.True(proxy.IsProxy());
+            Assert.Equal(3, proxy.Multiplier);
+            Assert.Equal(36, proxy.Total);
+            Assert.Equal(72, proxy.DoubleTotal());
+        }
+
+        [Theory]
+        [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
         public void ClassConstructor_WithParamsIEnumerable_Should_Work(ProxyEngine engine)
         {
             using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
@@ -220,7 +243,7 @@ namespace AspectCore.Core.Tests.EngineParity
     }
 
     [AspectCoreGenerateProxy]
-    public class RecordPrimaryConstructorParityService(int value, string label)
+    public class RecordStylePrimaryConstructorParityService(int value, string label)
     {
         public int Value => value;
         public string Label => label;
@@ -239,6 +262,14 @@ namespace AspectCore.Core.Tests.EngineParity
         {
             return string.Join(",", items);
         }
+    }
+
+    [AspectCoreGenerateProxy]
+    public class PrimaryConstructorWithParamsCollectionService(int multiplier, params IEnumerable<int> values)
+    {
+        public int Multiplier => multiplier;
+        public int Total => values.Sum() * multiplier;
+        public virtual int DoubleTotal() => Total * 2;
     }
 
     [AspectCoreGenerateProxy]

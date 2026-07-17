@@ -21,9 +21,9 @@ namespace AspectCore.Core.Tests.DynamicProxy
         }
 
         [Fact]
-        public void RecordPrimaryConstructor_Should_Proxy()
+        public void RecordStylePrimaryConstructor_Should_Proxy()
         {
-            var proxy = ProxyGenerator.CreateClassProxy<RecordPrimaryConstructorService>(99, "world");
+            var proxy = ProxyGenerator.CreateClassProxy<RecordStylePrimaryConstructorService>(99, "world");
             Assert.True(proxy.IsProxy());
             Assert.Equal(99, proxy.Value);
             Assert.Equal("world", proxy.Label);
@@ -58,8 +58,12 @@ namespace AspectCore.Core.Tests.DynamicProxy
         public virtual int DoubleCount() => count * 2;
     }
 
-    // C# 9 record primary constructor (record class, non-sealed)
-    public class RecordPrimaryConstructorService(int value, string label)
+    // Primary constructor on a plain class (record-style syntax, but not a record).
+    // Named "RecordStyle" to clarify this uses primary constructor syntax on a
+    // non-record type. A real C# 9 record (with auto-generated Equals, GetHashCode,
+    // ToString, Deconstruct, and <Clone>$ members) is tested separately and may
+    // require additional handling for those compiler-generated members.
+    public class RecordStylePrimaryConstructorService(int value, string label)
     {
         public int Value => value;
         public string Label => label;
