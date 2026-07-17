@@ -69,5 +69,23 @@ public class KeyedServiceTests
         Assert.Equal(1, keyd2Service.Get());
         Assert.Equal(1000, keyd2Service.GetIntercept());
     }
+
+    [Fact]
+    public void GetKeydService_WithNotKeyed()
+    {
+        var services = new ServiceCollection();
+        var builder = new ContainerBuilder();
+        builder.RegisterDynamicProxy();
+        services.AddKeyedScoped<IKeydService, KeydService>("key1");
+        services.AddScoped<IKeydService, KeydService>();
+        builder.Populate(services);
+        var serviceProvider = new AutofacServiceProvider(builder.Build());
+        var keyd2Service = serviceProvider.GetKeyedService<IKeydService>("key2");
+        Assert.Null(keyd2Service);
+        //为key为null走默认
+        var keyd3Service = serviceProvider.GetKeyedService<IKeydService>(null);
+        Assert.Equal(1, keyd3Service.Get());
+        Assert.Equal(1000, keyd3Service.GetIntercept());
+    }
 #endif
 }
