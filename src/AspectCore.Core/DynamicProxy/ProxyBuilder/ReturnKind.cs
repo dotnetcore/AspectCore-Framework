@@ -7,6 +7,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder
         Task,
         TaskOfT,
         ValueTask,
-        ValueTaskOfT
+        ValueTaskOfT,
+        AsyncEnumerable
     }
 }

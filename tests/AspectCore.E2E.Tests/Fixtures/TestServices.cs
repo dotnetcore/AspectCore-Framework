@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 using AspectCore.DynamicProxy.Parameters;
@@ -147,6 +148,9 @@ public interface IAsyncService
     Task<int> ThrowAsync();
     ValueTask<string> GetLabelAsync();
     Task ChainAsync();
+    IAsyncEnumerable<int> GetValuesAsync(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<int> GetValuesAndThrowAsync();
+    IAsyncEnumerable<int> GetValuesWithFailingDisposeAsync();
 }
 
 public class AsyncService : IAsyncService
@@ -168,6 +172,32 @@ public class AsyncService : IAsyncService
     public async Task ChainAsync()
     {
         await Task.Delay(1);
+    }
+
+    public async IAsyncEnumerable<int> GetValuesAsync([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        yield return 1;
+        await Task.Delay(Timeout.Infinite, cancellationToken);
+    }
+
+    public async IAsyncEnumerable<int> GetValuesWithFailingDisposeAsync()
+    {
+        try
+        {
+            yield return 1;
+        }
+        finally
+        {
+            await Task.Yield();
+            throw new InvalidOperationException("async stream disposal failure");
+        }
+    }
+
+    public async IAsyncEnumerable<int> GetValuesAndThrowAsync()
+    {
+        await Task.Yield();
+        yield return 1;
+        throw new InvalidOperationException("async stream failure");
     }
 }
 

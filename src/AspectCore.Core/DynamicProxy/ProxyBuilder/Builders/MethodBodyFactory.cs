@@ -87,6 +87,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 return ReturnKind.ValueTask;
             if (method.IsReturnValueTask())
                 return ReturnKind.ValueTaskOfT;
+            if (method.IsReturnAsyncEnumerable())
+                return ReturnKind.AsyncEnumerable;
             return ReturnKind.Sync;
         }
     }

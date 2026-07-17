@@ -40,6 +40,13 @@ namespace AspectCore.Core.Tests.Utils
         }
 
         [Fact]
+        public void AspectActivatorInvokeAsyncEnumerable_IsCorrectMethod()
+        {
+            Assert.NotNull(MethodUtils.AspectActivatorInvokeAsyncEnumerable);
+            Assert.Equal(nameof(IAspectActivator.InvokeAsyncEnumerable), MethodUtils.AspectActivatorInvokeAsyncEnumerable.Name);
+        }
+
+        [Fact]
         public void AspectActivatorContextCtor_IsCorrectConstructor()
         {
             Assert.NotNull(MethodUtils.AspectActivatorContextCtor);

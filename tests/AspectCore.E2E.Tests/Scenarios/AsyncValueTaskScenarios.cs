@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.Configuration;
 using AspectCore.DynamicProxy;
@@ -215,6 +217,81 @@ public class AsyncValueTaskScenarios
         Assert.Equal("Second.Before", InterceptorLog.Entries[1]);
         Assert.Equal("Second.After", InterceptorLog.Entries[2]);
         Assert.Equal("First.After", InterceptorLog.Entries[3]);
+    }
+
+    [Fact]
+    public async Task AsyncEnumerable_WithInterceptor_Propagates_Cancellation()
+    {
+        using var host = new TestHost();
+        host.Add<IAsyncService, AsyncService>();
+
+        InterceptorLog.Clear();
+        var service = host.Resolve<IAsyncService>(config =>
+        {
+            config.Interceptors.AddDelegate(async (ctx, next) =>
+            {
+                InterceptorLog.Entries.Add("Stream.Before");
+                await ctx.Invoke(next);
+                InterceptorLog.Entries.Add("Stream.After");
+            }, Predicates.Implement(typeof(IAsyncService)));
+        });
+        using var cancellationSource = new CancellationTokenSource();
+        var values = new List<int>();
+
+        await using var enumerator = service.GetValuesAsync().GetAsyncEnumerator(cancellationSource.Token);
+        Assert.True(await enumerator.MoveNextAsync());
+        values.Add(enumerator.Current);
+        cancellationSource.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await enumerator.MoveNextAsync());
+        Assert.Equal(new[] { 1 }, values);
+        Assert.Contains("Stream.Before", InterceptorLog.Entries);
+        Assert.Contains("Stream.After", InterceptorLog.Entries);
+    }
+
+    [Fact]
+    public async Task AsyncEnumerable_Disposal_Exception_IsWrapped_WhenConfigured()
+    {
+        using var host = new TestHost();
+        host.Add<IAsyncService, AsyncService>();
+
+        var service = host.Resolve<IAsyncService>(config =>
+        {
+            config.ThrowAspectException = true;
+            config.Interceptors.AddDelegate((ctx, next) => next(ctx),
+                Predicates.Implement(typeof(IAsyncService)));
+        });
+
+        var enumerator = service.GetValuesWithFailingDisposeAsync().GetAsyncEnumerator();
+        Assert.True(await enumerator.MoveNextAsync());
+
+        var exception = await Assert.ThrowsAsync<AspectInvocationException>(async () => await enumerator.DisposeAsync());
+        Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal("async stream disposal failure", exception.InnerException.Message);
+    }
+
+    [Fact]
+    public async Task AsyncEnumerable_Exception_IsWrapped_WhenConfigured()
+    {
+        using var host = new TestHost();
+        host.Add<IAsyncService, AsyncService>();
+
+        var service = host.Resolve<IAsyncService>(config =>
+        {
+            config.ThrowAspectException = true;
+            config.Interceptors.AddDelegate((ctx, next) => next(ctx),
+                Predicates.Implement(typeof(IAsyncService)));
+        });
+
+        var exception = await Assert.ThrowsAsync<AspectInvocationException>(async () =>
+        {
+            await foreach (var _ in service.GetValuesAndThrowAsync())
+            {
+            }
+        });
+
+        Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal("async stream failure", exception.InnerException.Message);
     }
 
     [Fact]

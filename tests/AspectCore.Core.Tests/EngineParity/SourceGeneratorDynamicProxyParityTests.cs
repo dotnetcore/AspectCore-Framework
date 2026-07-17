@@ -89,6 +89,13 @@ public class SourceGeneratorDynamicProxyParityTests
         await proxy.ValueTaskVoid();
         Assert.Equal(1, proxy.ValueTaskVoidCalls);
 
+        var stream = new List<int>();
+        await foreach (var value in proxy.AsyncEnumerable())
+        {
+            stream.Add(value);
+        }
+        Assert.Equal(new[] { 1, 2 }, stream);
+
         Assert.Equal(31, await proxy.ValueTaskOfT(30));
 
         // basic context sanity for all invoked methods
@@ -98,6 +105,7 @@ public class SourceGeneratorDynamicProxyParityTests
         Assert.Contains(nameof(ReturnKindsService.TaskVoid), invoked);
         Assert.Contains(nameof(ReturnKindsService.TaskOfT), invoked);
         Assert.Contains(nameof(ReturnKindsService.ValueTaskVoid), invoked);
+        Assert.Contains(nameof(ReturnKindsService.AsyncEnumerable), invoked);
         Assert.Contains(nameof(ReturnKindsService.ValueTaskOfT), invoked);
 
         foreach (var s in snapshots)
@@ -562,6 +570,13 @@ public class ReturnKindsService
     {
         ValueTaskVoidCalls++;
         return ValueTask.CompletedTask;
+    }
+
+    public virtual async IAsyncEnumerable<int> AsyncEnumerable()
+    {
+        await Task.Yield();
+        yield return 1;
+        yield return 2;
     }
 
     public virtual ValueTask<int> ValueTaskOfT(int value) => ValueTask.FromResult(value + 1);

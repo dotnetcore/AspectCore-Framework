@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using AspectCore.Extensions.Reflection;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -12,6 +13,7 @@ namespace AspectCore.Extensions.Windsor
         private static readonly MethodInfo invoke = typeof(IAspectActivator).GetMethod(nameof(IAspectActivator.Invoke));
         private static readonly MethodInfo invokeTask = typeof(IAspectActivator).GetMethod(nameof(IAspectActivator.InvokeTask));
         private static readonly MethodInfo invokeValueTask = typeof(IAspectActivator).GetMethod(nameof(IAspectActivator.InvokeValueTask));
+        private static readonly MethodInfo invokeAsyncEnumerable = typeof(IAspectActivator).GetMethod(nameof(IAspectActivator.InvokeAsyncEnumerable));
 
         private static readonly ConcurrentDictionary<MethodInfo, MethodReflector> Invokes = new ConcurrentDictionary<MethodInfo, MethodReflector>();
 
@@ -39,6 +41,11 @@ namespace AspectCore.Extensions.Windsor
             {
                 var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
                 return invokeValueTask.MakeGenericMethod(returnType).GetReflector();
+            }
+            else if (method.IsReturnAsyncEnumerable())
+            {
+                var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                return invokeAsyncEnumerable.MakeGenericMethod(returnType).GetReflector();
             }
             else
             {

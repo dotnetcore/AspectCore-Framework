@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -159,6 +160,16 @@ namespace AspectCore.DynamicProxy
             }
             var returnType = methodInfo.ReturnType.GetTypeInfo();
             return returnType.IsValueTaskWithResult();
+        }
+
+        public static bool IsReturnAsyncEnumerable(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+            var returnType = methodInfo.ReturnType.GetTypeInfo();
+            return returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>);
         }
 
         public static bool IsVisibleAndVirtual(this PropertyInfo property)

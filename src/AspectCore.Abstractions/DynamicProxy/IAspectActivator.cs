@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AspectCore.DynamicProxy
 {
@@ -10,5 +11,7 @@ namespace AspectCore.DynamicProxy
         Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext);
 
         ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext);
+
+        IAsyncEnumerable<TResult> InvokeAsyncEnumerable<TResult>(AspectActivatorContext activatorContext);
     }
 }
