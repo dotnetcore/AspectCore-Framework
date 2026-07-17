@@ -164,6 +164,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 property.Name,
                 property.PropertyType,
                 property.Attributes,
+                property.GetRequiredCustomModifiers(),
+                property.GetOptionalCustomModifiers(),
                 attrs,
                 getMethod,
                 setMethod,
@@ -350,7 +352,15 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             };
             attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
-            return new PropertyNode(name, property.PropertyType, property.Attributes, attrs, getMethod, setMethod);
+            return new PropertyNode(
+                name,
+                property.PropertyType,
+                property.Attributes,
+                property.GetRequiredCustomModifiers(),
+                property.GetOptionalCustomModifiers(),
+                attrs,
+                getMethod,
+                setMethod);
         }
 
         internal static MethodNode BuildProxyMethod(

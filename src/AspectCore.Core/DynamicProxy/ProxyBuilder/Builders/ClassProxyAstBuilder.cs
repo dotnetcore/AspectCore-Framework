@@ -246,7 +246,15 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 };
                 attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
-                properties.Add(new PropertyNode(property.Name, propertyType, property.Attributes, attrs, getMethod, setMethod));
+                properties.Add(new PropertyNode(
+                    property.Name,
+                    propertyType,
+                    property.Attributes,
+                    property.GetRequiredCustomModifiers(),
+                    property.GetOptionalCustomModifiers(),
+                    attrs,
+                    getMethod,
+                    setMethod));
             }
 
             (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)
@@ -337,7 +345,15 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     };
                     attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
-                    properties.Add(new PropertyNode(property.GetDisplayName(), property.PropertyType, property.Attributes, attrs, getMethod, setMethod));
+                    properties.Add(new PropertyNode(
+                        property.GetDisplayName(),
+                        property.PropertyType,
+                        property.Attributes,
+                        property.GetRequiredCustomModifiers(),
+                        property.GetOptionalCustomModifiers(),
+                        attrs,
+                        getMethod,
+                        setMethod));
                 }
             }
 
