@@ -57,7 +57,8 @@ jobs:
           dotnet test --configuration Release $project
         done
 
-  coverage:
+  unit-test-coverage:
+    name: Unit Test Coverage
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -72,11 +73,33 @@ jobs:
           8.0.x
           9.0.x
           10.0.x
-    - name: Check Coverage
+    - name: Check Unit Test Coverage
       shell: bash
       run: |
         chmod +x ./.github/scripts/check-coverage.sh
-        ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh unit
+
+  e2e-test-coverage:
+    name: E2E Test Coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Check E2E Test Coverage
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh e2e
 
   codeql:
     runs-on: ubuntu-latest
