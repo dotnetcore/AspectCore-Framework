@@ -1,5 +1,6 @@
 ﻿using AspectCore.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using AspectCore.Utils;
@@ -138,6 +139,69 @@ namespace AspectCore.DynamicProxy
             finally
             {
                 _aspectContextFactory.ReleaseContext(context);
+            }
+        }
+
+        public IAsyncEnumerable<TResult> InvokeAsyncEnumerable<TResult>(AspectActivatorContext activatorContext)
+        {
+            return InvokeAsyncEnumerableCore<TResult>(activatorContext);
+        }
+
+        private async IAsyncEnumerable<TResult> InvokeAsyncEnumerableCore<TResult>(AspectActivatorContext activatorContext)
+        {
+            var context = _aspectContextFactory.CreateContext(activatorContext);
+            try
+            {
+                var asyncEnumerable = await CreateAsyncEnumerable<TResult>(context);
+                if (asyncEnumerable == null)
+                {
+                    yield break;
+                }
+
+                await foreach (var item in asyncEnumerable)
+                {
+                    yield return item;
+                }
+            }
+            finally
+            {
+                _aspectContextFactory.ReleaseContext(context);
+            }
+        }
+
+        private async Task<IAsyncEnumerable<TResult>> CreateAsyncEnumerable<TResult>(AspectContext context)
+        {
+            try
+            {
+                var aspectBuilder = _aspectBuilderFactory.Create(context);
+                var invoke = aspectBuilder.Build()(context);
+
+                if (invoke.IsFaulted)
+                {
+                    ExceptionDispatchInfo.Capture(invoke.Exception.InnerException).Throw();
+                }
+
+                if (!invoke.IsCompleted)
+                {
+                    await invoke;
+                }
+
+                switch (context.ReturnValue)
+                {
+                    case null:
+                        return null;
+                    case IAsyncEnumerable<TResult> asyncEnumerable:
+                        return asyncEnumerable;
+                    default:
+                        throw new AspectInvalidCastException(context, $"Unable to cast object of type '{context.ReturnValue.GetType()}' to type '{typeof(IAsyncEnumerable<TResult>)}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!_aspectConfiguration.ThrowAspectException || ex is AspectInvocationException _)
+                    throw;
+
+                throw new AspectInvocationException(context, ex);
             }
         }
     }

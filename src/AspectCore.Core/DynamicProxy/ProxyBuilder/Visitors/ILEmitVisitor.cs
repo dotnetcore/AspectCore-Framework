@@ -568,6 +568,10 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
                     var vtReturnType = node.ReturnType.GetTypeInfo().GetGenericArguments().Single();
                     il.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeValueTask.MakeGenericMethod(vtReturnType));
                     break;
+                case ReturnKind.AsyncEnumerable:
+                    var asyncEnumerableReturnType = node.ReturnType.GetTypeInfo().GetGenericArguments().Single();
+                    il.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvokeAsyncEnumerable.MakeGenericMethod(asyncEnumerableReturnType));
+                    break;
                 case ReturnKind.Sync:
                     il.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(node.ReturnType));
                     break;

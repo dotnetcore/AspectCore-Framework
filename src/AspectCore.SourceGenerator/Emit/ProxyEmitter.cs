@@ -801,7 +801,8 @@ internal static class ProxyEmitter
         // and handle result — all inline to avoid the AspectActivator allocation.
         var rk = ReturnKind.Determine(method);
         var isAsync = rk is ReturnKindKind.Task or ReturnKindKind.TaskOfT
-            or ReturnKindKind.ValueTask or ReturnKindKind.ValueTaskOfT;
+            or ReturnKindKind.ValueTask or ReturnKindKind.ValueTaskOfT
+            or ReturnKindKind.AsyncEnumerable;
 
         // Emit "async" modifier for async return kinds so we can await the pipeline.
         // This requires re-emitting the method signature with async... but we already
@@ -826,6 +827,9 @@ internal static class ProxyEmitter
                     break;
                 case ReturnKindKind.ValueTaskOfT:
                     sb.AppendLine($"            var __vt = __activator.InvokeValueTask<{GetValueTaskInnerType(method.ReturnType)}>(__ctx);");
+                    break;
+                case ReturnKindKind.AsyncEnumerable:
+                    sb.AppendLine($"            var __asyncEnumerable = __activator.InvokeAsyncEnumerable<{GetAsyncEnumerableInnerType(method.ReturnType)}>(__ctx);");
                     break;
             }
         }
@@ -893,6 +897,9 @@ internal static class ProxyEmitter
                 break;
             case ReturnKindKind.ValueTaskOfT:
                 sb.AppendLine("            return __vt;");
+                break;
+            case ReturnKindKind.AsyncEnumerable:
+                sb.AppendLine("            return __asyncEnumerable;");
                 break;
             case ReturnKindKind.Sync:
                 sb.AppendLine("            return __ret;");
@@ -1071,6 +1078,15 @@ internal static class ProxyEmitter
             hash *= fnvPrime;
         }
         return hash;
+    }
+
+    private static string GetAsyncEnumerableInnerType(ITypeSymbol asyncEnumerableType)
+    {
+        if (asyncEnumerableType is INamedTypeSymbol nts && nts.TypeArguments.Length == 1)
+        {
+            return nts.TypeArguments[0].ToGlobalName();
+        }
+        return "global::System.Object";
     }
 
     private static string GetValueTaskInnerType(ITypeSymbol valueTaskType)
@@ -1340,6 +1356,7 @@ internal enum ReturnKindKind
     TaskOfT,
     ValueTask,
     ValueTaskOfT,
+    AsyncEnumerable,
 }
 
 internal static class ReturnKind
@@ -1359,6 +1376,8 @@ internal static class ReturnKind
                 return ReturnKindKind.ValueTask;
             if (named.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Threading.Tasks.ValueTask<T>")
                 return ReturnKindKind.ValueTaskOfT;
+            if (named.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.Collections.Generic.IAsyncEnumerable<T>")
+                return ReturnKindKind.AsyncEnumerable;
         }
         return ReturnKindKind.Sync;
     }
