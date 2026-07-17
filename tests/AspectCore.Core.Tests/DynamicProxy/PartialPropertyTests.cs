@@ -127,7 +127,7 @@ public class PartialPropertyTests
 
     #endregion
 
-    #region Concrete Class - Partial Property with Implementation (verifies IsPartialDefinitionAccessor fix)
+    #region Concrete Class - Partial Property with Implementation
 
     [Theory]
     [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
@@ -143,10 +143,7 @@ public class PartialPropertyTests
             allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
 
         // A non-abstract class has a partial property with both declaration and
-        // implementation parts. The proxy must delegate to the actual implementation,
-        // not emit a stub accessor that returns default. This verifies that
-        // IsPartialDefinitionAccessor correctly returns false for accessors with
-        // implementation bodies.
+        // implementation parts. The proxy must delegate to the actual implementation.
         var proxy = proxyGenerator.CreateClassProxy<ConcretePartialPropertyWithImpl>();
 
         proxy.Name = "concrete-impl";
@@ -155,38 +152,6 @@ public class PartialPropertyTests
 
     #endregion
 
-    #region PropertyNode IsPartial Flag
-
-    [Fact]
-    public void PropertyNode_IsPartial_Defaults_To_False()
-    {
-        var propertyNode = new AspectCore.DynamicProxy.ProxyBuilder.Nodes.PropertyNode(
-            "Test",
-            typeof(string),
-            System.Reflection.PropertyAttributes.HasDefault,
-            Array.Empty<AspectCore.DynamicProxy.ProxyBuilder.Nodes.AttributeNode>(),
-            getMethod: null,
-            setMethod: null);
-
-        Assert.False(propertyNode.IsPartial);
-    }
-
-    [Fact]
-    public void PropertyNode_IsPartial_Can_Be_Set_To_True()
-    {
-        var propertyNode = new AspectCore.DynamicProxy.ProxyBuilder.Nodes.PropertyNode(
-            "Test",
-            typeof(string),
-            System.Reflection.PropertyAttributes.HasDefault,
-            Array.Empty<AspectCore.DynamicProxy.ProxyBuilder.Nodes.AttributeNode>(),
-            getMethod: null,
-            setMethod: null,
-            isPartial: true);
-
-        Assert.True(propertyNode.IsPartial);
-    }
-
-    #endregion
 
     private sealed record AspectSnapshot(
         Type ServiceDeclaringType,
@@ -283,10 +248,7 @@ public class PartialPropertyMixedImpl : IPartialPropertyMixedService
 }
 
 // Non-abstract, non-sealed class: partial property with both declaration and
-// implementation parts. The accessor has a body (implementation), so the proxy
-// must delegate to it, not emit a stub accessor. This verifies the fix for the
-// [High] review comment: IsPartialDefinitionAccessor must check if the accessor
-// has an implementation body before treating it as declaration-only.
+// implementation parts. The proxy delegates to the compiled implementation.
 [AspectCoreGenerateProxy]
 public partial class ConcretePartialPropertyWithImpl
 {

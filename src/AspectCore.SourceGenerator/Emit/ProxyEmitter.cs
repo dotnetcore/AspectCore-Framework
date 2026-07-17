@@ -360,10 +360,8 @@ internal static class ProxyEmitter
         }
         foreach (var (p, declIface) in allProps)
         {
-            // Skip meta fields for accessors that will be emitted as stubs;
-            // stub accessors don't use reflection-based dispatch.
-            if (p.GetMethod is not null && !ShouldEmitStubAccessor(p, p.GetMethod, isOverride: false, implementationType)) EmitMethodMeta(sb, declIface, implementationType, proxyName, p.GetMethod);
-            if (p.SetMethod is not null && !ShouldEmitStubAccessor(p, p.SetMethod, isOverride: false, implementationType)) EmitMethodMeta(sb, declIface, implementationType, proxyName, p.SetMethod);
+            if (p.GetMethod is not null) EmitMethodMeta(sb, declIface, implementationType, proxyName, p.GetMethod);
+            if (p.SetMethod is not null) EmitMethodMeta(sb, declIface, implementationType, proxyName, p.SetMethod);
         }
 
         sb.AppendLine("        }");
@@ -436,10 +434,8 @@ internal static class ProxyEmitter
         }
         foreach (var p in props)
         {
-            // Skip meta fields for accessors that will be emitted as stubs;
-            // stub accessors don't use reflection-based dispatch.
-            if (p.GetMethod is not null && !ShouldEmitStubAccessor(p, p.GetMethod, isOverride: true, implementationType: implType)) EmitMethodMeta(sb, serviceType, implType, proxyName, p.GetMethod);
-            if (p.SetMethod is not null && !ShouldEmitStubAccessor(p, p.SetMethod, isOverride: true, implementationType: implType)) EmitMethodMeta(sb, serviceType, implType, proxyName, p.SetMethod);
+            if (p.GetMethod is not null) EmitMethodMeta(sb, serviceType, implType, proxyName, p.GetMethod);
+            if (p.SetMethod is not null) EmitMethodMeta(sb, serviceType, implType, proxyName, p.SetMethod);
         }
         sb.AppendLine("        }");
         sb.AppendLine();
@@ -623,177 +619,13 @@ internal static class ProxyEmitter
         sb.AppendLine("        {");
         if (prop.GetMethod is not null)
         {
-            // For partial properties (C# 13.0), the accessor might be a partial definition
-            // (declaration-only, no implementation body). In that case we emit a stub
-            // accessor instead of delegating to base/implementation which would fail.
-            //
-            // Stub is only emitted when there is no target implementation to delegate to:
-            // - Class proxy (override): base class has no implementation -> stub
-            // - Interface proxy without target: no implementation -> stub
-            // - Interface proxy with target: delegate to target implementation
-            if (ShouldEmitStubAccessor(prop, prop.GetMethod, isOverride, implementationType))
-            {
-                EmitPartialStubAccessor(sb, "get", propTypeName);
-            }
-            else
-            {
-                EmitAccessorBody(sb, serviceType, implementationType, proxyTypeName, prop.GetMethod, declaredTypeName, prop, accessorKind: "get", callExpr: prop.IsIndexer ? "base" : "base", isOverride: isOverride);
-            }
+            EmitAccessorBody(sb, serviceType, implementationType, proxyTypeName, prop.GetMethod, declaredTypeName, prop, accessorKind: "get", callExpr: prop.IsIndexer ? "base" : "base", isOverride: isOverride);
         }
         if (prop.SetMethod is not null)
         {
-            // Same check for set accessor on partial properties.
-            if (ShouldEmitStubAccessor(prop, prop.SetMethod, isOverride, implementationType))
-            {
-                EmitPartialStubAccessor(sb, "set", propTypeName);
-            }
-            else
-            {
-                EmitAccessorBody(sb, serviceType, implementationType, proxyTypeName, prop.SetMethod, declaredTypeName, prop, accessorKind: "set", callExpr: prop.IsIndexer ? "base" : "base", isOverride: isOverride);
-            }
+            EmitAccessorBody(sb, serviceType, implementationType, proxyTypeName, prop.SetMethod, declaredTypeName, prop, accessorKind: "set", callExpr: prop.IsIndexer ? "base" : "base", isOverride: isOverride);
         }
         sb.AppendLine("        }");
-    }
-
-    /// <summary>
-    /// Determines whether a stub accessor should be emitted for the given accessor of
-    /// a partial property. A stub is emitted when the accessor is a partial definition
-    /// (declaration-only) and there is no target implementation to delegate to.
-    /// </summary>
-    private static bool ShouldEmitStubAccessor(IPropertySymbol prop, IMethodSymbol accessor, bool isOverride, INamedTypeSymbol? implementationType)
-    {
-        // Non-partial-definition accessors always get normal delegation code.
-        if (!IsPartialDefinitionAccessor(prop, accessor))
-            return false;
-
-        // For interface proxies with a target implementation, delegate to the target
-        // even if the interface only has a declaration (the target provides the body).
-        if (!isOverride && implementationType is not null)
-            return false;
-
-        // For class proxies (override) or interface proxies without target, emit a stub
-        // since there is no implementation to delegate to.
-        return true;
-    }
-
-    /// <summary>
-    /// Determines whether the given property is a partial property (C# 13.0) by checking
-    /// if any of its declaring syntax references has the <c>partial</c> keyword modifier.
-    /// <para>
-    /// Note: Only <see cref="PropertyDeclarationSyntax"/> is checked (not
-    /// <c>IndexerDeclarationSyntax</c>) because C# 13 partial properties do not support
-    /// indexers. If future Roslyn versions extend partial property support to indexers,
-    /// this method should be updated to also check <c>IndexerDeclarationSyntax</c>.
-    /// </para>
-    /// </summary>
-    private static bool IsPartialProperty(IPropertySymbol prop)
-    {
-        foreach (var syntaxRef in prop.DeclaringSyntaxReferences)
-        {
-            // Only check PropertyDeclarationSyntax — indexers (IndexerDeclarationSyntax)
-            // are not supported by C# 13 partial properties, so they are intentionally
-            // not handled here. See method documentation for details.
-            if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax pds)
-            {
-                if (pds.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    /// <summary>
-    /// Determines whether the given accessor of a partial property is a partial definition
-    /// (declaration-only, without an implementation body). This occurs when a C# 13.0 partial
-    /// property is declared with accessors but the implementation part is not provided.
-    /// </summary>
-    private static bool IsPartialDefinitionAccessor(IPropertySymbol prop, IMethodSymbol accessor)
-    {
-        // Non-partial properties always have complete accessors.
-        if (!IsPartialProperty(prop))
-            return false;
-
-        // For valid C# code, the compiler requires partial properties to have
-        // implementation parts. Only abstract classes may declare partial properties
-        // without implementations (the accessors are then abstract-like).
-        // For all other cases (interfaces, non-abstract classes), the accessor
-        // always has a body and should use normal delegation code.
-        var containingType = prop.ContainingType;
-        if (containingType is null)
-            return false;
-        if (containingType.TypeKind != TypeKind.Class)
-            return false;
-        if (!containingType.IsAbstract)
-            return false;
-
-        // Abstract class: the accessor may or may not have an implementation part.
-        // Check if the accessor is abstract (no implementation) — an abstract accessor
-        // is declaration-only and requires a stub accessor to be emitted.
-        if (accessor.IsAbstract)
-            return true;
-
-        // Also verify by checking all declaring syntaxes of all same-named properties
-        // in the containing type for a body on the matching accessor. This handles
-        // edge cases where IsAbstract may not be set for declaration-only accessors.
-        bool isGet = accessor.MethodKind == MethodKind.PropertyGet;
-
-        foreach (var otherProp in containingType.GetMembers().OfType<IPropertySymbol>())
-        {
-            if (!string.Equals(otherProp.Name, prop.Name, StringComparison.Ordinal))
-                continue;
-
-            foreach (var syntaxRef in otherProp.DeclaringSyntaxReferences)
-            {
-                if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax pds)
-                {
-                    // Expression-bodied property (e.g. "partial string Name => value;")
-                    // counts as an implementation for the get accessor.
-                    if (pds.ExpressionBody is not null && isGet)
-                        return false; // has implementation body
-
-                    var accessorList = pds.AccessorList;
-                    if (accessorList is null) continue;
-
-                    foreach (var accessorDecl in accessorList.Accessors)
-                    {
-                        bool isCurrentGet = accessorDecl.IsKind(SyntaxKind.GetAccessorDeclaration);
-                        if (isCurrentGet == isGet)
-                        {
-                            if (accessorDecl.Body is not null || accessorDecl.ExpressionBody is not null)
-                                return false; // has implementation body
-                        }
-                    }
-                }
-            }
-        }
-
-        // Also check the accessor's own declaring syntaxes for a body.
-        foreach (var syntaxRef in accessor.DeclaringSyntaxReferences)
-        {
-            if (syntaxRef.GetSyntax() is AccessorDeclarationSyntax ads)
-            {
-                if (ads.Body is not null || ads.ExpressionBody is not null)
-                    return false; // has implementation body
-            }
-        }
-
-        // Abstract type with no body found -> declaration-only.
-        return true;
-    }
-
-    /// <summary>
-    /// Emits a stub accessor for a partial property that has only a declaration (no implementation).
-    /// The stub returns the default value for get accessors and is a no-op for set accessors.
-    /// </summary>
-    private static void EmitPartialStubAccessor(StringBuilder sb, string accessorKind, string propTypeName)
-    {
-        sb.AppendLine($"            {accessorKind}");
-        sb.AppendLine("            {");
-        if (accessorKind == "get")
-        {
-            sb.AppendLine($"                return default({propTypeName});");
-        }
-        sb.AppendLine("            }");
     }
 
     private static void EmitAccessorBody(StringBuilder sb, INamedTypeSymbol serviceType, INamedTypeSymbol? implementationType, string proxyTypeName, IMethodSymbol accessor, string declaredTypeName, IPropertySymbol prop, string accessorKind, string callExpr, bool isOverride)

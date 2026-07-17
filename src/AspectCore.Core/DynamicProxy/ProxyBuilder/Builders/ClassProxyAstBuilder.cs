@@ -246,10 +246,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                 };
                 attrs.AddRange(AttributeNodeFactory.FromCustomAttributes(property.CustomAttributes));
 
-                var isPartial = (property.GetMethod?.IsPartialMethod() ?? false)
-                    || (property.SetMethod?.IsPartialMethod() ?? false);
-
-                properties.Add(new PropertyNode(property.Name, propertyType, property.Attributes, attrs, getMethod, setMethod, isPartial: isPartial));
+                properties.Add(new PropertyNode(property.Name, propertyType, property.Attributes, attrs, getMethod, setMethod));
             }
 
             (MethodInfo, bool Skip) FindCovariantReturnPropertyGetter(PropertyInfo property)

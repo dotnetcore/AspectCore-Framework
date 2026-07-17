@@ -113,7 +113,7 @@ public class PartialPropertyScenarios
 
     #endregion
 
-    #region Interface Proxy - Partial Property Mixed Accessors (get has impl, no set)
+    #region Interface Proxy - Read-Only Partial Property
 
     [Fact]
     public void InterfaceProxy_PartialProperty_MixedAccessors_WithTarget_Works()
@@ -123,7 +123,7 @@ public class PartialPropertyScenarios
 
         var service = host.Resolve<IPartialPropertyMixedService>();
 
-        // The get accessor has an implementation; the set accessor is declaration-only.
+        // The target implementation supplies the read-only property value.
         Assert.Equal("mixed-default", service.Name);
     }
 
@@ -182,7 +182,7 @@ public class PartialPropertyInterfaceImpl : IPartialPropertyInterfaceService
     }
 }
 
-// Interface proxy: partial property with mixed accessors (get has impl, no set).
+// Interface proxy: read-only partial property with a target implementation.
 [AspectCoreGenerateProxy(typeof(PartialPropertyMixedImpl))]
 public partial interface IPartialPropertyMixedService
 {
