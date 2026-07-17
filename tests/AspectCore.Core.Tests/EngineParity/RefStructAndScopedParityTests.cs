@@ -70,6 +70,16 @@ namespace AspectCore.Core.Tests.EngineParity
         };
     }
 
+#if NET10_0_OR_GREATER
+    // The source generator must report ACSG009 rather than emit an accessor
+    // that boxes ReadOnlySpan<int> in object[].
+    [AspectCoreGenerateProxy]
+    public class ParamsReadOnlySpanIndexerService
+    {
+        public virtual int this[params ReadOnlySpan<int> values] => values.Length;
+    }
+#endif
+
     [AspectCoreGenerateProxy]
     public class ScopedParityService
     {
