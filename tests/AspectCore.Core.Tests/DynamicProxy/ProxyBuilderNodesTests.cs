@@ -140,7 +140,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
         public void PropertyNode_Accept_CallsVisitProperty()
         {
             var visitor = new RecordingVisitor();
-            var node = new PropertyNode("Value", typeof(int), PropertyAttributes.None, null, null, null);
+            var node = new PropertyNode("Value", typeof(int), PropertyAttributes.None, Type.EmptyTypes, Type.EmptyTypes, null, null, null);
             node.Accept(visitor);
             Assert.Equal("VisitProperty", visitor.LastCalled);
         }
@@ -422,6 +422,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
 
             var node = new PropertyNode(
                 "Value", typeof(int), PropertyAttributes.HasDefault,
+                Type.EmptyTypes, Type.EmptyTypes,
                 new[] { attr }, getMethod, null, backingField);
 
             Assert.Equal("Value", node.Name);
@@ -436,7 +437,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
         [Fact]
         public void PropertyNode_NullCollectionsAndOptional_DefaultToEmpty()
         {
-            var node = new PropertyNode("Value", typeof(int), PropertyAttributes.None, null, null, null);
+            var node = new PropertyNode("Value", typeof(int), PropertyAttributes.None, Type.EmptyTypes, Type.EmptyTypes, null, null, null);
             Assert.Empty(node.Attributes);
             Assert.Null(node.GetMethod);
             Assert.Null(node.SetMethod);
@@ -456,7 +457,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             var method = new MethodNode(
                 GetValueMethod, null, "GetValue",
                 MethodAttributes.Public, body, null, null, null, null, null);
-            var prop = new PropertyNode("Value", typeof(int), PropertyAttributes.None, null, null, null);
+            var prop = new PropertyNode("Value", typeof(int), PropertyAttributes.None, Type.EmptyTypes, Type.EmptyTypes, null, null, null);
             var mc = new MethodConstantNode("k", GetValueMethod);
 
             var node = new ProxyTypeNode(
@@ -641,13 +642,13 @@ namespace AspectCore.Core.Tests.DynamicProxy
         [Fact]
         public void PropertyNode_NullName_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new PropertyNode(null, typeof(int), PropertyAttributes.None, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new PropertyNode(null, typeof(int), PropertyAttributes.None, Type.EmptyTypes, Type.EmptyTypes, null, null, null));
         }
 
         [Fact]
         public void PropertyNode_NullPropertyType_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => new PropertyNode("X", null, PropertyAttributes.None, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new PropertyNode("X", null, PropertyAttributes.None, Type.EmptyTypes, Type.EmptyTypes, null, null, null));
         }
 
         [Fact]

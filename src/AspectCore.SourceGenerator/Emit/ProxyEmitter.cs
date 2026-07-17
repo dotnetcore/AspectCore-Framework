@@ -263,23 +263,25 @@ internal static class ProxyEmitter
                 {
                     // minimal indexer stub
                     sb.Append("        public ").Append(typeName).Append(" this[");
-                    sb.Append(string.Join(", ", prop.Parameters.Select(p => $"{p.Type.ToGlobalName()} {p.Name}")));
+                    sb.Append(string.Join(", ", prop.Parameters.Select(p => EmitParameterDecl(p))));
                     sb.AppendLine("]");
                     sb.AppendLine("        {");
                     if (prop.GetMethod is not null)
                         sb.AppendLine($"            get => default({typeName});");
                     if (prop.SetMethod is not null)
-                        sb.AppendLine("            set { }");
+                        sb.AppendLine(prop.SetMethod.IsInitOnly ? "            init { }" : "            set { }");
                     sb.AppendLine("        }");
                 }
                 else
                 {
-                    sb.Append("        public ").Append(typeName).Append(' ').Append(prop.Name).AppendLine();
+                    sb.Append("        public ");
+                    if (prop.IsRequired) sb.Append("required ");
+                    sb.Append(typeName).Append(' ').Append(prop.Name).AppendLine();
                     sb.AppendLine("        {");
                     if (prop.GetMethod is not null)
                         sb.AppendLine($"            get => default({typeName});");
                     if (prop.SetMethod is not null)
-                        sb.AppendLine("            set { }");
+                        sb.AppendLine(prop.SetMethod.IsInitOnly ? "            init { }" : "            set { }");
                     sb.AppendLine("        }");
                 }
                 sb.AppendLine();
@@ -396,6 +398,7 @@ internal static class ProxyEmitter
     {
         foreach (var ctor in implType.InstanceConstructors.Where(c => c.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal))
         {
+            EmitConstructorAttributes(sb, ctor, "        ");
             sb.Append("        public ").Append(proxyName).Append("(global::AspectCore.DynamicProxy.IAspectActivatorFactory activatorFactory, global::System.IServiceProvider serviceProvider");
             if (ctor.Parameters.Length > 0)
             {
@@ -615,6 +618,7 @@ internal static class ProxyEmitter
     {
         var propTypeName = prop.Type.ToGlobalName();
 
+        EmitAttributes(sb, prop, "        ");
         if (prop.IsIndexer)
         {
             sb.Append("        public ");
@@ -626,6 +630,7 @@ internal static class ProxyEmitter
         else
         {
             sb.Append("        public ");
+            if (prop.IsRequired) sb.Append("required ");
             if (isOverride) sb.Append("override ");
             sb.Append(propTypeName).Append(' ').Append(prop.Name).AppendLine();
         }
@@ -671,19 +676,22 @@ internal static class ProxyEmitter
         }
         else
         {
-            sb.AppendLine("            set");
+            sb.AppendLine(accessor.IsInitOnly ? "            init" : "            set");
             sb.AppendLine("            {");
+            var directCall = prop.IsIndexer
+                ? $"{(isOverride ? "base" : "_implementation")}[{string.Join(", ", prop.Parameters.Select(p => p.Name))}] = value"
+                : $"{(isOverride ? "base" : "_implementation")}.{prop.Name} = value";
+            var useReflectionDirectCall = accessor.IsInitOnly && !isOverride;
             EmitProxyInvokeBody(
                 sb,
                 accessor,
                 serviceMethodField,
                 implMethodField,
                 proxyMethodField,
-                directCall: prop.IsIndexer
-                    ? $"{(isOverride ? "base" : "_implementation")}[{string.Join(", ", prop.Parameters.Select(p => p.Name))}] = value"
-                    : $"{(isOverride ? "base" : "_implementation")}.{prop.Name} = value",
+                directCall: directCall,
                 resolveImplementationMethodByInstance: implementationType is null,
-                interfaceStubTypeName: implementationType is null ? $"{proxyTypeName}__Stub" : null);
+                interfaceStubTypeName: implementationType is null ? $"{proxyTypeName}__Stub" : null,
+                forceReflectiveDirectCall: useReflectionDirectCall);
             sb.AppendLine("            }");
         }
     }
@@ -722,7 +730,8 @@ internal static class ProxyEmitter
         string proxyMethodField,
         string directCall,
         bool resolveImplementationMethodByInstance,
-        string? interfaceStubTypeName)
+        string? interfaceStubTypeName,
+        bool forceReflectiveDirectCall = false)
     {
         var argCount = method.Parameters.Length;
         sb.AppendLine($"            var __serviceMethod = {serviceMethodField};");
@@ -757,7 +766,15 @@ internal static class ProxyEmitter
         sb.AppendLine("            {");
         if (method.ReturnsVoid)
         {
-            sb.AppendLine($"                {directCall};");
+            if (forceReflectiveDirectCall)
+            {
+                EmitArgumentsArray(sb, method, indent: "                ", variableName: "__directArgs");
+                sb.AppendLine("                __implMethod.Invoke(_implementation, __directArgs);");
+            }
+            else
+            {
+                sb.AppendLine($"                {directCall};");
+            }
             sb.AppendLine("                return;");
         }
         else
@@ -766,19 +783,7 @@ internal static class ProxyEmitter
         }
         sb.AppendLine("            }");
         sb.AppendLine();
-        sb.AppendLine($"            var __args = new object[{argCount}];");
-        for (var i = 0; i < argCount; i++)
-        {
-            var p = method.Parameters[i];
-            if (p.RefKind == RefKind.Out)
-            {
-                sb.AppendLine($"            __args[{i}] = default({p.Type.ToGlobalName()});");
-            }
-            else
-            {
-                sb.AppendLine($"            __args[{i}] = {p.Name};");
-            }
-        }
+        EmitArgumentsArray(sb, method, indent: "            ", variableName: "__args");
         sb.AppendLine();
         sb.AppendLine("            var __ctx = new global::AspectCore.DynamicProxy.AspectActivatorContext(");
         sb.AppendLine("                __serviceMethod,");
@@ -895,6 +900,24 @@ internal static class ProxyEmitter
         }
     }
 
+    private static void EmitArgumentsArray(StringBuilder sb, IMethodSymbol method, string indent, string variableName)
+    {
+        var argCount = method.Parameters.Length;
+        sb.AppendLine($"{indent}var {variableName} = new object[{argCount}];");
+        for (var i = 0; i < argCount; i++)
+        {
+            var p = method.Parameters[i];
+            if (p.RefKind == RefKind.Out)
+            {
+                sb.AppendLine($"{indent}{variableName}[{i}] = default({p.Type.ToGlobalName()});");
+            }
+            else
+            {
+                sb.AppendLine($"{indent}{variableName}[{i}] = {p.Name};");
+            }
+        }
+    }
+
     private static string EmitParameterDecl(IParameterSymbol p, bool isConstructor = false)
     {
         // C# 11 scoped modifier (e.g. scoped ref T, scoped T).
@@ -922,6 +945,19 @@ internal static class ProxyEmitter
         // when it sees the params keyword, so that must not be emitted either.
         var attrs = isConstructor ? "" : EmitAttributesInline(p);
         return $"{attrs}{scopedPrefix}{prefix}{paramsPrefix}{p.Type.ToGlobalName()} {p.Name}";
+    }
+
+    private static void EmitConstructorAttributes(StringBuilder sb, IMethodSymbol ctor, string indent)
+    {
+        foreach (var attr in ctor.GetAttributes())
+        {
+            if (attr.AttributeClass?.ToDisplayString() != "System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute")
+            {
+                continue;
+            }
+
+            sb.Append(indent).AppendLine("[global::System.Diagnostics.CodeAnalysis.SetsRequiredMembers]");
+        }
     }
 
     private static bool TryReportUnsupportedByRefLikeParams(INamedTypeSymbol serviceType, SourceProductionContext context)

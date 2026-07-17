@@ -174,8 +174,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
 
         private void EmitClassProxyCtor(ConstructorNode node)
         {
+            var (requiredCustomModifiers, optionalCustomModifiers) = GetConstructorParameterCustomModifiers(node);
             var ctorBuilder = _ctx.TypeBuilder.DefineConstructor(
-                node.MethodAttributes, node.CallingConvention, node.ParameterTypes);
+                node.MethodAttributes,
+                node.CallingConvention,
+                node.ParameterTypes,
+                requiredCustomModifiers,
+                optionalCustomModifiers);
 
             // Attributes
             foreach (var attr in node.Attributes)
@@ -223,11 +228,16 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
 
         public void VisitMethod(MethodNode node)
         {
+            var parameterInfos = node.ServiceMethod.GetParameters();
             var methodBuilder = _ctx.TypeBuilder.DefineMethod(
                 node.Name, node.MethodAttributes,
                 node.ServiceMethod.CallingConvention,
                 node.ServiceMethod.ReturnType,
-                node.ServiceMethod.GetParameterTypes());
+                GetRequiredCustomModifiers(node.ServiceMethod.ReturnParameter),
+                GetOptionalCustomModifiers(node.ServiceMethod.ReturnParameter),
+                parameterInfos.Select(p => p.ParameterType).ToArray(),
+                parameterInfos.Select(GetRequiredCustomModifiers).ToArray(),
+                parameterInfos.Select(GetOptionalCustomModifiers).ToArray());
 
             _ctx.CurrentMethodBuilder = methodBuilder;
 
@@ -292,7 +302,14 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             }
 
             var propertyBuilder = _ctx.TypeBuilder.DefineProperty(
-                node.Name, node.PropertyAttributes, node.PropertyType, Type.EmptyTypes);
+                node.Name,
+                node.PropertyAttributes,
+                node.PropertyType,
+                node.RequiredCustomModifiers,
+                node.OptionalCustomModifiers,
+                Type.EmptyTypes,
+                null,
+                null);
 
             foreach (var attr in node.Attributes)
                 SetCustomAttribute(propertyBuilder, attr);
@@ -693,6 +710,56 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
         private void SetCustomAttribute(ParameterBuilder builder, AttributeNode node)
         {
             builder.SetCustomAttribute(node.IsMarker ? BuildCustomAttribute(node.MarkerAttributeType) : BuildCustomAttribute(node.CustomAttributeData));
+        }
+
+        private static Type[] GetRequiredCustomModifiers(ParameterInfo parameter)
+        {
+            try
+            {
+                return parameter?.GetRequiredCustomModifiers() ?? Type.EmptyTypes;
+            }
+            catch
+            {
+                return Type.EmptyTypes;
+            }
+        }
+
+        private static Type[] GetOptionalCustomModifiers(ParameterInfo parameter)
+        {
+            try
+            {
+                return parameter?.GetOptionalCustomModifiers() ?? Type.EmptyTypes;
+            }
+            catch
+            {
+                return Type.EmptyTypes;
+            }
+        }
+
+        private static (Type[][] Required, Type[][] Optional) GetConstructorParameterCustomModifiers(ConstructorNode node)
+        {
+            var required = node.ParameterTypes.Select(_ => Type.EmptyTypes).ToArray();
+            var optional = node.ParameterTypes.Select(_ => Type.EmptyTypes).ToArray();
+
+            if (node.BaseConstructor == null)
+            {
+                return (required, optional);
+            }
+
+            var baseParameters = node.BaseConstructor.GetParameters();
+            var offset = node.ParameterTypes.Length - baseParameters.Length;
+            if (offset < 0)
+            {
+                return (required, optional);
+            }
+
+            for (var i = 0; i < baseParameters.Length; i++)
+            {
+                required[i + offset] = GetRequiredCustomModifiers(baseParameters[i]);
+                optional[i + offset] = GetOptionalCustomModifiers(baseParameters[i]);
+            }
+
+            return (required, optional);
         }
 
         // Copied from original ParameterBuilderUtils.CopyDefaultValueConstant
