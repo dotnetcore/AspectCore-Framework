@@ -107,12 +107,9 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
             // Must have at least one overridable member
             foreach (var member in type.GetMembers())
             {
-                if (member is IMethodSymbol m && m.MethodKind == MethodKind.Ordinary &&
-                    !m.IsStatic && m.IsVirtual && !m.IsSealed &&
-                    m.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+                if (member is IMethodSymbol m && IsProxyableClassMethod(type, m))
                     return true;
-                if (member is IPropertySymbol p && !p.IsStatic && p.IsVirtual && !p.IsSealed &&
-                    p.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+                if (member is IPropertySymbol p && IsProxyableClassProperty(type, p))
                     return true;
             }
             return false;
@@ -446,20 +443,67 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
     {
         foreach (var member in type.GetMembers())
         {
-            if (member is IMethodSymbol m && m.MethodKind == MethodKind.Ordinary &&
-                !m.IsStatic && m.IsVirtual && !m.IsSealed &&
-                m.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+            if (member is IMethodSymbol m && IsProxyableClassMethod(type, m))
             {
                 return true;
             }
-            if (member is IPropertySymbol p &&
-                !p.IsStatic && p.IsVirtual && !p.IsSealed &&
-                p.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+            if (member is IPropertySymbol p && IsProxyableClassProperty(type, p))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    private static bool IsProxyableClassMethod(INamedTypeSymbol type, IMethodSymbol method)
+    {
+        return method.MethodKind == MethodKind.Ordinary
+               && !method.IsStatic
+               && method.IsVirtual
+               && !method.IsSealed
+               && method.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal
+               && !IsRecordSynthesizedMember(type, method);
+    }
+
+    private static bool IsProxyableClassProperty(INamedTypeSymbol type, IPropertySymbol property)
+    {
+        return !property.IsStatic
+               && property.IsVirtual
+               && !property.IsSealed
+               && property.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal
+               && !IsRecordSynthesizedMember(type, property);
+    }
+
+    private static bool IsRecord(INamedTypeSymbol type)
+        => type.GetMembers().OfType<IMethodSymbol>().Any(IsRecordCopyMethod);
+
+    private static bool IsRecordCopyMethod(IMethodSymbol method)
+        => method.MethodKind == MethodKind.Ordinary
+           && method.IsVirtual
+           && !method.IsSealed
+           && method.Parameters.Length == 0
+           && SymbolEqualityComparer.Default.Equals(method.ReturnType, method.ContainingType)
+           && (method.Name == "<Clone>$" || method.Name == "<>Copy");
+
+    private static bool IsRecordSynthesizedMember(INamedTypeSymbol type, ISymbol symbol)
+    {
+        if (!IsRecord(type))
+        {
+            return false;
+        }
+
+        if (symbol.IsImplicitlyDeclared)
+        {
+            return true;
+        }
+
+        if (symbol.GetAttributes().Any(a =>
+                a.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
+        {
+            return true;
+        }
+
+        return symbol is IMethodSymbol method && IsRecordCopyMethod(method);
     }
 }
 

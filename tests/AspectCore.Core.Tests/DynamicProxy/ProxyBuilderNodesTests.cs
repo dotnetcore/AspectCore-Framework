@@ -58,6 +58,7 @@ namespace AspectCore.Core.Tests.DynamicProxy
             public void VisitMethodConstant(MethodConstantNode node) => LastCalled = "VisitMethodConstant";
             public void VisitDirectDelegationBody(DirectDelegationBody node) => LastCalled = "VisitDirectDelegationBody";
             public void VisitReflectorDelegationBody(ReflectorDelegationBody node) => LastCalled = "VisitReflectorDelegationBody";
+            public void VisitRecordCloneBody(RecordCloneBody node) => LastCalled = "VisitRecordCloneBody";
             public void VisitAspectActivatorBody(AspectActivatorBody node) => LastCalled = "VisitAspectActivatorBody";
             public void VisitStubBody(StubBody node) => LastCalled = "VisitStubBody";
             public void VisitBackingFieldGetBody(BackingFieldGetBody node) => LastCalled = "VisitBackingFieldGetBody";
@@ -172,6 +173,15 @@ namespace AspectCore.Core.Tests.DynamicProxy
             var node = new ReflectorDelegationBody(GetValueMethod, GetValueMethod);
             node.Accept(visitor);
             Assert.Equal("VisitReflectorDelegationBody", visitor.LastCalled);
+        }
+
+        [Fact]
+        public void RecordCloneBody_Accept_CallsVisitRecordCloneBody()
+        {
+            var visitor = new RecordingVisitor();
+            var node = new RecordCloneBody("_implementation");
+            node.Accept(visitor);
+            Assert.Equal("VisitRecordCloneBody", visitor.LastCalled);
         }
 
         [Fact]
@@ -524,6 +534,13 @@ namespace AspectCore.Core.Tests.DynamicProxy
         }
 
         [Fact]
+        public void RecordCloneBody_SetsProperties()
+        {
+            var node = new RecordCloneBody("_implementation");
+            Assert.Equal("_implementation", node.TargetFieldName);
+        }
+
+        [Fact]
         public void AspectActivatorBody_SetsProperties()
         {
             var node = new AspectActivatorBody(
@@ -721,6 +738,12 @@ namespace AspectCore.Core.Tests.DynamicProxy
         public void ReflectorDelegationBody_NullServiceMethod_Throws()
         {
             Assert.Throws<ArgumentNullException>(() => new ReflectorDelegationBody(GetValueMethod, null));
+        }
+
+        [Fact]
+        public void RecordCloneBody_NullTargetFieldName_Throws()
+        {
+            Assert.Throws<ArgumentNullException>(() => new RecordCloneBody(null));
         }
 
         [Fact]

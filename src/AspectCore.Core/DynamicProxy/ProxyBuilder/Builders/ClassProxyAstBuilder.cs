@@ -156,6 +156,12 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             foreach (var method in _serviceType.GetTypeInfo().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(x => !x.IsPropertyBinding()))
             {
+                if (method.IsRecordCopyMethod())
+                {
+                    methods.Add(CreateRecordCopyMethodNode(method));
+                    continue;
+                }
+
                 if (!method.IsVisibleAndVirtual() || Ignores.Contains(method.Name))
                     continue;
 
@@ -195,6 +201,19 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     return (null, true);
                 }
             }
+        }
+
+        private MethodNode CreateRecordCopyMethodNode(MethodInfo method)
+        {
+            return InterfaceImplBuilder.BuildProxyMethod(
+                serviceMethod: method,
+                implMethod: method,
+                name: method.Name,
+                attributes: MethodBuilderConstants.OverrideMethodAttributes | MethodAttributes.Public,
+                body: new RecordCloneBody("_implementation"),
+                overridesMethod: null,
+                predicateMethod: method,
+                methodConstants: null);
         }
 
         private void BuildClassProperties(List<PropertyNode> properties, List<MethodNode> methods, List<MethodConstantNode> methodConstants)

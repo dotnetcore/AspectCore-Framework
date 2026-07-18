@@ -70,6 +70,20 @@ namespace AspectCore.DynamicProxy
             return methodInfo.DeclaringType.GetTypeInfo().IsNonAspect() || methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
+        internal static bool IsRecordCopyMethod(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+
+            return methodInfo.IsVirtual
+                   && !methodInfo.IsFinal
+                   && methodInfo.GetParameters().Length == 0
+                   && methodInfo.ReturnType == methodInfo.DeclaringType
+                   && (methodInfo.Name == "<Clone>$" || methodInfo.Name == "<>Copy");
+        }
+
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
             if (methodInfo == null)

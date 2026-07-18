@@ -27,6 +27,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder
 
         void VisitReflectorDelegationBody(ReflectorDelegationBody node);
 
+        void VisitRecordCloneBody(RecordCloneBody node);
+
         void VisitAspectActivatorBody(AspectActivatorBody node);
 
         void VisitStubBody(StubBody node);

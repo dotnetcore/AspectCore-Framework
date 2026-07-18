@@ -146,6 +146,7 @@ internal static class ProxyEmitter
         var proxyName = entry.ProxyTypeName;
         var isGeneric = entry.ServiceType.IsGenericType;
         var genericParams = isGeneric ? entry.ServiceType.TypeParameters : ImmutableArray<ITypeParameterSymbol>.Empty;
+        var isRecord = IsRecord(entry.ServiceType);
 
         // Build generic type parameter string for class declaration
         var genericParamList = isGeneric
@@ -155,7 +156,9 @@ internal static class ProxyEmitter
         sb.AppendLine("    [global::AspectCore.DynamicProxy.NonAspect]");
         sb.AppendLine("    [global::AspectCore.DynamicProxy.Dynamically]");
         EmitAttributes(sb, entry.ServiceType, "    ");
-        sb.Append($"    public sealed class {proxyName}{genericParamList} : {implName}");
+        sb.Append(isRecord
+            ? $"    public sealed record class {proxyName}{genericParamList} : {implName}"
+            : $"    public sealed class {proxyName}{genericParamList} : {implName}");
 
         // Emit generic constraints for class-level type parameters
         if (isGeneric)
@@ -181,7 +184,7 @@ internal static class ProxyEmitter
         sb.AppendLine("#pragma warning restore CS0169");
         sb.AppendLine();
 
-        EmitClassConstructors(sb, entry.ImplementationType, proxyName, implName, genericParams);
+        EmitClassConstructors(sb, entry.ImplementationType, proxyName, implName, genericParams, isRecord);
         sb.AppendLine();
         EmitPropertyInjectionHelper(sb);
         sb.AppendLine();
@@ -394,7 +397,7 @@ internal static class ProxyEmitter
         }
     }
 
-    private static void EmitClassConstructors(StringBuilder sb, INamedTypeSymbol implType, string proxyName, string implTypeName, ImmutableArray<ITypeParameterSymbol> classGenericParams)
+    private static void EmitClassConstructors(StringBuilder sb, INamedTypeSymbol implType, string proxyName, string implTypeName, ImmutableArray<ITypeParameterSymbol> classGenericParams, bool isRecord)
     {
         foreach (var ctor in implType.InstanceConstructors.Where(c => c.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal))
         {
@@ -428,6 +431,25 @@ internal static class ProxyEmitter
             sb.AppendLine("        }");
             sb.AppendLine();
         }
+
+        if (!isRecord)
+        {
+            return;
+        }
+
+        sb.Append("        private ").Append(proxyName).Append("(").Append(proxyName).Append(" original)");
+        sb.AppendLine(" : base(original)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            _activatorFactory = original._activatorFactory;");
+        sb.AppendLine("            _serviceProvider = original._serviceProvider;");
+        sb.AppendLine("            _aspectContextFactory = original._aspectContextFactory;");
+        sb.AppendLine("            _aspectBuilderFactory = original._aspectBuilderFactory;");
+        sb.AppendLine("            _aspectConfiguration = original._aspectConfiguration;");
+        sb.AppendLine("            _implementation = this;");
+        sb.AppendLine("            _validator = original._validator;");
+        sb.AppendLine("            _cachedActivator = original._cachedActivator;");
+        sb.AppendLine("        }");
+        sb.AppendLine();
     }
 
     private static void EmitClassProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol serviceType, INamedTypeSymbol implType, string proxyName, string serviceName)
@@ -435,9 +457,11 @@ internal static class ProxyEmitter
         var methods = serviceType.GetMembers().OfType<IMethodSymbol>()
             .Where(m => m.MethodKind == MethodKind.Ordinary)
             .Where(IsOverridable)
+            .Where(m => !IsRecordSynthesizedMember(serviceType, m))
             .ToList();
         var props = serviceType.GetMembers().OfType<IPropertySymbol>()
             .Where(p => (p.GetMethod is not null && IsOverridable(p.GetMethod)) || (p.SetMethod is not null && IsOverridable(p.SetMethod)))
+            .Where(p => !IsRecordSynthesizedMember(serviceType, p))
             .ToList();
 
         sb.AppendLine("        [global::System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(\"TrimAnalyzer\", \"IL2026:RequiresUnreferencedCode\", Justification = \"Members accessed via reflection are known at proxy generation time.\")]");
@@ -479,6 +503,48 @@ internal static class ProxyEmitter
             return false;
         if (method.Name == "Finalize") return false;
         return true;
+    }
+
+    private static string GetAccessibility(Accessibility accessibility)
+        => accessibility switch
+        {
+            Accessibility.Protected => "protected",
+            Accessibility.ProtectedOrInternal => "protected internal",
+            Accessibility.ProtectedAndInternal => "private protected",
+            Accessibility.Internal => "internal",
+            _ => "public",
+        };
+
+    private static bool IsRecord(INamedTypeSymbol type)
+        => type.GetMembers().OfType<IMethodSymbol>().Any(IsRecordCopyMethod);
+
+    private static bool IsRecordCopyMethod(IMethodSymbol method)
+        => method.MethodKind == MethodKind.Ordinary
+           && method.IsVirtual
+           && !method.IsSealed
+           && method.Parameters.Length == 0
+           && SymbolEqualityComparer.Default.Equals(method.ReturnType, method.ContainingType)
+           && (method.Name == "<Clone>$" || method.Name == "<>Copy");
+
+    private static bool IsRecordSynthesizedMember(INamedTypeSymbol serviceType, ISymbol symbol)
+    {
+        if (!IsRecord(serviceType))
+        {
+            return false;
+        }
+
+        if (symbol.IsImplicitlyDeclared)
+        {
+            return true;
+        }
+
+        if (symbol.GetAttributes().Any(a =>
+                a.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
+        {
+            return true;
+        }
+
+        return symbol is IMethodSymbol method && IsRecordCopyMethod(method);
     }
 
     private static void EmitMethodMeta(StringBuilder sb, INamedTypeSymbol serviceType, INamedTypeSymbol? implementationType, string proxyTypeName, IMethodSymbol method)
@@ -621,7 +687,9 @@ internal static class ProxyEmitter
         EmitAttributes(sb, prop, "        ");
         if (prop.IsIndexer)
         {
-            sb.Append("        public ");
+            sb.Append("        ");
+            sb.Append(GetAccessibility(prop.DeclaredAccessibility));
+            sb.Append(' ');
             if (isOverride) sb.Append("override ");
             sb.Append(propTypeName).Append(" this[");
             sb.Append(string.Join(", ", prop.Parameters.Select(p => $"{p.Type.ToGlobalName()} {p.Name}")));
@@ -629,7 +697,9 @@ internal static class ProxyEmitter
         }
         else
         {
-            sb.Append("        public ");
+            sb.Append("        ");
+            sb.Append(GetAccessibility(prop.DeclaredAccessibility));
+            sb.Append(' ');
             if (prop.IsRequired) sb.Append("required ");
             if (isOverride) sb.Append("override ");
             sb.Append(propTypeName).Append(' ').Append(prop.Name).AppendLine();
@@ -699,7 +769,9 @@ internal static class ProxyEmitter
     private static void EmitProxyMethod(StringBuilder sb, INamedTypeSymbol serviceType, INamedTypeSymbol? implementationType, string proxyTypeName, string declaredTypeName, IMethodSymbol method, string callTargetExpr, bool isOverride = false)
     {
         EmitAttributes(sb, method, "        ");
-        sb.Append("        public ");
+        sb.Append("        ");
+        sb.Append(GetAccessibility(method.DeclaredAccessibility));
+        sb.Append(' ');
         if (isOverride) sb.Append("override ");
         sb.Append(method.ReturnsVoid ? "void" : method.ReturnType.ToGlobalName());
         sb.Append(' ').Append(method.Name).Append(EmitGenericParameterList(method)).Append('(');

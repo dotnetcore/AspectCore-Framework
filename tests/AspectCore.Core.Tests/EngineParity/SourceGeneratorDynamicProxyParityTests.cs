@@ -521,6 +521,39 @@ public class SourceGeneratorDynamicProxyParityTests
         Assert.Null(result);
     }
 
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void RecordClassProxy_WithExpression_Should_Copy_Proxy_And_Keep_Interception(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    if (ctx.ServiceMethod.Name == nameof(RecordClassService.Label))
+                    {
+                        ctx.ReturnValue = $"intercepted:{ctx.ReturnValue}";
+                    }
+                }, Predicates.ForService("*RecordClassService"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<RecordClassService>("alpha", 1);
+        Assert.True(proxy.IsProxy());
+        Assert.Equal("intercepted:alpha:1", proxy.Label());
+
+        var copy = proxy with { Name = "beta" };
+
+        Assert.True(copy.IsProxy());
+        Assert.Equal(proxy.GetType(), copy.GetType());
+        Assert.Equal("beta", copy.Name);
+        Assert.Equal(1, copy.Count);
+        Assert.Equal("intercepted:beta:1", copy.Label());
+    }
+
     private sealed record AspectSnapshot(
         Type ServiceDeclaringType,
         MethodInfo? ServiceMethod,
@@ -739,4 +772,10 @@ public class GenericService<T>
 public class GenericServiceWithConstraint<T> where T : class
 {
     public virtual T? FirstOrDefault(T[] items) => items.Length > 0 ? items[0] : null;
+}
+
+[AspectCoreGenerateProxy]
+public record RecordClassService(string Name, int Count)
+{
+    public virtual string Label() => $"{Name}:{Count}";
 }
