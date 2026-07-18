@@ -662,3 +662,51 @@ public sealed class RethrowDifferentInterceptorAttribute : AbstractInterceptorAt
         }
     }
 }
+
+// ============================================================================
+// C# 9 record types — used by RecordTypeScenarios for E2E coverage of record
+// proxy generation (both IL emit / dynamic proxy and source generator engines).
+// [AspectCoreGenerateProxy] enables the source generator path; the same types
+// are also used with ProxyGeneratorBuilder for the IL emit path.
+// ============================================================================
+
+/// <summary>
+/// Simple positional record service with a virtual method for interception.
+/// </summary>
+[AspectCoreGenerateProxy]
+public record RecordE2EService(string Name, int Count)
+{
+    public virtual string Label() => $"{Name}:{Count}";
+}
+
+/// <summary>
+/// Derived record service — exercises record inheritance proxying.
+/// </summary>
+[AspectCoreGenerateProxy]
+public record DerivedRecordE2EService(string Name, int Count, string Extra) : RecordE2EService(Name, Count)
+{
+    public override string Label() => $"{Name}:{Count}:{Extra}";
+}
+
+/// <summary>
+/// Generic record service — exercises generic record proxying.
+/// </summary>
+[AspectCoreGenerateProxy]
+public record GenericRecordE2EService<T>(T Value)
+{
+    public virtual string Describe() => Value?.ToString() ?? "";
+}
+
+/// <summary>
+/// Record service with init-only properties (non-positional) — exercises
+/// init-only setter proxying and with-expression mutation.
+/// </summary>
+[AspectCoreGenerateProxy]
+public record RecordWithInitE2EService
+{
+    public virtual string Name { get; init; } = "";
+
+    public virtual int Count { get; init; }
+
+    public virtual string Label() => $"{Name}:{Count}";
+}
