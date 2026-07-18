@@ -35,6 +35,22 @@ namespace AspectCore.Core.Tests.DynamicProxy
         }
 
         [Fact]
+        public void ClassProxy_WithSelfCopyConstructor_GeneratesProxy()
+        {
+            var original = new SelfCopyCtorService("original");
+
+            var proxy = ProxyGenerator.CreateClassProxy(
+                typeof(SelfCopyCtorService),
+                typeof(SelfCopyCtorService),
+                new object[] { original });
+
+            var service = Assert.IsAssignableFrom<SelfCopyCtorService>(proxy);
+            Assert.True(service.IsProxy());
+            Assert.Equal("original", service.Name);
+            Assert.Equal("original", service.GetName());
+        }
+
+        [Fact]
         public void InterfaceProxy_WithGenericMethod_GeneratesProxy()
         {
             var proxy = ProxyGenerator.CreateInterfaceProxy<IGenericMethodService>();
@@ -111,6 +127,17 @@ namespace AspectCore.Core.Tests.DynamicProxy
             public int IntValue { get; }
             public MultiCtorService(string value) => StringValue = value;
             public MultiCtorService(int value) => IntValue = value;
+        }
+
+        public class SelfCopyCtorService
+        {
+            public SelfCopyCtorService(string name) => Name = name;
+
+            public SelfCopyCtorService(SelfCopyCtorService original) => Name = original.Name;
+
+            public string Name { get; }
+
+            public virtual string GetName() => Name;
         }
 
         public interface IGenericMethodService

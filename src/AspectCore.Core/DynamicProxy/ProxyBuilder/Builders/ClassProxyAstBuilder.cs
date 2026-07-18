@@ -94,12 +94,15 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             }
 
             var result = new List<ConstructorNode>(constructors.Length);
+            var isRecord = _implType.GetTypeInfo()
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Any(method => method.IsRecordCopyMethod());
             foreach (var ctor in constructors)
             {
                 // Skip the record copy constructor (e.g. `Record(Record original)`). It is
                 // handled separately by CreateRecordCopyMethodNode for `with` support.
                 // Generating a proxy constructor for it would produce an invalid constructor.
-                if (IsRecordCopyConstructor(ctor))
+                if (isRecord && IsRecordCopyConstructor(ctor))
                 {
                     continue;
                 }
