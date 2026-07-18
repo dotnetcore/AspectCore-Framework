@@ -142,19 +142,22 @@ Records are `sealed` by default, and synthesize members such as `Equals`, `GetHa
 
 ---
 
-#### 3.1.5 ref struct — C# 7.2 ✅ Adapted
+#### 3.1.5 ref struct — C# 7.2 ⚠️ Partially adapted
 
-**Background**
+ref structs (such as `Span<T>`, `ReadOnlySpan<T>`) have CLR-enforced restrictions: they cannot be boxed, cannot be used as an interface implementation, cannot be used as a class field, and cannot be used in `async`/`iterator` methods. Two independent scenarios must be distinguished:
 
-ref structs (such as `Span<T>`, `ReadOnlySpan<T>`) have CLR-enforced restrictions: they cannot be boxed, cannot be used as an interface implementation, cannot be used as a class field, and cannot be used in `async`/`iterator` methods. If left unhandled, DynamicProxy would trigger boxing of a ref struct in IL, resulting in a `TypeLoadException`.
+**(a) ref struct as a proxy target type — ✅ rejected**
 
-**Implementation result**
-
-- DynamicProxy: `ProxyTypeGenerator` checks `type.IsByRefLike` at the entry and rejects a ref struct as a proxy target type (`RejectRefStruct`), giving a clear error early rather than crashing at runtime.
+- DynamicProxy: `ProxyTypeGenerator` checks `type.IsByRefLike` at the entry (`RejectRefStruct`) and rejects a ref struct as a proxy target, failing early rather than crashing at runtime.
 - Source Generator: `AspectCoreProxyGenerator` reports ACSG008 for a candidate type that `IsRefLikeType` and skips generation.
-- A ref struct in method parameters/return values is handled by the existing `EmitLoadArg` direct pass-through path, without `object` boxing.
 
-**Known boundary**: byref-like `params` parameters such as `params ReadOnlySpan<T>` report ACSG009 on the SG side and are skipped from generation (see 3.2.2).
+**(b) byref-like parameters/return values on an intercepted method — ❌ still unsupported**
+
+- Only the **non-intercepted direct-call path** passes ref struct parameters/return values correctly (IL direct pass-through, or the SG direct call).
+- Once a method enters the **interception path**, both engines pack the arguments into `object[]`: DynamicProxy's `EmitInitializeMetaData` calls `EmitConvertToObject` on each parameter (`ILEmitVisitor.cs`), and SG's `EmitArgumentsArray` emits `new object[]{...}` (`ProxyEmitter.cs`). A ref struct cannot be boxed to `object`, so it throws `InvalidProgramException` at runtime (for example, an intercepted `int Length(Span<int>)` throws exactly this).
+- SG currently reports ACSG009 only for byref-like `params` parameters (see 3.2.2); a non-`params` `Span<T>` parameter on an intercepted method has no dedicated diagnostic and fails at runtime.
+
+**Conclusion**: ref struct proxy targets are safely rejected; but "byref-like parameters/return values on an intercepted method" is not yet supported — a known limitation.
 
 ---
 
@@ -619,7 +622,8 @@ P0 (all done)             P1 (missing feature)      P2 (annotations/low-pri)
 └─────────────────┘      └─────────────────┘      └─────────────────┘
 
 [x] Done (P0): async streams (IAsyncEnumerable<T>) & IAsyncDisposable, init-only, required members, record types, ref/ref readonly returns
-[x] Done (P1): ref struct/scoped, primary constructors, params collections, partial properties, interpolated string handlers, Index/Range
+[x] Done (P1): scoped modifier, primary constructors, params collections, partial properties, interpolated string handlers, Index/Range
+[!] Partially adapted: ref struct (proxy target rejected; byref-like parameters/return values on an intercepted method still unsupported, see 3.1.5)
 [x] Done (P2): NRT, generic attributes, CallerArgumentExpression, collection expressions, Experimental, type-parameter attributes, method group natural type
 ```
 
@@ -670,15 +674,12 @@ P0 (all done)             P1 (missing feature)      P2 (annotations/low-pri)
 - record struct: value-type proxying needs to handle boxing/unboxing
 - record interface: can be an interface proxy target
 
-### 6.5 ref struct
+### 6.5 ref struct (partially adapted)
 
-**Core challenge**: a ref struct cannot be boxed and cannot be a class field, and DynamicProxy would trigger a `TypeLoadException` in IL.
+**Status**: a ref struct cannot be boxed and cannot be a class field. Two scenarios:
 
-**Implementation points**:
-
-- Check `type.IsByRefLike` at the entry, rejecting proxying of ref struct types
-- A ref struct in method parameters (such as `Span<T>`) is ensured not to be boxed, and directly `EmitLoadArg`
-- Give a clear diagnostic message
+- **Proxy target type**: ✅ rejected — the entry checks `type.IsByRefLike` (DynamicProxy) / reports ACSG008 (SG), failing early.
+- **byref-like parameters/return values on an intercepted method**: ❌ still unsupported — the interception path packs arguments into `object[]`, and a `Span<T>` cannot be boxed, throwing `InvalidProgramException` at runtime; only the non-intercepted direct-call path passes them through. See 3.1.5.
 
 ### 6.6 ✅ ref return methods — Adapted
 
@@ -700,12 +701,13 @@ P0 (all done)             P1 (missing feature)      P2 (annotations/low-pri)
 
 | Category | Count | Key items |
 |------|------|--------|
-| ✅ Adapted | 27 categories | Covariant returns, async/await, IAsyncEnumerable, IAsyncDisposable, init-only, required, partial properties, interpolated handlers, Index/Range, generics, Nullable\<T\>, ref/out/in parameters, ValueTuple, NRT, generic attributes, CallerArgumentExpression, collection expressions, Experimental, type parameter attributes, method group natural type, primary constructors, params collections, ref struct/scoped, record types, ref return |
+| ✅ Adapted | 26 categories | Covariant returns, async/await, IAsyncEnumerable, IAsyncDisposable, init-only, required, partial properties, interpolated handlers, Index/Range, generics, Nullable\<T\>, ref/out/in parameters, ValueTuple, NRT, generic attributes, CallerArgumentExpression, collection expressions, Experimental, type parameter attributes, method group natural type, primary constructors, params collections, scoped modifier, record types, ref return |
+| ⚠️ Partially adapted | 1 item | ref struct: proxy target rejected; byref-like parameters/return values on an intercepted method still unsupported (see 3.1.5) |
 | 🔴 P0 to adapt | 0 items | — |
 | 🟡 P1 to adapt | 0 items | — |
 | 🟢 P2 adapted | 7 items | ✅ NRT, generic attributes, CallerArgumentExpression, collection expressions, Experimental, type parameter attributes, method group natural type |
 | ⚪ No adaptation needed | 30+ items | Pure syntactic sugar, compiles to standard IL |
 
-**Current status**: all features from C# 6 ~ C# 13 requiring adaptation are complete. `record` types (including the known limitation of derived records under DynamicProxy, see [Record Type Support](./record-support.md)) and `ref`/`ref readonly` return methods were the last two P0 items, and are now adapted.
+**Current status**: features from C# 6 ~ C# 13 requiring adaptation are largely complete. The `record` types (including the known limitation of derived records under DynamicProxy, see [Record Type Support](./record-support.md)) and `ref`/`ref readonly` return methods — the two P0 items — are adapted. The one remaining known limitation is **ref struct as a byref-like parameter/return value on an intercepted method**: the proxy target type is safely rejected, but the interception path's `object[]` boxing prevents passing `Span<T>` and the like (see 3.1.5).
 
 > **Change log**: all 7 P2 items were adapted in commit `2733202`; P1 primary constructors and params collections were adapted in commit `11ad20b`; P0 ref struct/scoped was adapted in commit `3f8669d`; P0 init-only and required members were adapted in commit `4bf323d`; P0 async streams (IAsyncEnumerable/IAsyncDisposable) were adapted in commit `5770dbb`; P1 partial properties were adapted in commit `a748efc`; P1 interpolated handlers and Index/Range were adapted in commit `fe319f9`; P0 record types were adapted in commit `ea68a9c`; P0 ref/ref readonly returns were adapted in this round (the `StrongBox<T>` value-semantic approach + dual-engine test coverage).
