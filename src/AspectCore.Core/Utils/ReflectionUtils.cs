@@ -70,6 +70,22 @@ namespace AspectCore.DynamicProxy
             return methodInfo.DeclaringType.GetTypeInfo().IsNonAspect() || methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
+        internal static bool IsRecordCopyMethod(this MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException(nameof(methodInfo));
+            }
+
+            // The copy method is virtual in a base record but override sealed in a
+            // derived record. Do NOT require !IsFinal here; otherwise derived records
+            // would not be detected and their copy method would be wrongly proxied.
+            return methodInfo.IsVirtual
+                   && methodInfo.GetParameters().Length == 0
+                   && methodInfo.ReturnType == methodInfo.DeclaringType
+                   && (methodInfo.Name == "<Clone>$" || methodInfo.Name == "<>Copy");
+        }
+
         internal static bool IsCallvirt(this MethodInfo methodInfo)
         {
             if (methodInfo == null)

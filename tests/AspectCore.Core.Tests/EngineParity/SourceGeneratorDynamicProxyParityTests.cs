@@ -521,6 +521,191 @@ public class SourceGeneratorDynamicProxyParityTests
         Assert.Null(result);
     }
 
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void RecordClassProxy_WithExpression_Should_Copy_Proxy_And_Keep_Interception(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    if (ctx.ServiceMethod.Name == nameof(RecordClassService.Label))
+                    {
+                        ctx.ReturnValue = $"intercepted:{ctx.ReturnValue}";
+                    }
+                }, Predicates.ForService("*RecordClassService"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<RecordClassService>("alpha", 1);
+        Assert.True(proxy.IsProxy());
+        Assert.Equal("intercepted:alpha:1", proxy.Label());
+
+        var copy = proxy with { Name = "beta" };
+
+        Assert.True(copy.IsProxy());
+        Assert.Equal(proxy.GetType(), copy.GetType());
+        Assert.Equal("beta", copy.Name);
+        Assert.Equal(1, copy.Count);
+        Assert.Equal("intercepted:beta:1", copy.Label());
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void RecordClassProxy_ChainedWith_Should_Copy_And_Keep_Interception(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    if (ctx.ServiceMethod.Name == nameof(RecordClassService.Label))
+                    {
+                        ctx.ReturnValue = $"intercepted:{ctx.ReturnValue}";
+                    }
+                }, Predicates.ForService("*RecordClassService"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<RecordClassService>("alpha", 1);
+        Assert.True(proxy.IsProxy());
+        Assert.Equal("intercepted:alpha:1", proxy.Label());
+
+        // First with
+        var copy1 = proxy with { Name = "beta" };
+        Assert.True(copy1.IsProxy());
+        Assert.Equal(proxy.GetType(), copy1.GetType());
+        Assert.Equal("beta", copy1.Name);
+        Assert.Equal(1, copy1.Count);
+        Assert.Equal("intercepted:beta:1", copy1.Label());
+
+        // Second with (chained) — mutate a different property on the copy
+        var copy2 = copy1 with { Count = 5 };
+        Assert.True(copy2.IsProxy());
+        Assert.Equal(proxy.GetType(), copy2.GetType());
+        Assert.Equal("beta", copy2.Name);
+        Assert.Equal(5, copy2.Count);
+        Assert.Equal("intercepted:beta:5", copy2.Label());
+
+        // Third with — mutate back to original values
+        var copy3 = copy2 with { Name = "alpha", Count = 1 };
+        Assert.True(copy3.IsProxy());
+        Assert.Equal("alpha", copy3.Name);
+        Assert.Equal(1, copy3.Count);
+        Assert.Equal("intercepted:alpha:1", copy3.Label());
+    }
+
+    [Fact]
+    public void RecordClassProxy_Inheritance_SourceGenerator_With_Should_Copy_Derived_Type_And_Keep_Interception()
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            ProxyEngine.SourceGenerator,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    if (ctx.ServiceMethod.Name == nameof(DerivedRecordService.Label))
+                    {
+                        ctx.ReturnValue = $"intercepted:{ctx.ReturnValue}";
+                    }
+                }, Predicates.ForService("*DerivedRecordService"));
+            },
+            strict: true,
+            allowRuntimeFallback: false);
+
+        var proxy = proxyGenerator.CreateClassProxy<DerivedRecordService>("alpha", 1, "extra");
+        Assert.True(proxy.IsProxy());
+        Assert.Equal("intercepted:alpha:1:extra", proxy.Label());
+
+        var copy = proxy with { Name = "beta" };
+
+        Assert.True(copy.IsProxy());
+        Assert.Equal(proxy.GetType(), copy.GetType());
+        Assert.Equal("beta", copy.Name);
+        Assert.Equal(1, copy.Count);
+        Assert.Equal("extra", copy.Extra);
+        Assert.Equal("intercepted:beta:1:extra", copy.Label());
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void RecordClassProxy_Generic_With_Should_Copy_And_Keep_Interception(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    if (ctx.ServiceMethod.Name == nameof(GenericRecordService<int>.Describe))
+                    {
+                        ctx.ReturnValue = $"intercepted:{ctx.ReturnValue}";
+                    }
+                }, Predicates.ForService("*GenericRecordService*"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<GenericRecordService<int>>(42);
+        Assert.True(proxy.IsProxy());
+        Assert.Equal("intercepted:42", proxy.Describe());
+
+        var copy = proxy with { Value = 99 };
+
+        Assert.True(copy.IsProxy());
+        Assert.Equal(proxy.GetType(), copy.GetType());
+        Assert.Equal(99, copy.Value);
+        Assert.Equal("intercepted:99", copy.Describe());
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void RecordClassProxy_InitProperty_With_Should_Copy_And_Keep_Interception(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate(async (ctx, next) =>
+                {
+                    await ctx.Invoke(next);
+                    if (ctx.ServiceMethod.Name == nameof(RecordWithInitPropertyService.Label))
+                    {
+                        ctx.ReturnValue = $"intercepted:{ctx.ReturnValue}";
+                    }
+                }, Predicates.ForService("*RecordWithInitPropertyService"));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<RecordWithInitPropertyService>();
+        Assert.True(proxy.IsProxy());
+
+        // Set init-only properties via object initializer
+        var initialized = proxy with { Name = "alpha", Count = 7 };
+        Assert.True(initialized.IsProxy());
+        Assert.Equal(proxy.GetType(), initialized.GetType());
+        Assert.Equal("alpha", initialized.Name);
+        Assert.Equal(7, initialized.Count);
+        Assert.Equal("intercepted:alpha:7", initialized.Label());
+
+        // Second with on an already-initialized copy
+        var copy = initialized with { Name = "beta" };
+        Assert.True(copy.IsProxy());
+        Assert.Equal("beta", copy.Name);
+        Assert.Equal(7, copy.Count);
+        Assert.Equal("intercepted:beta:7", copy.Label());
+    }
+
     private sealed record AspectSnapshot(
         Type ServiceDeclaringType,
         MethodInfo? ServiceMethod,
@@ -739,4 +924,32 @@ public class GenericService<T>
 public class GenericServiceWithConstraint<T> where T : class
 {
     public virtual T? FirstOrDefault(T[] items) => items.Length > 0 ? items[0] : null;
+}
+
+[AspectCoreGenerateProxy]
+public record RecordClassService(string Name, int Count)
+{
+    public virtual string Label() => $"{Name}:{Count}";
+}
+
+[AspectCoreGenerateProxy]
+public record DerivedRecordService(string Name, int Count, string Extra) : RecordClassService(Name, Count)
+{
+    public override string Label() => $"{Name}:{Count}:{Extra}";
+}
+
+[AspectCoreGenerateProxy]
+public record GenericRecordService<T>(T Value)
+{
+    public virtual string Describe() => Value?.ToString() ?? "";
+}
+
+[AspectCoreGenerateProxy]
+public record RecordWithInitPropertyService
+{
+    public virtual string Name { get; init; } = "";
+
+    public virtual int Count { get; init; }
+
+    public virtual string Label() => $"{Name}:{Count}";
 }

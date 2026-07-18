@@ -30,6 +30,9 @@ namespace AspectCore.Utils
 
         internal static readonly MethodInfo ReflectorInvoke = GetMethod<Func<MethodReflector, object, object[], object>>((r, i, a) => r.Invoke(i, a));
 
+        internal static readonly MethodInfo ObjectMemberwiseClone = typeof(object).GetTypeInfo().GetMethod(
+            nameof(MemberwiseClone), BindingFlags.Instance | BindingFlags.NonPublic);
+
         private static MethodInfo GetMethod<T>(Expression<T> expression)
         {
             if (expression == null)

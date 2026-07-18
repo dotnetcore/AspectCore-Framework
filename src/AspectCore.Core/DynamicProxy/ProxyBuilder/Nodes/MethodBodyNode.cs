@@ -47,6 +47,18 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Nodes
         public override void Accept(IProxyBuilderVisitor visitor) => visitor.VisitReflectorDelegationBody(this);
     }
 
+    internal class RecordCloneBody : MethodBodyNode
+    {
+        public string TargetFieldName { get; }
+
+        public RecordCloneBody(string targetFieldName)
+        {
+            TargetFieldName = targetFieldName ?? throw new ArgumentNullException(nameof(targetFieldName));
+        }
+
+        public override void Accept(IProxyBuilderVisitor visitor) => visitor.VisitRecordCloneBody(this);
+    }
+
     internal class AspectActivatorBody : MethodBodyNode
     {
         public MethodInfo ServiceMethod { get; }

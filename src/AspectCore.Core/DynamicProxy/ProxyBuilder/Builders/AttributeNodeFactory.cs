@@ -16,6 +16,15 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
         // System.Runtime.CompilerServices.ParamCollectionAttribute,
         // System.Runtime.CompilerServices.CollectionBuilderAttribute, and
         // System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.
+        //
+        // NOTE: IsExternalInitAttribute is included in the skip list. As a result,
+        // the IL emit engine does NOT preserve the modreq([IsExternalInit]) modifier
+        // on proxy property setters, so an `init` accessor becomes a regular `set`.
+        // `with` expressions still work because they are bound at compile time against
+        // the static (record) type. However, external code can then mutate proxy
+        // properties directly, bypassing record immutability. See
+        // docs/record-type-support.md for the full discussion and comparison with the
+        // Source Generator engine (which preserves `init`).
         private static readonly HashSet<string> SkippedAttributeFullNames = new HashSet<string>
         {
             "System.Runtime.CompilerServices.NullableContextAttribute",

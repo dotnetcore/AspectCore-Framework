@@ -431,6 +431,31 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             il.Emit(OpCodes.Ret);
         }
 
+        public void VisitRecordCloneBody(RecordCloneBody node)
+        {
+            // Implements the record copy method (<Clone>$/<>Copy) for the IL emit
+            // engine. The proxy is a plain class (not a record), so we manually
+            // implement copy semantics via MemberwiseClone rather than relying on
+            // compiler-synthesised record members. This keeps `with` expressions
+            // working while preserving reference-equality semantics for the proxy.
+            // See docs/record-type-support.md for the equality & init-setter
+            // differences between the two engines.
+            var il = _ctx.CurrentILGenerator;
+            var clone = il.DeclareLocal(_ctx.TypeBuilder);
+
+            il.EmitThis();
+            il.Emit(OpCodes.Call, MethodUtils.ObjectMemberwiseClone);
+            il.Emit(OpCodes.Castclass, _ctx.TypeBuilder);
+            il.Emit(OpCodes.Stloc, clone);
+
+            il.Emit(OpCodes.Ldloc, clone);
+            il.Emit(OpCodes.Ldloc, clone);
+            il.Emit(OpCodes.Stfld, _ctx.Fields[node.TargetFieldName]);
+
+            il.Emit(OpCodes.Ldloc, clone);
+            il.Emit(OpCodes.Ret);
+        }
+
         public void VisitAspectActivatorBody(AspectActivatorBody node)
         {
             var il = _ctx.CurrentILGenerator;

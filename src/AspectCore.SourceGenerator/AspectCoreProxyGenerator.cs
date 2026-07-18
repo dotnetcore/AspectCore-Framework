@@ -105,14 +105,12 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
         {
             if (type.IsSealed && !type.IsAbstract) return false;
             // Must have at least one overridable member
+            var isRecord = RecordTypeUtils.IsRecord(type);
             foreach (var member in type.GetMembers())
             {
-                if (member is IMethodSymbol m && m.MethodKind == MethodKind.Ordinary &&
-                    !m.IsStatic && m.IsVirtual && !m.IsSealed &&
-                    m.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+                if (member is IMethodSymbol m && IsProxyableClassMethod(type, m, isRecord))
                     return true;
-                if (member is IPropertySymbol p && !p.IsStatic && p.IsVirtual && !p.IsSealed &&
-                    p.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+                if (member is IPropertySymbol p && IsProxyableClassProperty(type, p, isRecord))
                     return true;
             }
             return false;
@@ -444,22 +442,38 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
 
     private static bool HasAnyOverridableMember(INamedTypeSymbol type)
     {
+        var isRecord = RecordTypeUtils.IsRecord(type);
         foreach (var member in type.GetMembers())
         {
-            if (member is IMethodSymbol m && m.MethodKind == MethodKind.Ordinary &&
-                !m.IsStatic && m.IsVirtual && !m.IsSealed &&
-                m.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+            if (member is IMethodSymbol m && IsProxyableClassMethod(type, m, isRecord))
             {
                 return true;
             }
-            if (member is IPropertySymbol p &&
-                !p.IsStatic && p.IsVirtual && !p.IsSealed &&
-                p.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal)
+            if (member is IPropertySymbol p && IsProxyableClassProperty(type, p, isRecord))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    private static bool IsProxyableClassMethod(INamedTypeSymbol type, IMethodSymbol method, bool isRecord)
+    {
+        return method.MethodKind == MethodKind.Ordinary
+               && !method.IsStatic
+               && method.IsVirtual
+               && !method.IsSealed
+               && method.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal
+               && !RecordTypeUtils.IsRecordSynthesizedMember(type, method, isRecord);
+    }
+
+    private static bool IsProxyableClassProperty(INamedTypeSymbol type, IPropertySymbol property, bool isRecord)
+    {
+        return !property.IsStatic
+               && property.IsVirtual
+               && !property.IsSealed
+               && property.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal
+               && !RecordTypeUtils.IsRecordSynthesizedMember(type, property, isRecord);
     }
 }
 
