@@ -94,7 +94,15 @@ namespace AspectCore.DynamicProxy
         {
             if (ReturnValue == null)
             {
-                ReturnValue = ServiceMethod.ReturnParameter.ParameterType.GetDefaultValue();
+                // For ref/ref readonly returns the return parameter type is a managed
+                // pointer (T&); unwrap it so the default value matches the element type
+                // that the value-based pipeline materialises.
+                var returnType = ServiceMethod.ReturnParameter.ParameterType;
+                if (returnType.IsByRef)
+                {
+                    returnType = returnType.GetElementType();
+                }
+                ReturnValue = returnType.GetDefaultValue();
             }
             return TaskUtils.CompletedTask;
         }

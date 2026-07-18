@@ -318,7 +318,18 @@ internal static class ProxyEmitter
 
     private static void EmitStubMethod(StringBuilder sb, IMethodSymbol method)
     {
+        // C# 7.0 ref / ref readonly return stub: the accessor must match the byref
+        // return of the interface member, and cannot `return default` by ref. Return a
+        // ref to a shared static default slot instead (the stub is only reached for
+        // interface-without-target when interception falls through). Generic ref
+        // returns cannot use a static field of a method type parameter, so they throw.
+        var isRefReturn = method.RefKind is RefKind.Ref or RefKind.RefReadOnly;
+        var refReturnUsesStaticSlot = isRefReturn && !method.IsGenericMethod;
+        var stubFieldName = refReturnUsesStaticSlot ? $"__stubRef_{GetMethodId(method)}" : null;
+
         sb.Append("        public ");
+        if (method.RefKind == RefKind.Ref) sb.Append("ref ");
+        else if (method.RefKind == RefKind.RefReadOnly) sb.Append("ref readonly ");
         sb.Append(method.ReturnsVoid ? "void" : method.ReturnType.ToGlobalName());
         sb.Append(' ').Append(method.Name).Append(EmitGenericParameterList(method)).Append('(');
         sb.Append(string.Join(", ", method.Parameters.Select(p => EmitParameterDecl(p))));
@@ -333,11 +344,24 @@ internal static class ProxyEmitter
             }
         }
 
-        if (!method.ReturnsVoid)
+        if (refReturnUsesStaticSlot)
+        {
+            sb.AppendLine($"            return ref {stubFieldName};");
+        }
+        else if (isRefReturn)
+        {
+            sb.AppendLine("            throw new global::System.NotSupportedException(\"Generic ref return interface stubs are not supported without a target.\");");
+        }
+        else if (!method.ReturnsVoid)
         {
             sb.AppendLine($"            return default({method.ReturnType.ToGlobalName()});");
         }
         sb.AppendLine("        }");
+        if (refReturnUsesStaticSlot)
+        {
+            // Backing slot for the ref return stub.
+            sb.AppendLine($"        private static {method.ReturnType.ToGlobalName()} {stubFieldName};");
+        }
     }
 
     private static void EmitInterfaceProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol iface, INamedTypeSymbol? implementationType, string proxyName, string ifaceName)
@@ -785,6 +809,9 @@ internal static class ProxyEmitter
         sb.Append(GetAccessibility(method.DeclaredAccessibility));
         sb.Append(' ');
         if (isOverride) sb.Append("override ");
+        // C# 7.0 ref / ref readonly return modifiers precede the return type.
+        if (method.RefKind == RefKind.Ref) sb.Append("ref ");
+        else if (method.RefKind == RefKind.RefReadOnly) sb.Append("ref readonly ");
         sb.Append(method.ReturnsVoid ? "void" : method.ReturnType.ToGlobalName());
         sb.Append(' ').Append(method.Name).Append(EmitGenericParameterList(method)).Append('(');
         sb.Append(string.Join(", ", method.Parameters.Select(p => EmitParameterDecl(p))));
@@ -863,7 +890,10 @@ internal static class ProxyEmitter
         }
         else
         {
-            sb.AppendLine($"                return {directCall};");
+            // ref / ref readonly returns must forward the managed reference directly
+            // so the non-intercepted path keeps true ref-aliasing semantics.
+            var refPrefix = method.RefKind is RefKind.Ref or RefKind.RefReadOnly ? "ref " : "";
+            sb.AppendLine($"                return {refPrefix}{directCall};");
         }
         sb.AppendLine("            }");
         sb.AppendLine();
@@ -924,6 +954,13 @@ internal static class ProxyEmitter
             {
                 sb.AppendLine($"            {method.ReturnType.ToGlobalName()} __ret = default;");
             }
+            else if (rk == ReturnKindKind.RefSync)
+            {
+                // ref / ref readonly return: the value-based pipeline yields a value that
+                // must be materialised into a StrongBox<T> so its field can be returned by
+                // ref (the managed pointer must outlive this proxy method).
+                sb.AppendLine($"            var __refBox = new global::System.Runtime.CompilerServices.StrongBox<{method.ReturnType.ToGlobalName()}>();");
+            }
             sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx);");
             sb.AppendLine("            try");
             sb.AppendLine("            {");
@@ -937,6 +974,10 @@ internal static class ProxyEmitter
             if (rk == ReturnKindKind.Sync)
             {
                 sb.AppendLine($"                __ret = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
+            }
+            else if (rk == ReturnKindKind.RefSync)
+            {
+                sb.AppendLine($"                __refBox.Value = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
             }
             sb.AppendLine("            }");
             sb.AppendLine("            catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
@@ -987,6 +1028,9 @@ internal static class ProxyEmitter
                 break;
             case ReturnKindKind.Sync:
                 sb.AppendLine("            return __ret;");
+                break;
+            case ReturnKindKind.RefSync:
+                sb.AppendLine("            return ref __refBox.Value;");
                 break;
         }
     }
@@ -1441,6 +1485,9 @@ internal enum ReturnKindKind
     ValueTask,
     ValueTaskOfT,
     AsyncEnumerable,
+    // C# 7.0 ref / ref readonly return. Value-based pipeline materialises the
+    // result into a StrongBox<T> and returns `ref __box.Value`.
+    RefSync,
 }
 
 internal static class ReturnKind
@@ -1448,6 +1495,11 @@ internal static class ReturnKind
     public static ReturnKindKind Determine(IMethodSymbol method)
     {
         if (method.ReturnsVoid) return ReturnKindKind.Void;
+
+        // C# 7.0 ref / ref readonly return. RefKind distinguishes these from a
+        // plain value return; the async return kinds cannot be byref.
+        if (method.RefKind is RefKind.Ref or RefKind.RefReadOnly)
+            return ReturnKindKind.RefSync;
 
         var rt = method.ReturnType;
         if (rt is INamedTypeSymbol named)

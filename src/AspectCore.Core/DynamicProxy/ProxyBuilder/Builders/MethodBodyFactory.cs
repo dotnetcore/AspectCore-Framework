@@ -79,6 +79,10 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
         {
             if (method.ReturnType == typeof(void))
                 return ReturnKind.Void;
+            // C# 7.0 ref / ref readonly return: the return type is a managed pointer (T&).
+            // Handled via the RefSync path which materialises the value into a StrongBox<T>.
+            if (method.ReturnType.IsByRef)
+                return ReturnKind.RefSync;
             if (method.ReturnType == typeof(Task))
                 return ReturnKind.Task;
             if (method.IsReturnTask())

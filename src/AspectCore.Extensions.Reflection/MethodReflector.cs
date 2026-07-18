@@ -93,9 +93,7 @@ namespace AspectCore.Extensions.Reflection
                 ilGen.EmitCall(OpCodes.Callvirt, _reflectionInfo, null);
 #endif
                 callback?.Invoke();
-                if (_reflectionInfo.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
-                else if (_reflectionInfo.ReturnType.GetTypeInfo().IsValueType)
-                    ilGen.EmitConvertToObject(_reflectionInfo.ReturnType);
+                EmitReturn(ilGen, _reflectionInfo);
                 ilGen.Emit(OpCodes.Ret);
                 return (Func<object, object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object, object[], object>));
             }
@@ -113,6 +111,41 @@ namespace AspectCore.Extensions.Reflection
         public virtual object StaticInvoke(params object[] parameters)
         {
             throw new InvalidOperationException($"Method {_reflectionInfo.Name} must be static to call this method. For invoke instance method, call 'Invoke'.");
+        }
+
+        /// <summary>
+        /// Emits the boxing/return conversion for an invoker's return value.
+        /// Handles void, value-type boxing, and C# 7.0 ref/ref readonly returns
+        /// (the call leaves a managed pointer T&amp; on the stack that must be
+        /// dereferenced before being returned as <see cref="object"/>).
+        /// </summary>
+        private protected static void EmitReturn(ILGenerator ilGen, MethodInfo method)
+        {
+            var returnType = method.ReturnType;
+            if (returnType == typeof(void))
+            {
+                ilGen.Emit(OpCodes.Ldnull);
+                return;
+            }
+
+            if (returnType.IsByRef)
+            {
+                // ref / ref readonly return: dereference the managed pointer, then box
+                // value types. The interceptor pipeline is value-based, so callers only
+                // observe the pointed-to value here.
+                var elementType = returnType.GetElementType();
+                ilGen.EmitLdRef(elementType);
+                if (elementType.GetTypeInfo().IsValueType)
+                {
+                    ilGen.EmitConvertToObject(elementType);
+                }
+                return;
+            }
+
+            if (returnType.GetTypeInfo().IsValueType)
+            {
+                ilGen.EmitConvertToObject(returnType);
+            }
         }
     }
 }

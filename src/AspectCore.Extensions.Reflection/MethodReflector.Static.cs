@@ -82,9 +82,7 @@ namespace AspectCore.Extensions.Reflection
                 {
                     ilGen.EmitCall(OpCodes.Call, _reflectionInfo, null);
                     callback?.Invoke();
-                    if (_reflectionInfo.ReturnType == typeof(void)) ilGen.Emit(OpCodes.Ldnull);
-                    else if (_reflectionInfo.ReturnType.GetTypeInfo().IsValueType)
-                        ilGen.EmitConvertToObject(_reflectionInfo.ReturnType);
+                    EmitReturn(ilGen, _reflectionInfo);
                     ilGen.Emit(OpCodes.Ret);
                     return (Func<object, object[], object>)dynamicMethod.CreateDelegate(typeof(Func<object, object[], object>));
                 }
