@@ -56,7 +56,7 @@ AspectCore 拥有两套 AOP 引擎：
 | C# 13.0 | ✅ 部分属性（Partial Properties） | DynamicProxy：`PropertyNode` 新增 `IsPartial` 标志，`ClassProxyAstBuilder`/`InterfaceImplAstBuilder` 设置该标志；SG：`ProxyEmitter` 通过语法分析检测 partial 关键字，为抽象类声明-only partial 属性生成 stub 访问器，接口和非抽象类使用正常委托代码 | `PropertyNode.cs`；`ClassProxyAstBuilder.cs`；`InterfaceImplAstBuilder.cs`；`ProxyEmitter.cs` |
 | C# 10.0 | ✅ 插值字符串处理器（Interpolated String Handlers） | 自定义插值处理器 struct（非 ref struct）作为参数/返回值时，通过 `Sync` 返回路径正确处理；覆盖 `$"..."` 插值 lowering（编译器生成 handler 后传入代理方法）和 `[InterpolatedStringHandlerArgument]` 参数转发；拦截器链可检查和替换 struct 返回值 | `InterpolatedStringHandlerAndIndexRangeParityTests.cs` |
 | C# 8.0 | ✅ System.Index / System.Range | `Index`/`Range` 作为普通 struct，通过 `Sync` 返回路径正确处理；参数和返回值均正确转发；拦截器链可检查和替换返回值 | `InterpolatedStringHandlerAndIndexRangeParityTests.cs` |
-| C# 9.0 | ✅ record 类型 | 两套引擎均支持 record class 类代理 + `with` 表达式；SG 生成 `record class` 代理，DynamicProxy 手动实现 `<Clone>$`/`<>Copy`。已知差异见 `docs/record-type-support.md`（相等性、init setter、派生 record `<Clone>$` 限制） | `RecordTypeUtils.cs`；`ClassProxyAstBuilder.cs`；`ILEmitVisitor.cs`；`ProxyEmitter.cs` |
+| C# 9.0 | ✅ record 类型 | 两套引擎均支持 record class 类代理 + `with` 表达式；SG 生成 `record class` 代理，DynamicProxy 手动实现 `<Clone>$`/`<>Copy`。已知差异见 [Record 类型支持](./record-support.md)（相等性、init setter、派生 record `<Clone>$` 限制） | `RecordTypeUtils.cs`；`ClassProxyAstBuilder.cs`；`ILEmitVisitor.cs`；`ProxyEmitter.cs` |
 | C# 7.0 | ✅ ref / ref readonly 返回 | 新增 `ReturnKind.RefSync`；值语义管线下将返回值物化到 `StrongBox<T>`，返回 `ref box.Value`；未拦截路径保持真 ref 别名；`MethodReflector.EmitReturn` 处理 byref 返回解引用 | `ReturnKind.cs`；`MethodBodyFactory.cs`；`ILEmitVisitor.cs`；`ProxyEmitter.cs`；`MethodReflector*.cs` |
 
 ## 3. 需要适配的特性
@@ -726,6 +726,6 @@ P0（已全部完成）          P1（功能缺失）            P2（注解/低
 | 🟢 P2 已适配 | 7 项 | ✅ NRT、泛型属性、CallerArgumentExpression、集合表达式、Experimental、类型参数属性、方法组自然类型 |
 | ⚪ 无需适配 | 30+ 项 | 纯语法糖，编译为标准 IL |
 
-**当前状态**：C# 6 ~ C# 13 需适配特性均已完成。`record` 类型（含派生 record 在 DynamicProxy 下的已知限制，详见 `docs/record-type-support.md`）与 `ref`/`ref readonly` 返回方法为最后两项 P0，现已适配。
+**当前状态**：C# 6 ~ C# 13 需适配特性均已完成。`record` 类型（含派生 record 在 DynamicProxy 下的已知限制，详见 [Record 类型支持](./record-support.md)）与 `ref`/`ref readonly` 返回方法为最后两项 P0，现已适配。
 
 > **更新记录**：P2 全部 7 项已在 commit `2733202` 中适配完成；P1 主构造函数和 params 集合已在 commit `11ad20b` 中适配完成；P0 ref struct/scoped 已在 commit `3f8669d` 中适配完成；P0 init-only 和 required 成员已在 commit `4bf323d` 中适配完成；P0 异步流（IAsyncEnumerable/IAsyncDisposable）已在 commit `5770dbb` 中适配完成；P1 部分属性已在 commit `a748efc` 中适配完成；P1 插值处理器和 Index/Range 已在 commit `fe319f9` 中适配完成；P0 record 类型已在 commit `ea68a9c` 中适配完成；P0 ref/ref readonly 返回已在本次适配完成（`StrongBox<T>` 值语义方案 + 双引擎测试覆盖）。
