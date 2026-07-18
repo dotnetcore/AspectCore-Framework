@@ -174,6 +174,75 @@ public class RefReturnParityTests
         Assert.Equal(42, slot);
         Assert.Contains(nameof(IRefReturnService.GetSlot), calledMethods);
     }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void ClassProxy_ConstructedGenericRefReturn_Should_ReadValue(ProxyEngine engine)
+    {
+        // Regression: `ref Holder<T> EchoHolder<T>()` — the element type is a
+        // constructed generic (Holder<T>) whose T must be remapped onto the proxy
+        // method builder's type parameters before closing StrongBox<Holder<T>>.
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<GenericRefReturnClassService>();
+
+        ref RefHolder<int> holder = ref proxy.EchoHolder(41);
+        Assert.Equal(41, holder.Value);
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void ClassProxy_RefReturnProperty_Should_ReadValue_And_Intercept(ProxyEngine engine)
+    {
+        // Regression: ref-returning property must keep `ref` on the generated
+        // override declaration (otherwise CS8148 on the source-generator path).
+        var calledMethods = new ConcurrentQueue<string>();
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate((ctx, next) =>
+                {
+                    calledMethods.Enqueue(ctx.ServiceMethod.Name);
+                    return ctx.Invoke(next);
+                });
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<RefPropertyClassService>();
+
+        Assert.True(proxy.IsProxy());
+        ref int slot = ref proxy.Value;
+        Assert.Equal(13, slot);
+        Assert.Contains("get_Value", calledMethods);
+    }
+
+    [Theory]
+    [MemberData(nameof(ProxyEngineTestSupport.Engines), MemberType = typeof(ProxyEngineTestSupport))]
+    public void ClassProxy_RefReadOnlyProperty_Should_ReadValue(ProxyEngine engine)
+    {
+        using var proxyGenerator = ProxyEngineTestSupport.CreateProxyGenerator(
+            engine,
+            configureAspect: cfg =>
+            {
+                cfg.Interceptors.AddDelegate((ctx, next) => ctx.Invoke(next));
+            },
+            strict: engine == ProxyEngine.SourceGenerator,
+            allowRuntimeFallback: engine == ProxyEngine.SourceGenerator ? false : null);
+
+        var proxy = proxyGenerator.CreateClassProxy<RefPropertyClassService>();
+
+        ref readonly int slot = ref proxy.ReadOnlyValue;
+        Assert.Equal(17, slot);
+    }
 }
 
 [AspectCoreGenerateProxy]
@@ -199,15 +268,35 @@ public class GenericRefReturnClassService
     // back a ref to a per-call holder so the returned managed pointer is valid.
     public virtual ref T Echo<T>(T value)
     {
-        var holder = new Holder<T> { Value = value };
+        var holder = new RefHolder<T> { Value = value };
         _slot = holder;
         return ref holder.Value;
     }
 
-    private sealed class Holder<T>
+    // Constructed-generic ref return: element type is RefHolder<T>, which embeds the
+    // method type parameter T inside a constructed generic type.
+    public virtual ref RefHolder<T> EchoHolder<T>(T value)
     {
-        public T Value;
+        var box = new RefHolder<RefHolder<T>> { Value = new RefHolder<T> { Value = value } };
+        _slot = box;
+        return ref box.Value;
     }
+}
+
+public sealed class RefHolder<T>
+{
+    public T Value;
+}
+
+[AspectCoreGenerateProxy]
+public class RefPropertyClassService
+{
+    private int _value = 13;
+    private int _readOnlyValue = 17;
+
+    public virtual ref int Value => ref _value;
+
+    public virtual ref readonly int ReadOnlyValue => ref _readOnlyValue;
 }
 
 [AspectCoreGenerateProxy(typeof(RefReturnService))]

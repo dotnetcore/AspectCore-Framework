@@ -267,30 +267,44 @@ internal static class ProxyEmitter
                 if (!seenProperties.Add(key)) continue;
 
                 var typeName = prop.Type.ToGlobalName();
+                var refPrefix = prop.RefKind switch
+                {
+                    RefKind.Ref => "ref ",
+                    RefKind.RefReadOnly => "ref readonly ",
+                    _ => ""
+                };
+                var isRefProp = prop.RefKind is RefKind.Ref or RefKind.RefReadOnly;
+                // ref / ref readonly return stub getters cannot `return default` by ref;
+                // they return a ref to a shared static default slot.
+                var stubSlot = isRefProp ? $"__stubPropRef_{GetMethodId(prop.GetMethod!)}" : null;
                 if (prop.IsIndexer)
                 {
                     // minimal indexer stub
-                    sb.Append("        public ").Append(typeName).Append(" this[");
+                    sb.Append("        public ").Append(refPrefix).Append(typeName).Append(" this[");
                     sb.Append(string.Join(", ", prop.Parameters.Select(p => EmitParameterDecl(p))));
                     sb.AppendLine("]");
                     sb.AppendLine("        {");
                     if (prop.GetMethod is not null)
-                        sb.AppendLine($"            get => default({typeName});");
+                        sb.AppendLine(isRefProp ? $"            get => ref {stubSlot};" : $"            get => default({typeName});");
                     if (prop.SetMethod is not null)
                         sb.AppendLine(prop.SetMethod.IsInitOnly ? "            init { }" : "            set { }");
                     sb.AppendLine("        }");
+                    if (isRefProp)
+                        sb.AppendLine($"        private static {typeName} {stubSlot};");
                 }
                 else
                 {
                     sb.Append("        public ");
                     if (prop.IsRequired) sb.Append("required ");
-                    sb.Append(typeName).Append(' ').Append(prop.Name).AppendLine();
+                    sb.Append(refPrefix).Append(typeName).Append(' ').Append(prop.Name).AppendLine();
                     sb.AppendLine("        {");
                     if (prop.GetMethod is not null)
-                        sb.AppendLine($"            get => default({typeName});");
+                        sb.AppendLine(isRefProp ? $"            get => ref {stubSlot};" : $"            get => default({typeName});");
                     if (prop.SetMethod is not null)
                         sb.AppendLine(prop.SetMethod.IsInitOnly ? "            init { }" : "            set { }");
                     sb.AppendLine("        }");
+                    if (isRefProp)
+                        sb.AppendLine($"        private static {typeName} {stubSlot};");
                 }
                 sb.AppendLine();
             }
@@ -719,6 +733,14 @@ internal static class ProxyEmitter
     private static void EmitProxyProperty(StringBuilder sb, INamedTypeSymbol serviceType, INamedTypeSymbol? implementationType, string proxyTypeName, string declaredTypeName, IPropertySymbol prop, bool isOverride = false)
     {
         var propTypeName = prop.Type.ToGlobalName();
+        // C# 7.0 ref / ref readonly return properties and indexers must carry the
+        // by-ref modifier on the declaration, otherwise an override fails CS8148.
+        var refPrefix = prop.RefKind switch
+        {
+            RefKind.Ref => "ref ",
+            RefKind.RefReadOnly => "ref readonly ",
+            _ => ""
+        };
 
         EmitAttributes(sb, prop, "        ");
         if (prop.IsIndexer)
@@ -727,7 +749,7 @@ internal static class ProxyEmitter
             sb.Append(GetAccessibility(prop.DeclaredAccessibility));
             sb.Append(' ');
             if (isOverride) sb.Append("override ");
-            sb.Append(propTypeName).Append(" this[");
+            sb.Append(refPrefix).Append(propTypeName).Append(" this[");
             sb.Append(string.Join(", ", prop.Parameters.Select(p => $"{p.Type.ToGlobalName()} {p.Name}")));
             sb.AppendLine("]");
         }
@@ -738,7 +760,7 @@ internal static class ProxyEmitter
             sb.Append(' ');
             if (prop.IsRequired) sb.Append("required ");
             if (isOverride) sb.Append("override ");
-            sb.Append(propTypeName).Append(' ').Append(prop.Name).AppendLine();
+            sb.Append(refPrefix).Append(propTypeName).Append(' ').Append(prop.Name).AppendLine();
         }
 
         sb.AppendLine("        {");

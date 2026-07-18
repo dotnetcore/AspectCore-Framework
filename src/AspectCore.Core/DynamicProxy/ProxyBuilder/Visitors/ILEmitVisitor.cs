@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
+using AspectCore.Extensions;
 using AspectCore.Extensions.Reflection;
 using AspectCore.Extensions.Reflection.Emit;
 using AspectCore.Utils;
@@ -474,9 +475,13 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             il.Emit(OpCodes.Callvirt, MethodUtils.CreateAspectActivator);
             il.Emit(OpCodes.Ldloc, activatorContext);
 
-            EmitReturnValue(il, node);
-
             var isRefReturn = node.ReturnKind == ReturnKind.RefSync;
+            // For ref returns, resolve the (generic-parameter-mapped) element type once
+            // and use it for both the pipeline Invoke<T> call and the StrongBox<T>.
+            var refElementType = isRefReturn ? ResolveRefElementType(node, methodBuilder) : null;
+
+            EmitReturnValue(il, node, refElementType);
+
             LocalBuilder refBox = null;
 
             if (isRefReturn)
@@ -484,9 +489,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
                 // The pipeline produced a TElement value on the stack. Wrap it in a
                 // StrongBox<TElement> whose Value field address is returned by ref, so
                 // the managed pointer stays valid after this proxy method returns.
-                var elementType = ResolveRefElementType(node, methodBuilder);
-                var boxType = MethodUtils.StrongBoxOpenType.MakeGenericType(elementType);
-                var boxCtor = ResolveStrongBoxCtor(boxType, elementType);
+                var boxType = MethodUtils.StrongBoxOpenType.MakeGenericType(refElementType);
+                var boxCtor = ResolveStrongBoxCtor(boxType, refElementType);
 
                 il.Emit(OpCodes.Newobj, boxCtor);
                 refBox = il.DeclareLocal(boxType);
@@ -524,9 +528,8 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             if (isRefReturn)
             {
                 // return ref box.Value  ->  ldloc box; ldflda StrongBox<T>::Value; ret
-                var elementType = ResolveRefElementType(node, methodBuilder);
-                var boxType = MethodUtils.StrongBoxOpenType.MakeGenericType(elementType);
-                var valueField = ResolveStrongBoxValueField(boxType, elementType);
+                var boxType = MethodUtils.StrongBoxOpenType.MakeGenericType(refElementType);
+                var valueField = ResolveStrongBoxValueField(boxType, refElementType);
                 il.Emit(OpCodes.Ldloc, refBox);
                 il.Emit(OpCodes.Ldflda, valueField);
             }
@@ -538,23 +541,27 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             il.Emit(OpCodes.Ret);
         }
 
-        // Resolves the element type T of a `ref T` return, mapping generic-method
-        // return parameters onto the proxy method builder's generic arguments so
-        // StrongBox<T> is constructed against the builder's type parameters (not the
-        // service method definition's).
+        // Resolves the element type T of a `ref T` return, recursively mapping any
+        // generic-method parameters that appear inside T (including constructed types
+        // such as Holder<T> and arrays) onto the proxy method builder's generic
+        // arguments, so StrongBox<T> is closed against the builder's type parameters
+        // (not the service method definition's runtime parameters).
         private static Type ResolveRefElementType(AspectActivatorBody node, MethodBuilder methodBuilder)
         {
             var elementType = node.ReturnType.GetElementType();
-            if (node.IsGeneric && elementType.IsGenericParameter && elementType.DeclaringMethod != null)
-            {
-                var builderArgs = methodBuilder.GetGenericArguments();
-                var position = elementType.GenericParameterPosition;
-                if (position >= 0 && position < builderArgs.Length)
-                {
-                    return builderArgs[position];
-                }
-            }
-            return elementType;
+            if (!node.IsGeneric)
+                return elementType;
+
+            // node.ServiceMethod is the generic method definition (IsGeneric mirrors
+            // IsGenericMethodDefinition), whose type parameters are the ones embedded in
+            // the service return type.
+            var definition = node.ServiceMethod.IsGenericMethodDefinition
+                ? node.ServiceMethod
+                : node.ServiceMethod.GetGenericMethodDefinition();
+
+            return elementType.SubstituteMethodGenericParameters(
+                definition,
+                methodBuilder.GetGenericArguments());
         }
 
         private static ConstructorInfo ResolveStrongBoxCtor(Type closedBoxType, Type elementType)
@@ -634,7 +641,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             }
         }
 
-        private void EmitReturnValue(ILGenerator il, AspectActivatorBody node)
+        private void EmitReturnValue(ILGenerator il, AspectActivatorBody node, Type refElementType = null)
         {
             switch (node.ReturnKind)
             {
@@ -664,10 +671,12 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
                     il.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(node.ReturnType));
                     break;
                 case ReturnKind.RefSync:
-                    // ref / ref readonly return: invoke the pipeline with the element type
-                    // (T of T&). The materialised value is wrapped in a StrongBox<T> by the
-                    // caller (VisitAspectActivatorBody) so its address can be returned by ref.
-                    il.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(node.ReturnType.GetElementType()));
+                    // ref / ref readonly return: invoke the pipeline with the (generic-
+                    // parameter-mapped) element type T of T&. The materialised value is
+                    // wrapped in a StrongBox<T> by the caller (VisitAspectActivatorBody)
+                    // so its address can be returned by ref.
+                    il.Emit(OpCodes.Callvirt, MethodUtils.AspectActivatorInvoke.MakeGenericMethod(
+                        refElementType ?? node.ReturnType.GetElementType()));
                     break;
             }
         }
