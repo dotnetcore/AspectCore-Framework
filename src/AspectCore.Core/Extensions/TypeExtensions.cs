@@ -317,6 +317,25 @@ internal static class TypeExtensions
     }
 
     /// <summary>
+    /// Substitutes the generic parameters of <paramref name="methodDefinition"/> that appear anywhere
+    /// inside <paramref name="type"/> (including arrays and constructed generic types such as
+    /// <c>Holder&lt;T&gt;</c>) with the corresponding entries from <paramref name="concreteArguments"/>.
+    /// Used to close open types against a proxy method builder's generic arguments.
+    /// </summary>
+    public static Type SubstituteMethodGenericParameters(this Type type, MethodInfo methodDefinition, Type[] concreteArguments)
+    {
+        var typeParameters = methodDefinition.GetGenericArguments();
+        if (typeParameters.Length == 0 || concreteArguments.Length != typeParameters.Length)
+            return type;
+
+        var map = new Dictionary<Type, Type>(typeParameters.Length);
+        for (var i = 0; i < typeParameters.Length; i++)
+            map[typeParameters[i]] = concreteArguments[i];
+
+        return type.SubstituteGenericParameters(map);
+    }
+
+    /// <summary>
     /// Replaces generic parameters inside a type with their mapped generic parameters or concrete generic arguments.
     /// </summary>
     /// <param name="type">The type whose generic parameters should be substituted.</param>

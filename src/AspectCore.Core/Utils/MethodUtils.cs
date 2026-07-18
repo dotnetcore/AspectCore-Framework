@@ -33,6 +33,15 @@ namespace AspectCore.Utils
         internal static readonly MethodInfo ObjectMemberwiseClone = typeof(object).GetTypeInfo().GetMethod(
             nameof(MemberwiseClone), BindingFlags.Instance | BindingFlags.NonPublic);
 
+        // Open generic StrongBox<> members used to materialise `ref`/`ref readonly`
+        // return values onto the heap (the interceptor pipeline is value-based, so the
+        // returned managed pointer must alias a heap slot that survives the proxy call).
+        internal static readonly Type StrongBoxOpenType = typeof(System.Runtime.CompilerServices.StrongBox<>);
+
+        internal static readonly ConstructorInfo StrongBoxOpenCtor = StrongBoxOpenType.GetConstructor(StrongBoxOpenType.GetGenericArguments());
+
+        internal static readonly FieldInfo StrongBoxOpenValueField = StrongBoxOpenType.GetField(nameof(System.Runtime.CompilerServices.StrongBox<object>.Value));
+
         private static MethodInfo GetMethod<T>(Expression<T> expression)
         {
             if (expression == null)
