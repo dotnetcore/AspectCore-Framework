@@ -65,7 +65,7 @@ dotnet add package AspectCore.Extensions.Reflection
 - **Already using Autofac / Windsor / LightInject**: install the corresponding integration package; see [Third-party containers](../guide/third-party-containers.md).
 - **No DI needed, just want to create proxy objects manually**: install `AspectCore.Core` and use `ProxyGeneratorBuilder` to generate proxies on your own.
 - **Just want reflection calls faster than native reflection**: install `AspectCore.Extensions.Reflection` on its own; see [Reflection extensions](../guide/reflection-extensions.md).
-- **Need AOT- / trimming-friendly compile-time proxies**: additionally reference `AspectCore.SourceGenerator`; see [Source Generator compile-time engine](../architecture/source-generator.md).
+- **Need compile-time proxies that reduce the dependency on dynamic code during proxy generation**: additionally reference `AspectCore.SourceGenerator`; see [Source Generator compile-time engine](../architecture/source-generator.md).
 
 ## Next steps
 

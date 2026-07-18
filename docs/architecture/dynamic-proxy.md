@@ -117,5 +117,5 @@ interceptor₁.Invoke(ctx, next=
 ## 4. 适用性与限制
 
 - 运行时生成，**无需改动构建流程**，任何被容器管理或经 `ProxyGenerator` 创建的服务都能代理。
-- 依赖 `Reflection.Emit`，在完全 AOT / 裁剪场景受限（相关 API 标注了 `[RequiresDynamicCode]`/`[RequiresUnreferencedCode]`）；这类场景应改用 [Source Generator 引擎](./source-generator.md)。
+- 依赖 `Reflection.Emit`，在完全 AOT / 裁剪场景受限（相关 API 标注了 `[RequiresDynamicCode]`/`[RequiresUnreferencedCode]`）；这类场景可优先用 [Source Generator 引擎](./source-generator.md) 降低代理生成期的动态代码依赖（但拦截/构造仍有运行时反射约束，边界见 [两套引擎对比与选型](./engine-comparison.md)）。
 - 只能代理可继承/可重写的成员：非 sealed 类的 virtual 成员、接口成员；`sealed`、`ref struct`、静态成员不支持。

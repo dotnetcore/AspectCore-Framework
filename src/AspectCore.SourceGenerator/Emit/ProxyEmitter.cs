@@ -160,7 +160,7 @@ internal static class ProxyEmitter
         // so that the C# compiler synthesises the copy constructor and `with` support needed
         // for record proxying. A side effect is that the compiler also generates value-based
         // Equals/GetHashCode/ToString. The IL emit engine produces a plain class (reference
-        // equality). See docs/record-type-support.md for the full comparison and rationale.
+        // equality). See docs/architecture/record-support.md for the full comparison and rationale.
         sb.Append(isRecord
             ? $"    public sealed record class {proxyName}{genericParamList} : {implName}"
             : $"    public sealed class {proxyName}{genericParamList} : {implName}");

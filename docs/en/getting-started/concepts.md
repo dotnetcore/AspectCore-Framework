@@ -30,7 +30,7 @@ AspectCore does not modify your original class; instead it generates a **proxy t
 A proxy can only weave into overridable members: interface members, or `virtual` members of non-`sealed` classes. There are two engines for generating proxies:
 
 - **DynamicProxy (runtime)**: the default engine, which generates proxies at runtime using `Reflection.Emit`, with no changes to the build process. See [DynamicProxy runtime engine](../architecture/dynamic-proxy.md).
-- **SourceGenerator (compile-time)**: explicit opt-in; Roslyn generates the proxy types at compile time, suitable for AOT / trimming scenarios. See [Source Generator compile-time engine](../architecture/source-generator.md).
+- **SourceGenerator (compile-time)**: explicit opt-in; Roslyn generates the proxy types at compile time, reducing the dependency on dynamic code during proxy generation (suitable for trimming scenarios; but interception/construction still have runtime reflection constraints, not end-to-end NativeAOT). See [Source Generator compile-time engine](../architecture/source-generator.md).
 
 For the trade-offs between the two, see [Comparing and choosing between the two engines](../architecture/engine-comparison.md).
 

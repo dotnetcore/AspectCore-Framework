@@ -14,7 +14,7 @@ namespace AspectCore.Core.Tests.EngineParity;
 /// into a StrongBox&lt;T&gt; and returned by ref. Consequently, reads observe the
 /// (possibly interceptor-replaced) value, but writes through the returned ref do NOT
 /// flow back to the target's original storage — mirroring the ref/out parameter
-/// copy-back semantics. See docs/3.CSharp-Language-Features-AOP-Emit-Adaptation.md 6.6.
+/// copy-back semantics. See docs/architecture/language-features.md 6.6.
 /// </summary>
 public class RefReturnParityTests
 {

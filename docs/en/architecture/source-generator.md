@@ -83,7 +83,7 @@ On the runtime side, once enabled via `ProxyEngineOptions`, `SourceGeneratedProx
 
 ## 6. Applicability and Limitations
 
-- **AOT / trimming friendly**: proxies are generated at compile time, and the runtime does not need `Reflection.Emit`; combined with manual registry registration (`AddSourceGeneratedProxyRegistry<T>()`), it can work in scenarios without assembly scanning.
+- **Reduces the dependency on dynamic code during proxy generation**: proxies are generated at compile time, and at runtime **proxy generation** does not need `Reflection.Emit`; combined with manual registry registration (`AddSourceGeneratedProxyRegistry<T>()`), it can work in scenarios without assembly scanning. Note that this is not equivalent to end-to-end NativeAOT — during interception the target call still goes through `MethodReflector` (`DynamicMethod`), and proxy construction also retains `[RequiresDynamicCode]` paths; for the boundary, see [Engine Comparison and Selection](./engine-comparison.md).
 - **Requires explicit annotation**: only types with `[AspectCoreGenerateProxy]` (or assembly-level auto-discovery) will have proxies generated.
 - **Not supported**: `sealed` classes, `ref struct`, nested types, event members, and byref-like `params` parameters (corresponding to the diagnostics in the table above).
 - The behavioral differences from DynamicProxy are concentrated on records (equality / `init` setters) and the boundary of targetless interface stubs, both explained in the corresponding documents.

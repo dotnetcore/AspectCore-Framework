@@ -117,5 +117,5 @@ In a DI scenario, `ServiceTable` (`DependencyInjection/ServiceTable.cs:11`) dete
 ## 4. Applicability and Limitations
 
 - Generated at runtime, **with no need to change the build process**; any service managed by the container or created via `ProxyGenerator` can be proxied.
-- Depends on `Reflection.Emit`, and is limited in fully AOT / trimming scenarios (the relevant APIs are annotated with `[RequiresDynamicCode]`/`[RequiresUnreferencedCode]`); such scenarios should use the [Source Generator engine](./source-generator.md) instead.
+- Depends on `Reflection.Emit`, and is limited in fully AOT / trimming scenarios (the relevant APIs are annotated with `[RequiresDynamicCode]`/`[RequiresUnreferencedCode]`); such scenarios can prefer the [Source Generator engine](./source-generator.md) to reduce the dependency on dynamic code during proxy generation (but interception/construction still have runtime reflection constraints; for the boundary, see [Engine Comparison and Selection](./engine-comparison.md)).
 - Can only proxy inheritable/overridable members: virtual members of non-sealed classes and interface members; `sealed`, `ref struct`, and static members are not supported.

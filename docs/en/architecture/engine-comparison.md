@@ -10,7 +10,7 @@ AspectCore provides two equivalent proxy generation engines: the runtime [Dynami
 | Generation approach | `System.Reflection.Emit` emitting IL | Roslyn generating C# source code |
 | Trigger condition | Service is managed by the container / created via `ProxyGenerator` | Type is marked with `[AspectCoreGenerateProxy]` (or assembly-level auto-discovery) |
 | Requires build changes | No | Requires referencing `AspectCore.SourceGenerator` (analyzer) |
-| AOT / trimming | Limited (`Reflection.Emit`, marked `[RequiresDynamicCode]`) | Friendly (already generated at compile time) |
+| AOT / trimming | Proxy generation depends on `Reflection.Emit` (marked `[RequiresDynamicCode]`) | Proxy **generation** does not need `Reflection.Emit`; but interception still routes the target call through `MethodReflector` (`DynamicMethod`), so it is not end-to-end NativeAOT |
 | First-invocation cost | Runtime generation + pipeline assembly | Pipeline assembly only (the synchronous path also inlines activation, saving the `AspectActivator` allocation) |
 | record equality | Reference equality (generates a plain class) | Value equality (generates a `record class`) |
 | Enabled by default | Yes | No (explicit opt-in) |
@@ -72,11 +72,17 @@ serviceContext.AddSourceGeneratedProxyRegistry(new AspectCore.SourceGenerated.As
 
 > The registry type name/namespace depends on the project's actual generation result; the current generator by default outputs `AspectCore.SourceGenerated.AspectCoreSourceGeneratedProxyRegistry`.
 
+> **Important: the NativeAOT boundary**: manual registry registration only solves the "runtime discovery of proxy types" problem; it **does not** mean end-to-end NativeAOT is supported:
+> - Proxy **construction** still retains reflective paths (the relevant APIs are marked `[RequiresDynamicCode]`).
+> - During interception, the target method call goes through `RuntimeAspectContext.Complete()` → `MethodReflector`, whose construction creates a `DynamicMethod` (`AspectCore.Extensions.Reflection/MethodReflector.cs:26`).
+>
+> Therefore the value of the Source Generator is to **reduce the dependency on `Reflection.Emit`/dynamic code during the proxy-generation phase**, rather than being verified NativeAOT support. The repository currently has no NativeAOT publish/run test; if your goal is full NativeAOT, verify it yourself and mind the runtime constraints above.
+
 ## 6. Selection Recommendations
 
 - **Gradual migration / local development**: `Auto` (fallback allowed by default), get it running first.
 - **CI hard constraint**: `Auto + Strict=true` (or `Auto + AllowRuntimeFallback=false`), to ensure everything that should be generated was generated.
-- **AOT / trimming**: `SourceGenerator` + manual registry registration.
+- **Trimming / reduce proxy-generation dynamic code**: `SourceGenerator` + manual registry registration (note that runtime reflection/dynamic-code constraints above still apply, and this is not verified end-to-end NativeAOT).
 - **Cannot change the type / do not want to annotate**: stay on the default `DynamicProxy`.
 
 ## 7. Consistency Guarantee

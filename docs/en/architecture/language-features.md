@@ -144,31 +144,17 @@ Records are `sealed` by default, and synthesize members such as `Equals`, `GetHa
 
 #### 3.1.5 ref struct — C# 7.2 ✅ Adapted
 
-**Problem description**
+**Background**
 
-ref structs (such as `Span<T>`, `ReadOnlySpan<T>`) have CLR-enforced restrictions:
+ref structs (such as `Span<T>`, `ReadOnlySpan<T>`) have CLR-enforced restrictions: they cannot be boxed, cannot be used as an interface implementation, cannot be used as a class field, and cannot be used in `async`/`iterator` methods. If left unhandled, DynamicProxy would trigger boxing of a ref struct in IL, resulting in a `TypeLoadException`.
 
-- Cannot be boxed
-- Cannot be used as an interface implementation
-- Cannot be used as a class field
-- Cannot be used in `async`/`iterator` methods
+**Implementation result**
 
-DynamicProxy would attempt to create a boxing operation for a ref struct in IL, resulting in a `TypeLoadException`.
+- DynamicProxy: `ProxyTypeGenerator` checks `type.IsByRefLike` at the entry and rejects a ref struct as a proxy target type (`RejectRefStruct`), giving a clear error early rather than crashing at runtime.
+- Source Generator: `AspectCoreProxyGenerator` reports ACSG008 for a candidate type that `IsRefLikeType` and skips generation.
+- A ref struct in method parameters/return values is handled by the existing `EmitLoadArg` direct pass-through path, without `object` boxing.
 
-**Scope of impact**
-
-- `ProxyTypeGenerator` has no `IsByRefLike` check
-- `AspectCoreProxyGenerator` has no ref struct rejection logic
-- A ref struct in method parameters/return values (such as a `Span<T>` parameter) may be incorrectly boxed
-
-**Adaptation plan**
-
-1. Check `type.IsByRefLike` at the entry of `ProxyTypeGenerator` / `AspectCoreProxyGenerator`
-2. Directly reject ref struct types and give a clear diagnostic message
-3. For a ref struct in method parameters/return values (such as a `Span<T>` parameter), ensure it is not boxed in IL, and pass it directly via `EmitLoadArg`
-4. Reject a ref struct as a proxy target type (because it cannot be boxed to `object`)
-
-**Adaptation difficulty**: ⭐⭐⭐
+**Known boundary**: byref-like `params` parameters such as `params ReadOnlySpan<T>` report ACSG009 on the SG side and are skipped from generation (see 3.2.2).
 
 ---
 
@@ -267,28 +253,22 @@ No handling. A `params` collection parameter has a `[ParamCollection]` attribute
 | Source Generator | `EmitClassConstructors` constructor parameters also use `EmitParameterDecl`, preserving the `params` semantics | `ProxyEmitter.cs:394` |
 | Tests | Added `ParamsCollectionTests` (DynamicProxy) and `PrimaryConstructorAndParamsCollectionParityTests` (dual engine), covering `params IEnumerable<int>`, `params string[]` + interceptors | `tests/AspectCore.Core.Tests/` |
 
-> **Note**: `params ReadOnlySpan<T>` involves the ref struct parameter boxing problem (P0 3.1.5); passing a ref struct parameter via `object[]` is currently not supported, and support will follow after the ref struct adaptation.
+> **Known boundary**: `params ReadOnlySpan<T>` is a byref-like `params` parameter (a ref struct, see 3.1.5); the SG side reports ACSG009 and skips generation — because a ref struct cannot be passed through an `object[]` parameter array. This is a current known limitation, outside the scope of this params-collection adaptation.
 
 ---
 
-#### 3.2.3 ref fields / ref struct fields — C# 11.0 ✅ Adapted
+#### 3.2.3 ref field / scoped modifier — C# 11.0 ✅ Adapted
 
-**Problem description**
+**Background**
 
-`ref` fields and the `scoped` keyword in a ref struct affect parameter passing. The `scoped` modifier is currently not handled, which may result in generating invalid IL in a `ref struct` context.
+`ref` fields and the `scoped` keyword in a ref struct affect parameter passing; if the `scoped` modifier is not preserved, an invalid signature may be generated in a `ref struct` context.
 
-**Scope of impact**
+**Implementation result**
 
-- Parameter forwarding does not preserve the `scoped` modifier
-- A ref field cannot be copied into the proxy type
+- Source Generator: `EmitParameterDecl` detects the compiler-generated `[ScopedRefAttribute]` (because Roslyn 4.10.0 has no `IParameterSymbol.IsScoped`), and emits the `scoped` modifier before `ref`/`out`/`in` to preserve parameter semantics.
+- A ref struct type itself is not a proxy target (consistent with 3.1.5: DynamicProxy rejects it, and SG reports ACSG008).
 
-**Adaptation plan**
-
-1. Detect the `scoped` parameter modifier (`ScopedRef` attribute)
-2. Forward the `scoped` semantics in IL and SG
-3. For ref struct types, reject them as proxy target types (in tandem with 3.1.5)
-
-**Adaptation difficulty**: ⭐⭐⭐
+**Verification coverage**: `RefStructAndScopedParityTests` (dual engine) covers the forwarding and interception of `scoped ref`/`scoped in` parameters.
 
 ---
 

@@ -65,7 +65,7 @@ dotnet add package AspectCore.Extensions.Reflection
 - **已经在用 Autofac / Windsor / LightInject**：装对应的集成包，见[第三方容器](../guide/third-party-containers.md)。
 - **不需要 DI，只想手动创建代理对象**：装 `AspectCore.Core`，用 `ProxyGeneratorBuilder` 独立生成代理。
 - **只想要比原生反射更快的反射调用**：单独装 `AspectCore.Extensions.Reflection`，见[反射扩展](../guide/reflection-extensions.md)。
-- **需要 AOT / 裁剪友好的编译期代理**：额外引用 `AspectCore.SourceGenerator`，见[Source Generator 编译时引擎](../architecture/source-generator.md)。
+- **需要编译期代理、降低代理生成期动态代码依赖**：额外引用 `AspectCore.SourceGenerator`，见[Source Generator 编译时引擎](../architecture/source-generator.md)。
 
 ## 下一步
 

@@ -10,7 +10,7 @@ AspectCore 提供两套等价的代理生成引擎：运行时的 [DynamicProxy]
 | 生成方式 | `System.Reflection.Emit` 发射 IL | Roslyn 生成 C# 源码 |
 | 触发条件 | 服务被容器管理 / 经 `ProxyGenerator` 创建 | 类型标注 `[AspectCoreGenerateProxy]`（或程序集级自动发现） |
 | 是否需改构建 | 否 | 需引用 `AspectCore.SourceGenerator`（analyzer） |
-| AOT / 裁剪 | 受限（`Reflection.Emit`，标 `[RequiresDynamicCode]`） | 友好（编译期已生成） |
+| AOT / 裁剪 | 代理生成依赖 `Reflection.Emit`（标 `[RequiresDynamicCode]`） | 代理**生成**不需 `Reflection.Emit`；但拦截时目标调用仍经 `MethodReflector`（`DynamicMethod`），并非端到端 NativeAOT |
 | 首次调用开销 | 运行时生成 + 管线组装 | 仅管线组装（同步路径还内联激活、省去 `AspectActivator` 分配） |
 | record 相等性 | 引用相等（生成普通类） | 值相等（生成 `record class`） |
 | 默认启用 | 是 | 否（显式 opt-in） |
@@ -72,11 +72,17 @@ serviceContext.AddSourceGeneratedProxyRegistry(new AspectCore.SourceGenerated.As
 
 > registry 类型名/命名空间以项目实际生成结果为准；当前生成器默认输出 `AspectCore.SourceGenerated.AspectCoreSourceGeneratedProxyRegistry`。
 
+> **关于 NativeAOT 的边界（重要）**：手动注册 registry 只解决"运行时发现代理类型"的问题，**不代表**端到端 NativeAOT 已被支持：
+> - 代理**构造**仍保留反射路径（相关 API 标注 `[RequiresDynamicCode]`）。
+> - 拦截时目标方法调用经 `RuntimeAspectContext.Complete()` → `MethodReflector`，其构造会创建 `DynamicMethod`（`AspectCore.Extensions.Reflection/MethodReflector.cs:26`）。
+>
+> 因此 Source Generator 的价值是**降低代理生成阶段对 `Reflection.Emit`/动态代码的依赖**，而非已验证的 NativeAOT 支持。仓库当前没有 NativeAOT publish/run 测试，若你的目标是完整 NativeAOT，请自行验证并留意上述运行时约束。
+
 ## 6. 选型建议
 
 - **渐进迁移 / 本地开发**：`Auto`（默认允许回退），先跑起来。
 - **CI 强约束**：`Auto + Strict=true`（或 `Auto + AllowRuntimeFallback=false`），确保该生成的都生成了。
-- **AOT / 裁剪**：`SourceGenerator` + 手动注册 registry。
+- **裁剪 / 减少代理生成期动态代码**：`SourceGenerator` + 手动注册 registry（注意仍有上述运行时反射/动态代码约束，并非已验证的端到端 NativeAOT）。
 - **无法改类型 / 不想标注**：留在默认 `DynamicProxy`。
 
 ## 7. 一致性保障
