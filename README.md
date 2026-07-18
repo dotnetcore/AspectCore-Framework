@@ -25,8 +25,14 @@ Core support for aspect-interceptor, dependency injection integration, web appli
 | AspectCore.Extensions.Hosting  | [![nuget](https://img.shields.io/nuget/v/AspectCore.Extensions.Hosting.svg?style=flat-square)](https://www.nuget.org/packages/AspectCore.Extensions.Hosting) | [![myget](https://img.shields.io/myget/aspectcore/vpre/AspectCore.Extensions.Hosting.svg?style=flat-square)](https://www.myget.org/feed/aspectcore/package/nuget/AspectCore.Extensions.Hosting) | [![stats](https://img.shields.io/nuget/dt/AspectCore.Extensions.Hosting.svg?style=flat-square)](https://www.nuget.org/stats/packages/AspectCore.Extensions.Hosting?groupby=Version) |
 
 ## Docs
-* [IoC container and dependency injection in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/injector.md)  
-* [Reflection extension in AspectCore](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/reflection-extensions.md)
+
+Full documentation lives under [`docs/`](https://github.com/dotnetcore/AspectCore-Framework/tree/master/docs) — English: [`docs/en/`](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/README.md) · 中文: [`docs/`](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/README.md).
+
+* [Getting Started](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/getting-started/quick-start.md)
+* [Interceptor Guide](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/guide/interceptor.md)
+* [Architecture Overview](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/architecture/overview.md) · [Module & Package Design](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/architecture/module-design.md)
+* [IoC container and dependency injection](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/guide/dependency-injection.md)
+* [Reflection extensions](https://github.com/dotnetcore/AspectCore-Framework/blob/master/docs/en/guide/reflection-extensions.md)
 
 ## Components  
 * [Autofac Adapter](https://github.com/dotnetcore/AspectCore-Framework/tree/master/src/AspectCore.Extensions.Autofac)
