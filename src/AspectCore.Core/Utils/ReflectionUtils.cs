@@ -77,8 +77,10 @@ namespace AspectCore.DynamicProxy
                 throw new ArgumentNullException(nameof(methodInfo));
             }
 
+            // The copy method is virtual in a base record but override sealed in a
+            // derived record. Do NOT require !IsFinal here; otherwise derived records
+            // would not be detected and their copy method would be wrongly proxied.
             return methodInfo.IsVirtual
-                   && !methodInfo.IsFinal
                    && methodInfo.GetParameters().Length == 0
                    && methodInfo.ReturnType == methodInfo.DeclaringType
                    && (methodInfo.Name == "<Clone>$" || methodInfo.Name == "<>Copy");

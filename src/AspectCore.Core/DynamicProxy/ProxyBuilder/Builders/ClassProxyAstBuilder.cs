@@ -96,6 +96,14 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             var result = new List<ConstructorNode>(constructors.Length);
             foreach (var ctor in constructors)
             {
+                // Skip the record copy constructor (e.g. `Record(Record original)`). It is
+                // handled separately by CreateRecordCopyMethodNode for `with` support.
+                // Generating a proxy constructor for it would produce an invalid constructor.
+                if (IsRecordCopyConstructor(ctor))
+                {
+                    continue;
+                }
+
                 var parameterTypes = ctor.GetParameters().Select(p => p.ParameterType).ToArray();
                 var allParamTypes = new[] { typeof(IAspectActivatorFactory) }.Concat(parameterTypes).ToArray();
 
@@ -122,6 +130,22 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
                     targetCreation: null));
             }
             return result;
+        }
+
+        /// <summary>
+        /// Determines whether the given constructor is the compiler-synthesized record
+        /// copy constructor (e.g. <c>Record(Record original)</c>), which must be skipped
+        /// when building proxy constructors and handled separately for <c>with</c> support.
+        /// </summary>
+        private bool IsRecordCopyConstructor(ConstructorInfo ctor)
+        {
+            var parameters = ctor.GetParameters();
+            if (parameters.Length != 1)
+            {
+                return false;
+            }
+
+            return parameters[0].ParameterType == _implType;
         }
 
         private MethodNode CreateClassProxyMethodNode(MethodInfo method, MethodInfo implMethod, MethodInfo overridesMethod, MethodInfo predicateMethod, List<MethodConstantNode> methodConstants)
@@ -158,7 +182,14 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
             {
                 if (method.IsRecordCopyMethod())
                 {
-                    methods.Add(CreateRecordCopyMethodNode(method));
+                    // For derived records, <Clone>$ is `override sealed` and cannot be
+                    // overridden or redefined on the proxy (TypeLoadException). Skip it so
+                    // the proxy inherits the base sealed implementation. `with` still works
+                    // because the compiler binds to the inherited <Clone>$ on the static type.
+                    if (!method.IsFinal)
+                    {
+                        methods.Add(CreateRecordCopyMethodNode(method));
+                    }
                     continue;
                 }
 
@@ -205,13 +236,27 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
 
         private MethodNode CreateRecordCopyMethodNode(MethodInfo method)
         {
+            // For derived records, the <Clone>$ method is `override sealed` and returns
+            // the derived type. A sealed method cannot be overridden, so attempting to
+            // override it throws TypeLoadException: "Return type in method '<Clone>$' ...
+            // is not compatible with base type method '<Clone>$'".
+            // When the method is sealed, define it as a new virtual slot (NewSlot) so
+            // the runtime does not try to match it against the base sealed method.
+            // `with` expressions still work because the compiler binds to the proxy's
+            // own <Clone>$ by name on the static type.
+            var attributes = MethodBuilderConstants.OverrideMethodAttributes | MethodAttributes.Public;
+            if (method.IsFinal)
+            {
+                attributes |= MethodAttributes.NewSlot;
+            }
+
             return InterfaceImplBuilder.BuildProxyMethod(
                 serviceMethod: method,
                 implMethod: method,
                 name: method.Name,
-                attributes: MethodBuilderConstants.OverrideMethodAttributes | MethodAttributes.Public,
+                attributes: attributes,
                 body: new RecordCloneBody("_implementation"),
-                overridesMethod: null,
+                overridesMethod: method.IsFinal ? null : method,
                 predicateMethod: method,
                 methodConstants: null);
         }

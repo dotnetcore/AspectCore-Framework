@@ -146,7 +146,7 @@ internal static class ProxyEmitter
         var proxyName = entry.ProxyTypeName;
         var isGeneric = entry.ServiceType.IsGenericType;
         var genericParams = isGeneric ? entry.ServiceType.TypeParameters : ImmutableArray<ITypeParameterSymbol>.Empty;
-        var isRecord = IsRecord(entry.ServiceType);
+        var isRecord = RecordTypeUtils.IsRecord(entry.ServiceType);
 
         // Build generic type parameter string for class declaration
         var genericParamList = isGeneric
@@ -156,6 +156,11 @@ internal static class ProxyEmitter
         sb.AppendLine("    [global::AspectCore.DynamicProxy.NonAspect]");
         sb.AppendLine("    [global::AspectCore.DynamicProxy.Dynamically]");
         EmitAttributes(sb, entry.ServiceType, "    ");
+        // Equality semantics note: the source generator emits the proxy as a `record class`
+        // so that the C# compiler synthesises the copy constructor and `with` support needed
+        // for record proxying. A side effect is that the compiler also generates value-based
+        // Equals/GetHashCode/ToString. The IL emit engine produces a plain class (reference
+        // equality). See docs/record-type-support.md for the full comparison and rationale.
         sb.Append(isRecord
             ? $"    public sealed record class {proxyName}{genericParamList} : {implName}"
             : $"    public sealed class {proxyName}{genericParamList} : {implName}");
@@ -191,7 +196,7 @@ internal static class ProxyEmitter
         EmitValidatorHelpers(sb);
         sb.AppendLine();
 
-        EmitClassProxyMembers(sb, compilation, entry.ServiceType, entry.ImplementationType, proxyName, serviceName);
+        EmitClassProxyMembers(sb, compilation, entry.ServiceType, entry.ImplementationType, proxyName, serviceName, isRecord);
 
         sb.AppendLine("    }");
         sb.AppendLine("}");
@@ -401,6 +406,15 @@ internal static class ProxyEmitter
     {
         foreach (var ctor in implType.InstanceConstructors.Where(c => c.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal))
         {
+            // Skip the record copy constructor (e.g. `Record(Record original)`). It is
+            // handled separately below (the private copy constructor for `with` support).
+            // Emitting a public proxy constructor for it would produce an invalid
+            // constructor signature and crash the compiler.
+            if (isRecord && IsRecordCopyConstructor(implType, ctor))
+            {
+                continue;
+            }
+
             EmitConstructorAttributes(sb, ctor, "        ");
             sb.Append("        public ").Append(proxyName).Append("(global::AspectCore.DynamicProxy.IAspectActivatorFactory activatorFactory, global::System.IServiceProvider serviceProvider");
             if (ctor.Parameters.Length > 0)
@@ -437,7 +451,14 @@ internal static class ProxyEmitter
             return;
         }
 
-        sb.Append("        private ").Append(proxyName).Append("(").Append(proxyName).Append(" original)");
+        // For generic records, the copy constructor parameter type must include the
+        // type arguments (e.g. `Proxy<T> original`), but the constructor name itself
+        // must NOT include them (C# constructors are declared with the bare type name).
+        var genericTypeArgs = classGenericParams.Length > 0
+            ? "<" + string.Join(", ", classGenericParams.Select(tp => tp.Name)) + ">"
+            : string.Empty;
+
+        sb.Append("        private ").Append(proxyName).Append("(").Append(proxyName).Append(genericTypeArgs).Append(" original)");
         sb.AppendLine(" : base(original)");
         sb.AppendLine("        {");
         sb.AppendLine("            _activatorFactory = original._activatorFactory;");
@@ -452,16 +473,37 @@ internal static class ProxyEmitter
         sb.AppendLine();
     }
 
-    private static void EmitClassProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol serviceType, INamedTypeSymbol implType, string proxyName, string serviceName)
+    /// <summary>
+    /// Determines whether the given constructor is the compiler-synthesized record
+    /// copy constructor (e.g. <c>Record(Record original)</c>), which must be skipped
+    /// when generating proxy constructors and handled separately for <c>with</c> support.
+    /// </summary>
+    private static bool IsRecordCopyConstructor(INamedTypeSymbol type, IMethodSymbol constructor)
+    {
+        if (constructor.MethodKind != MethodKind.Constructor)
+        {
+            return false;
+        }
+
+        if (constructor.Parameters.Length != 1)
+        {
+            return false;
+        }
+
+        var paramType = constructor.Parameters[0].Type;
+        return SymbolEqualityComparer.Default.Equals(paramType, type);
+    }
+
+    private static void EmitClassProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol serviceType, INamedTypeSymbol implType, string proxyName, string serviceName, bool isRecord)
     {
         var methods = serviceType.GetMembers().OfType<IMethodSymbol>()
             .Where(m => m.MethodKind == MethodKind.Ordinary)
             .Where(IsOverridable)
-            .Where(m => !IsRecordSynthesizedMember(serviceType, m))
+            .Where(m => !RecordTypeUtils.IsRecordSynthesizedMember(serviceType, m, isRecord))
             .ToList();
         var props = serviceType.GetMembers().OfType<IPropertySymbol>()
             .Where(p => (p.GetMethod is not null && IsOverridable(p.GetMethod)) || (p.SetMethod is not null && IsOverridable(p.SetMethod)))
-            .Where(p => !IsRecordSynthesizedMember(serviceType, p))
+            .Where(p => !RecordTypeUtils.IsRecordSynthesizedMember(serviceType, p, isRecord))
             .ToList();
 
         sb.AppendLine("        [global::System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(\"TrimAnalyzer\", \"IL2026:RequiresUnreferencedCode\", Justification = \"Members accessed via reflection are known at proxy generation time.\")]");
@@ -497,7 +539,9 @@ internal static class ProxyEmitter
     private static bool IsOverridable(IMethodSymbol method)
     {
         if (method.IsStatic) return false;
-        if (!method.IsVirtual) return false;
+        // In Roslyn, override methods have IsVirtual=false and IsOverride=true.
+        // Both virtual and override methods must be proxied for class proxies.
+        if (!method.IsVirtual && !method.IsOverride) return false;
         if (method.IsSealed) return false;
         if (method.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal))
             return false;
@@ -514,38 +558,6 @@ internal static class ProxyEmitter
             Accessibility.Internal => "internal",
             _ => "public",
         };
-
-    private static bool IsRecord(INamedTypeSymbol type)
-        => type.GetMembers().OfType<IMethodSymbol>().Any(IsRecordCopyMethod);
-
-    private static bool IsRecordCopyMethod(IMethodSymbol method)
-        => method.MethodKind == MethodKind.Ordinary
-           && method.IsVirtual
-           && !method.IsSealed
-           && method.Parameters.Length == 0
-           && SymbolEqualityComparer.Default.Equals(method.ReturnType, method.ContainingType)
-           && (method.Name == "<Clone>$" || method.Name == "<>Copy");
-
-    private static bool IsRecordSynthesizedMember(INamedTypeSymbol serviceType, ISymbol symbol)
-    {
-        if (!IsRecord(serviceType))
-        {
-            return false;
-        }
-
-        if (symbol.IsImplicitlyDeclared)
-        {
-            return true;
-        }
-
-        if (symbol.GetAttributes().Any(a =>
-                a.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
-        {
-            return true;
-        }
-
-        return symbol is IMethodSymbol method && IsRecordCopyMethod(method);
-    }
 
     private static void EmitMethodMeta(StringBuilder sb, INamedTypeSymbol serviceType, INamedTypeSymbol? implementationType, string proxyTypeName, IMethodSymbol method)
     {

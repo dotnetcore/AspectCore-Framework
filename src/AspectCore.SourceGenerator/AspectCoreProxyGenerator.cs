@@ -105,11 +105,12 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
         {
             if (type.IsSealed && !type.IsAbstract) return false;
             // Must have at least one overridable member
+            var isRecord = RecordTypeUtils.IsRecord(type);
             foreach (var member in type.GetMembers())
             {
-                if (member is IMethodSymbol m && IsProxyableClassMethod(type, m))
+                if (member is IMethodSymbol m && IsProxyableClassMethod(type, m, isRecord))
                     return true;
-                if (member is IPropertySymbol p && IsProxyableClassProperty(type, p))
+                if (member is IPropertySymbol p && IsProxyableClassProperty(type, p, isRecord))
                     return true;
             }
             return false;
@@ -441,13 +442,14 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
 
     private static bool HasAnyOverridableMember(INamedTypeSymbol type)
     {
+        var isRecord = RecordTypeUtils.IsRecord(type);
         foreach (var member in type.GetMembers())
         {
-            if (member is IMethodSymbol m && IsProxyableClassMethod(type, m))
+            if (member is IMethodSymbol m && IsProxyableClassMethod(type, m, isRecord))
             {
                 return true;
             }
-            if (member is IPropertySymbol p && IsProxyableClassProperty(type, p))
+            if (member is IPropertySymbol p && IsProxyableClassProperty(type, p, isRecord))
             {
                 return true;
             }
@@ -455,55 +457,23 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
         return false;
     }
 
-    private static bool IsProxyableClassMethod(INamedTypeSymbol type, IMethodSymbol method)
+    private static bool IsProxyableClassMethod(INamedTypeSymbol type, IMethodSymbol method, bool isRecord)
     {
         return method.MethodKind == MethodKind.Ordinary
                && !method.IsStatic
                && method.IsVirtual
                && !method.IsSealed
                && method.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal
-               && !IsRecordSynthesizedMember(type, method);
+               && !RecordTypeUtils.IsRecordSynthesizedMember(type, method, isRecord);
     }
 
-    private static bool IsProxyableClassProperty(INamedTypeSymbol type, IPropertySymbol property)
+    private static bool IsProxyableClassProperty(INamedTypeSymbol type, IPropertySymbol property, bool isRecord)
     {
         return !property.IsStatic
                && property.IsVirtual
                && !property.IsSealed
                && property.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal
-               && !IsRecordSynthesizedMember(type, property);
-    }
-
-    private static bool IsRecord(INamedTypeSymbol type)
-        => type.GetMembers().OfType<IMethodSymbol>().Any(IsRecordCopyMethod);
-
-    private static bool IsRecordCopyMethod(IMethodSymbol method)
-        => method.MethodKind == MethodKind.Ordinary
-           && method.IsVirtual
-           && !method.IsSealed
-           && method.Parameters.Length == 0
-           && SymbolEqualityComparer.Default.Equals(method.ReturnType, method.ContainingType)
-           && (method.Name == "<Clone>$" || method.Name == "<>Copy");
-
-    private static bool IsRecordSynthesizedMember(INamedTypeSymbol type, ISymbol symbol)
-    {
-        if (!IsRecord(type))
-        {
-            return false;
-        }
-
-        if (symbol.IsImplicitlyDeclared)
-        {
-            return true;
-        }
-
-        if (symbol.GetAttributes().Any(a =>
-                a.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
-        {
-            return true;
-        }
-
-        return symbol is IMethodSymbol method && IsRecordCopyMethod(method);
+               && !RecordTypeUtils.IsRecordSynthesizedMember(type, property, isRecord);
     }
 }
 
