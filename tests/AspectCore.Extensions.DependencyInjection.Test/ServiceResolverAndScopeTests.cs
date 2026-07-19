@@ -80,23 +80,47 @@ namespace AspectCore.Extensions.DependencyInjection.Test
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public void ServiceResolver_GetKeyedService_ThrowsNotImplemented()
+        public void ServiceResolver_GetKeyedService_ReturnsKeyedService()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IResolverTestService, ResolverTestService>();
+            services.AddKeyedTransient<IResolverTestService, ResolverTestService>("key");
             var provider = services.BuildDynamicProxyProvider();
             var resolver = provider.GetRequiredService<IServiceResolver>();
-            Assert.Throws<NotImplementedException>(() => resolver.GetKeyedService(typeof(IResolverTestService), "key"));
+            var svc = resolver.GetKeyedService(typeof(IResolverTestService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<IResolverTestService>(svc);
         }
 
         [Fact]
-        public void ServiceResolver_GetRequiredKeyedService_ThrowsNotImplemented()
+        public void ServiceResolver_GetKeyedService_ReturnsNull_ForUnregisteredKey()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IResolverTestService, ResolverTestService>();
+            services.AddKeyedTransient<IResolverTestService, ResolverTestService>("key");
             var provider = services.BuildDynamicProxyProvider();
             var resolver = provider.GetRequiredService<IServiceResolver>();
-            Assert.Throws<NotImplementedException>(() => resolver.GetRequiredKeyedService(typeof(IResolverTestService), "key"));
+            var result = resolver.GetKeyedService(typeof(IResolverTestService), "missing");
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void ServiceResolver_GetRequiredKeyedService_ReturnsKeyedService()
+        {
+            var services = new ServiceCollection();
+            services.AddKeyedTransient<IResolverTestService, ResolverTestService>("key");
+            var provider = services.BuildDynamicProxyProvider();
+            var resolver = provider.GetRequiredService<IServiceResolver>();
+            var svc = resolver.GetRequiredKeyedService(typeof(IResolverTestService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<IResolverTestService>(svc);
+        }
+
+        [Fact]
+        public void ServiceResolver_GetRequiredKeyedService_Throws_ForUnregisteredKey()
+        {
+            var services = new ServiceCollection();
+            var provider = services.BuildDynamicProxyProvider();
+            var resolver = provider.GetRequiredService<IServiceResolver>();
+            Assert.Throws<InvalidOperationException>(() => resolver.GetRequiredKeyedService(typeof(IResolverTestService), "missing"));
         }
 #endif
 

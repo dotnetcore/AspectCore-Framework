@@ -4,6 +4,7 @@ using AspectCore.DynamicProxy;
 using AspectCore.Extensions.Autofac;
 using AspectCore.Extensions.Test.Fakes;
 using Autofac;
+using Autofac.Core.Registration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -105,21 +106,44 @@ namespace AspectCoreTest.Autofac
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public void ServiceResolver_GetKeyedService_ThrowsNotImplemented()
+        public void ServiceResolver_GetKeyedService_ReturnsKeyedService()
         {
-            var container = BuildContainer();
+            var container = BuildContainer(b => b.RegisterType<Service>().Keyed<IService>("key"));
             var resolver = container.Resolve<IServiceResolver>();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<NotImplementedException>(() => keyed.GetKeyedService(typeof(IService), "key"));
+            var svc = keyed.GetKeyedService(typeof(IService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<IService>(svc);
         }
 
         [Fact]
-        public void ServiceResolver_GetRequiredKeyedService_ThrowsNotImplemented()
+        public void ServiceResolver_GetKeyedService_ReturnsNull_ForUnregisteredKey()
+        {
+            var container = BuildContainer(b => b.RegisterType<Service>().Keyed<IService>("key"));
+            var resolver = container.Resolve<IServiceResolver>();
+            var keyed = (IKeyedServiceProvider)resolver;
+            var result = keyed.GetKeyedService(typeof(IService), "missing");
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void ServiceResolver_GetRequiredKeyedService_ReturnsKeyedService()
+        {
+            var container = BuildContainer(b => b.RegisterType<Service>().Keyed<IService>("key"));
+            var resolver = container.Resolve<IServiceResolver>();
+            var keyed = (IKeyedServiceProvider)resolver;
+            var svc = keyed.GetRequiredKeyedService(typeof(IService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<IService>(svc);
+        }
+
+        [Fact]
+        public void ServiceResolver_GetRequiredKeyedService_Throws_ForUnregisteredKey()
         {
             var container = BuildContainer();
             var resolver = container.Resolve<IServiceResolver>();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<NotImplementedException>(() => keyed.GetRequiredKeyedService(typeof(IService), "key"));
+            Assert.Throws<ComponentNotRegisteredException>(() => keyed.GetRequiredKeyedService(typeof(IService), "missing"));
         }
 #endif
 

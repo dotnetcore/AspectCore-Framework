@@ -120,20 +120,49 @@ namespace AspectCoreTest.LightInject
         }
 
 #if NET8_0_OR_GREATER
-        [Fact]
-        public void GetKeyedService_ThrowsNotImplemented()
+        private static IServiceResolver CreateKeyedResolver()
         {
-            var resolver = CreateResolver();
-            var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<NotImplementedException>(() => keyed.GetKeyedService(typeof(IService), "key"));
+            var container = new ServiceContainer().RegisterDynamicProxy();
+            container.Register<IService, Service>();
+            container.Register<IService, Service>("key");
+            return container.GetInstance<IServiceResolver>();
         }
 
         [Fact]
-        public void GetRequiredKeyedService_ThrowsNotImplemented()
+        public void GetKeyedService_ReturnsKeyedService()
         {
-            var resolver = CreateResolver();
+            var resolver = CreateKeyedResolver();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<NotImplementedException>(() => keyed.GetRequiredKeyedService(typeof(IService), "key"));
+            var svc = keyed.GetKeyedService(typeof(IService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<IService>(svc);
+        }
+
+        [Fact]
+        public void GetKeyedService_ReturnsNull_ForUnregisteredKey()
+        {
+            var resolver = CreateKeyedResolver();
+            var keyed = (IKeyedServiceProvider)resolver;
+            var result = keyed.GetKeyedService(typeof(IService), "missing");
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetRequiredKeyedService_ReturnsKeyedService()
+        {
+            var resolver = CreateKeyedResolver();
+            var keyed = (IKeyedServiceProvider)resolver;
+            var svc = keyed.GetRequiredKeyedService(typeof(IService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<IService>(svc);
+        }
+
+        [Fact]
+        public void GetRequiredKeyedService_Throws_ForUnregisteredKey()
+        {
+            var resolver = CreateKeyedResolver();
+            var keyed = (IKeyedServiceProvider)resolver;
+            Assert.Throws<InvalidOperationException>(() => keyed.GetRequiredKeyedService(typeof(IService), "missing"));
         }
 #endif
     }

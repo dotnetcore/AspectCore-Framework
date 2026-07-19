@@ -119,21 +119,47 @@ namespace AspectCoreTest.Windsor
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public void GetKeyedService_ThrowsNotImplemented()
+        public void GetKeyedService_ReturnsKeyedService()
         {
             var container = CreateContainer();
+            container.Register(Component.For<ICacheService>().ImplementedBy<CacheService>().LifestyleTransient().Named("key"));
             var resolver = (IServiceResolver)container.Resolve<IServiceProvider>();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<NotImplementedException>(() => keyed.GetKeyedService(typeof(ICacheService), "key"));
+            var svc = keyed.GetKeyedService(typeof(ICacheService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<ICacheService>(svc);
         }
 
         [Fact]
-        public void GetRequiredKeyedService_ThrowsNotImplemented()
+        public void GetKeyedService_ReturnsNull_ForUnregisteredKey()
+        {
+            var container = CreateContainer();
+            container.Register(Component.For<ICacheService>().ImplementedBy<CacheService>().LifestyleTransient().Named("key"));
+            var resolver = (IServiceResolver)container.Resolve<IServiceProvider>();
+            var keyed = (IKeyedServiceProvider)resolver;
+            var result = keyed.GetKeyedService(typeof(ICacheService), "missing");
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetRequiredKeyedService_ReturnsKeyedService()
+        {
+            var container = CreateContainer();
+            container.Register(Component.For<ICacheService>().ImplementedBy<CacheService>().LifestyleTransient().Named("key"));
+            var resolver = (IServiceResolver)container.Resolve<IServiceProvider>();
+            var keyed = (IKeyedServiceProvider)resolver;
+            var svc = keyed.GetRequiredKeyedService(typeof(ICacheService), "key");
+            Assert.NotNull(svc);
+            Assert.IsAssignableFrom<ICacheService>(svc);
+        }
+
+        [Fact]
+        public void GetRequiredKeyedService_Throws_ForUnregisteredKey()
         {
             var container = CreateContainer();
             var resolver = (IServiceResolver)container.Resolve<IServiceProvider>();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<NotImplementedException>(() => keyed.GetRequiredKeyedService(typeof(ICacheService), "key"));
+            Assert.Throws<ComponentNotFoundException>(() => keyed.GetRequiredKeyedService(typeof(ICacheService), "missing"));
         }
 #endif
     }
