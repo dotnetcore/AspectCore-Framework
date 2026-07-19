@@ -201,11 +201,12 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 
 ## 7. Boundaries & Guardrails
 
+- ✅ **Always do (MANDATORY, before any work)** — read the [development guidelines](docs/development/development-guidelines.md) in full **before** starting any code change, and walk through the [code review guidelines](docs/development/code-review-guidelines.md) self-check checklist **before** opening a PR. The `aspectcore-dev-review` skill (`.agents/skills/aspectcore-dev-review/SKILL.md`) is a quick reference only and does **not** replace reading the full guidelines.
 - ✅ **Always do** — keep DynamicProxy and the Source Generator behaviorally in sync; run the `EngineParity/` tests after any core engine change.
 - ✅ **Always do** — run `dotnet format` locally before pushing to avoid the CI lint gate.
 - ✅ **Always do** — put new public interfaces/attributes in `AspectCore.Abstractions`; implementations in `Core` or the relevant extension.
 - ✅ **Always do** — use Conventional Commits and the fixed committer identity (`Haoyang Liu`).
-- ✅ **Always do** — follow the [development guidelines](docs/development/development-guidelines.md) and [code review guidelines](docs/development/code-review-guidelines.md) for all changes. Use the `aspectcore-dev-review` skill (`.agents/skills/aspectcore-dev-review/SKILL.md`) as a quick reference.
+- ✅ **Always do** — follow the [development guidelines](docs/development/development-guidelines.md) and [code review guidelines](docs/development/code-review-guidelines.md) for every change; consult the `aspectcore-dev-review` skill (`.agents/skills/aspectcore-dev-review/SKILL.md`) as a quick reference.
 - ⚠️ **Ask first** — bumping `build/version.props` (release flow auto-bumps minor only; patch bumps need explicit approval).
 - ⚠️ **Ask first** — changing target frameworks or `LangVersion` in `build/common.props` (affects all packages and CI matrix).
 - ⚠️ **Ask first** — adding a new DI container integration or a new top-level package.
