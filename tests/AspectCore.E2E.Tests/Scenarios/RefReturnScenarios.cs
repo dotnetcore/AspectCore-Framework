@@ -12,7 +12,7 @@ namespace AspectCore.E2E.Tests.Scenarios;
 /// materialised into a StrongBox&lt;T&gt; and returned by ref: reads observe the
 /// (possibly interceptor-replaced) value; writes through the returned ref are
 /// observable via that ref but do not propagate to the target's backing field.
-/// See docs/3.CSharp-Language-Features-AOP-Emit-Adaptation.md 6.6.
+/// See docs/architecture/language-features.md 6.6.
 /// </summary>
 public class RefReturnScenarios
 {

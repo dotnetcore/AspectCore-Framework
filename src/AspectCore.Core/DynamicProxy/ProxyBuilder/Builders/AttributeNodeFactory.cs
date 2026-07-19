@@ -23,7 +23,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Builders
         // `with` expressions still work because they are bound at compile time against
         // the static (record) type. However, external code can then mutate proxy
         // properties directly, bypassing record immutability. See
-        // docs/record-type-support.md for the full discussion and comparison with the
+        // docs/architecture/record-support.md for the full discussion and comparison with the
         // Source Generator engine (which preserves `init`).
         private static readonly HashSet<string> SkippedAttributeFullNames = new HashSet<string>
         {

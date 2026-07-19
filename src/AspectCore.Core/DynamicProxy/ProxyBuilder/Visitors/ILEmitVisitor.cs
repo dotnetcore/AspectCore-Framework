@@ -439,7 +439,7 @@ namespace AspectCore.DynamicProxy.ProxyBuilder.Visitors
             // implement copy semantics via MemberwiseClone rather than relying on
             // compiler-synthesised record members. This keeps `with` expressions
             // working while preserving reference-equality semantics for the proxy.
-            // See docs/record-type-support.md for the equality & init-setter
+            // See docs/architecture/record-support.md for the equality & init-setter
             // differences between the two engines.
             var il = _ctx.CurrentILGenerator;
             var clone = il.DeclareLocal(_ctx.TypeBuilder);
