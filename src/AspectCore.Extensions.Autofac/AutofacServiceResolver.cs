@@ -2,6 +2,9 @@
 using AspectCore.DynamicProxy;
 using AspectCore.DependencyInjection;
 using Autofac;
+#if NET8_0_OR_GREATER
+using Autofac.Core;
+#endif
 
 namespace AspectCore.Extensions.Autofac
 {
@@ -34,12 +37,12 @@ namespace AspectCore.Extensions.Autofac
 #if NET8_0_OR_GREATER
         public object GetKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            return _componentContext.ResolveOptionalService(new KeyedService(serviceKey, serviceType));
         }
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            return _componentContext.ResolveService(new KeyedService(serviceKey, serviceType));
         }
 #endif
     }
