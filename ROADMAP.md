@@ -50,9 +50,9 @@ AspectCore 是一个开源的 .NET AOP（面向切面编程）框架，采用双
 3. 确保 keyed 服务解析路径同样经过切面激活管道（不绕过拦截器）。
 
 **验收标准**：
-- 所有 `IServiceResolver` 实现不再包含 `NotImplementedException`。
-- keyed 服务解析与普通服务解析走同一套切面激活逻辑。
-- 现有"预期行为"测试更新为真实行为断言。
+- [x] 所有 `IServiceResolver` 实现不再包含 `NotImplementedException`。
+- [x] keyed 服务解析与普通服务解析走同一套切面激活逻辑。
+- [x] 现有"预期行为"测试更新为真实行为断言。
 
 ### P0-2：新增 Keyed 服务拦截集成测试
 
