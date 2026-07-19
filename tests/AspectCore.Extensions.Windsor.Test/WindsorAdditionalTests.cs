@@ -159,7 +159,8 @@ namespace AspectCoreTest.Windsor
             var container = CreateContainer();
             var resolver = (IServiceResolver)container.Resolve<IServiceProvider>();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<ComponentNotFoundException>(() => keyed.GetRequiredKeyedService(typeof(ICacheService), "missing"));
+            var ex = Assert.Throws<InvalidOperationException>(() => keyed.GetRequiredKeyedService(typeof(ICacheService), "missing"));
+            Assert.IsType<ComponentNotFoundException>(ex.InnerException);
         }
 #endif
     }

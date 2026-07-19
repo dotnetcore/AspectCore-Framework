@@ -51,7 +51,14 @@ namespace AspectCore.Extensions.Windsor
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
         {
-            return _kernel.Resolve(serviceKey?.ToString(), serviceType);
+            try
+            {
+                return _kernel.Resolve(serviceKey?.ToString(), serviceType);
+            }
+            catch (ComponentNotFoundException ex)
+            {
+                throw new InvalidOperationException($"No service for type '{serviceType}' and key '{serviceKey}' has been registered.", ex);
+            }
         }
 #endif
     }

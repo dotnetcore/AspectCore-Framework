@@ -143,7 +143,8 @@ namespace AspectCoreTest.Autofac
             var container = BuildContainer();
             var resolver = container.Resolve<IServiceResolver>();
             var keyed = (IKeyedServiceProvider)resolver;
-            Assert.Throws<ComponentNotRegisteredException>(() => keyed.GetRequiredKeyedService(typeof(IService), "missing"));
+            var ex = Assert.Throws<InvalidOperationException>(() => keyed.GetRequiredKeyedService(typeof(IService), "missing"));
+            Assert.IsType<ComponentNotRegisteredException>(ex.InnerException);
         }
 #endif
 

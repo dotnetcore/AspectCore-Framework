@@ -4,6 +4,7 @@ using AspectCore.DependencyInjection;
 using Autofac;
 #if NET8_0_OR_GREATER
 using Autofac.Core;
+using Autofac.Core.Registration;
 #endif
 
 namespace AspectCore.Extensions.Autofac
@@ -42,7 +43,14 @@ namespace AspectCore.Extensions.Autofac
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
         {
-            return _componentContext.ResolveService(new KeyedService(serviceKey, serviceType));
+            try
+            {
+                return _componentContext.ResolveService(new KeyedService(serviceKey, serviceType));
+            }
+            catch (ComponentNotRegisteredException ex)
+            {
+                throw new InvalidOperationException($"No service for type '{serviceType}' and key '{serviceKey}' has been registered.", ex);
+            }
         }
 #endif
     }
