@@ -114,4 +114,3 @@ dotnet format src/AspectCore.Core/AspectCore.Core.csproj --verify-no-changes
 - [开发规范](../../../docs/development/development-guidelines.md)
 - [Code Review 规范](../../../docs/development/code-review-guidelines.md)
 - [AGENTS.md](../../../AGENTS.md)
-- [C# / .NET 工程能力检查清单](https://bytedance.larkoffice.com/wiki/JqL7w44B9i5kezkinfKc1zDDnrf) (internal reference, not publicly accessible)

@@ -1,7 +1,6 @@
 # AspectCore-Framework Code Review 规范
 
 > 本文档定义 AspectCore-Framework 项目的 Code Review 规范。所有 PR 在合并前都应通过 Review。
-> 参考：[C# / .NET AI 工程师工程能力检查清单](https://bytedance.larkoffice.com/wiki/JqL7w44B9i5kezkinfKc1zDDnrf) (internal reference, not publicly accessible)
 
 ---
 
