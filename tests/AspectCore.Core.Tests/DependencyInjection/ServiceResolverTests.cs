@@ -51,19 +51,44 @@ namespace AspectCore.Core.Tests.DependencyInjection
 
 #if NET8_0_OR_GREATER
         [Fact]
-        public void GetKeyedService_ThrowsNotImplementedException()
+        public void GetKeyedService_ReturnsService_ByType()
         {
             var context = new ServiceContext();
+            var instance = new object();
+            context.Add(new InstanceServiceDefinition(typeof(object), instance));
             var resolver = new ServiceResolver(context);
-            Assert.Throws<NotImplementedException>(() => resolver.GetKeyedService(typeof(object), "key"));
+            var result = resolver.GetKeyedService(typeof(object), "key");
+            Assert.NotNull(result);
+            Assert.Same(instance, result);
         }
 
         [Fact]
-        public void GetRequiredKeyedService_ThrowsNotImplementedException()
+        public void GetKeyedService_ReturnsNull_ForUnregisteredService()
         {
             var context = new ServiceContext();
             var resolver = new ServiceResolver(context);
-            Assert.Throws<NotImplementedException>(() => resolver.GetRequiredKeyedService(typeof(object), "key"));
+            var result = resolver.GetKeyedService(typeof(object), "key");
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetRequiredKeyedService_ReturnsService_ByType()
+        {
+            var context = new ServiceContext();
+            var instance = new object();
+            context.Add(new InstanceServiceDefinition(typeof(object), instance));
+            var resolver = new ServiceResolver(context);
+            var result = resolver.GetRequiredKeyedService(typeof(object), "key");
+            Assert.NotNull(result);
+            Assert.Same(instance, result);
+        }
+
+        [Fact]
+        public void GetRequiredKeyedService_Throws_ForUnregisteredService()
+        {
+            var context = new ServiceContext();
+            var resolver = new ServiceResolver(context);
+            Assert.Throws<InvalidOperationException>(() => resolver.GetRequiredKeyedService(typeof(object), "key"));
         }
 #endif
 

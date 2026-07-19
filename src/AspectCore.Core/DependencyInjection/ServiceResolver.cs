@@ -75,12 +75,21 @@ namespace AspectCore.DependencyInjection
 #if NET8_0_OR_GREATER
         public object GetKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            // The core ServiceTable keys services by type only and does not
+            // preserve keyed-service metadata, so the key is ignored here and
+            // resolution falls back to type-based lookup (consistent with the
+            // ToServiceContext path which strips key information).
+            return Resolve(serviceType);
         }
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            var service = Resolve(serviceType);
+            if (service == null)
+            {
+                throw new InvalidOperationException($"No service for type '{serviceType}' has been registered.");
+            }
+            return service;
         }
 #endif
 

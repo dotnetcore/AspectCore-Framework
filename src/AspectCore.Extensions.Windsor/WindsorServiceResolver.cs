@@ -39,12 +39,26 @@ namespace AspectCore.Extensions.Windsor
 #if NET8_0_OR_GREATER
         public object GetKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return _kernel.Resolve(serviceKey?.ToString(), serviceType);
+            }
+            catch (ComponentNotFoundException)
+            {
+                return null;
+            }
         }
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return _kernel.Resolve(serviceKey?.ToString(), serviceType);
+            }
+            catch (ComponentNotFoundException ex)
+            {
+                throw new InvalidOperationException($"No service for type '{serviceType}' and key '{serviceKey}' has been registered.", ex);
+            }
         }
 #endif
     }

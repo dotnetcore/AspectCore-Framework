@@ -41,12 +41,12 @@ namespace AspectCore.Extensions.LightInject
 #if NET8_0_OR_GREATER
         public object GetKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            return _serviceFactory.TryGetInstance(serviceType, serviceKey?.ToString());
         }
 
         public object GetRequiredKeyedService(Type serviceType, object serviceKey)
         {
-            throw new NotImplementedException();
+            return _serviceFactory.GetInstance(serviceType, serviceKey?.ToString());
         }
 #endif
     }
