@@ -41,7 +41,7 @@ Project-level AI context for the AspectCore-Framework repository. Generated from
 | `src/AspectCore.Extensions.Configuration/` | Configuration injection via `Microsoft.Extensions.Configuration`. | – |
 | `src/AspectCore.Extensions.DataAnnotations/` | DataAnnotations-based validation extension. | – |
 | `src/AspectCore.Extensions.DataValidation/` | Data validation extension. | – |
-| `tests/` | 10 xUnit test projects. `tests/Directory.Build.props` injects `coverlet.msbuild`. | – |
+| `tests/` | 9 xUnit test projects. `tests/Directory.Build.props` injects `coverlet.msbuild`. | – |
 | `sample/` | 4 runnable sample projects (DI console, AspectScope, Autofac, DataAnnotations). | – |
 | `benchmark/` `benchmarks/` | BenchmarkDotNet projects. | – |
 | `docs/` | Architecture, guide, getting-started, development, testing docs (bilingual; `docs/en/` for English). | `docs/README.md` |
@@ -132,7 +132,7 @@ dotnet test ./tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj \
 
 **Coverage thresholds (blocking CI gates):** unit tests **95%**, E2E tests **80%**. E2E coverage filters to `[AspectCore.Core]*` and `[AspectCore.Abstractions]*`. The coverage script sets `DOTNET_ROLL_FORWARD=Major` to run on newer runtimes.
 
-**Engine parity:** `tests/AspectCore.E2E.Tests/EngineParity/` enforces that DynamicProxy and the Source Generator behave identically. Any change to the core interceptor/proxy engine MUST keep both engines in sync and pass these tests.
+**Engine parity:** `tests/AspectCore.Core.Tests/EngineParity/` enforces that DynamicProxy and the Source Generator behave identically. Any change to the core interceptor/proxy engine MUST keep both engines in sync and pass these tests.
 
 ---
 
@@ -143,7 +143,7 @@ dotnet test ./tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj \
 - **Commit messages (CRITICAL):** Conventional Commits — `feat:`, `fix:`, `docs:`, `test:`, `ci:`, `chore:`. Example: `fix: implement keyed service resolution in IServiceResolver (#387)`.
 - **PR merge:** squash-merge; the merge commit title includes the PR number `(#number)`.
 - **Committer identity (CRITICAL):** must be `Haoyang Liu` / `liuhaoyang1221@hotmail.com`.
-- **No `Co-Authored-By` trailers (CRITICAL).**
+- **Avoid `Co-Authored-By` trailers:** recently adopted policy (most recent commits follow this; older commits may still contain them). Prefer commits without these trailers.
 - **Release flow:** tag `v*` → `release.yml` builds, tests, packs, publishes to NuGet.org + MyGet, creates a GitHub Release, then auto-bumps `build/version.props` to the next minor via an auto-PR. Patch bumps are manual.
 
 ---
@@ -163,15 +163,6 @@ namespace AspectCore.DynamicProxy
 // ❌
 namespace AspectCore.DynamicProxy;
 public interface IInterceptor { ... }
-```
-
-**Explicit types, not `var`:**
-```csharp
-// ✅
-IInterceptor[] interceptors = collector.Collect(method);
-
-// ❌
-var interceptors = collector.Collect(method);
 ```
 
 **Private fields prefixed with `_`:**
@@ -217,7 +208,7 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 - ⚠️ **Ask first** — bumping `build/version.props` (release flow auto-bumps minor only; patch bumps need explicit approval).
 - ⚠️ **Ask first** — changing target frameworks or `LangVersion` in `build/common.props` (affects all packages and CI matrix).
 - ⚠️ **Ask first** — adding a new DI container integration or a new top-level package.
-- 🚫 **Never do** — add `Co-Authored-By` trailers to commit messages.
+- ⚠️ **Ask first** — adding `Co-Authored-By` trailers to commit messages (recently adopted policy; check with maintainer before including).
 - 🚫 **Never do** — commit generated proxy source from `AspectCore.SourceGenerator` (it is emitted at compile time into `obj/`, which is gitignored).
 - 🚫 **Never do** — reverse the `Abstractions ◄── Core ◄── Extensions` dependency direction, or add horizontal references between extension packages.
 - 🚫 **Never do** — commit secrets, NuGet API keys, or `artifacts/` output.
