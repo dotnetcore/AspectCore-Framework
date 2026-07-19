@@ -44,6 +44,8 @@
 - [本地构建](./development/building.md) — 还原、编译、目标框架
 - [项目结构](./development/project-structure.md) — 源码、测试、示例、基准布局
 - [贡献指南](./development/contributing.md) — 分支、提交、PR 流程
+- [开发规范](./development/development-guidelines.md) — 工程结构识别、命令粒度、测试、性能、设计原则
+- [Code Review 规范](./development/code-review-guidelines.md) — Review 维度、BLOCKING 问题、自查清单
 
 ### ✅ 测试（testing）
 - [测试策略](./testing/testing-strategy.md) — 单元、双引擎一致性、E2E、覆盖率门槛

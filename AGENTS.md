@@ -201,6 +201,7 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 
 ## 7. Boundaries & Guardrails
 
+- ✅ **Always do (MANDATORY, before any work)** — read the [development guidelines](docs/development/development-guidelines.md) in full **before** starting any code change, and walk through the [code review guidelines](docs/development/code-review-guidelines.md) self-check checklist **before** opening a PR. The `aspectcore-dev-review` skill (`.agents/skills/aspectcore-dev-review/SKILL.md`) is a quick reference only and does **not** replace reading the full guidelines.
 - ✅ **Always do** — keep DynamicProxy and the Source Generator behaviorally in sync; run the `EngineParity/` tests after any core engine change.
 - ✅ **Always do** — run `dotnet format` locally before pushing to avoid the CI lint gate.
 - ✅ **Always do** — put new public interfaces/attributes in `AspectCore.Abstractions`; implementations in `Core` or the relevant extension.
@@ -224,6 +225,9 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 - `docs/architecture/overview.md` — architecture and module design (Chinese).
 - `docs/architecture/module-design.md` — contract/implementation split and dependency rules.
 - `docs/development/contributing.md` — contribution rules, commit conventions, CI gates (Chinese).
+- `docs/development/development-guidelines.md` — development standards: project structure recognition, command granularity, testing, performance, design principles.
+- `docs/development/code-review-guidelines.md` — code review standards: review dimensions, blocking issues, self-check checklist.
+- `.agents/skills/aspectcore-dev-review/SKILL.md` — skill for AI agents: quick reference for development and review guidelines.
 - `docs/guide/interceptor.md` — how to write interceptors.
 - `docs/testing/` — testing guidance.
 - `docs/en/` — English documentation mirror.
