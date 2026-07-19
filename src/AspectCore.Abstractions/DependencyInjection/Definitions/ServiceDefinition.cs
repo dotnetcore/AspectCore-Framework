@@ -10,10 +10,16 @@ namespace AspectCore.DependencyInjection
 
         public Lifetime Lifetime { get; }
 
-        public ServiceDefinition(Type serviceType, Lifetime lifetime)
+        /// <summary>
+        /// Gets the service key associated with a keyed service registration, or <c>null</c> for a non-keyed service.
+        /// </summary>
+        public object ServiceKey { get; }
+
+        public ServiceDefinition(Type serviceType, Lifetime lifetime, object serviceKey = null)
         {
             Lifetime = lifetime;
             ServiceType = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
+            ServiceKey = serviceKey;
         }
     }
 }

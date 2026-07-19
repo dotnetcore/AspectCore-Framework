@@ -50,15 +50,15 @@ namespace AspectCore.Extensions.DependencyInjection
             {
                 if (descriptor.KeyedImplementationType != null)
                 {
-                    return new TypeServiceDefinition(descriptor.ServiceType, descriptor.KeyedImplementationType, GetLifetime(descriptor.Lifetime));
+                    return new TypeServiceDefinition(descriptor.ServiceType, descriptor.KeyedImplementationType, GetLifetime(descriptor.Lifetime), descriptor.ServiceKey);
                 }
                 else if (descriptor.KeyedImplementationInstance != null)
                 {
-                    return new InstanceServiceDefinition(descriptor.ServiceType, descriptor.KeyedImplementationInstance);
+                    return new InstanceServiceDefinition(descriptor.ServiceType, descriptor.KeyedImplementationInstance, descriptor.ServiceKey);
                 }
                 else
                 {
-                    return new DelegateServiceDefinition(descriptor.ServiceType, resolver => descriptor.KeyedImplementationFactory(resolver, descriptor.ServiceKey), GetLifetime(descriptor.Lifetime));
+                    return new DelegateServiceDefinition(descriptor.ServiceType, resolver => descriptor.KeyedImplementationFactory(resolver, descriptor.ServiceKey), GetLifetime(descriptor.Lifetime), descriptor.ServiceKey);
                 }
             }
 #endif

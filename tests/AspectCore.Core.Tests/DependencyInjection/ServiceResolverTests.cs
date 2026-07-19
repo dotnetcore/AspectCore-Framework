@@ -55,7 +55,7 @@ namespace AspectCore.Core.Tests.DependencyInjection
         {
             var context = new ServiceContext();
             var instance = new object();
-            context.Add(new InstanceServiceDefinition(typeof(object), instance));
+            context.Add(new InstanceServiceDefinition(typeof(object), instance, "key"));
             var resolver = new ServiceResolver(context);
             var result = resolver.GetKeyedService(typeof(object), "key");
             Assert.NotNull(result);
@@ -72,11 +72,39 @@ namespace AspectCore.Core.Tests.DependencyInjection
         }
 
         [Fact]
+        public void GetKeyedService_DistinguishesServices_ByKey()
+        {
+            var context = new ServiceContext();
+            var instanceA = new object();
+            var instanceB = new object();
+            context.Add(new InstanceServiceDefinition(typeof(object), instanceA, "keyA"));
+            context.Add(new InstanceServiceDefinition(typeof(object), instanceB, "keyB"));
+            var resolver = new ServiceResolver(context);
+
+            var resultA = resolver.GetKeyedService(typeof(object), "keyA");
+            var resultB = resolver.GetKeyedService(typeof(object), "keyB");
+
+            Assert.Same(instanceA, resultA);
+            Assert.Same(instanceB, resultB);
+        }
+
+        [Fact]
+        public void GetKeyedService_WithNonMatchingKey_ReturnsNull()
+        {
+            var context = new ServiceContext();
+            var instance = new object();
+            context.Add(new InstanceServiceDefinition(typeof(object), instance, "keyA"));
+            var resolver = new ServiceResolver(context);
+            var result = resolver.GetKeyedService(typeof(object), "keyB");
+            Assert.Null(result);
+        }
+
+        [Fact]
         public void GetRequiredKeyedService_ReturnsService_ByType()
         {
             var context = new ServiceContext();
             var instance = new object();
-            context.Add(new InstanceServiceDefinition(typeof(object), instance));
+            context.Add(new InstanceServiceDefinition(typeof(object), instance, "key"));
             var resolver = new ServiceResolver(context);
             var result = resolver.GetRequiredKeyedService(typeof(object), "key");
             Assert.NotNull(result);
