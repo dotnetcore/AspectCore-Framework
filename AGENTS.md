@@ -205,6 +205,7 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 - ✅ **Always do** — run `dotnet format` locally before pushing to avoid the CI lint gate.
 - ✅ **Always do** — put new public interfaces/attributes in `AspectCore.Abstractions`; implementations in `Core` or the relevant extension.
 - ✅ **Always do** — use Conventional Commits and the fixed committer identity (`Haoyang Liu`).
+- ✅ **Always do** — follow the [development guidelines](docs/development/development-guidelines.md) and [code review guidelines](docs/development/code-review-guidelines.md) for all changes. Use the `aspectcore-dev-review` skill (`.agents/skills/aspectcore-dev-review/SKILL.md`) as a quick reference.
 - ⚠️ **Ask first** — bumping `build/version.props` (release flow auto-bumps minor only; patch bumps need explicit approval).
 - ⚠️ **Ask first** — changing target frameworks or `LangVersion` in `build/common.props` (affects all packages and CI matrix).
 - ⚠️ **Ask first** — adding a new DI container integration or a new top-level package.
@@ -224,6 +225,9 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 - `docs/architecture/overview.md` — architecture and module design (Chinese).
 - `docs/architecture/module-design.md` — contract/implementation split and dependency rules.
 - `docs/development/contributing.md` — contribution rules, commit conventions, CI gates (Chinese).
+- `docs/development/development-guidelines.md` — development standards: project structure recognition, command granularity, testing, performance, design principles.
+- `docs/development/code-review-guidelines.md` — code review standards: review dimensions, blocking issues, self-check checklist.
+- `.agents/skills/aspectcore-dev-review/SKILL.md` — skill for AI agents: quick reference for development and review guidelines.
 - `docs/guide/interceptor.md` — how to write interceptors.
 - `docs/testing/` — testing guidance.
 - `docs/en/` — English documentation mirror.
