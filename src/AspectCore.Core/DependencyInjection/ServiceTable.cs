@@ -140,7 +140,12 @@ namespace AspectCore.DependencyInjection
                         matched = definition;
                     }
                 }
-                return matched;
+                if (matched != null)
+                {
+                    return matched;
+                }
+                // Keyed lookup failed: fall through to the generic branch so that
+                // keyed open-generic registrations can still be resolved.
             }
             if (serviceType.IsConstructedGenericType)
             {
@@ -151,7 +156,7 @@ namespace AspectCore.DependencyInjection
                     case Type enumerable when enumerable == typeof(IManyEnumerable<>):
                         return FindManyEnumerable(serviceType);
                     case Type genericTypeDefinition when _linkedGenericServiceDefinitions.TryGetValue(genericTypeDefinition, out var genericServiceDefinitions):
-                        return FindGenericService(serviceType, genericServiceDefinitions);
+                        return FindGenericService(serviceType, genericServiceDefinitions, serviceKey);
                     default:
                         break;
                 }
@@ -201,13 +206,52 @@ namespace AspectCore.DependencyInjection
             return services.ToArray();
         }
 
-        private ServiceDefinition FindGenericService(Type serviceType, LinkedList<ServiceDefinition> genericServiceDefinitions)
+        private ServiceDefinition FindGenericService(Type serviceType, LinkedList<ServiceDefinition> genericServiceDefinitions, object serviceKey = null)
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
-                return value.Last.Value;
+                if (serviceKey == null)
+                {
+                    return value.Last.Value;
+                }
+
+                ServiceDefinition matched = null;
+                foreach (var definition in value)
+                {
+                    if (Equals(definition.ServiceKey, serviceKey))
+                    {
+                        matched = definition;
+                    }
+                }
+                if (matched != null)
+                {
+                    return matched;
+                }
             }
-            var service = MakProxyService(MakGenericService(serviceType, genericServiceDefinitions.Last.Value));
+
+            ServiceDefinition genericMatch;
+            if (serviceKey == null)
+            {
+                genericMatch = genericServiceDefinitions.Last.Value;
+            }
+            else
+            {
+                genericMatch = null;
+                foreach (var definition in genericServiceDefinitions)
+                {
+                    if (Equals(definition.ServiceKey, serviceKey))
+                    {
+                        genericMatch = definition;
+                    }
+                }
+            }
+
+            if (genericMatch == null)
+            {
+                return null;
+            }
+
+            var service = MakProxyService(MakGenericService(serviceType, genericMatch));
             if (service == null)
             {
                 return null;
