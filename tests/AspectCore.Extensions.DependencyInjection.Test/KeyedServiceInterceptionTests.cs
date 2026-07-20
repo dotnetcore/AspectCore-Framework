@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using AspectCore.DependencyInjection;
 using AspectCore.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,40 +6,6 @@ using Xunit;
 
 namespace AspectCore.Extensions.DependencyInjection.Test
 {
-    public class KeyedCounterIncrementInterceptor : AbstractInterceptorAttribute
-    {
-        private readonly int _amount;
-
-        public KeyedCounterIncrementInterceptor(int amount)
-        {
-            _amount = amount;
-        }
-
-        public override async Task Invoke(AspectContext context, AspectDelegate next)
-        {
-            await context.Invoke(next);
-            if (context.ReturnValue is int value)
-            {
-                context.ReturnValue = value + _amount;
-            }
-        }
-    }
-
-    [AspectCoreGenerateProxy(typeof(KeyedCounter))]
-    public interface IKeyedCounter
-    {
-        int GetBase();
-        int GetIntercepted();
-    }
-
-    public class KeyedCounter : IKeyedCounter
-    {
-        public int GetBase() => 1;
-
-        [KeyedCounterIncrementInterceptor(100)]
-        public int GetIntercepted() => 1;
-    }
-
     /// <summary>
     /// Integration tests that resolve keyed services through IServiceResolver
     /// (the resolution path interceptors use) and verify the interceptor
@@ -54,15 +19,12 @@ namespace AspectCore.Extensions.DependencyInjection.Test
             ProxyEngine engine = ProxyEngine.DynamicProxy)
         {
             var services = new ServiceCollection();
-            if (engine != ProxyEngine.DynamicProxy)
+            services.ConfigureDynamicProxyEngine(options =>
             {
-                services.ConfigureDynamicProxyEngine(options =>
-                {
-                    options.Engine = engine;
-                    options.Strict = true;
-                    options.AllowRuntimeFallback = false;
-                });
-            }
+                options.Engine = engine;
+                options.Strict = engine == ProxyEngine.SourceGenerator;
+                options.AllowRuntimeFallback = engine == ProxyEngine.SourceGenerator ? false : (bool?)null;
+            });
             configureServices(services);
             return services.BuildDynamicProxyProvider();
         }
