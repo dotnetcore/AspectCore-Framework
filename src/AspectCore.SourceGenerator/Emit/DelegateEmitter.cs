@@ -88,11 +88,12 @@ internal static class DelegateEmitter
         }
         else if (isClassProxy && proxyTypeName != null)
         {
-            // Class proxy: for init-only property setters, use reflection (no trampoline possible).
-            // For everything else, call the base-call trampoline to avoid virtual dispatch recursion.
+            // Class proxy: for init-only property setters, use MethodReflector with Call
+            // (non-virtual dispatch) because we cannot generate a base.Prop = value trampoline
+            // for init-only properties, and MethodBase.Invoke dispatches virtually causing recursion.
             if (isPropertyAccessor && method.MethodKind == MethodKind.PropertySet && method.IsInitOnly)
             {
-                EmitPropertyAccessorBody(sb, method, targetTypeName);
+                EmitReflectorFallbackBody(sb, method);
             }
             else
             {
@@ -129,6 +130,25 @@ internal static class DelegateEmitter
         sb.AppendLine($"                    \"Generic method '{method.Name}' cannot be invoked through IAspectInvokeDelegate. \" +");
         sb.AppendLine($"                    \"This delegate should not be called for generic methods; \" +");
         sb.AppendLine($"                    \"SourceGeneratedAspectContext.Complete() handles them via MethodInfo.Invoke.\");");
+    }
+
+    /// <summary>
+    /// Emits a delegate body that uses MethodReflector with CallOptions.Call for non-virtual dispatch.
+    /// Used for class proxy init-only property setters where neither a trampoline nor direct
+    /// MethodBase.Invoke (virtual dispatch → recursion) is viable.
+    /// </summary>
+    private static void EmitReflectorFallbackBody(StringBuilder sb, IMethodSymbol method)
+    {
+        // Get the base class's method (not the proxy override) to avoid virtual dispatch recursion.
+        var baseTypeName = method.ContainingType.ToGlobalName();
+        sb.AppendLine($"                // Init-only setter on class proxy: cannot use trampoline (base.Prop = value");
+        sb.AppendLine($"                // is invalid outside constructor) and MethodBase.Invoke dispatches virtually.");
+        sb.AppendLine($"                // Use MethodReflector with CallOptions.Call on the BASE type's method.");
+        sb.AppendLine($"                var __method = typeof({baseTypeName}).GetMethod(\"{method.Name}\",");
+        sb.AppendLine($"                    global::System.Reflection.BindingFlags.Instance | global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.NonPublic);");
+        sb.AppendLine($"                var __reflector = global::AspectCore.Extensions.Reflection.ReflectorExtensions.GetReflector(");
+        sb.AppendLine($"                    __method, global::AspectCore.Extensions.Reflection.CallOptions.Call);");
+        sb.AppendLine($"                return __reflector.Invoke(instance, parameters);");
     }
 
     private static void EmitPropertyAccessorBody(StringBuilder sb, IMethodSymbol method, string targetTypeName)
