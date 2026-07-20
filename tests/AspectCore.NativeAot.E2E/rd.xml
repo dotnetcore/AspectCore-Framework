@@ -1,0 +1,8 @@
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <Assembly Name="AspectCore.NativeAot.E2E" Dynamic="Required All" />
+    <Assembly Name="AspectCore.Core" Dynamic="Required All" />
+    <Assembly Name="AspectCore.Abstractions" Dynamic="Required All" />
+    <Assembly Name="AspectCore.Extensions.DependencyInjection" Dynamic="Required All" />
+  </Application>
+</Directives>

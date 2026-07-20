@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
@@ -9,15 +11,32 @@ namespace AspectCore.DynamicProxy
     {
         public IEnumerable<IInterceptor> Select(MethodInfo method)
         {
-            foreach (var attribute in method.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
+            if (!RuntimeFeature.IsDynamicCodeSupported)
             {
-                if (attribute is IInterceptor interceptor)
-                    yield return interceptor;
+                // NativeAOT: use standard reflection to avoid DynamicMethod
+                foreach (var attribute in method.DeclaringType.GetTypeInfo().GetCustomAttributes(true))
+                {
+                    if (attribute is IInterceptor interceptor)
+                        yield return interceptor;
+                }
+                foreach (var attribute in method.GetCustomAttributes(true))
+                {
+                    if (attribute is IInterceptor interceptor)
+                        yield return interceptor;
+                }
             }
-            foreach (var attribute in method.GetReflector().GetCustomAttributes())
+            else
             {
-                if (attribute is IInterceptor interceptor)
-                    yield return interceptor;
+                foreach (var attribute in method.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
+                {
+                    if (attribute is IInterceptor interceptor)
+                        yield return interceptor;
+                }
+                foreach (var attribute in method.GetReflector().GetCustomAttributes())
+                {
+                    if (attribute is IInterceptor interceptor)
+                        yield return interceptor;
+                }
             }
         }
     }

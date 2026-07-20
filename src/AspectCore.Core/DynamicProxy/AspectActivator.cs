@@ -1,6 +1,7 @@
 ﻿using AspectCore.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -23,6 +24,7 @@ namespace AspectCore.DynamicProxy
             _aspectConfiguration = aspectConfiguration;
         }
 
+        [RequiresDynamicCode("AspectActivator uses runtime proxy infrastructure. Use source-generated proxies for NativeAOT compatibility.")]
         public TResult Invoke<TResult>(AspectActivatorContext activatorContext)
         {
             var context = _aspectContextFactory.CreateContext(activatorContext);
@@ -56,6 +58,7 @@ namespace AspectCore.DynamicProxy
             }
         }
 
+        [RequiresDynamicCode("AspectActivator uses runtime proxy infrastructure. Use source-generated proxies for NativeAOT compatibility.")]
         public async Task<TResult> InvokeTask<TResult>(AspectActivatorContext activatorContext)
         {
             var context = _aspectContextFactory.CreateContext(activatorContext);
@@ -100,6 +103,7 @@ namespace AspectCore.DynamicProxy
             }
         }
 
+        [RequiresDynamicCode("AspectActivator uses runtime proxy infrastructure. Use source-generated proxies for NativeAOT compatibility.")]
         public async ValueTask<TResult> InvokeValueTask<TResult>(AspectActivatorContext activatorContext)
         {
             var context = _aspectContextFactory.CreateContext(activatorContext);
@@ -144,6 +148,7 @@ namespace AspectCore.DynamicProxy
             }
         }
 
+        [RequiresDynamicCode("AspectActivator uses runtime proxy infrastructure. Use source-generated proxies for NativeAOT compatibility.")]
         public IAsyncEnumerable<TResult> InvokeAsyncEnumerable<TResult>(AspectActivatorContext activatorContext)
         {
             return InvokeAsyncEnumerableCore<TResult>(activatorContext);

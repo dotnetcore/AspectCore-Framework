@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -85,6 +86,7 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        [RequiresDynamicCode("ConstructorReflector uses DynamicMethod (IL emit) for fast invocation. Use Activator.CreateInstance or source-generated factories for NativeAOT compatibility.")]
         public virtual object Invoke(params object[] args)
         {
             if (args == null)

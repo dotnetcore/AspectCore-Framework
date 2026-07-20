@@ -146,18 +146,17 @@ namespace AspectCore.Extensions.DependencyInjection
                 new Type[] { typeof(IAspectActivatorFactory), typeof(IServiceProvider), descriptor.ServiceType });
             if (ctor3 != null)
             {
-                var reflector3 = ctor3.GetReflector();
                 if (descriptor.ImplementationInstance != null)
                 {
                     var implementationInstance = descriptor.ImplementationInstance;
-                    return provider => reflector3.Invoke(
+                    return provider => InvokeCtor(ctor3,
                         provider.GetRequiredService<IAspectActivatorFactory>(),
                         provider, implementationInstance);
                 }
                 else if (descriptor.ImplementationFactory != null)
                 {
                     var implementationFactory = descriptor.ImplementationFactory;
-                    return provider => reflector3.Invoke(
+                    return provider => InvokeCtor(ctor3,
                         provider.GetRequiredService<IAspectActivatorFactory>(),
                         provider, implementationFactory(provider));
                 }
@@ -168,7 +167,7 @@ namespace AspectCore.Extensions.DependencyInjection
                     {
                         var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
                         var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
-                        return reflector3.Invoke(aspectActivatorFactory, provider, instance);
+                        return InvokeCtor(ctor3, aspectActivatorFactory, provider, instance);
                     };
                 }
             }
@@ -178,17 +177,16 @@ namespace AspectCore.Extensions.DependencyInjection
                 new Type[] { typeof(IAspectActivatorFactory), descriptor.ServiceType });
             if (ctor2 != null)
             {
-                var reflector2 = ctor2.GetReflector();
                 if (descriptor.ImplementationInstance != null)
                 {
                     var implementationInstance = descriptor.ImplementationInstance;
-                    return provider => reflector2.Invoke(
+                    return provider => InvokeCtor(ctor2,
                         provider.GetRequiredService<IAspectActivatorFactory>(), implementationInstance);
                 }
                 else if (descriptor.ImplementationFactory != null)
                 {
                     var implementationFactory = descriptor.ImplementationFactory;
-                    return provider => reflector2.Invoke(
+                    return provider => InvokeCtor(ctor2,
                         provider.GetRequiredService<IAspectActivatorFactory>(), implementationFactory(provider));
                 }
                 else
@@ -198,12 +196,21 @@ namespace AspectCore.Extensions.DependencyInjection
                     {
                         var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
                         var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
-                        return reflector2.Invoke(aspectActivatorFactory, instance);
+                        return InvokeCtor(ctor2, aspectActivatorFactory, instance);
                     };
                 }
             }
 
             throw new InvalidOperationException($"Cannot find suitable constructor on proxy type '{proxyType.FullName}'.");
+        }
+
+        /// <summary>
+        /// Invokes a constructor using ConstructorInfo.Invoke directly.
+        /// This is NativeAOT-safe (unlike ConstructorReflector which uses DynamicMethod).
+        /// </summary>
+        private static object InvokeCtor(ConstructorInfo ctor, params object[] args)
+        {
+            return ctor.Invoke(args);
         }
 
 #if NET8_0_OR_GREATER
@@ -217,18 +224,17 @@ namespace AspectCore.Extensions.DependencyInjection
                 new Type[] { typeof(IAspectActivatorFactory), typeof(IServiceProvider), descriptor.ServiceType });
             if (ctor3 != null)
             {
-                var reflector3 = ctor3.GetReflector();
                 if (descriptor.KeyedImplementationInstance != null)
                 {
                     var implementationInstance = descriptor.KeyedImplementationInstance;
-                    return (provider, serviceKey) => reflector3.Invoke(
+                    return (provider, serviceKey) => InvokeCtor(ctor3,
                         provider.GetRequiredService<IAspectActivatorFactory>(),
                         provider, implementationInstance);
                 }
                 else if (descriptor.KeyedImplementationFactory != null)
                 {
                     var implementationFactory = descriptor.KeyedImplementationFactory;
-                    return (provider, serviceKey) => reflector3.Invoke(
+                    return (provider, serviceKey) => InvokeCtor(ctor3,
                         provider.GetRequiredService<IAspectActivatorFactory>(),
                         provider, implementationFactory(provider, serviceKey));
                 }
@@ -239,7 +245,7 @@ namespace AspectCore.Extensions.DependencyInjection
                     {
                         var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
                         var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
-                        return reflector3.Invoke(aspectActivatorFactory, provider, instance);
+                        return InvokeCtor(ctor3, aspectActivatorFactory, provider, instance);
                     };
                 }
             }
@@ -249,17 +255,16 @@ namespace AspectCore.Extensions.DependencyInjection
                 new Type[] { typeof(IAspectActivatorFactory), descriptor.ServiceType });
             if (ctor2 != null)
             {
-                var reflector2 = ctor2.GetReflector();
                 if (descriptor.KeyedImplementationInstance != null)
                 {
                     var implementationInstance = descriptor.KeyedImplementationInstance;
-                    return (provider, serviceKey) => reflector2.Invoke(
+                    return (provider, serviceKey) => InvokeCtor(ctor2,
                         provider.GetRequiredService<IAspectActivatorFactory>(), implementationInstance);
                 }
                 else if (descriptor.KeyedImplementationFactory != null)
                 {
                     var implementationFactory = descriptor.KeyedImplementationFactory;
-                    return (provider, serviceKey) => reflector2.Invoke(
+                    return (provider, serviceKey) => InvokeCtor(ctor2,
                         provider.GetRequiredService<IAspectActivatorFactory>(), implementationFactory(provider, serviceKey));
                 }
                 else
@@ -269,7 +274,7 @@ namespace AspectCore.Extensions.DependencyInjection
                     {
                         var aspectActivatorFactory = provider.GetRequiredService<IAspectActivatorFactory>();
                         var instance = ActivatorUtilities.CreateInstance(provider, implementationType);
-                        return reflector2.Invoke(aspectActivatorFactory, instance);
+                        return InvokeCtor(ctor2, aspectActivatorFactory, instance);
                     };
                 }
             }

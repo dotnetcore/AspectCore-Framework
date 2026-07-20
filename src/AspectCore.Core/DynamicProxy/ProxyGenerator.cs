@@ -173,16 +173,19 @@ namespace AspectCore.DynamicProxy
 
         public IProxyTypeGenerator TypeGenerator => _proxyGenerator.TypeGenerator;
 
+        [RequiresDynamicCode("Creates proxy type instances via reflection. Use source-generated proxies for AOT compatibility.")]
         public object CreateClassProxy(Type serviceType, Type implementationType, object[] args)
         {
             return _proxyGenerator.CreateClassProxy(serviceType, implementationType, args);
         }
 
+        [RequiresDynamicCode("Creates proxy type instances via reflection. Use source-generated proxies for AOT compatibility.")]
         public object CreateInterfaceProxy(Type serviceType)
         {
             return _proxyGenerator.CreateInterfaceProxy(serviceType);
         }
 
+        [RequiresDynamicCode("Creates proxy type instances via reflection. Use source-generated proxies for AOT compatibility.")]
         public object CreateInterfaceProxy(Type serviceType, object implementationInstance)
         {
             return _proxyGenerator.CreateInterfaceProxy(serviceType, implementationInstance);

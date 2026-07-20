@@ -77,6 +77,14 @@ internal static class GeneratorDiagnostics
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor OpenGenericMethodNativeAotFallbackDescriptor = new(
+        id: "ACSG0101",
+        title: "Open generic method falls back to reflection for NativeAOT",
+        messageFormat: "Method '{0}.{1}' is an open generic. The NativeAOT delegate falls back to reflection for unclosed type parameters. Add [AspectCoreGenericHint] to specify concrete type arguments for full NativeAOT safety.",
+        category: "AspectCore.SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
     public static Diagnostic UnsupportedGenericType(INamedTypeSymbol symbol)
         => Diagnostic.Create(UnsupportedGenericTypeDescriptor, symbol.Locations.FirstOrDefault(), symbol.ToDisplayString());
 
@@ -107,5 +115,12 @@ internal static class GeneratorDiagnostics
             parameter.Locations.FirstOrDefault() ?? method.Locations.FirstOrDefault(),
             method.ToDisplayString(),
             parameter.Name);
+
+    public static Diagnostic OpenGenericMethodNativeAotFallback(INamedTypeSymbol type, IMethodSymbol method)
+        => Diagnostic.Create(
+            OpenGenericMethodNativeAotFallbackDescriptor,
+            method.Locations.FirstOrDefault() ?? type.Locations.FirstOrDefault(),
+            type.ToDisplayString(),
+            method.ToDisplayString());
 }
 

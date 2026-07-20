@@ -25,6 +25,19 @@ namespace AspectCore.DynamicProxy
                 activatorContext.Parameters ?? emptyParameters);
         }
 
+        public AspectContext CreateContext(AspectActivatorContext activatorContext, IAspectInvokeDelegate invokeDelegate)
+        {
+            return new SourceGeneratedAspectContext(_serviceProvider,
+                activatorContext.ServiceMethod,
+                activatorContext.TargetMethod,
+                activatorContext.ProxyMethod,
+                activatorContext.PredicateMethod,
+                activatorContext.TargetInstance,
+                activatorContext.ProxyInstance,
+                activatorContext.Parameters ?? emptyParameters,
+                invokeDelegate);
+        }
+
         public void ReleaseContext(AspectContext aspectContext)
         {
             (aspectContext as IDisposable)?.Dispose();
