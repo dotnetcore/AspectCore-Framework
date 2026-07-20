@@ -145,6 +145,8 @@ dotnet test ./tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj \
 - **Committer identity (CRITICAL):** must be `Haoyang Liu` / `liuhaoyang1221@hotmail.com`.
 - **Avoid `Co-Authored-By` trailers:** recently adopted policy (most recent commits follow this; older commits may still contain them). Prefer commits without these trailers.
 - **Release flow:** tag `v*` → `release.yml` builds, tests, packs, publishes to NuGet.org + MyGet, creates a GitHub Release, then auto-bumps `build/version.props` to the next minor via an auto-PR. Patch bumps are manual.
+- **PR review/approval (CRITICAL):** must use the `latte-gh` GitHub account. The `liuhaoyang` account is the PR author and cannot self-approve.
+- **PR merge (CRITICAL):** must use the `latte-gh` GitHub account. Do **not** use `--admin` or any override to bypass failing CI checks. If any CI check is in a `fail` state (build, test execution, coverage thresholds, lint, codeql, etc.), the PR must **not** be merged — notify the author to fix the issue and wait for CI to pass.
 
 ---
 
