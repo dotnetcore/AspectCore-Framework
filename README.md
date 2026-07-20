@@ -52,9 +52,14 @@ Full documentation lives under [`docs/`](https://github.com/dotnetcore/AspectCor
 * [FastCache](https://github.com/sj-distributor/FastCache)
 
 ## Contributors
-* [Savorboard](https://github.com/yuleyule66)  
-* [AlexLEWIS](https://github.com/alexinea)
-* [Konrad Banaszek](https://github.com/thecorrado)
+
+Thanks to all the people who have contributed to this project!
+
+<a href="https://github.com/dotnetcore/AspectCore-Framework/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dotnetcore/AspectCore-Framework" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
 
 ## Contribute
 One of the easiest ways to contribute is to participate in discussions and discuss issues. You can also contribute by submitting pull requests with code changes.
