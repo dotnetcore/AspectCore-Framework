@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AspectCore.Extensions.Reflection;
 
@@ -24,6 +25,10 @@ namespace AspectCore.DynamicProxy
             if (typeInfo == null)
             {
                 throw new ArgumentNullException(nameof(typeInfo));
+            }
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+            {
+                return typeInfo.IsDefined(typeof(DynamicallyAttribute), true);
             }
             return typeInfo.GetReflector().IsDefined(typeof(DynamicallyAttribute));
         }
@@ -58,6 +63,11 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(typeInfo));
             }
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+            {
+                // NativeAOT: use standard reflection to avoid DynamicMethod in CustomAttributeReflector
+                return typeInfo.IsDefined(typeof(NonAspectAttribute), true);
+            }
             return typeInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
 
@@ -66,6 +76,12 @@ namespace AspectCore.DynamicProxy
             if (methodInfo == null)
             {
                 throw new ArgumentNullException(nameof(methodInfo));
+            }
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+            {
+                // NativeAOT: use standard reflection to avoid DynamicMethod in CustomAttributeReflector
+                return methodInfo.DeclaringType.GetTypeInfo().IsDefined(typeof(NonAspectAttribute), true)
+                    || methodInfo.IsDefined(typeof(NonAspectAttribute), true);
             }
             return methodInfo.DeclaringType.GetTypeInfo().IsNonAspect() || methodInfo.GetReflector().IsDefined(typeof(NonAspectAttribute));
         }
@@ -222,6 +238,10 @@ namespace AspectCore.DynamicProxy
             {
                 throw new ArgumentNullException(nameof(method));
             }
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+            {
+                return GetMethodBySignatureNativeAotSafe(typeInfo, method);
+            }
             var methods = typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var displayName = method.GetReflector().DisplayName;
             var invocation = methods.FirstOrDefault(x => x.GetReflector().DisplayName.Equals(displayName, StringComparison.Ordinal));
@@ -245,6 +265,25 @@ namespace AspectCore.DynamicProxy
             displayName = $"{declaringType.GetReflector().FullDisplayName}.{method.Name}";
             return typeInfo.GetMethodBySignature(
                 new MethodSignature(method, displayName));
+        }
+
+        private static MethodInfo GetMethodBySignatureNativeAotSafe(TypeInfo typeInfo, MethodInfo method)
+        {
+            var methods = typeInfo.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
+            var invocation = methods.FirstOrDefault(m =>
+                m.Name == method.Name &&
+                m.GetParameters().Length == parameterTypes.Length &&
+                m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
+            if (invocation != null)
+            {
+                return invocation;
+            }
+            // Try matching by name only (for explicit interface implementations)
+            var shortName = method.Name.Contains('.') ? method.Name.Split('.').Last() : method.Name;
+            return methods.FirstOrDefault(m =>
+                (m.Name == method.Name || m.Name.EndsWith("." + shortName)) &&
+                m.GetParameters().Length == parameterTypes.Length);
         }
     }
 }

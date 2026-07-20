@@ -25,6 +25,16 @@ namespace AspectCore.Extensions.AspectScope
             return aspectContext;
         }
 
+        public AspectContext CreateContext(AspectActivatorContext activatorContext, IAspectInvokeDelegate invokeDelegate)
+        {
+            var aspectContext = _aspectContextFactory.CreateContext(activatorContext, invokeDelegate);
+            if (!_aspectScheduler.TryEnter(aspectContext))
+            {
+                throw new InvalidOperationException("Error occurred in the schedule AspectContext.");
+            }
+            return aspectContext;
+        }
+
         public void ReleaseContext(AspectContext aspectContext)
         {
             _aspectContextFactory.ReleaseContext(aspectContext);
