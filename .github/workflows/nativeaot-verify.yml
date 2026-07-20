@@ -18,19 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            9.0.x
+            10.0.x
 
       - name: Restore dependencies
-        run: dotnet restore tests/AspectCore.NativeAot.E2E/AspectCore.NativeAot.E2E.csproj
+        run: dotnet restore AspectCore-Framework.sln
 
       - name: Build solution
         run: dotnet build AspectCore-Framework.sln -c Release --no-restore
 
       - name: Publish NativeAOT E2E (self-contained AOT binary)
-        run: dotnet publish tests/AspectCore.NativeAot.E2E/AspectCore.NativeAot.E2E.csproj -c Release -o ./publish-aot
+        run: dotnet publish tests/AspectCore.NativeAot.E2E/AspectCore.NativeAot.E2E.csproj -c Release -r linux-x64 -o ./publish-aot --no-restore
 
       - name: Run NativeAOT E2E binary
         run: ./publish-aot/AspectCore.NativeAot.E2E
