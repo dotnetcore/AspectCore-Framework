@@ -13,6 +13,9 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\AspectCore.Extensions.DependencyInjection\AspectCore.Extensions.DependencyInjection.csproj" />
+		<ProjectReference Include="..\..\src\AspectCore.SourceGenerator\AspectCore.SourceGenerator.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
