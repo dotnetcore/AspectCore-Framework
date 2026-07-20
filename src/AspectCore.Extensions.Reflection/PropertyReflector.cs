@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Extensions.Reflection.Emit;
@@ -44,6 +45,7 @@ namespace AspectCore.Extensions.Reflection
             return (Action<object, object>)dynamicMethod.CreateDelegate(typeof(Action<object, object>));
         }
 
+        [RequiresDynamicCode("PropertyReflector uses DynamicMethod (IL emit) for fast property access. Use direct property access or source-generated code for NativeAOT compatibility.")]
         public virtual object GetValue(object instance)
         {
             if (instance == null)
@@ -53,6 +55,7 @@ namespace AspectCore.Extensions.Reflection
             return _getter.Invoke(instance);
         }
 
+        [RequiresDynamicCode("PropertyReflector uses DynamicMethod (IL emit) for fast property access. Use direct property access or source-generated code for NativeAOT compatibility.")]
         public virtual void SetValue(object instance, object value)
         {
             if (instance == null)
@@ -62,11 +65,13 @@ namespace AspectCore.Extensions.Reflection
             _setter(instance, value);
         }
 
+        [RequiresDynamicCode("PropertyReflector uses DynamicMethod (IL emit) for fast property access. Use direct property access or source-generated code for NativeAOT compatibility.")]
         public virtual object GetStaticValue()
         {
             throw new InvalidOperationException($"Property {_reflectionInfo.Name} must be static to call this method. For get instance property value, call 'GetValue'.");
         }
 
+        [RequiresDynamicCode("PropertyReflector uses DynamicMethod (IL emit) for fast property access. Use direct property access or source-generated code for NativeAOT compatibility.")]
         public virtual void SetStaticValue(object value)
         {
             throw new InvalidOperationException($"Property {_reflectionInfo.Name} must be static to call this method. For set instance property value, call 'SetValue'.");

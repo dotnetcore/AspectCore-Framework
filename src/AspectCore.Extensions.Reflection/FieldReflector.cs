@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using AspectCore.Extensions.Reflection.Emit;
@@ -41,6 +42,7 @@ namespace AspectCore.Extensions.Reflection
             return (Action<object, object>)dynamicMethod.CreateDelegate(typeof(Action<object, object>));
         }
 
+        [RequiresDynamicCode("FieldReflector uses DynamicMethod (IL emit) for fast field access. Use direct field access or source-generated code for NativeAOT compatibility.")]
         public virtual object GetValue(object instance)
         {
             if (instance == null)
@@ -50,6 +52,7 @@ namespace AspectCore.Extensions.Reflection
             return _getter(instance);
         }
 
+        [RequiresDynamicCode("FieldReflector uses DynamicMethod (IL emit) for fast field access. Use direct field access or source-generated code for NativeAOT compatibility.")]
         public virtual void SetValue(object instance, object value)
         {
             if (instance == null)
@@ -59,11 +62,13 @@ namespace AspectCore.Extensions.Reflection
             _setter(instance, value);
         }
 
+        [RequiresDynamicCode("FieldReflector uses DynamicMethod (IL emit) for fast field access. Use direct field access or source-generated code for NativeAOT compatibility.")]
         public virtual object GetStaticValue()
         {
             throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static to call this method. For get instance field value, call 'GetValue'.");
         }
 
+        [RequiresDynamicCode("FieldReflector uses DynamicMethod (IL emit) for fast field access. Use direct field access or source-generated code for NativeAOT compatibility.")]
         public virtual void SetStaticValue(object value)
         {
             throw new InvalidOperationException($"Field {_reflectionInfo.Name} must be static to call this method. For set instance field value, call 'SetValue'.");

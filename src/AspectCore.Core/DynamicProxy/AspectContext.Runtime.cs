@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -77,6 +78,7 @@ namespace AspectCore.DynamicProxy
             PredicateMethod = predicateMethod;
         }
 
+        [RequiresDynamicCode("RuntimeAspectContext uses DynamicMethod-based MethodReflector for target invocation. Use SourceGeneratedAspectContext for NativeAOT compatibility.")]
         public override async Task Complete()
         {
             if (_implementation == null || _implementationMethod == null)

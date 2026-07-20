@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -99,6 +100,7 @@ namespace AspectCore.Extensions.Reflection
             }
         }
 
+        [RequiresDynamicCode("MethodReflector uses DynamicMethod (IL emit) for fast invocation. Use source-generated delegates for NativeAOT compatibility.")]
         public virtual object Invoke(object instance, params object[] parameters)
         {
             if (instance == null)
@@ -108,6 +110,7 @@ namespace AspectCore.Extensions.Reflection
             return _invoker(instance, parameters);
         }
 
+        [RequiresDynamicCode("MethodReflector uses DynamicMethod (IL emit) for fast invocation. Use source-generated delegates for NativeAOT compatibility.")]
         public virtual object StaticInvoke(params object[] parameters)
         {
             throw new InvalidOperationException($"Method {_reflectionInfo.Name} must be static to call this method. For invoke instance method, call 'Invoke'.");

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -91,6 +92,7 @@ namespace AspectCore.Extensions.Reflection
             return tokenSet;
         }
 
+        [RequiresDynamicCode("CustomAttributeReflector uses DynamicMethod (IL emit) for fast attribute instantiation. Use standard reflection APIs for NativeAOT compatibility.")]
         public Attribute Invoke()
         {
             return _invoker();

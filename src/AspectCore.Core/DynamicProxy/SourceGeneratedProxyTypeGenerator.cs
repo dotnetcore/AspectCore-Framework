@@ -18,8 +18,10 @@ namespace AspectCore.DynamicProxy
     public sealed class SourceGeneratedProxyTypeGenerator : IProxyTypeGenerator
     {
         private readonly ProxyEngineOptions _options;
-        private readonly IProxyTypeGenerator _dynamicProxy;
+        private readonly IAspectValidatorBuilder _aspectValidatorBuilder;
         private readonly IReadOnlyList<ISourceGeneratedProxyRegistry> _manualRegistries;
+
+        private volatile IProxyTypeGenerator _dynamicProxy;
 
         private volatile bool _scanned;
         private readonly object _scanLock = new object();
@@ -32,10 +34,21 @@ namespace AspectCore.DynamicProxy
             ProxyEngineOptions options,
             IEnumerable<ISourceGeneratedProxyRegistry> registries)
         {
-            if (aspectValidatorBuilder == null) throw new ArgumentNullException(nameof(aspectValidatorBuilder));
-            _dynamicProxy = new ProxyTypeGenerator(aspectValidatorBuilder);
+            _aspectValidatorBuilder = aspectValidatorBuilder ?? throw new ArgumentNullException(nameof(aspectValidatorBuilder));
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _manualRegistries = (registries ?? Array.Empty<ISourceGeneratedProxyRegistry>()).Where(r => r != null).ToArray();
+        }
+
+        /// <summary>
+        /// Lazily creates the dynamic proxy type generator.
+        /// This avoids Reflection.Emit initialization in NativeAOT scenarios
+        /// where the SourceGenerator engine is used exclusively.
+        /// </summary>
+        private IProxyTypeGenerator GetDynamicProxy()
+        {
+            if (_dynamicProxy != null) return _dynamicProxy;
+            _dynamicProxy = new ProxyTypeGenerator(_aspectValidatorBuilder);
+            return _dynamicProxy;
         }
 
         public Type CreateInterfaceProxyType(Type serviceType)
@@ -53,7 +66,7 @@ namespace AspectCore.DynamicProxy
                 kind: SourceGeneratedProxyKind.Class,
                 serviceType: serviceType,
                 implementationType: implementationType,
-                dynamicFallback: () => _dynamicProxy.CreateClassProxyType(serviceType, implementationType));
+                dynamicFallback: () => GetDynamicProxy().CreateClassProxyType(serviceType, implementationType));
         }
 
         private Type CreateInterfaceProxyTypeCore(Type serviceType, Type implementationType)
@@ -65,8 +78,8 @@ namespace AspectCore.DynamicProxy
                 serviceType: serviceType,
                 implementationType: implementationType,
                 dynamicFallback: () => implementationType == null
-                    ? _dynamicProxy.CreateInterfaceProxyType(serviceType)
-                    : _dynamicProxy.CreateInterfaceProxyType(serviceType, implementationType));
+                    ? GetDynamicProxy().CreateInterfaceProxyType(serviceType)
+                    : GetDynamicProxy().CreateInterfaceProxyType(serviceType, implementationType));
         }
 
         private Type CreateCore(SourceGeneratedProxyKind kind, Type serviceType, Type implementationType, Func<Type> dynamicFallback)

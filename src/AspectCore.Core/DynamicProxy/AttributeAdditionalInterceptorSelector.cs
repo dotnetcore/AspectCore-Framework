@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AspectCore.Extensions.Reflection;
 
 namespace AspectCore.DynamicProxy
@@ -15,13 +17,13 @@ namespace AspectCore.DynamicProxy
                 yield break;
             }
 
-            foreach (var attribute in implementationMethod.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
+            foreach (var attribute in GetCustomAttributesSafe(implementationMethod.DeclaringType.GetTypeInfo()))
             {
                 if (attribute is IInterceptor interceptor)
                     yield return interceptor;
             }
 
-            foreach (var attribute in implementationMethod.GetReflector().GetCustomAttributes())
+            foreach (var attribute in GetCustomAttributesSafe(implementationMethod))
             {
                 if (attribute is IInterceptor interceptor)
                     yield return interceptor;
@@ -47,13 +49,13 @@ namespace AspectCore.DynamicProxy
             var baseMethod = baseType.GetTypeInfo().GetMethodBySignature(new MethodSignature(implementationMethod));
             if (baseMethod != null)
             {
-                foreach (var attribute in baseMethod.DeclaringType.GetTypeInfo().GetReflector().GetCustomAttributes())
+                foreach (var attribute in GetCustomAttributesSafe(baseMethod.DeclaringType.GetTypeInfo()))
                 {
                     if (attribute is IInterceptor interceptor && interceptor.Inherited)
                         interceptors.Add(interceptor);
                 }
 
-                foreach (var attribute in baseMethod.GetReflector().GetCustomAttributes())
+                foreach (var attribute in GetCustomAttributesSafe(baseMethod))
                 {
                     if (attribute is IInterceptor interceptor && interceptor.Inherited)
                         interceptors.Add(interceptor);
@@ -63,6 +65,23 @@ namespace AspectCore.DynamicProxy
             }
 
             return interceptors;
+        }
+
+        private static IEnumerable<Attribute> GetCustomAttributesSafe(MemberInfo member)
+        {
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+            {
+                return member.GetCustomAttributes(true).OfType<Attribute>();
+            }
+            if (member is TypeInfo typeInfo)
+            {
+                return typeInfo.GetReflector().GetCustomAttributes();
+            }
+            if (member is MethodInfo method)
+            {
+                return method.GetReflector().GetCustomAttributes();
+            }
+            return member.GetCustomAttributes(true).OfType<Attribute>();
         }
     }
 }

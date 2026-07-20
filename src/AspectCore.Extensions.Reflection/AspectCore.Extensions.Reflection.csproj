@@ -8,7 +8,7 @@
 		<PackageId>AspectCore.Extensions.Reflection</PackageId>
 		<PackageTags>Reflection;Aop;DynamicProxy</PackageTags>
 		<PackageReleaseNotes>Reflection extension system for AspectCore Framework.</PackageReleaseNotes>
-		<TargetFrameworks>net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net10.0;net9.0;net8.0;net6.0</TargetFrameworks>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -16,12 +16,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-	</ItemGroup>
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
-		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
 	</ItemGroup>
 
 
