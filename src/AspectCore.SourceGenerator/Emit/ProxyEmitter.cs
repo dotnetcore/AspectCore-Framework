@@ -101,7 +101,7 @@ internal static class ProxyEmitter
         EmitValidatorHelpers(sb);
         sb.AppendLine();
 
-        EmitInterfaceProxyMembers(sb, compilation, entry.ServiceType, implementationType, proxyName, ifaceName);
+        EmitInterfaceProxyMembers(sb, compilation, entry.ServiceType, implementationType, proxyName, ifaceName, context);
 
         sb.AppendLine("    }");
         sb.AppendLine("}");
@@ -196,7 +196,7 @@ internal static class ProxyEmitter
         EmitValidatorHelpers(sb);
         sb.AppendLine();
 
-        EmitClassProxyMembers(sb, compilation, entry.ServiceType, entry.ImplementationType, proxyName, serviceName, isRecord);
+        EmitClassProxyMembers(sb, compilation, entry.ServiceType, entry.ImplementationType, proxyName, serviceName, isRecord, context);
 
         sb.AppendLine("    }");
         sb.AppendLine("}");
@@ -378,7 +378,7 @@ internal static class ProxyEmitter
         }
     }
 
-    private static void EmitInterfaceProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol iface, INamedTypeSymbol? implementationType, string proxyName, string ifaceName)
+    private static void EmitInterfaceProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol iface, INamedTypeSymbol? implementationType, string proxyName, string ifaceName, SourceProductionContext context)
     {
         // Collect methods and properties from this interface and all inherited interfaces.
         // Track the declaring interface type for each member so we can generate correct typeof() lookups.
@@ -404,6 +404,24 @@ internal static class ProxyEmitter
             }
         }
 
+        // Collect all methods that need delegate classes (methods + property accessors).
+        var delegateMethodList = new List<(IMethodSymbol Method, string MethodId)>();
+        foreach (var (m, _) in allMethods)
+        {
+            delegateMethodList.Add((m, GetMethodId(m)));
+            // ACSG0101: warn when an open generic method's delegate falls back to reflection
+            if (m.IsGenericMethod)
+            {
+                context.ReportDiagnostic(GeneratorDiagnostics.OpenGenericMethodNativeAotFallback(iface, m));
+            }
+        }
+        foreach (var (p, _) in allProps)
+        {
+            if (p.GetMethod is not null) delegateMethodList.Add((p.GetMethod, GetMethodId(p.GetMethod)));
+            if (p.SetMethod is not null) delegateMethodList.Add((p.SetMethod, GetMethodId(p.SetMethod)));
+        }
+        // delegateMethodList is used below for EmitInvokeDelegatesClass.
+
         // meta cache
         // Suppress IL2026/IL2070/IL2072/IL3050: members accessed via GetMethod are known at code-gen time.
         sb.AppendLine("        [global::System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(\"TrimAnalyzer\", \"IL2026:RequiresUnreferencedCode\", Justification = \"Members accessed via reflection are known at proxy generation time.\")]");
@@ -424,6 +442,9 @@ internal static class ProxyEmitter
 
         sb.AppendLine("        }");
         sb.AppendLine();
+
+        // __InvokeDelegates nested class with static singleton instances.
+        DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList);
 
         // properties
         foreach (var (prop, _) in allProps)
@@ -532,7 +553,7 @@ internal static class ProxyEmitter
         return SymbolEqualityComparer.Default.Equals(paramType, type);
     }
 
-    private static void EmitClassProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol serviceType, INamedTypeSymbol implType, string proxyName, string serviceName, bool isRecord)
+    private static void EmitClassProxyMembers(StringBuilder sb, Compilation compilation, INamedTypeSymbol serviceType, INamedTypeSymbol implType, string proxyName, string serviceName, bool isRecord, SourceProductionContext context)
     {
         var methods = serviceType.GetMembers().OfType<IMethodSymbol>()
             .Where(m => m.MethodKind == MethodKind.Ordinary)
@@ -543,6 +564,24 @@ internal static class ProxyEmitter
             .Where(p => (p.GetMethod is not null && IsOverridable(p.GetMethod)) || (p.SetMethod is not null && IsOverridable(p.SetMethod)))
             .Where(p => !RecordTypeUtils.IsRecordSynthesizedMember(serviceType, p, isRecord))
             .ToList();
+
+        // Collect all methods that need delegate classes.
+        var delegateMethodList = new List<(IMethodSymbol Method, string MethodId)>();
+        foreach (var m in methods)
+        {
+            delegateMethodList.Add((m, GetMethodId(m)));
+            // ACSG0101: warn when an open generic method's delegate falls back to reflection
+            if (m.IsGenericMethod)
+            {
+                context.ReportDiagnostic(GeneratorDiagnostics.OpenGenericMethodNativeAotFallback(serviceType, m));
+            }
+        }
+        foreach (var p in props)
+        {
+            if (p.GetMethod is not null) delegateMethodList.Add((p.GetMethod, GetMethodId(p.GetMethod)));
+            if (p.SetMethod is not null) delegateMethodList.Add((p.SetMethod, GetMethodId(p.SetMethod)));
+        }
+        // delegateMethodList is used below for EmitInvokeDelegatesClass.
 
         sb.AppendLine("        [global::System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(\"TrimAnalyzer\", \"IL2026:RequiresUnreferencedCode\", Justification = \"Members accessed via reflection are known at proxy generation time.\")]");
         sb.AppendLine("        [global::System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage(\"TrimAnalyzer\", \"IL2070:UnrecognizedReflectionPattern\", Justification = \"GetMethod uses known member names.\")]");
@@ -560,6 +599,14 @@ internal static class ProxyEmitter
         }
         sb.AppendLine("        }");
         sb.AppendLine();
+
+        // __InvokeDelegates nested class with static singleton instances.
+        // For class proxies, delegates use base-call trampolines to avoid virtual dispatch recursion.
+        // Include type parameters in proxy name for generic class proxies.
+        var proxyNameWithTypeParams = serviceType.IsGenericType
+            ? proxyName + "<" + string.Join(", ", serviceType.TypeParameters.Select(p => p.Name)) + ">"
+            : proxyName;
+        DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList, isClassProxy: true, proxyTypeName: proxyNameWithTypeParams);
 
         foreach (var prop in props)
         {
@@ -795,6 +842,7 @@ internal static class ProxyEmitter
                 serviceMethodField,
                 implMethodField,
                 proxyMethodField,
+                delegateFieldExpr: DelegateEmitter.GetDelegateFieldExpr(suffix),
                 directCall: prop.IsIndexer
                     ? $"{(isOverride ? "base" : "_implementation")}[{string.Join(", ", prop.Parameters.Select(p => p.Name))}]"
                     : $"{(isOverride ? "base" : "_implementation")}.{prop.Name}",
@@ -816,6 +864,7 @@ internal static class ProxyEmitter
                 serviceMethodField,
                 implMethodField,
                 proxyMethodField,
+                delegateFieldExpr: DelegateEmitter.GetDelegateFieldExpr(suffix),
                 directCall: directCall,
                 resolveImplementationMethodByInstance: implementationType is null,
                 interfaceStubTypeName: implementationType is null ? $"{proxyTypeName}__Stub" : null,
@@ -842,25 +891,34 @@ internal static class ProxyEmitter
         sb.AppendLine("        {");
 
         var suffix = GetMethodId(method);
-        EmitProxyInvokeBody(
+        var emittedClosingBrace = EmitProxyInvokeBody(
             sb,
             method,
             serviceMethodField: $"__Meta.Service_{suffix}",
             implMethodField: $"__Meta.Impl_{suffix}",
             proxyMethodField: $"__Meta.Proxy_{suffix}",
+            delegateFieldExpr: DelegateEmitter.GetDelegateFieldExpr(suffix),
             directCall: $"{callTargetExpr}{EmitGenericTypeArgumentList(method)}({string.Join(", ", method.Parameters.Select(EmitArgument))})",
             resolveImplementationMethodByInstance: implementationType is null,
             interfaceStubTypeName: implementationType is null ? $"{proxyTypeName}__Stub" : null);
 
-        sb.AppendLine("        }");
+        if (!emittedClosingBrace)
+        {
+            sb.AppendLine("        }");
+        }
     }
 
-    private static void EmitProxyInvokeBody(
+    /// <summary>
+    /// Emits the proxy invoke body. Returns true if it already emitted the closing brace
+    /// for the enclosing method (needed for async helpers that emit sibling methods).
+    /// </summary>
+    private static bool EmitProxyInvokeBody(
         StringBuilder sb,
         IMethodSymbol method,
         string serviceMethodField,
         string implMethodField,
         string proxyMethodField,
+        string delegateFieldExpr,
         string directCall,
         bool resolveImplementationMethodByInstance,
         string? interfaceStubTypeName,
@@ -930,92 +988,82 @@ internal static class ProxyEmitter
         sb.AppendLine("                this,");
         sb.AppendLine("                __args);");
         sb.AppendLine();
+        sb.AppendLine($"            var __delegate = {delegateFieldExpr};");
+        sb.AppendLine();
 
-        // ── Optimized inline activation ──────────────────────────────────
-        // Skip _activatorFactory.Create() + AspectActivator.Invoke<T>() path.
-        // Instead, directly create context, get cached builder, invoke pipeline,
-        // and handle result — all inline to avoid the AspectActivator allocation.
+        // ── Unified inline activation with IAspectInvokeDelegate ──────────
+        // All return kinds (sync, async Task/Task<T>, ValueTask/ValueTask<T>,
+        // IAsyncEnumerable<T>) use inline activation that calls the 2-arg
+        // CreateContext(ctx, delegate) DIM overload. This eliminates the need
+        // for AspectActivator in generated code and enables NativeAOT-safe AOP.
         var rk = ReturnKind.Determine(method);
-        var isAsync = rk is ReturnKindKind.Task or ReturnKindKind.TaskOfT
-            or ReturnKindKind.ValueTask or ReturnKindKind.ValueTaskOfT
-            or ReturnKindKind.AsyncEnumerable;
 
-        // Emit "async" modifier for async return kinds so we can await the pipeline.
-        // This requires re-emitting the method signature with async... but we already
-        // emitted it above. Instead, we handle async by wrapping in a helper pattern.
-        // For simplicity: sync methods get full inline activation; async methods use
-        // a lightweight path that still avoids AspectActivator allocation.
+        switch (rk)
+        {
+            case ReturnKindKind.Void:
+            case ReturnKindKind.Sync:
+            case ReturnKindKind.RefSync:
+                EmitSyncInlineActivation(sb, method, rk);
+                return false; // caller emits closing brace
+            case ReturnKindKind.Task:
+            case ReturnKindKind.TaskOfT:
+                EmitAsyncTaskInlineActivation(sb, method, rk);
+                return true; // already emitted closing brace + helper method
+            case ReturnKindKind.ValueTask:
+            case ReturnKindKind.ValueTaskOfT:
+                EmitAsyncValueTaskInlineActivation(sb, method, rk);
+                return true; // already emitted closing brace + helper method
+            case ReturnKindKind.AsyncEnumerable:
+                EmitAsyncEnumerableInlineActivation(sb, method);
+                return true; // already emitted closing brace + helper methods
+            default:
+                return false;
+        }
+    }
 
-        if (isAsync)
+    private static void EmitSyncInlineActivation(StringBuilder sb, IMethodSymbol method, ReturnKindKind rk)
+    {
+        var argCount = method.Parameters.Length;
+        if (rk == ReturnKindKind.Sync)
         {
-            // Async path: use cached activator instance (AspectActivator is stateless, safe to reuse).
-            sb.AppendLine("            var __activator = _cachedActivator ?? (_cachedActivator = _activatorFactory.Create());");
-            switch (rk)
-            {
-                case ReturnKindKind.Task:
-                    sb.AppendLine("            var __task = __activator.InvokeTask<object>(__ctx);");
-                    break;
-                case ReturnKindKind.TaskOfT:
-                    sb.AppendLine($"            var __task = __activator.InvokeTask<{GetTaskInnerType(method.ReturnType)}>(__ctx);");
-                    break;
-                case ReturnKindKind.ValueTask:
-                    sb.AppendLine("            var __vt = __activator.InvokeValueTask<object>(__ctx);");
-                    break;
-                case ReturnKindKind.ValueTaskOfT:
-                    sb.AppendLine($"            var __vt = __activator.InvokeValueTask<{GetValueTaskInnerType(method.ReturnType)}>(__ctx);");
-                    break;
-                case ReturnKindKind.AsyncEnumerable:
-                    sb.AppendLine($"            var __asyncEnumerable = __activator.InvokeAsyncEnumerable<{GetAsyncEnumerableInnerType(method.ReturnType)}>(__ctx);");
-                    break;
-            }
+            sb.AppendLine($"            {method.ReturnType.ToGlobalName()} __ret = default;");
         }
-        else
+        else if (rk == ReturnKindKind.RefSync)
         {
-            // Sync path: fully inline activation to avoid AspectActivator allocation.
-            if (rk == ReturnKindKind.Sync)
-            {
-                sb.AppendLine($"            {method.ReturnType.ToGlobalName()} __ret = default;");
-            }
-            else if (rk == ReturnKindKind.RefSync)
-            {
-                // ref / ref readonly return: the value-based pipeline yields a value that
-                // must be materialised into a StrongBox<T> so its field can be returned by
-                // ref (the managed pointer must outlive this proxy method).
-                sb.AppendLine($"            var __refBox = new global::System.Runtime.CompilerServices.StrongBox<{method.ReturnType.ToGlobalName()}>();");
-            }
-            sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx);");
-            sb.AppendLine("            try");
-            sb.AppendLine("            {");
-            sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
-            sb.AppendLine("                var __pipeline = __builder.Build();");
-            sb.AppendLine("                var __invokeTask = __pipeline(__context);");
-            sb.AppendLine("                if (__invokeTask.IsFaulted)");
-            sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
-            sb.AppendLine("                if (!__invokeTask.IsCompleted)");
-            sb.AppendLine("                    global::AspectCore.Utils.NoSyncContextScope.Run(__invokeTask);");
-            if (rk == ReturnKindKind.Sync)
-            {
-                sb.AppendLine($"                __ret = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
-            }
-            else if (rk == ReturnKindKind.RefSync)
-            {
-                sb.AppendLine($"                __refBox.Value = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
-            }
-            sb.AppendLine("            }");
-            sb.AppendLine("            catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
-            sb.AppendLine("            {");
-            sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
-            sb.AppendLine("                throw;");
-            sb.AppendLine("            }");
-            sb.AppendLine("            catch (global::System.Exception __ex)");
-            sb.AppendLine("            {");
-            sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
-            sb.AppendLine("                if (_aspectConfiguration != null && _aspectConfiguration.ThrowAspectException)");
-            sb.AppendLine("                    throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, __ex);");
-            sb.AppendLine("                throw;");
-            sb.AppendLine("            }");
-            sb.AppendLine("            _aspectContextFactory.ReleaseContext(__context);");
+            sb.AppendLine($"            var __refBox = new global::System.Runtime.CompilerServices.StrongBox<{method.ReturnType.ToGlobalName()}>();");
         }
+        sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
+        sb.AppendLine("            try");
+        sb.AppendLine("            {");
+        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
+        sb.AppendLine("                var __pipeline = __builder.Build();");
+        sb.AppendLine("                var __invokeTask = __pipeline(__context);");
+        sb.AppendLine("                if (__invokeTask.IsFaulted)");
+        sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
+        sb.AppendLine("                if (!__invokeTask.IsCompleted)");
+        sb.AppendLine("                    global::AspectCore.Utils.NoSyncContextScope.Run(__invokeTask);");
+        if (rk == ReturnKindKind.Sync)
+        {
+            sb.AppendLine($"                __ret = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
+        }
+        else if (rk == ReturnKindKind.RefSync)
+        {
+            sb.AppendLine($"                __refBox.Value = ({method.ReturnType.ToGlobalName()})__context.ReturnValue;");
+        }
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::System.Exception __ex)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("                if (_aspectConfiguration != null && _aspectConfiguration.ThrowAspectException)");
+        sb.AppendLine("                    throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, __ex);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            _aspectContextFactory.ReleaseContext(__context);");
 
         // write back ref/out
         for (var i = 0; i < argCount; i++)
@@ -1031,22 +1079,6 @@ internal static class ProxyEmitter
         switch (rk)
         {
             case ReturnKindKind.Void:
-                sb.AppendLine("            return;");
-                break;
-            case ReturnKindKind.Task:
-                sb.AppendLine("            return __task; // Task<object> upcast to Task");
-                break;
-            case ReturnKindKind.TaskOfT:
-                sb.AppendLine("            return __task;");
-                break;
-            case ReturnKindKind.ValueTask:
-                sb.AppendLine("            return new ValueTask(__vt.AsTask());");
-                break;
-            case ReturnKindKind.ValueTaskOfT:
-                sb.AppendLine("            return __vt;");
-                break;
-            case ReturnKindKind.AsyncEnumerable:
-                sb.AppendLine("            return __asyncEnumerable;");
                 break;
             case ReturnKindKind.Sync:
                 sb.AppendLine("            return __ret;");
@@ -1055,6 +1087,282 @@ internal static class ProxyEmitter
                 sb.AppendLine("            return ref __refBox.Value;");
                 break;
         }
+    }
+
+    private static void EmitAsyncTaskInlineActivation(StringBuilder sb, IMethodSymbol method, ReturnKindKind rk)
+    {
+        var argCount = method.Parameters.Length;
+        var innerType = rk == ReturnKindKind.TaskOfT ? GetTaskInnerType(method.ReturnType) : "object";
+
+        // Async Task/Task<T> path: inline helper method to keep method non-async.
+        var helperSuffix = GetMethodId(method);
+        var helperName = $"__InvokeTaskAsync_{helperSuffix}";
+
+        // Emit call to helper (write-back ref/out must happen synchronously before returning the task,
+        // but for async methods ref/out parameters are not valid in C#, so we skip write-back here).
+        // Note: C# does not allow ref/out parameters on async methods, so argCount ref/out is always 0 here.
+
+        sb.AppendLine($"            return {helperName}(__ctx, __delegate, __serviceMethod, __implMethod);");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+
+        // Emit the async helper method.
+        if (rk == ReturnKindKind.TaskOfT)
+        {
+            sb.AppendLine($"        private async {method.ReturnType.ToGlobalName()} {helperName}(");
+        }
+        else
+        {
+            sb.AppendLine($"        private async global::System.Threading.Tasks.Task {helperName}(");
+        }
+        sb.AppendLine("            global::AspectCore.DynamicProxy.AspectActivatorContext __ctx,");
+        sb.AppendLine("            global::AspectCore.DynamicProxy.IAspectInvokeDelegate __delegate,");
+        sb.AppendLine("            global::System.Reflection.MethodInfo __serviceMethod,");
+        sb.AppendLine("            global::System.Reflection.MethodInfo __implMethod)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
+        sb.AppendLine("            try");
+        sb.AppendLine("            {");
+        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
+        sb.AppendLine("                var __pipeline = __builder.Build();");
+        sb.AppendLine("                var __invokeTask = __pipeline(__context);");
+        sb.AppendLine("                if (__invokeTask.IsFaulted)");
+        sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
+        sb.AppendLine("                if (!__invokeTask.IsCompleted)");
+        sb.AppendLine("                    await __invokeTask;");
+
+        if (rk == ReturnKindKind.TaskOfT)
+        {
+            sb.AppendLine("                switch (__context.ReturnValue)");
+            sb.AppendLine("                {");
+            sb.AppendLine("                    case null:");
+            sb.AppendLine($"                        return default({innerType});");
+            sb.AppendLine($"                    case global::System.Threading.Tasks.Task<{innerType}> __taskWithResult:");
+            sb.AppendLine("                        return await __taskWithResult;");
+            sb.AppendLine("                    case global::System.Threading.Tasks.Task __plainTask:");
+            sb.AppendLine("                        await __plainTask;");
+            sb.AppendLine($"                        return default({innerType});");
+            sb.AppendLine("                    default:");
+            sb.AppendLine($"                        throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, new global::System.InvalidCastException(\"Unable to cast object of type '\" + __context.ReturnValue.GetType() + \"' to type 'Task<{innerType}>'\"));");
+            sb.AppendLine("                }");
+        }
+        else
+        {
+            // Task (non-generic): just await the return value if it's a task.
+            sb.AppendLine("                switch (__context.ReturnValue)");
+            sb.AppendLine("                {");
+            sb.AppendLine("                    case null:");
+            sb.AppendLine("                        break;");
+            sb.AppendLine("                    case global::System.Threading.Tasks.Task __resultTask:");
+            sb.AppendLine("                        await __resultTask;");
+            sb.AppendLine("                        break;");
+            sb.AppendLine("                }");
+        }
+
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::System.Exception __ex)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("                if (_aspectConfiguration != null && _aspectConfiguration.ThrowAspectException)");
+        sb.AppendLine("                    throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, __ex);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("        }");
+    }
+
+    private static void EmitAsyncValueTaskInlineActivation(StringBuilder sb, IMethodSymbol method, ReturnKindKind rk)
+    {
+        var argCount = method.Parameters.Length;
+        var innerType = rk == ReturnKindKind.ValueTaskOfT ? GetValueTaskInnerType(method.ReturnType) : "object";
+
+        // Use a local async function pattern to avoid method signature issues.
+        var helperSuffix = GetMethodId(method);
+        var helperName = $"__InvokeValueTaskAsync_{helperSuffix}";
+
+        sb.AppendLine($"            return {helperName}(__ctx, __delegate, __serviceMethod, __implMethod);");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+
+        // Emit async helper method.
+        if (rk == ReturnKindKind.ValueTaskOfT)
+        {
+            sb.AppendLine($"        private async {method.ReturnType.ToGlobalName()} {helperName}(");
+        }
+        else
+        {
+            sb.AppendLine($"        private async global::System.Threading.Tasks.ValueTask {helperName}(");
+        }
+        sb.AppendLine("            global::AspectCore.DynamicProxy.AspectActivatorContext __ctx,");
+        sb.AppendLine("            global::AspectCore.DynamicProxy.IAspectInvokeDelegate __delegate,");
+        sb.AppendLine("            global::System.Reflection.MethodInfo __serviceMethod,");
+        sb.AppendLine("            global::System.Reflection.MethodInfo __implMethod)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
+        sb.AppendLine("            try");
+        sb.AppendLine("            {");
+        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
+        sb.AppendLine("                var __pipeline = __builder.Build();");
+        sb.AppendLine("                var __invokeTask = __pipeline(__context);");
+        sb.AppendLine("                if (__invokeTask.IsFaulted)");
+        sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
+        sb.AppendLine("                if (!__invokeTask.IsCompleted)");
+        sb.AppendLine("                    await __invokeTask;");
+
+        if (rk == ReturnKindKind.ValueTaskOfT)
+        {
+            sb.AppendLine("                switch (__context.ReturnValue)");
+            sb.AppendLine("                {");
+            sb.AppendLine("                    case null:");
+            sb.AppendLine($"                        return default({innerType});");
+            sb.AppendLine($"                    case global::System.Threading.Tasks.ValueTask<{innerType}> __vtWithResult:");
+            sb.AppendLine("                        return await __vtWithResult;");
+            sb.AppendLine("                    case global::System.Threading.Tasks.ValueTask __plainVt:");
+            sb.AppendLine("                        await __plainVt;");
+            sb.AppendLine($"                        return default({innerType});");
+            sb.AppendLine("                    default:");
+            sb.AppendLine($"                        throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, new global::System.InvalidCastException(\"Unable to cast object of type '\" + __context.ReturnValue.GetType() + \"' to type 'ValueTask<{innerType}>'\"));");
+            sb.AppendLine("                }");
+        }
+        else
+        {
+            sb.AppendLine("                switch (__context.ReturnValue)");
+            sb.AppendLine("                {");
+            sb.AppendLine("                    case null:");
+            sb.AppendLine("                        break;");
+            sb.AppendLine("                    case global::System.Threading.Tasks.ValueTask __resultVt:");
+            sb.AppendLine("                        await __resultVt;");
+            sb.AppendLine("                        break;");
+            sb.AppendLine("                    case global::System.Threading.Tasks.Task __resultTask:");
+            sb.AppendLine("                        await __resultTask;");
+            sb.AppendLine("                        break;");
+            sb.AppendLine("                }");
+        }
+
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::System.Exception __ex)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("                if (_aspectConfiguration != null && _aspectConfiguration.ThrowAspectException)");
+        sb.AppendLine("                    throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, __ex);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("        }");
+    }
+
+    private static void EmitAsyncEnumerableInlineActivation(StringBuilder sb, IMethodSymbol method)
+    {
+        var innerType = GetAsyncEnumerableInnerType(method.ReturnType);
+        var helperSuffix = GetMethodId(method);
+        var pipelineHelperName = $"__CreateAsyncEnumerable_{helperSuffix}";
+        var iteratorHelperName = $"__InvokeAsyncEnumerable_{helperSuffix}";
+
+        // Two-layer split:
+        // Layer 1: iterator method (yield return) with try/finally for context release.
+        // Layer 2: pipeline execution helper with try/catch for exception wrapping.
+        sb.AppendLine($"            return {iteratorHelperName}(__ctx, __delegate, __serviceMethod, __implMethod);");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+
+        // Layer 2: pipeline execution helper (async Task that returns the IAsyncEnumerable).
+        sb.AppendLine($"        private async global::System.Threading.Tasks.Task<global::System.Collections.Generic.IAsyncEnumerable<{innerType}>> {pipelineHelperName}(");
+        sb.AppendLine("            global::AspectCore.DynamicProxy.AspectContext __context)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            try");
+        sb.AppendLine("            {");
+        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__context.ServiceMethod, __context.ImplementationMethod, __context.ServiceMethod);");
+        sb.AppendLine("                var __pipeline = __builder.Build();");
+        sb.AppendLine("                var __invokeTask = __pipeline(__context);");
+        sb.AppendLine("                if (__invokeTask.IsFaulted)");
+        sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
+        sb.AppendLine("                if (!__invokeTask.IsCompleted)");
+        sb.AppendLine("                    await __invokeTask;");
+        sb.AppendLine("                switch (__context.ReturnValue)");
+        sb.AppendLine("                {");
+        sb.AppendLine("                    case null:");
+        sb.AppendLine("                        return null;");
+        sb.AppendLine($"                    case global::System.Collections.Generic.IAsyncEnumerable<{innerType}> __asyncEnumerable:");
+        sb.AppendLine("                        return __asyncEnumerable;");
+        sb.AppendLine("                    default:");
+        sb.AppendLine($"                        throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, new global::System.InvalidCastException(\"Unable to cast object of type '\" + __context.ReturnValue.GetType() + \"' to type 'IAsyncEnumerable<{innerType}>'\"));");
+        sb.AppendLine("                }");
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("            catch (global::System.Exception __ex)");
+        sb.AppendLine("            {");
+        sb.AppendLine("                if (_aspectConfiguration != null && _aspectConfiguration.ThrowAspectException)");
+        sb.AppendLine("                    throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, __ex);");
+        sb.AppendLine("                throw;");
+        sb.AppendLine("            }");
+        sb.AppendLine("        }");
+        sb.AppendLine();
+
+        // Layer 1: iterator method with try/finally for cleanup.
+        sb.AppendLine($"        private async global::System.Collections.Generic.IAsyncEnumerable<{innerType}> {iteratorHelperName}(");
+        sb.AppendLine("            global::AspectCore.DynamicProxy.AspectActivatorContext __ctx,");
+        sb.AppendLine("            global::AspectCore.DynamicProxy.IAspectInvokeDelegate __delegate,");
+        sb.AppendLine("            global::System.Reflection.MethodInfo __serviceMethod,");
+        sb.AppendLine("            global::System.Reflection.MethodInfo __implMethod,");
+        sb.AppendLine("            [global::System.Runtime.CompilerServices.EnumeratorCancellation] global::System.Threading.CancellationToken __cancellationToken = default)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
+        sb.AppendLine("            try");
+        sb.AppendLine("            {");
+        sb.AppendLine($"                var __asyncEnumerable = await {pipelineHelperName}(__context);");
+        sb.AppendLine("                if (__asyncEnumerable == null)");
+        sb.AppendLine("                {");
+        sb.AppendLine("                    yield break;");
+        sb.AppendLine("                }");
+        sb.AppendLine();
+        sb.AppendLine("                var __enumerator = __asyncEnumerable.WithCancellation(__cancellationToken).GetAsyncEnumerator();");
+        sb.AppendLine("                try");
+        sb.AppendLine("                {");
+        sb.AppendLine("                    while (true)");
+        sb.AppendLine("                    {");
+        sb.AppendLine($"                        {innerType} __item;");
+        sb.AppendLine("                        try");
+        sb.AppendLine("                        {");
+        sb.AppendLine("                            if (!await __enumerator.MoveNextAsync())");
+        sb.AppendLine("                                break;");
+        sb.AppendLine("                            __item = __enumerator.Current;");
+        sb.AppendLine("                        }");
+        sb.AppendLine("                        catch (global::AspectCore.DynamicProxy.AspectInvocationException)");
+        sb.AppendLine("                        {");
+        sb.AppendLine("                            throw;");
+        sb.AppendLine("                        }");
+        sb.AppendLine("                        catch (global::System.Exception __ex)");
+        sb.AppendLine("                        {");
+        sb.AppendLine("                            if (_aspectConfiguration != null && _aspectConfiguration.ThrowAspectException)");
+        sb.AppendLine("                                throw new global::AspectCore.DynamicProxy.AspectInvocationException(__context, __ex);");
+        sb.AppendLine("                            throw;");
+        sb.AppendLine("                        }");
+        sb.AppendLine("                        yield return __item;");
+        sb.AppendLine("                    }");
+        sb.AppendLine("                }");
+        sb.AppendLine("                finally");
+        sb.AppendLine("                {");
+        sb.AppendLine("                    await __enumerator.DisposeAsync();");
+        sb.AppendLine("                }");
+        sb.AppendLine("            }");
+        sb.AppendLine("            finally");
+        sb.AppendLine("            {");
+        sb.AppendLine("                _aspectContextFactory.ReleaseContext(__context);");
+        sb.AppendLine("            }");
+        sb.AppendLine("        }");
     }
 
     private static void EmitArgumentsArray(StringBuilder sb, IMethodSymbol method, string indent, string variableName)
