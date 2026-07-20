@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\sign.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <RootNamespace>AspectCore.NativeAot.E2E</RootNamespace>
+    <AssemblyName>AspectCore.NativeAot.E2E</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <!-- Suppress trimming warnings from AspectCore runtime code that is intentionally not AOT-safe -->
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <!-- Preserve metadata for reflection-based constructor lookup in the AOT compiled binary -->
+    <IlcTrimMetadata>false</IlcTrimMetadata>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\..\src\AspectCore.Extensions.DependencyInjection\AspectCore.Extensions.DependencyInjection.csproj" />
+    <!-- Source generator referenced as analyzer for compile-time proxy generation -->
+    <ProjectReference Include="..\..\src\AspectCore.SourceGenerator\AspectCore.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Preserve reflection metadata for proxy constructor resolution in NativeAOT -->
+    <RdXmlFile Include="rd.xml" />
+  </ItemGroup>
+</Project>
