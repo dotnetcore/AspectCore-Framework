@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\AspectCore.Core\AspectCore.Core.csproj" />
+    <ProjectReference Include="..\..\src\AspectCore.Extensions.DependencyInjection\AspectCore.Extensions.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\AspectCore.SourceGenerator\AspectCore.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

@@ -1,0 +1,5 @@
+# Benchmark results are machine-specific and should not be committed
+# Exception: baseline.json is tracked for CI regression detection
+*
+!.gitignore
+!baseline.json
