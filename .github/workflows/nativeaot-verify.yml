@@ -1,0 +1,40 @@
+name: NativeAOT Verify
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+  pull_request:
+    branches: ['**']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+
+jobs:
+  nativeaot-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore tests/AspectCore.NativeAot.E2E/AspectCore.NativeAot.E2E.csproj
+
+      - name: Build solution
+        run: dotnet build AspectCore-Framework.sln -c Release --no-restore
+
+      - name: Publish NativeAOT E2E (self-contained AOT binary)
+        run: dotnet publish tests/AspectCore.NativeAot.E2E/AspectCore.NativeAot.E2E.csproj -c Release -o ./publish-aot
+
+      - name: Run NativeAOT E2E binary
+        run: ./publish-aot/AspectCore.NativeAot.E2E
+
+      - name: Verify exit code
+        if: failure()
+        run: echo "NativeAOT E2E tests failed" && exit 1
