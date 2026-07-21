@@ -22,12 +22,13 @@ internal static class DelegateEmitter
         StringBuilder sb,
         IReadOnlyList<(IMethodSymbol Method, string MethodId)> methods,
         bool isClassProxy = false,
-        string proxyTypeName = null)
+        string proxyTypeName = null,
+        Compilation compilation = null)
     {
         // First emit individual delegate implementation classes (nested inside proxy).
         foreach (var (method, methodId) in methods)
         {
-            EmitSingleDelegateClass(sb, method, methodId, isClassProxy, proxyTypeName);
+            EmitSingleDelegateClass(sb, method, methodId, isClassProxy, proxyTypeName, compilation);
             sb.AppendLine();
         }
 
@@ -64,7 +65,8 @@ internal static class DelegateEmitter
         IMethodSymbol method,
         string methodId,
         bool isClassProxy = false,
-        string proxyTypeName = null)
+        string proxyTypeName = null,
+        Compilation compilation = null)
     {
         var delegateClassName = GetDelegateClassName(methodId);
         // For class proxies, the delegate calls a trampoline on the proxy (to do base.Method()).
@@ -91,6 +93,8 @@ internal static class DelegateEmitter
             // Class proxy: for init-only property setters, use MethodReflector with Call
             // (non-virtual dispatch) because we cannot generate a base.Prop = value trampoline
             // for init-only properties, and MethodBase.Invoke dispatches virtually causing recursion.
+            // NOTE: UnsafeAccessor cannot be used here because it still dispatches virtually
+            // for overridden members on derived types, causing stack overflow.
             if (isPropertyAccessor && method.MethodKind == MethodKind.PropertySet && method.IsInitOnly)
             {
                 EmitReflectorFallbackBody(sb, method);
@@ -102,7 +106,7 @@ internal static class DelegateEmitter
         }
         else if (isPropertyAccessor)
         {
-            EmitPropertyAccessorBody(sb, method, targetTypeName);
+            EmitPropertyAccessorBody(sb, method, targetTypeName, compilation);
         }
         else
         {
@@ -110,7 +114,27 @@ internal static class DelegateEmitter
         }
 
         sb.AppendLine("            }");
+
+        // Emit UnsafeAccessor helper method inside the delegate class for interface proxy
+        // init-only property setters when the target compilation supports it (.NET 8+).
+        if (!isClassProxy && isPropertyAccessor
+            && method.MethodKind == MethodKind.PropertySet && method.IsInitOnly
+            && compilation != null && SupportsUnsafeAccessor(compilation))
+        {
+            sb.AppendLine();
+            EmitUnsafeAccessorStaticMethod(sb, method);
+        }
+
         sb.AppendLine("        }");
+    }
+
+    /// <summary>
+    /// Determines whether the target compilation supports [UnsafeAccessor] (.NET 8+).
+    /// Checks for the presence of System.Runtime.CompilerServices.UnsafeAccessorAttribute.
+    /// </summary>
+    private static bool SupportsUnsafeAccessor(Compilation compilation)
+    {
+        return compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.UnsafeAccessorAttribute") != null;
     }
 
     private static void EmitGenericMethodBody(StringBuilder sb, IMethodSymbol method, string targetTypeName)
@@ -151,7 +175,36 @@ internal static class DelegateEmitter
         sb.AppendLine($"                return __reflector.Invoke(instance, parameters);");
     }
 
-    private static void EmitPropertyAccessorBody(StringBuilder sb, IMethodSymbol method, string targetTypeName)
+    /// <summary>
+    /// Emits the delegate body for interface proxy init-only setters on .NET 8+ using [UnsafeAccessor].
+    /// Calls the generated static extern method instead of PropertyInfo.SetMethod.Invoke reflection.
+    /// </summary>
+    private static void EmitUnsafeAccessorInitSetterBody(StringBuilder sb, IMethodSymbol method, string targetTypeName)
+    {
+        var valueParam = method.Parameters[0];
+        var valueTypeName = valueParam.Type.ToGlobalName();
+        sb.AppendLine($"                // Init-only setter on interface proxy (.NET 8+): use [UnsafeAccessor] for");
+        sb.AppendLine($"                // direct non-virtual dispatch without reflection overhead.");
+        sb.AppendLine($"                __UnsafeSetInit(({targetTypeName})instance, ({valueTypeName})parameters[0]);");
+        sb.AppendLine($"                return null;");
+    }
+
+    /// <summary>
+    /// Emits the [UnsafeAccessor] static extern method inside the delegate class.
+    /// Used for interface proxy init-only property setters on .NET 8+.
+    /// </summary>
+    private static void EmitUnsafeAccessorStaticMethod(StringBuilder sb, IMethodSymbol method)
+    {
+        var targetTypeName = method.ContainingType.ToGlobalName();
+        var valueParam = method.Parameters[0];
+        var valueTypeName = valueParam.Type.ToGlobalName();
+        var setterName = method.Name; // e.g., "set_PropertyName"
+
+        sb.AppendLine($"            [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{setterName}\")]");
+        sb.AppendLine($"            private static extern void __UnsafeSetInit({targetTypeName} target, {valueTypeName} value);");
+    }
+
+    private static void EmitPropertyAccessorBody(StringBuilder sb, IMethodSymbol method, string targetTypeName, Compilation compilation = null)
     {
         // Find the associated property.
         var prop = (IPropertySymbol)method.AssociatedSymbol!;
@@ -202,15 +255,24 @@ internal static class DelegateEmitter
             {
                 // Setter/init: value is the first (and only) parameter.
                 // Init-only setters cannot be called directly from outside a
-                // constructor/init context. Use reflection for init-only properties.
+                // constructor/init context.
                 var valueParam = method.Parameters[0];
                 if (method.IsInitOnly)
                 {
-                    // Use reflection to invoke the init setter.
-                    sb.AppendLine($"                typeof({targetTypeName}).GetProperty(\"{prop.Name}\",");
-                    sb.AppendLine($"                    global::System.Reflection.BindingFlags.Instance | global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.NonPublic)");
-                    sb.AppendLine($"                    .SetMethod.Invoke(instance, new object[] {{ ({valueParam.Type.ToGlobalName()})parameters[0] }});");
-                    sb.AppendLine("                return null;");
+                    // On .NET 8+, use [UnsafeAccessor] for direct non-virtual dispatch.
+                    // On older TFMs, fall back to reflection.
+                    if (compilation != null && SupportsUnsafeAccessor(compilation))
+                    {
+                        EmitUnsafeAccessorInitSetterBody(sb, method, targetTypeName);
+                    }
+                    else
+                    {
+                        // Use reflection to invoke the init setter.
+                        sb.AppendLine($"                typeof({targetTypeName}).GetProperty(\"{prop.Name}\",");
+                        sb.AppendLine($"                    global::System.Reflection.BindingFlags.Instance | global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.NonPublic)");
+                        sb.AppendLine($"                    .SetMethod.Invoke(instance, new object[] {{ ({valueParam.Type.ToGlobalName()})parameters[0] }});");
+                        sb.AppendLine("                return null;");
+                    }
                 }
                 else
                 {
