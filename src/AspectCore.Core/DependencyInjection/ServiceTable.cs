@@ -129,7 +129,7 @@ namespace AspectCore.DependencyInjection
             {
                 if (serviceKey == null)
                 {
-                    return value[value.Count - 1];
+                    return PreferProxy(value);
                 }
 
                 ServiceDefinition matched = null;
@@ -168,7 +168,7 @@ namespace AspectCore.DependencyInjection
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
-                return value[value.Count - 1];
+                return PreferProxy(value);
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             var elements = FindEnumerableElements(serviceType);
@@ -181,7 +181,7 @@ namespace AspectCore.DependencyInjection
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
-                return value[value.Count - 1];
+                return PreferProxy(value);
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             var elements = FindEnumerableElements(serviceType);
@@ -212,7 +212,7 @@ namespace AspectCore.DependencyInjection
             {
                 if (serviceKey == null)
                 {
-                    return value[value.Count - 1];
+                    return PreferProxy(value);
                 }
 
                 ServiceDefinition matched = null;
@@ -274,6 +274,23 @@ namespace AspectCore.DependencyInjection
                 default:
                     return null;
             }
+        }
+
+        /// <summary>
+        /// Returns the last ProxyServiceDefinition in the list if one exists; otherwise the last item.
+        /// This ensures that a proxy registration is not inadvertently overwritten by a later
+        /// non-proxy registration for the same service type (Issue #331).
+        /// </summary>
+        private static ServiceDefinition PreferProxy(List<ServiceDefinition> definitions)
+        {
+            for (var i = definitions.Count - 1; i >= 0; i--)
+            {
+                if (definitions[i] is ProxyServiceDefinition)
+                {
+                    return definitions[i];
+                }
+            }
+            return definitions[definitions.Count - 1];
         }
 
         private ServiceDefinition MakProxyService(ServiceDefinition service)
