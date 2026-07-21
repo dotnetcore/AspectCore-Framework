@@ -1,10 +1,10 @@
 <Project>
   <PropertyGroup>
-    <VersionMajor>2</VersionMajor>
-    <VersionMinor>7</VersionMinor>
+    <VersionMajor>3</VersionMajor>
+    <VersionMinor>0</VersionMinor>
     <VersionPatch>0</VersionPatch>
-    <VersionQuality>
-    </VersionQuality>
+    <VersionQuality>beta.1</VersionQuality>
     <VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
+    <VersionSuffix Condition="'$(VersionQuality)' != ''">$(VersionQuality)</VersionSuffix>
   </PropertyGroup>
 </Project>
