@@ -10,7 +10,7 @@ namespace AspectCore.DependencyInjection
     internal sealed class ServiceResolver : IServiceResolver, IServiceResolveCallbackProvider
     {
         private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedScopedServices;
-        private readonly ConcurrentDictionary<ServiceDefinition, object> _resolvedSingletonServices;
+        private readonly ConcurrentDictionary<ServiceDefinition, Lazy<object>> _resolvedSingletonServices;
         private readonly ServiceTable _serviceTable;
         private readonly ServiceCallSiteResolver _serviceCallSiteResolver;
         internal readonly ServiceResolver _root;
@@ -20,7 +20,7 @@ namespace AspectCore.DependencyInjection
             _serviceTable = new ServiceTable(serviceContext);
             _serviceTable.Populate(serviceContext);
             _resolvedScopedServices = new ConcurrentDictionary<ServiceDefinition, object>();
-            _resolvedSingletonServices = new ConcurrentDictionary<ServiceDefinition, object>();
+            _resolvedSingletonServices = new ConcurrentDictionary<ServiceDefinition, Lazy<object>>();
             _serviceCallSiteResolver = new ServiceCallSiteResolver(_serviceTable);
             ServiceResolveCallbacks = this.ResolveMany<IServiceResolveCallback>().ToArray();
         }
@@ -64,11 +64,10 @@ namespace AspectCore.DependencyInjection
             switch (definition.Lifetime)
             {
                 case Lifetime.Singleton:
-                    if (_resolvedSingletonServices.TryGetValue(definition, out var singleton))
-                    {
-                        return singleton;
-                    }
-                    return _resolvedSingletonServices.GetOrAdd(definition, static (d, state) => state.callSiteResolver.Resolve(d)(state.resolver), (callSiteResolver: _serviceCallSiteResolver, resolver: _root ?? this));
+                    var lazy = _resolvedSingletonServices.GetOrAdd(definition,
+                        static (d, state) => new Lazy<object>(() => state.callSiteResolver.Resolve(d)(state.resolver)),
+                        (callSiteResolver: _serviceCallSiteResolver, resolver: _root ?? this));
+                    return lazy.Value;
                 case Lifetime.Scoped:
                     if (_resolvedScopedServices.TryGetValue(definition, out var scoped))
                     {
@@ -111,9 +110,9 @@ namespace AspectCore.DependencyInjection
                     disposedValue = true;
                     if (_root == null || _root == this)
                     {
-                        foreach (var singleton in _resolvedSingletonServices.Where(x => x.Value != this))
+                        foreach (var singleton in _resolvedSingletonServices.Where(x => x.Value.IsValueCreated && x.Value.Value != this))
                         {
-                            var disposable = singleton.Value as IDisposable;
+                            var disposable = singleton.Value.Value as IDisposable;
                             disposable?.Dispose();
                         }
                     }
