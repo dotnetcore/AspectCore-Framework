@@ -102,16 +102,19 @@ namespace AspectCore.DynamicProxy
             // 'System.ValueType' does not contain a definition for 'GetAwaiter'.
             // So we have to convert ValueTask<T> to Task and then await it.
             // Please fix this logic if there is a better solution.
-            var func = _asTaskFuncCache.GetOrAdd(valueTypeInfo, k =>
+            if (!_asTaskFuncCache.TryGetValue(valueTypeInfo, out var func))
             {
-                var parameter = Expression.Parameter(typeof(object), "type");
-                var convertedParameter = Expression.Convert(parameter, k);
-                var method = k.GetMethod(nameof(ValueTask<int>.AsTask));
-                var property = Expression.Call(convertedParameter, method);
-                var convertedProperty = Expression.Convert(property, typeof(Task));
-                var exp = Expression.Lambda<Func<object, Task>>(convertedProperty, parameter);
-                return exp.Compile();
-            });
+                func = _asTaskFuncCache.GetOrAdd(valueTypeInfo, static k =>
+                {
+                    var parameter = Expression.Parameter(typeof(object), "type");
+                    var convertedParameter = Expression.Convert(parameter, k);
+                    var method = k.GetMethod(nameof(ValueTask<int>.AsTask));
+                    var property = Expression.Call(convertedParameter, method);
+                    var convertedProperty = Expression.Convert(property, typeof(Task));
+                    var exp = Expression.Lambda<Func<object, Task>>(convertedProperty, parameter);
+                    return exp.Compile();
+                });
+            }
             return func(value);
         }
 
@@ -143,7 +146,10 @@ namespace AspectCore.DynamicProxy
             */
             // So we use "ExpressionWithCache" here.
             // Please fix this logic if there is a better solution.
-            var func = _resultFuncCache.GetOrAdd(valueTypeInfo, k => CreateFuncToGetTaskResult(k));
+            if (!_resultFuncCache.TryGetValue(valueTypeInfo, out var func))
+            {
+                func = _resultFuncCache.GetOrAdd(valueTypeInfo, static k => CreateFuncToGetTaskResult(k));
+            }
             return func(value);
         }
 

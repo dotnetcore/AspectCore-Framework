@@ -19,6 +19,10 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0' Or '$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="8.0.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\AspectCore.Abstractions\AspectCore.Abstractions.csproj" />
     <ProjectReference Include="..\AspectCore.Extensions.Reflection\AspectCore.Extensions.Reflection.csproj" />

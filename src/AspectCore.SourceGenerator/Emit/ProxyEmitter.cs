@@ -192,7 +192,7 @@ internal static class ProxyEmitter
         EmitClassConstructors(sb, entry.ImplementationType, proxyName, implName, genericParams, isRecord);
         sb.AppendLine();
         EmitPropertyInjectionHelper(sb);
-        sb.AppendLine();
+
         EmitValidatorHelpers(sb);
         sb.AppendLine();
 
@@ -248,6 +248,7 @@ internal static class ProxyEmitter
     /// Emits instance fields for caching the built pipeline delegate per non-generic intercepted method.
     /// This avoids per-call Tuple key allocation and hash lookup in AspectBuilderFactory.GetBuilder().
     /// Generic methods cannot be cached because the pipeline key varies with type arguments.
+    /// Also emits per-method byte fields for caching the ShouldIntercept result (0=unchecked, 1=intercept, 2=skip).
     /// </summary>
     private static void EmitCachedPipelineFields(StringBuilder sb, IEnumerable<IMethodSymbol> methods, IEnumerable<IPropertySymbol> props)
     {
@@ -257,6 +258,7 @@ internal static class ProxyEmitter
             if (method.IsGenericMethod) continue;
             var suffix = GetMethodId(method);
             sb.AppendLine($"        private global::AspectCore.DynamicProxy.AspectDelegate __pipeline_{suffix};");
+            sb.AppendLine($"        private byte __interceptState_{suffix};");
             emitted = true;
         }
         foreach (var prop in props)
@@ -265,12 +267,14 @@ internal static class ProxyEmitter
             {
                 var suffix = GetMethodId(prop.GetMethod);
                 sb.AppendLine($"        private global::AspectCore.DynamicProxy.AspectDelegate __pipeline_{suffix};");
+                sb.AppendLine($"        private byte __interceptState_{suffix};");
                 emitted = true;
             }
             if (prop.SetMethod is not null && !prop.SetMethod.IsGenericMethod)
             {
                 var suffix = GetMethodId(prop.SetMethod);
                 sb.AppendLine($"        private global::AspectCore.DynamicProxy.AspectDelegate __pipeline_{suffix};");
+                sb.AppendLine($"        private byte __interceptState_{suffix};");
                 emitted = true;
             }
         }
@@ -477,7 +481,7 @@ internal static class ProxyEmitter
         sb.AppendLine();
 
         // __InvokeDelegates nested class with static singleton instances.
-        DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList);
+        DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList, compilation: compilation);
 
         // Cached pipeline delegates for non-generic intercepted methods.
         // Avoids per-call Tuple key allocation + hash lookup in AspectBuilderFactory.
@@ -643,7 +647,7 @@ internal static class ProxyEmitter
         var proxyNameWithTypeParams = serviceType.IsGenericType
             ? proxyName + "<" + string.Join(", ", serviceType.TypeParameters.Select(p => p.Name)) + ">"
             : proxyName;
-        DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList, isClassProxy: true, proxyTypeName: proxyNameWithTypeParams);
+        DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList, isClassProxy: true, proxyTypeName: proxyNameWithTypeParams, compilation: compilation);
 
         // Cached pipeline delegates for non-generic intercepted methods.
         EmitCachedPipelineFields(sb, methods, props);
@@ -814,6 +818,13 @@ internal static class ProxyEmitter
             sb.AppendLine($"                throw new MissingMethodException({proxyTypeExpr}.FullName, \"{method.Name}\");");
             sb.AppendLine("            }");
         }
+
+        // Emit a ConcurrentDictionary cache for MakeGenericMethod results on generic methods.
+        if (method.IsGenericMethod)
+        {
+            sb.AppendLine($"            internal static readonly global::System.Collections.Concurrent.ConcurrentDictionary<global::System.Type[], (global::System.Reflection.MethodInfo service, global::System.Reflection.MethodInfo impl, global::System.Reflection.MethodInfo proxy)> __genericCache_{suffix} = new(global::AspectCore.DynamicProxy.TypeArrayComparer.Instance);");
+        }
+
         sb.AppendLine();
     }
 
@@ -987,14 +998,61 @@ internal static class ProxyEmitter
 
         if (method.IsGenericMethod)
         {
-            sb.AppendLine($"            var __genericArgs = new[] {{ {string.Join(", ", method.TypeParameters.Select(tp => $"typeof({tp.Name})"))} }};");
-            sb.AppendLine("            if (__serviceMethod.IsGenericMethodDefinition) __serviceMethod = __serviceMethod.MakeGenericMethod(__genericArgs);");
-            sb.AppendLine("            if (__implMethod.IsGenericMethodDefinition) __implMethod = __implMethod.MakeGenericMethod(__genericArgs);");
-            sb.AppendLine("            if (__proxyMethod.IsGenericMethodDefinition) __proxyMethod = __proxyMethod.MakeGenericMethod(__genericArgs);");
+            var cacheSuffix = GetMethodId(method);
+            sb.AppendLine($"            var __genericArgs = new global::System.Type[] {{ {string.Join(", ", method.TypeParameters.Select(tp => $"typeof({tp.Name})"))} }};");
+            if (resolveImplementationMethodByInstance)
+            {
+                // When impl method is resolved dynamically per-instance, only cache service + proxy
+                // (which are derived from static __Meta fields and are identical across instances).
+                sb.AppendLine($"            if (!__Meta.__genericCache_{cacheSuffix}.TryGetValue(__genericArgs, out var __cachedMethods))");
+                sb.AppendLine("            {");
+                sb.AppendLine("                __cachedMethods = (");
+                sb.AppendLine("                    __serviceMethod.IsGenericMethodDefinition ? __serviceMethod.MakeGenericMethod(__genericArgs) : __serviceMethod,");
+                sb.AppendLine("                    default(global::System.Reflection.MethodInfo),");
+                sb.AppendLine("                    __proxyMethod.IsGenericMethodDefinition ? __proxyMethod.MakeGenericMethod(__genericArgs) : __proxyMethod);");
+                sb.AppendLine($"                __Meta.__genericCache_{cacheSuffix}.TryAdd(__genericArgs, __cachedMethods);");
+                sb.AppendLine("            }");
+                sb.AppendLine("            __serviceMethod = __cachedMethods.service;");
+                sb.AppendLine("            __proxyMethod = __cachedMethods.proxy;");
+                sb.AppendLine("            if (__implMethod.IsGenericMethodDefinition) __implMethod = __implMethod.MakeGenericMethod(__genericArgs);");
+            }
+            else
+            {
+                // Static impl method: safe to cache all three in the static dictionary.
+                sb.AppendLine($"            if (!__Meta.__genericCache_{cacheSuffix}.TryGetValue(__genericArgs, out var __cachedMethods))");
+                sb.AppendLine("            {");
+                sb.AppendLine("                __cachedMethods = (");
+                sb.AppendLine("                    __serviceMethod.IsGenericMethodDefinition ? __serviceMethod.MakeGenericMethod(__genericArgs) : __serviceMethod,");
+                sb.AppendLine("                    __implMethod.IsGenericMethodDefinition ? __implMethod.MakeGenericMethod(__genericArgs) : __implMethod,");
+                sb.AppendLine("                    __proxyMethod.IsGenericMethodDefinition ? __proxyMethod.MakeGenericMethod(__genericArgs) : __proxyMethod);");
+                sb.AppendLine($"                __Meta.__genericCache_{cacheSuffix}.TryAdd(__genericArgs, __cachedMethods);");
+                sb.AppendLine("            }");
+                sb.AppendLine("            __serviceMethod = __cachedMethods.service;");
+                sb.AppendLine("            __implMethod = __cachedMethods.impl;");
+                sb.AppendLine("            __proxyMethod = __cachedMethods.proxy;");
+            }
             sb.AppendLine();
         }
-        sb.AppendLine("            if (!ShouldIntercept(__serviceMethod, __implMethod))");
-        sb.AppendLine("            {");
+
+        // Emit cached ShouldIntercept check. For non-generic methods, cache the result
+        // in a per-method byte field to avoid repeated ConcurrentDictionary + validator lookups.
+        // For generic methods, call ShouldIntercept directly (method identity varies with type args).
+        if (method.IsGenericMethod)
+        {
+            sb.AppendLine("            if (!ShouldIntercept(__serviceMethod, __implMethod))");
+            sb.AppendLine("            {");
+        }
+        else
+        {
+            var suffix = GetMethodId(method);
+            sb.AppendLine($"            var __state = __interceptState_{suffix};");
+            sb.AppendLine("            if (__state == 0)");
+            sb.AppendLine("            {");
+            sb.AppendLine($"                __interceptState_{suffix} = __state = ShouldIntercept(__serviceMethod, __implMethod) ? (byte)1 : (byte)2;");
+            sb.AppendLine("            }");
+            sb.AppendLine("            if (__state == 2)");
+            sb.AppendLine("            {");
+        }
         if (method.ReturnsVoid)
         {
             if (forceReflectiveDirectCall)
@@ -1017,6 +1075,7 @@ internal static class ProxyEmitter
         }
         sb.AppendLine("            }");
         sb.AppendLine();
+
         EmitArgumentsArray(sb, method, indent: "            ", variableName: "__args");
         sb.AppendLine();
         sb.AppendLine("            var __ctx = new global::AspectCore.DynamicProxy.AspectActivatorContext(");
@@ -1227,13 +1286,15 @@ internal static class ProxyEmitter
         sb.AppendLine("        }");
         sb.AppendLine();
 
-        // Emit async helper method.
+        // Emit async helper method with PoolingAsyncValueTaskMethodBuilder to reduce GC pressure.
         if (rk == ReturnKindKind.ValueTaskOfT)
         {
+            sb.AppendLine($"        [global::System.Runtime.CompilerServices.AsyncMethodBuilder(typeof(global::System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder<{innerType}>))]");
             sb.AppendLine($"        private async {method.ReturnType.ToGlobalName()} {helperName}(");
         }
         else
         {
+            sb.AppendLine("        [global::System.Runtime.CompilerServices.AsyncMethodBuilder(typeof(global::System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder))]");
             sb.AppendLine($"        private async global::System.Threading.Tasks.ValueTask {helperName}(");
         }
         sb.AppendLine("            global::AspectCore.DynamicProxy.AspectActivatorContext __ctx,");

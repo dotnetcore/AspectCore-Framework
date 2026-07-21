@@ -19,11 +19,19 @@ namespace AspectCore.DynamicProxy
     internal sealed class SourceGeneratedAspectContext : AspectContext, IDisposable
     {
         private volatile IDictionary<string, object> _data;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly MethodInfo _implementationMethod;
-        private readonly object _implementation;
-        private readonly IAspectInvokeDelegate _invokeDelegate;
+        private IServiceProvider _serviceProvider;
+        private MethodInfo _implementationMethod;
+        private object _implementation;
+        private IAspectInvokeDelegate _invokeDelegate;
         private bool _disposedValue = false;
+
+        // Backing fields for properties that need to be reset during pooling.
+        private MethodInfo _serviceMethod;
+        private object[] _parameters;
+        private MethodInfo _proxyMethod;
+        private MethodInfo _predicateMethod;
+        private object _proxy;
+        private object _returnValue;
 
         public override IServiceProvider ServiceProvider
         {
@@ -50,24 +58,38 @@ namespace AspectCore.DynamicProxy
             }
         }
 
-        public override object ReturnValue { get; set; }
+        public override object ReturnValue
+        {
+            get => _returnValue;
+            set => _returnValue = value;
+        }
 
-        public override MethodInfo ServiceMethod { get; }
+        public override MethodInfo ServiceMethod => _serviceMethod;
 
-        public override object[] Parameters { get; }
+        public override object[] Parameters => _parameters;
 
-        public override MethodInfo ProxyMethod { get; }
+        public override MethodInfo ProxyMethod => _proxyMethod;
 
         /// <summary>
         /// Gets the method used to evaluate configured <see cref="AspectCore.Configuration.AspectPredicate"/> filters.
         /// </summary>
-        public override MethodInfo PredicateMethod { get; }
+        public override MethodInfo PredicateMethod => _predicateMethod;
 
-        public override object Proxy { get; }
+        public override object Proxy => _proxy;
 
         public override MethodInfo ImplementationMethod => _implementationMethod;
 
         public override object Implementation => _implementation;
+
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Parameterless constructor used by the object pool.
+        /// Must call <see cref="Reset"/> before use.
+        /// </summary>
+        internal SourceGeneratedAspectContext()
+        {
+        }
+#endif
 
         public SourceGeneratedAspectContext(
             IServiceProvider serviceProvider,
@@ -84,12 +106,75 @@ namespace AspectCore.DynamicProxy
             _implementationMethod = targetMethod;
             _implementation = targetInstance;
             _invokeDelegate = invokeDelegate ?? throw new ArgumentNullException(nameof(invokeDelegate));
-            ServiceMethod = serviceMethod;
-            ProxyMethod = proxyMethod;
-            Proxy = proxyInstance;
-            Parameters = parameters;
-            PredicateMethod = predicateMethod;
+            _serviceMethod = serviceMethod;
+            _proxyMethod = proxyMethod;
+            _proxy = proxyInstance;
+            _parameters = parameters;
+            _predicateMethod = predicateMethod;
         }
+
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Reinitializes this pooled instance with new context data.
+        /// Called by <see cref="AspectContextFactory"/> after retrieving from the pool.
+        /// </summary>
+        internal void Reset(
+            IServiceProvider serviceProvider,
+            MethodInfo serviceMethod,
+            MethodInfo targetMethod,
+            MethodInfo proxyMethod,
+            MethodInfo predicateMethod,
+            object targetInstance,
+            object proxyInstance,
+            object[] parameters,
+            IAspectInvokeDelegate invokeDelegate)
+        {
+            _serviceProvider = serviceProvider;
+            _implementationMethod = targetMethod;
+            _implementation = targetInstance;
+            _invokeDelegate = invokeDelegate;
+            _serviceMethod = serviceMethod;
+            _proxyMethod = proxyMethod;
+            _proxy = proxyInstance;
+            _parameters = parameters;
+            _predicateMethod = predicateMethod;
+            _returnValue = null;
+            _disposedValue = false;
+            // _data is lazily initialized, leave null
+        }
+
+        /// <summary>
+        /// Clears all references to allow safe return to the object pool.
+        /// Disposes any <see cref="IDisposable"/> values in <see cref="AdditionalData"/>.
+        /// </summary>
+        internal void Clear()
+        {
+            // Dispose AdditionalData values (same logic as Dispose)
+            if (_data != null)
+            {
+                foreach (var key in _data.Keys.ToArray())
+                {
+                    _data.TryGetValue(key, out object value);
+                    (value as IDisposable)?.Dispose();
+                    _data.Remove(key);
+                }
+                _data = null;
+            }
+
+            // Null out all references to prevent holding them alive in pool
+            _serviceProvider = null;
+            _implementationMethod = null;
+            _implementation = null;
+            _invokeDelegate = null;
+            _serviceMethod = null;
+            _proxyMethod = null;
+            _proxy = null;
+            _parameters = null;
+            _predicateMethod = null;
+            _returnValue = null;
+            _disposedValue = true;
+        }
+#endif
 
         public override async Task Complete()
         {
@@ -115,9 +200,12 @@ namespace AspectCore.DynamicProxy
                 }
                 else
                 {
-                    var reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(
-                        _implementationMethod,
-                        method => method.GetReflector(CallOptions.Call));
+                    if (!AspectContextRuntimeExtensions.reflectorTable.TryGetValue(_implementationMethod, out var reflector))
+                    {
+                        reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(
+                            _implementationMethod,
+                            static method => method.GetReflector(CallOptions.Call));
+                    }
                     returnValue = reflector.Invoke(_implementation, Parameters);
                 }
             }
