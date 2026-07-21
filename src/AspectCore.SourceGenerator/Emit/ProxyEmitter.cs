@@ -244,6 +244,39 @@ internal static class ProxyEmitter
         sb.AppendLine("        }");
     }
 
+    /// <summary>
+    /// Emits instance fields for caching the built pipeline delegate per non-generic intercepted method.
+    /// This avoids per-call Tuple key allocation and hash lookup in AspectBuilderFactory.GetBuilder().
+    /// Generic methods cannot be cached because the pipeline key varies with type arguments.
+    /// </summary>
+    private static void EmitCachedPipelineFields(StringBuilder sb, IEnumerable<IMethodSymbol> methods, IEnumerable<IPropertySymbol> props)
+    {
+        var emitted = false;
+        foreach (var method in methods)
+        {
+            if (method.IsGenericMethod) continue;
+            var suffix = GetMethodId(method);
+            sb.AppendLine($"        private global::AspectCore.DynamicProxy.AspectDelegate __pipeline_{suffix};");
+            emitted = true;
+        }
+        foreach (var prop in props)
+        {
+            if (prop.GetMethod is not null && !prop.GetMethod.IsGenericMethod)
+            {
+                var suffix = GetMethodId(prop.GetMethod);
+                sb.AppendLine($"        private global::AspectCore.DynamicProxy.AspectDelegate __pipeline_{suffix};");
+                emitted = true;
+            }
+            if (prop.SetMethod is not null && !prop.SetMethod.IsGenericMethod)
+            {
+                var suffix = GetMethodId(prop.SetMethod);
+                sb.AppendLine($"        private global::AspectCore.DynamicProxy.AspectDelegate __pipeline_{suffix};");
+                emitted = true;
+            }
+        }
+        if (emitted) sb.AppendLine();
+    }
+
     private static IEnumerable<INamedTypeSymbol> GetAllInterfaces(INamedTypeSymbol iface)
     {
         yield return iface;
@@ -446,6 +479,10 @@ internal static class ProxyEmitter
         // __InvokeDelegates nested class with static singleton instances.
         DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList);
 
+        // Cached pipeline delegates for non-generic intercepted methods.
+        // Avoids per-call Tuple key allocation + hash lookup in AspectBuilderFactory.
+        EmitCachedPipelineFields(sb, allMethods.Select(m => m.Method), allProps.Select(p => p.Prop));
+
         // properties
         foreach (var (prop, _) in allProps)
         {
@@ -607,6 +644,9 @@ internal static class ProxyEmitter
             ? proxyName + "<" + string.Join(", ", serviceType.TypeParameters.Select(p => p.Name)) + ">"
             : proxyName;
         DelegateEmitter.EmitInvokeDelegatesClass(sb, delegateMethodList, isClassProxy: true, proxyTypeName: proxyNameWithTypeParams);
+
+        // Cached pipeline delegates for non-generic intercepted methods.
+        EmitCachedPipelineFields(sb, methods, props);
 
         foreach (var prop in props)
         {
@@ -1035,8 +1075,7 @@ internal static class ProxyEmitter
         sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
         sb.AppendLine("            try");
         sb.AppendLine("            {");
-        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
-        sb.AppendLine("                var __pipeline = __builder.Build();");
+        EmitPipelineResolution(sb, method);
         sb.AppendLine("                var __invokeTask = __pipeline(__context);");
         sb.AppendLine("                if (__invokeTask.IsFaulted)");
         sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
@@ -1123,8 +1162,7 @@ internal static class ProxyEmitter
         sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
         sb.AppendLine("            try");
         sb.AppendLine("            {");
-        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
-        sb.AppendLine("                var __pipeline = __builder.Build();");
+        EmitPipelineResolution(sb, method);
         sb.AppendLine("                var __invokeTask = __pipeline(__context);");
         sb.AppendLine("                if (__invokeTask.IsFaulted)");
         sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
@@ -1206,8 +1244,7 @@ internal static class ProxyEmitter
         sb.AppendLine("            var __context = _aspectContextFactory.CreateContext(__ctx, __delegate);");
         sb.AppendLine("            try");
         sb.AppendLine("            {");
-        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod);");
-        sb.AppendLine("                var __pipeline = __builder.Build();");
+        EmitPipelineResolution(sb, method);
         sb.AppendLine("                var __invokeTask = __pipeline(__context);");
         sb.AppendLine("                if (__invokeTask.IsFaulted)");
         sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
@@ -1281,8 +1318,7 @@ internal static class ProxyEmitter
         sb.AppendLine("        {");
         sb.AppendLine("            try");
         sb.AppendLine("            {");
-        sb.AppendLine("                var __builder = _aspectBuilderFactory.GetBuilder(__context.ServiceMethod, __context.ImplementationMethod, __context.ServiceMethod);");
-        sb.AppendLine("                var __pipeline = __builder.Build();");
+        EmitPipelineResolutionFromContext(sb, method);
         sb.AppendLine("                var __invokeTask = __pipeline(__context);");
         sb.AppendLine("                if (__invokeTask.IsFaulted)");
         sb.AppendLine("                    global::System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(__invokeTask.Exception.InnerException).Throw();");
@@ -1365,9 +1401,52 @@ internal static class ProxyEmitter
         sb.AppendLine("        }");
     }
 
+    /// <summary>
+    /// Emits the pipeline resolution code. For non-generic methods, uses a per-instance cached field
+    /// to avoid Tuple key allocation and dictionary lookup on every call.
+    /// For generic methods, falls back to the standard GetBuilder().Build() pattern since the pipeline
+    /// key varies with type arguments.
+    /// Assumes __serviceMethod and __implMethod are in scope.
+    /// </summary>
+    private static void EmitPipelineResolution(StringBuilder sb, IMethodSymbol method)
+    {
+        if (method.IsGenericMethod)
+        {
+            sb.AppendLine("                var __pipeline = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod).Build();");
+        }
+        else
+        {
+            var suffix = GetMethodId(method);
+            sb.AppendLine($"                var __pipeline = __pipeline_{suffix} ?? (__pipeline_{suffix} = _aspectBuilderFactory.GetBuilder(__serviceMethod, __implMethod, __serviceMethod).Build());");
+        }
+    }
+
+    /// <summary>
+    /// Same as EmitPipelineResolution but for the async enumerable pipeline helper where MethodInfo
+    /// comes from __context rather than local variables.
+    /// </summary>
+    private static void EmitPipelineResolutionFromContext(StringBuilder sb, IMethodSymbol method)
+    {
+        if (method.IsGenericMethod)
+        {
+            sb.AppendLine("                var __pipeline = _aspectBuilderFactory.GetBuilder(__context.ServiceMethod, __context.ImplementationMethod, __context.ServiceMethod).Build();");
+        }
+        else
+        {
+            var suffix = GetMethodId(method);
+            sb.AppendLine($"                var __pipeline = __pipeline_{suffix} ?? (__pipeline_{suffix} = _aspectBuilderFactory.GetBuilder(__context.ServiceMethod, __context.ImplementationMethod, __context.ServiceMethod).Build());");
+        }
+    }
+
     private static void EmitArgumentsArray(StringBuilder sb, IMethodSymbol method, string indent, string variableName)
     {
         var argCount = method.Parameters.Length;
+        if (argCount == 0)
+        {
+            sb.AppendLine($"{indent}var {variableName} = global::System.Array.Empty<object>();");
+            return;
+        }
+
         sb.AppendLine($"{indent}var {variableName} = new object[{argCount}];");
         for (var i = 0; i < argCount; i++)
         {
