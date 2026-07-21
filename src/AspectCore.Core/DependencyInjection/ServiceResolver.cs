@@ -64,9 +64,17 @@ namespace AspectCore.DependencyInjection
             switch (definition.Lifetime)
             {
                 case Lifetime.Singleton:
-                    return _resolvedSingletonServices.GetOrAdd(definition, d => _serviceCallSiteResolver.Resolve(d)(_root ?? this));
+                    if (_resolvedSingletonServices.TryGetValue(definition, out var singleton))
+                    {
+                        return singleton;
+                    }
+                    return _resolvedSingletonServices.GetOrAdd(definition, static (d, state) => state.callSiteResolver.Resolve(d)(state.resolver), (callSiteResolver: _serviceCallSiteResolver, resolver: _root ?? this));
                 case Lifetime.Scoped:
-                    return _resolvedScopedServices.GetOrAdd(definition, d => _serviceCallSiteResolver.Resolve(d)(this));
+                    if (_resolvedScopedServices.TryGetValue(definition, out var scoped))
+                    {
+                        return scoped;
+                    }
+                    return _resolvedScopedServices.GetOrAdd(definition, static (d, state) => state.callSiteResolver.Resolve(d)(state.resolver), (callSiteResolver: _serviceCallSiteResolver, resolver: this));
                 default:
                     return _serviceCallSiteResolver.Resolve(definition)(this);
             }

@@ -10,8 +10,8 @@ namespace AspectCore.DependencyInjection
 {
     internal class ServiceTable
     {
-        private readonly ConcurrentDictionary<Type, LinkedList<ServiceDefinition>> _linkedServiceDefinitions;
-        private readonly ConcurrentDictionary<Type, LinkedList<ServiceDefinition>> _linkedGenericServiceDefinitions;
+        private readonly ConcurrentDictionary<Type, List<ServiceDefinition>> _linkedServiceDefinitions;
+        private readonly ConcurrentDictionary<Type, List<ServiceDefinition>> _linkedGenericServiceDefinitions;
         private readonly IProxyTypeGenerator _proxyTypeGenerator;
         private readonly ServiceValidator _serviceValidator;
 
@@ -25,8 +25,8 @@ namespace AspectCore.DependencyInjection
             var aspectValidatorBuilder = new AspectValidatorBuilder(serviceContext.Configuration);
             _proxyTypeGenerator = CreateProxyTypeGenerator(serviceContext, aspectValidatorBuilder);
             _serviceValidator = new ServiceValidator(aspectValidatorBuilder);
-            _linkedServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ServiceDefinition>>();
-            _linkedGenericServiceDefinitions = new ConcurrentDictionary<Type, LinkedList<ServiceDefinition>>();
+            _linkedServiceDefinitions = new ConcurrentDictionary<Type, List<ServiceDefinition>>();
+            _linkedGenericServiceDefinitions = new ConcurrentDictionary<Type, List<ServiceDefinition>>();
         }
 
         private static IProxyTypeGenerator CreateProxyTypeGenerator(IServiceContext serviceContext, IAspectValidatorBuilder aspectValidatorBuilder)
@@ -70,12 +70,12 @@ namespace AspectCore.DependencyInjection
             {
                 if (service.ServiceType.GetTypeInfo().ContainsGenericParameters)
                 {
-                    var linkedGenericServices = _linkedGenericServiceDefinitions.GetOrAdd(service.ServiceType.GetGenericTypeDefinition(), _ => new LinkedList<ServiceDefinition>());
+                    var linkedGenericServices = _linkedGenericServiceDefinitions.GetOrAdd(service.ServiceType.GetGenericTypeDefinition(), static _ => new List<ServiceDefinition>());
                     linkedGenericServices.Add(service);
                 }
                 else
                 {
-                    var linkedServices = _linkedServiceDefinitions.GetOrAdd(service.ServiceType, _ => new LinkedList<ServiceDefinition>());
+                    var linkedServices = _linkedServiceDefinitions.GetOrAdd(service.ServiceType, static _ => new List<ServiceDefinition>());
                     linkedServices.Add(MakProxyService(service));
                 }
             }
@@ -129,7 +129,7 @@ namespace AspectCore.DependencyInjection
             {
                 if (serviceKey == null)
                 {
-                    return value.Last.Value;
+                    return value[value.Count - 1];
                 }
 
                 ServiceDefinition matched = null;
@@ -168,12 +168,12 @@ namespace AspectCore.DependencyInjection
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
-                return value.Last.Value;
+                return value[value.Count - 1];
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             var elements = FindEnumerableElements(serviceType);
             var enumerableServiceDefinition = new EnumerableServiceDefinition(serviceType, elementType, elements);
-            _linkedServiceDefinitions[serviceType] = new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
+            _linkedServiceDefinitions[serviceType] = new List<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
             return enumerableServiceDefinition;
         }
 
@@ -181,12 +181,12 @@ namespace AspectCore.DependencyInjection
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
-                return value.Last.Value;
+                return value[value.Count - 1];
             }
             var elementType = serviceType.GetTypeInfo().GetGenericArguments()[0];
             var elements = FindEnumerableElements(serviceType);
             var enumerableServiceDefinition = new ManyEnumerableServiceDefinition(serviceType, elementType, elements);
-            _linkedServiceDefinitions[serviceType] = new LinkedList<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
+            _linkedServiceDefinitions[serviceType] = new List<ServiceDefinition>(new ServiceDefinition[] { enumerableServiceDefinition });
             return enumerableServiceDefinition;
         }
 
@@ -206,13 +206,13 @@ namespace AspectCore.DependencyInjection
             return services.ToArray();
         }
 
-        private ServiceDefinition FindGenericService(Type serviceType, LinkedList<ServiceDefinition> genericServiceDefinitions, object serviceKey = null)
+        private ServiceDefinition FindGenericService(Type serviceType, List<ServiceDefinition> genericServiceDefinitions, object serviceKey = null)
         {
             if (_linkedServiceDefinitions.TryGetValue(serviceType, out var value))
             {
                 if (serviceKey == null)
                 {
-                    return value.Last.Value;
+                    return value[value.Count - 1];
                 }
 
                 ServiceDefinition matched = null;
@@ -232,7 +232,7 @@ namespace AspectCore.DependencyInjection
             ServiceDefinition genericMatch;
             if (serviceKey == null)
             {
-                genericMatch = genericServiceDefinitions.Last.Value;
+                genericMatch = genericServiceDefinitions[genericServiceDefinitions.Count - 1];
             }
             else
             {
@@ -256,7 +256,7 @@ namespace AspectCore.DependencyInjection
             {
                 return null;
             }
-            _linkedServiceDefinitions.TryAdd(serviceType, new LinkedList<ServiceDefinition>(new ServiceDefinition[] { service }));
+            _linkedServiceDefinitions.TryAdd(serviceType, new List<ServiceDefinition>(new ServiceDefinition[] { service }));
             return service;
         }
 

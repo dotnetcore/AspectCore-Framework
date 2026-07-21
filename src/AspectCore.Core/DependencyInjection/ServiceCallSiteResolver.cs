@@ -22,6 +22,10 @@ namespace AspectCore.DependencyInjection
 
         internal Func<ServiceResolver, object> Resolve(ServiceDefinition service)
         {
+            if (_resolvedCallSites.TryGetValue(service, out var callSite))
+            {
+                return callSite;
+            }
             return _resolvedCallSites.GetOrAdd(service, ResolveCallback);
         }
 

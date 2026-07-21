@@ -86,7 +86,10 @@ namespace AspectCore.DynamicProxy
                 await Break();
                 return;
             }
-            var reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(_implementationMethod, method => method.GetReflector(method.IsCallvirt() ? CallOptions.Callvirt : CallOptions.Call));
+            if (!AspectContextRuntimeExtensions.reflectorTable.TryGetValue(_implementationMethod, out var reflector))
+            {
+                reflector = AspectContextRuntimeExtensions.reflectorTable.GetOrAdd(_implementationMethod, static method => method.GetReflector(method.IsCallvirt() ? CallOptions.Callvirt : CallOptions.Call));
+            }
             var returnValue = reflector.Invoke(_implementation, Parameters);
             await this.AwaitIfAsync(returnValue);
             ReturnValue = returnValue;
