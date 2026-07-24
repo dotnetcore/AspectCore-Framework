@@ -396,11 +396,11 @@ jobs:
           const unitThreshold = process.env.UNIT_THRESHOLD;
           const e2eCoverage = process.env.E2E_COVERAGE;
           const e2eThreshold = process.env.E2E_THRESHOLD;
-          const title = `NativeAOT Test: passed (UT ${unitCoverage}% / min ${unitThreshold}%, E2E ${e2eCoverage}% / min ${e2eThreshold}%)`;
+          const title = `NativeAOT Test Execution: collected (UT ${unitCoverage}%, E2E ${e2eCoverage}%)`;
           const summary = [
             "## NativeAOT Test Execution",
             "",
-            "NativeAOT focused unit and E2E coverage were collected successfully.",
+            "NativeAOT focused unit and E2E tests completed and coverage was collected. Threshold enforcement is reported by the NativeAOT Coverage check.",
             "",
             "| Scope | Current PR | Threshold |",
             "| --- | --- | --- |",

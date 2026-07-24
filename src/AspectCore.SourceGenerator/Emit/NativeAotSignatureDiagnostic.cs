@@ -41,6 +41,8 @@ internal static class NativeAotSignatureDiagnosticRules
                 parameter: null);
         }
 
+        // Report the first unsupported byref-like parameter only. This keeps diagnostics
+        // focused and matches the existing Source Generator behavior for unsupported params.
         var parameter = method.Parameters.FirstOrDefault(p => IsByRefLikeType(p.Type));
         if (parameter is null)
         {

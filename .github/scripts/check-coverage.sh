@@ -127,20 +127,109 @@ scope_files = set(sys.argv[2:])
 root = ET.parse(coverage_file).getroot()
 covered = 0
 valid = 0
+matched = set()
+
+
+def matches_scope(filename, scope):
+    return filename == scope or filename.endswith("/" + scope) or filename.endswith("\\" + scope)
+
 
 for cls in root.findall(".//class"):
     filename = cls.attrib.get("filename", "")
-    if scope_files and filename not in scope_files:
-        continue
+    if scope_files:
+        matched_scope = next((scope for scope in scope_files if matches_scope(filename, scope)), None)
+        if matched_scope is None:
+            continue
+        matched.add(filename)
+    else:
+        matched.add(filename)
     for line in cls.findall("./lines/line"):
         valid += 1
         if int(line.attrib.get("hits", "0")) > 0:
             covered += 1
 
+print(f"  Scope matched classes: {len(matched)}", file=sys.stderr)
+for filename in sorted(matched):
+    print(f"    {filename}", file=sys.stderr)
+
 if valid == 0:
+    print("0.00")
+else:
+    print(f"{covered * 100 / valid:.2f}")
+PY
+}
+
+coverage_passed() {
+  local coverage="$1"
+  local threshold="$2"
+
+  python3 - "$coverage" "$threshold" <<'PY'
+import sys
+
+coverage = float(sys.argv[1])
+threshold = float(sys.argv[2])
+sys.exit(0 if coverage + 1e-9 >= threshold else 1)
+PY
+}
+
+coverage_is_zero() {
+  local coverage="$1"
+
+  python3 - "$coverage" <<'PY'
+import sys
+
+coverage = float(sys.argv[1])
+sys.exit(0 if coverage == 0 else 1)
+PY
+}
+
+coverage_is_number() {
+  local coverage="$1"
+
+  python3 - "$coverage" <<'PY'
+import sys
+
+try:
+    float(sys.argv[1])
+except ValueError:
+    sys.exit(1)
+sys.exit(0)
+PY
+}
+
+integer_average() {
+  python3 - "$@" <<'PY'
+import sys
+
+values = [float(v) for v in sys.argv[1:]]
+if not values:
     print("0")
 else:
-    print((covered * 100) // valid)
+    print(str(int(sum(values) // len(values))))
+PY
+}
+
+decimal_average() {
+  python3 - "$@" <<'PY'
+import sys
+
+values = [float(v) for v in sys.argv[1:]]
+if not values:
+    print("0.00")
+else:
+    print(f"{sum(values) / len(values):.2f}")
+PY
+}
+
+root_line_rate() {
+  local coverage_file="$1"
+
+  python3 - "$coverage_file" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+root = ET.parse(sys.argv[1]).getroot()
+print(float(root.attrib.get("line-rate", "0")) * 100)
 PY
 }
 
@@ -215,10 +304,8 @@ run_coverage() {
       mapfile -t scope_files < <(nativeaot_scope_files "$mode")
       coverage_pct=$(coverage_from_cobertura "$coverage_file" "${scope_files[@]}")
     else
-      line_rate=$(grep -o 'line-rate="[^"]*"' "$coverage_file" | head -1 | cut -d'"' -f2)
-      if [[ -n "$line_rate" ]]; then
-        coverage_pct=$(echo "$line_rate * 100" | bc | cut -d. -f1)
-      fi
+      coverage_pct=$(root_line_rate "$coverage_file")
+      coverage_pct=$(printf '%.0f\n' "$coverage_pct")
     fi
     if [[ -n "$coverage_pct" ]]; then
       echo "  Coverage: ${coverage_pct}%" >&2
@@ -241,10 +328,10 @@ collect_coverage() {
   local exclude_pattern
   local coverage
   local coverage_count=0
-  local coverage_sum=0
   local coverage_average=0
   local find_arguments
   local test_project
+  local coverages=()
 
   metadata=$(mode_metadata "$mode")
   IFS='|' read -r heading threshold project_pattern exclude_pattern <<< "$metadata"
@@ -260,16 +347,20 @@ collect_coverage() {
       return 1
     fi
 
-    if [[ "$coverage" == "0" || -z "$coverage" ]]; then
+    if [[ -z "$coverage" ]] || coverage_is_zero "$coverage"; then
       continue
     fi
 
     coverage_count=$((coverage_count + 1))
-    coverage_sum=$((coverage_sum + coverage))
+    coverages+=("$coverage")
   done < <(find "${find_arguments[@]}" | sort)
 
   if [[ "$coverage_count" -gt 0 ]]; then
-    coverage_average=$((coverage_sum / coverage_count))
+    if nativeaot_mode "$mode"; then
+      coverage_average=$(decimal_average "${coverages[@]}")
+    else
+      coverage_average=$(integer_average "${coverages[@]}")
+    fi
   fi
 
   mkdir -p "$(dirname "$output_file")"
@@ -331,8 +422,8 @@ assert_coverage() {
     projects=$(result_value projects "$input_file")
   fi
 
-  if [[ "$result_mode" == "$mode" && "$threshold" == "$expected_threshold" && "$coverage" =~ ^[0-9]+$ && "$projects" =~ ^[1-9][0-9]*$ ]]; then
-    if (( coverage >= threshold )); then
+  if [[ "$result_mode" == "$mode" && "$threshold" == "$expected_threshold" && "$projects" =~ ^[1-9][0-9]*$ ]]; then
+    if coverage_is_number "$coverage" && coverage_passed "$coverage" "$threshold"; then
       passed=true
     fi
   fi
@@ -351,7 +442,7 @@ assert_coverage() {
     return 0
   fi
 
-  if [[ "$coverage" =~ ^[0-9]+$ ]]; then
+  if coverage_is_number "$coverage"; then
     echo "FAIL: ${heading} coverage ${coverage}% is below threshold ${expected_threshold}%"
   else
     echo "FAIL: ${heading} coverage result is missing or invalid."
