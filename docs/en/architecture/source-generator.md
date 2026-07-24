@@ -40,6 +40,8 @@ The generator reports diagnostics when it encounters unsupported situations (`Em
 | ACSG007 | Error | A class proxy lacks an accessible constructor |
 | ACSG008 | Error | Cannot proxy a `ref struct` |
 | ACSG009 | Warning | A byref-like `params` parameter is not supported |
+| ACSG010 | Warning | A byref-like parameter is not supported |
+| ACSG011 | Warning | A byref-like return value is not supported |
 
 (ACSG001/ACSG004 are historically retained descriptors for "open generic type/method not supported"; generics are now supported and these are no longer actively triggered. The diagnostic titles/messages are in Chinese.)
 
