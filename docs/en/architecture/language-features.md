@@ -155,7 +155,7 @@ ref structs (such as `Span<T>`, `ReadOnlySpan<T>`) have CLR-enforced restriction
 
 - Only the **non-intercepted direct-call path** passes ref struct parameters/return values correctly (IL direct pass-through, or the SG direct call).
 - Once a method enters the **interception path**, both engines pack the arguments into `object[]`: DynamicProxy's `EmitInitializeMetaData` calls `EmitConvertToObject` on each parameter (`ILEmitVisitor.cs`), and SG's `EmitArgumentsArray` emits `new object[]{...}` (`ProxyEmitter.cs`). A ref struct cannot be boxed to `object`, so it throws `InvalidProgramException` at runtime (for example, an intercepted `int Length(Span<int>)` throws exactly this).
-- SG currently reports ACSG009 only for byref-like `params` parameters (see 3.2.2); a non-`params` `Span<T>` parameter on an intercepted method has no dedicated diagnostic and fails at runtime.
+- SG now diagnoses these signatures during generation: byref-like `params` parameters report ACSG009, ordinary byref-like parameters report ACSG010, and byref-like return values report ACSG011. This keeps the Source Generator / NativeAOT path from deferring those failures to runtime.
 
 **Conclusion**: ref struct proxy targets are safely rejected; but "byref-like parameters/return values on an intercepted method" is not yet supported — a known limitation.
 
@@ -679,7 +679,7 @@ P0 (all done)             P1 (missing feature)      P2 (annotations/low-pri)
 **Status**: a ref struct cannot be boxed and cannot be a class field. Two scenarios:
 
 - **Proxy target type**: ✅ rejected — the entry checks `type.IsByRefLike` (DynamicProxy) / reports ACSG008 (SG), failing early.
-- **byref-like parameters/return values on an intercepted method**: ❌ still unsupported — the interception path packs arguments into `object[]`, and a `Span<T>` cannot be boxed, throwing `InvalidProgramException` at runtime; only the non-intercepted direct-call path passes them through. See 3.1.5.
+- **byref-like parameters/return values on an intercepted method**: ❌ still unsupported — the interception path packs arguments into `object[]`, and a `Span<T>` cannot be boxed; the SG path reports ACSG009/ACSG010/ACSG011 early, and only the non-intercepted direct-call path passes them through. See 3.1.5.
 
 ### 6.6 ✅ ref return methods — Adapted
 

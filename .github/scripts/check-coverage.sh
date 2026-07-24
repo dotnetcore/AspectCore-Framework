@@ -11,14 +11,18 @@ export DOTNET_ROLL_FORWARD=Major
 
 readonly UNIT_TEST_MODE="unit"
 readonly E2E_TEST_MODE="e2e"
+readonly NATIVEAOT_UNIT_TEST_MODE="nativeaot-unit"
+readonly NATIVEAOT_E2E_TEST_MODE="nativeaot-e2e"
 readonly UT_THRESHOLD=95
 readonly E2E_THRESHOLD=80
+readonly NATIVEAOT_UT_THRESHOLD=100
+readonly NATIVEAOT_E2E_THRESHOLD=95
 
 usage() {
   cat >&2 <<EOF
 Usage:
-  $0 collect {${UNIT_TEST_MODE}|${E2E_TEST_MODE}} --output <result-file>
-  $0 assert {${UNIT_TEST_MODE}|${E2E_TEST_MODE}} --input <result-file>
+  $0 collect {${UNIT_TEST_MODE}|${E2E_TEST_MODE}|${NATIVEAOT_UNIT_TEST_MODE}|${NATIVEAOT_E2E_TEST_MODE}} --output <result-file>
+  $0 assert {${UNIT_TEST_MODE}|${E2E_TEST_MODE}|${NATIVEAOT_UNIT_TEST_MODE}|${NATIVEAOT_E2E_TEST_MODE}} --input <result-file>
 EOF
   exit 2
 }
@@ -33,24 +37,128 @@ mode_metadata() {
     "$E2E_TEST_MODE")
       printf '%s|%s|%s|%s\n' "E2E Test" "$E2E_THRESHOLD" "*E2E*.csproj" ""
       ;;
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s|%s|%s|%s\n' "NativeAOT Unit Test" "$NATIVEAOT_UT_THRESHOLD" "AspectCore.Core.Tests.csproj" ""
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s|%s|%s|%s\n' "NativeAOT E2E Test" "$NATIVEAOT_E2E_THRESHOLD" "AspectCore.E2E.Tests.csproj" ""
+      ;;
     *)
       usage
       ;;
   esac
 }
 
+nativeaot_mode() {
+  local mode="$1"
+  [[ "$mode" == "$NATIVEAOT_UNIT_TEST_MODE" || "$mode" == "$NATIVEAOT_E2E_TEST_MODE" ]]
+}
+
+nativeaot_filter() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "FullyQualifiedName~SourceGeneratorDiagnosticTests"
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s\n' "FullyQualifiedName~NativeAotSourceGeneratedScenarios"
+      ;;
+    *)
+      printf '%s\n' ""
+      ;;
+  esac
+}
+
+nativeaot_include_filter() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "[AspectCore.SourceGenerator]*"
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s\n' "[AspectCore.Core]*%2c[AspectCore.Abstractions]*"
+      ;;
+    *)
+      printf '%s\n' ""
+      ;;
+  esac
+}
+
+target_framework() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "net10.0"
+      ;;
+    *)
+      printf '%s\n' "net9.0"
+      ;;
+  esac
+}
+
+nativeaot_scope_files() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "Emit/NativeAotSignatureDiagnostic.cs"
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s\n' \
+        "AspectCore.Core/DynamicProxy/AspectContextFactory.cs" \
+        "AspectCore.Core/DynamicProxy/SourceGeneratedAspectContext.cs"
+      ;;
+  esac
+}
+
+coverage_from_cobertura() {
+  local coverage_file="$1"
+  shift
+
+  python3 - "$coverage_file" "$@" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+coverage_file = sys.argv[1]
+scope_files = set(sys.argv[2:])
+root = ET.parse(coverage_file).getroot()
+covered = 0
+valid = 0
+
+for cls in root.findall(".//class"):
+    filename = cls.attrib.get("filename", "")
+    if scope_files and filename not in scope_files:
+        continue
+    for line in cls.findall("./lines/line"):
+        valid += 1
+        if int(line.attrib.get("hits", "0")) > 0:
+            covered += 1
+
+if valid == 0:
+    print("0")
+else:
+    print((covered * 100) // valid)
+PY
+}
+
 run_coverage() {
   local project="$1"
   local label="$2"
+  local mode="$3"
   local project_dir
   local project_name
   local source_assembly
   local include_filter
   local coverage_file
-  local line_rate
+  local filter
   local coverage_pct
   local test_log
   local test_status
+  local dotnet_args
+  local framework
 
   echo "Measuring: $label..." >&2
 
@@ -69,13 +177,24 @@ run_coverage() {
   if [[ "$project_name" == *"E2E"* ]]; then
     include_filter="[AspectCore.Core]*%2c[AspectCore.Abstractions]*"
   fi
+  if nativeaot_mode "$mode"; then
+    include_filter=$(nativeaot_include_filter "$mode")
+    filter=$(nativeaot_filter "$mode")
+  else
+    filter=""
+  fi
 
   # Do not use --no-build: coverlet.msbuild needs to instrument assemblies.
   # Capture the pipeline status explicitly because this function's output is
   # consumed through command substitution by collect_coverage.
   set +e
   test_log=$(mktemp)
-  dotnet test "$project" --configuration Release -f net9.0 \
+  framework=$(target_framework "$mode")
+  dotnet_args=("$project" --configuration Release -f "$framework")
+  if [[ -n "$filter" ]]; then
+    dotnet_args+=(--filter "$filter")
+  fi
+  dotnet test "${dotnet_args[@]}" \
     /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
     /p:CoverletOutput=./TestResults/ \
     "/p:Include=${include_filter}" \
@@ -92,9 +211,16 @@ run_coverage() {
 
   coverage_file=$(find "$project_dir/TestResults" -name "*.cobertura.xml" -print -quit)
   if [[ -n "$coverage_file" && -f "$coverage_file" ]]; then
-    line_rate=$(grep -o 'line-rate="[^"]*"' "$coverage_file" | head -1 | cut -d'"' -f2)
-    if [[ -n "$line_rate" ]]; then
-      coverage_pct=$(echo "$line_rate * 100" | bc | cut -d. -f1)
+    if nativeaot_mode "$mode"; then
+      mapfile -t scope_files < <(nativeaot_scope_files "$mode")
+      coverage_pct=$(coverage_from_cobertura "$coverage_file" "${scope_files[@]}")
+    else
+      line_rate=$(grep -o 'line-rate="[^"]*"' "$coverage_file" | head -1 | cut -d'"' -f2)
+      if [[ -n "$line_rate" ]]; then
+        coverage_pct=$(echo "$line_rate * 100" | bc | cut -d. -f1)
+      fi
+    fi
+    if [[ -n "$coverage_pct" ]]; then
       echo "  Coverage: ${coverage_pct}%" >&2
       printf '%s\n' "$coverage_pct"
       return
@@ -129,7 +255,7 @@ collect_coverage() {
 
   echo "=== ${heading} Coverage Collection ==="
   while IFS= read -r test_project; do
-    if ! coverage=$(run_coverage "$test_project" "$(basename "$(dirname "$test_project")")"); then
+    if ! coverage=$(run_coverage "$test_project" "$(basename "$(dirname "$test_project")")" "$mode"); then
       echo "FAIL: Test execution failed for ${test_project}." >&2
       return 1
     fi

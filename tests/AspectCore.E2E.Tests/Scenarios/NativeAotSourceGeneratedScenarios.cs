@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AspectCore.Configuration;
@@ -771,6 +772,202 @@ public class NativeAotSourceGeneratedScenarios
         Assert.Equal(typeof(string), attr.TypeArguments[1]);
     }
 
+    [Fact]
+    public async Task SourceGeneratedAspectContext_DirectConstructor_Complete_UsesInvokeDelegate()
+    {
+        var serviceMethod = typeof(ISgBasicService).GetMethod(nameof(ISgBasicService.Add))!;
+        var implementationMethod = typeof(SgBasicService).GetMethod(nameof(SgBasicService.Add))!;
+        var proxyMethod = typeof(ISgBasicService).GetMethod(nameof(ISgBasicService.Add))!;
+        var serviceProvider = new ServiceCollection().BuildServiceProvider();
+        var implementation = new SgBasicService();
+        var proxy = new SgBasicService();
+        var parameters = new object[] { 3, 4 };
+        var context = CreateSourceGeneratedContext(
+            serviceProvider,
+            serviceMethod,
+            implementationMethod,
+            proxyMethod,
+            serviceMethod,
+            implementation,
+            proxy,
+            parameters,
+            new ConstantInvokeDelegate(7));
+
+        Assert.Same(serviceProvider, context.ServiceProvider);
+        Assert.Same(serviceMethod, context.ServiceMethod);
+        Assert.Same(implementationMethod, context.ImplementationMethod);
+        Assert.Same(proxyMethod, context.ProxyMethod);
+        Assert.Same(serviceMethod, context.PredicateMethod);
+        Assert.Same(implementation, context.Implementation);
+        Assert.Same(proxy, context.Proxy);
+        Assert.Same(parameters, context.Parameters);
+
+        await context.Complete();
+
+        Assert.Equal(7, context.ReturnValue);
+        (context as IDisposable)?.Dispose();
+    }
+
+    [Fact]
+    public void SourceGeneratedAspectContext_ServiceProvider_Throws_WhenMissing()
+    {
+        var method = typeof(ISgBasicService).GetMethod(nameof(ISgBasicService.Add))!;
+        var context = CreateSourceGeneratedContext(
+            serviceProvider: null,
+            serviceMethod: method,
+            implementationMethod: method,
+            proxyMethod: method,
+            predicateMethod: method,
+            targetInstance: new SgBasicService(),
+            proxyInstance: new SgBasicService(),
+            parameters: Array.Empty<object>(),
+            invokeDelegate: new ConstantInvokeDelegate(0));
+
+        Assert.Throws<NotSupportedException>(() => context.ServiceProvider);
+        (context as IDisposable)?.Dispose();
+    }
+
+    [Fact]
+    public void SourceGeneratedAspectContext_Dispose_CleansAdditionalData()
+    {
+        var method = typeof(ISgBasicService).GetMethod(nameof(ISgBasicService.Add))!;
+        var disposed = false;
+        var context = CreateSourceGeneratedContext(
+            new ServiceCollection().BuildServiceProvider(),
+            method,
+            method,
+            method,
+            method,
+            new SgBasicService(),
+            new SgBasicService(),
+            Array.Empty<object>(),
+            new ConstantInvokeDelegate(0));
+
+        context.AdditionalData["disposable"] = new DisposableTracker(() => disposed = true);
+        context.AdditionalData["plain"] = "value";
+
+        (context as IDisposable)?.Dispose();
+        (context as IDisposable)?.Dispose();
+
+        Assert.True(disposed);
+    }
+
+    [Fact]
+    public async Task SourceGeneratedAspectContext_Complete_WithNullImplementation_Breaks()
+    {
+        var method = typeof(ISgBasicService).GetMethod(nameof(ISgBasicService.Add))!;
+        var context = CreateSourceGeneratedContext(
+            new ServiceCollection().BuildServiceProvider(),
+            method,
+            method,
+            method,
+            method,
+            targetInstance: null,
+            proxyInstance: new SgBasicService(),
+            parameters: Array.Empty<object>(),
+            invokeDelegate: new ConstantInvokeDelegate(42));
+
+        await context.Complete();
+
+        Assert.Equal(0, context.ReturnValue);
+        (context as IDisposable)?.Dispose();
+    }
+
+    [Fact]
+    public async Task SourceGeneratedAspectContext_Break_ByRefReturn_UsesElementDefault()
+    {
+        var method = typeof(RefReturnService).GetMethod(nameof(RefReturnService.GetValue))!;
+        var service = new RefReturnService();
+        var context = CreateSourceGeneratedContext(
+            new ServiceCollection().BuildServiceProvider(),
+            method,
+            method,
+            method,
+            method,
+            service,
+            service,
+            Array.Empty<object>(),
+            new ConstantInvokeDelegate(42));
+
+        await context.Break();
+
+        Assert.Equal(0, context.ReturnValue);
+        (context as IDisposable)?.Dispose();
+    }
+
+    [Fact]
+    public async Task SourceGeneratedAspectContext_Invoke_CallsNext()
+    {
+        var method = typeof(ISgBasicService).GetMethod(nameof(ISgBasicService.Add))!;
+        var context = CreateSourceGeneratedContext(
+            new ServiceCollection().BuildServiceProvider(),
+            method,
+            method,
+            method,
+            method,
+            new SgBasicService(),
+            new SgBasicService(),
+            Array.Empty<object>(),
+            new ConstantInvokeDelegate(0));
+        var invoked = false;
+
+        await context.Invoke(_ =>
+        {
+            invoked = true;
+            return Task.CompletedTask;
+        });
+
+        Assert.True(invoked);
+        (context as IDisposable)?.Dispose();
+    }
+
+    private static AspectContext CreateSourceGeneratedContext(
+        IServiceProvider? serviceProvider,
+        MethodInfo serviceMethod,
+        MethodInfo implementationMethod,
+        MethodInfo proxyMethod,
+        MethodInfo predicateMethod,
+        object? targetInstance,
+        object? proxyInstance,
+        object[] parameters,
+        IAspectInvokeDelegate invokeDelegate)
+    {
+        var contextType = typeof(AspectContextFactory).Assembly.GetType(
+            "AspectCore.DynamicProxy.SourceGeneratedAspectContext",
+            throwOnError: true)!;
+        var constructor = contextType.GetConstructor(
+            BindingFlags.Instance | BindingFlags.Public,
+            binder: null,
+            new[]
+            {
+                typeof(IServiceProvider),
+                typeof(MethodInfo),
+                typeof(MethodInfo),
+                typeof(MethodInfo),
+                typeof(MethodInfo),
+                typeof(object),
+                typeof(object),
+                typeof(object[]),
+                typeof(IAspectInvokeDelegate)
+            },
+            modifiers: null);
+
+        Assert.NotNull(constructor);
+
+        return (AspectContext)constructor!.Invoke(new object?[]
+        {
+            serviceProvider,
+            serviceMethod,
+            implementationMethod,
+            proxyMethod,
+            predicateMethod,
+            targetInstance,
+            proxyInstance,
+            parameters,
+            invokeDelegate
+        });
+    }
+
     private sealed class MinimalFactory : IAspectContextFactory
     {
         public AspectContext CreateContext(AspectActivatorContext activatorContext)
@@ -789,5 +986,24 @@ public class NativeAotSourceGeneratedScenarios
     private sealed class DummyDelegate : IAspectInvokeDelegate
     {
         public object Invoke(object instance, object[] parameters) => null!;
+    }
+
+    private sealed class ConstantInvokeDelegate : IAspectInvokeDelegate
+    {
+        private readonly object? _value;
+
+        public ConstantInvokeDelegate(object? value)
+        {
+            _value = value;
+        }
+
+        public object Invoke(object instance, object[] parameters) => _value!;
+    }
+
+    private sealed class RefReturnService
+    {
+        private int _value;
+
+        public ref int GetValue() => ref _value;
     }
 }

@@ -349,6 +349,183 @@ jobs:
             output: { title: "E2E Test Coverage", summary },
           });
 
+  nativeaot-test-execution:
+    name: NativeAOT Test Execution
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Collect NativeAOT unit coverage
+      id: unit_coverage
+      continue-on-error: true
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh collect nativeaot-unit --output coverage-results/nativeaot-unit.env
+    - name: Collect NativeAOT E2E coverage
+      id: e2e_coverage
+      continue-on-error: true
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh collect nativeaot-e2e --output coverage-results/nativeaot-e2e.env
+    - name: Publish NativeAOT execution coverage check
+      if: ${{ steps.unit_coverage.outcome == 'success' && steps.e2e_coverage.outcome == 'success' }}
+      uses: actions/github-script@v7
+      env:
+        UNIT_COVERAGE: ${{ steps.unit_coverage.outputs.coverage }}
+        UNIT_THRESHOLD: ${{ steps.unit_coverage.outputs.threshold }}
+        E2E_COVERAGE: ${{ steps.e2e_coverage.outputs.coverage }}
+        E2E_THRESHOLD: ${{ steps.e2e_coverage.outputs.threshold }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const unitCoverage = process.env.UNIT_COVERAGE;
+          const unitThreshold = process.env.UNIT_THRESHOLD;
+          const e2eCoverage = process.env.E2E_COVERAGE;
+          const e2eThreshold = process.env.E2E_THRESHOLD;
+          const title = `NativeAOT Test: passed (UT ${unitCoverage}% / min ${unitThreshold}%, E2E ${e2eCoverage}% / min ${e2eThreshold}%)`;
+          const summary = [
+            "## NativeAOT Test Execution",
+            "",
+            "NativeAOT focused unit and E2E coverage were collected successfully.",
+            "",
+            "| Scope | Current PR | Threshold |",
+            "| --- | --- | --- |",
+            `| Unit | ${unitCoverage}% | ${unitThreshold}% |`,
+            `| E2E | ${e2eCoverage}% | ${e2eThreshold}% |`,
+          ].join("\n");
+
+          await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: title,
+            head_sha: context.payload.pull_request.head.sha,
+            status: "completed",
+            conclusion: "success",
+            output: { title: "NativeAOT Test Execution", summary },
+          });
+    - name: Fail when NativeAOT test execution failed
+      if: ${{ steps.unit_coverage.outcome != 'success' || steps.e2e_coverage.outcome != 'success' }}
+      shell: bash
+      run: exit 1
+    - name: Upload NativeAOT coverage result
+      if: ${{ steps.unit_coverage.outcome == 'success' && steps.e2e_coverage.outcome == 'success' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: nativeaot-coverage-result
+        path: |
+          coverage-results/nativeaot-unit.env
+          coverage-results/nativeaot-e2e.env
+        if-no-files-found: error
+        retention-days: 1
+
+  nativeaot-coverage-result:
+    name: NativeAOT Coverage Result
+    needs: nativeaot-test-execution
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Download NativeAOT coverage result
+      if: ${{ needs.nativeaot-test-execution.result == 'success' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: nativeaot-coverage-result
+        path: coverage-results
+    - name: Assert NativeAOT unit coverage
+      id: unit_coverage
+      if: ${{ needs.nativeaot-test-execution.result == 'success' }}
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh assert nativeaot-unit --input coverage-results/nativeaot-unit.env
+    - name: Assert NativeAOT E2E coverage
+      id: e2e_coverage
+      if: ${{ needs.nativeaot-test-execution.result == 'success' }}
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh assert nativeaot-e2e --input coverage-results/nativeaot-e2e.env
+    - name: Set NativeAOT execution failure result
+      id: execution_failure
+      if: ${{ needs.nativeaot-test-execution.result != 'success' }}
+      shell: bash
+      run: |
+        echo "unit_coverage=unavailable" >> "$GITHUB_OUTPUT"
+        echo "unit_threshold=100" >> "$GITHUB_OUTPUT"
+        echo "unit_passed=false" >> "$GITHUB_OUTPUT"
+        echo "e2e_coverage=unavailable" >> "$GITHUB_OUTPUT"
+        echo "e2e_threshold=95" >> "$GITHUB_OUTPUT"
+        echo "e2e_passed=false" >> "$GITHUB_OUTPUT"
+    - name: Publish NativeAOT coverage check
+      uses: actions/github-script@v7
+      env:
+        EXECUTION_RESULT: ${{ needs.nativeaot-test-execution.result }}
+        UNIT_COVERAGE: ${{ steps.unit_coverage.outputs.coverage || steps.execution_failure.outputs.unit_coverage }}
+        UNIT_THRESHOLD: ${{ steps.unit_coverage.outputs.threshold || steps.execution_failure.outputs.unit_threshold }}
+        UNIT_PASSED: ${{ steps.unit_coverage.outputs.passed || steps.execution_failure.outputs.unit_passed }}
+        E2E_COVERAGE: ${{ steps.e2e_coverage.outputs.coverage || steps.execution_failure.outputs.e2e_coverage }}
+        E2E_THRESHOLD: ${{ steps.e2e_coverage.outputs.threshold || steps.execution_failure.outputs.e2e_threshold }}
+        E2E_PASSED: ${{ steps.e2e_coverage.outputs.passed || steps.execution_failure.outputs.e2e_passed }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const executionResult = process.env.EXECUTION_RESULT;
+          const unitCoverage = process.env.UNIT_COVERAGE;
+          const unitThreshold = process.env.UNIT_THRESHOLD;
+          const unitPassed = process.env.UNIT_PASSED === "true";
+          const e2eCoverage = process.env.E2E_COVERAGE;
+          const e2eThreshold = process.env.E2E_THRESHOLD;
+          const e2ePassed = process.env.E2E_PASSED === "true";
+          const unitAvailable = /^\d+$/.test(unitCoverage);
+          const e2eAvailable = /^\d+$/.test(e2eCoverage);
+          const conclusion = executionResult !== "success"
+            ? "failure"
+            : unitPassed && e2ePassed ? "success" : "failure";
+          const result = conclusion === "success" ? "✅ Passed" : "❌ Failed";
+          const title = unitAvailable && e2eAvailable
+            ? `NativeAOT Coverage: UT ${unitCoverage}% / min ${unitThreshold}%, E2E ${e2eCoverage}% / min ${e2eThreshold}%`
+            : `NativeAOT Coverage: unavailable / min UT ${unitThreshold}%, E2E ${e2eThreshold}%`;
+          const summary = [
+            "## NativeAOT Coverage",
+            "",
+            "| Scope | Current PR | Threshold | Result |",
+            "| --- | --- | --- | --- |",
+            `| Unit | ${unitAvailable ? `${unitCoverage}%` : "Unavailable"} | ${unitThreshold}% | ${unitPassed ? "✅ Passed" : "❌ Failed"} |`,
+            `| E2E | ${e2eAvailable ? `${e2eCoverage}%` : "Unavailable"} | ${e2eThreshold}% | ${e2ePassed ? "✅ Passed" : "❌ Failed"} |`,
+            "",
+            `Overall result: ${result}`,
+            executionResult === "success"
+              ? "The coverage result was collected by the NativeAOT Test Execution job."
+              : `The NativeAOT Test Execution job completed with \`${executionResult}\`; no valid coverage result was produced.`,
+          ].join("\n");
+
+          await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: title,
+            head_sha: context.payload.pull_request.head.sha,
+            status: "completed",
+            conclusion,
+            output: { title: "NativeAOT Coverage", summary },
+          });
+
   codeql:
     runs-on: ubuntu-latest
     permissions:

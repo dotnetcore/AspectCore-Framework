@@ -28,7 +28,7 @@ internal static class ProxyEmitter
 
         // Generic methods are supported (proxy method emits generic arity + MakeGenericMethod).
 
-        if (TryReportUnsupportedByRefLikeParams(entry.ServiceType, context))
+        if (TryReportUnsupportedByRefLikeMembers(entry.ServiceType, context))
         {
             return null;
         }
@@ -126,7 +126,7 @@ internal static class ProxyEmitter
         // Generic methods are supported (proxy method emits generic arity + MakeGenericMethod).
         // Generic classes are also supported: type parameters are forwarded to the proxy.
 
-        if (TryReportUnsupportedByRefLikeParams(entry.ServiceType, context))
+        if (TryReportUnsupportedByRefLikeMembers(entry.ServiceType, context))
         {
             return null;
         }
@@ -1565,34 +1565,50 @@ internal static class ProxyEmitter
         }
     }
 
-    private static bool TryReportUnsupportedByRefLikeParams(INamedTypeSymbol serviceType, SourceProductionContext context)
+    private static bool TryReportUnsupportedByRefLikeMembers(INamedTypeSymbol serviceType, SourceProductionContext context)
     {
         foreach (var method in GetProxyableMethods(serviceType).Concat(GetProxyablePropertyAccessors(serviceType)))
         {
-            var parameter = method.Parameters.FirstOrDefault(p => p.IsParams && IsByRefLikeType(p.Type));
-            if (parameter is null)
+            if (TryReportUnsupportedByRefLikeMethodMember(method, context))
             {
-                continue;
+                return true;
             }
-
-            context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedByRefLikeParams(method, parameter));
-            return true;
         }
 
         foreach (var constructor in serviceType.InstanceConstructors.Where(c =>
                      c.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal))
         {
-            var parameter = constructor.Parameters.FirstOrDefault(p => p.IsParams && IsByRefLikeType(p.Type));
-            if (parameter is null)
+            if (TryReportUnsupportedByRefLikeMethodMember(constructor, context))
             {
-                continue;
+                return true;
             }
-
-            context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedByRefLikeParams(constructor, parameter));
-            return true;
         }
 
         return false;
+    }
+
+    private static bool TryReportUnsupportedByRefLikeMethodMember(IMethodSymbol method, SourceProductionContext context)
+    {
+        var diagnostic = NativeAotSignatureDiagnosticRules.Analyze(method);
+        if (!diagnostic.HasDiagnostic)
+        {
+            return false;
+        }
+
+        switch (diagnostic.Kind)
+        {
+            case NativeAotSignatureDiagnosticKind.ByRefLikeReturn:
+                context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedByRefLikeReturn(method));
+                break;
+            case NativeAotSignatureDiagnosticKind.ByRefLikeParamsParameter:
+                context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedByRefLikeParams(method, diagnostic.Parameter!));
+                break;
+            case NativeAotSignatureDiagnosticKind.ByRefLikeParameter:
+                context.ReportDiagnostic(GeneratorDiagnostics.UnsupportedByRefLikeParameter(method, diagnostic.Parameter!));
+                break;
+        }
+
+        return true;
     }
 
     private static IEnumerable<IMethodSymbol> GetProxyablePropertyAccessors(INamedTypeSymbol serviceType)
@@ -1620,11 +1636,6 @@ internal static class ProxyEmitter
         return serviceType.GetMembers().OfType<IMethodSymbol>()
             .Where(m => m.MethodKind == MethodKind.Ordinary)
             .Where(IsOverridable);
-    }
-
-    private static bool IsByRefLikeType(ITypeSymbol type)
-    {
-        return type is INamedTypeSymbol { IsRefLikeType: true };
     }
 
     private static string EmitArgument(IParameterSymbol p)
