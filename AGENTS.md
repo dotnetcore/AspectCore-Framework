@@ -1,6 +1,6 @@
 # AGENTS.md — AspectCore-Framework
 
-Project-level AI context for the AspectCore-Framework repository. Generated from the current code tree (commit `d7750bf`, version `3.0.0-rc.1`). Keep this file lean; link to external docs instead of inlining them.
+Project-level AI context for the AspectCore-Framework repository. Generated from the current code tree (version `3.0.0-rc.1`). Keep this file lean; link to external docs instead of inlining them.
 
 ---
 
