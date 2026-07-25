@@ -1,7 +1,7 @@
 # NativeAOT AOP 设计方案
 
-> 版本：2026-07-20 v4 (final)  
-> 状态：已批准  
+> 版本：2026-07-20 v4 (final)
+> 状态：已批准
 
 ---
 
@@ -237,7 +237,7 @@ namespace AspectCore.DynamicProxy
         /// 1. 调用实现方法获取返回值
         /// 2. 等待异步完成（但不提取 Result，保留 Task/ValueTask 对象）
         /// 3. 赋值给 ReturnValue
-        /// 
+        ///
         /// 与 RuntimeAspectContext 的区别仅在实现机制：
         /// - 方法调度：IAspectInvokeDelegate（编译时委托）替代 MethodReflector（DynamicMethod）
         /// - 异步等待：NativeAOT 安全实现替代 Expression.Compile() 路径
