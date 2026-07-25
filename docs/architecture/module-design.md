@@ -12,7 +12,7 @@ AspectCore 遵循单向依赖：**契约在最底层，实现居中，集成在�
 - 集成/特性包只依赖 `Core` 或 `Abstractions`，互不横向耦合（`AspNetCore`、`DataAnnotations` 是刻意的组合例外）。
 - 编译时引擎（`SourceGenerator`）独立于运行时，仅在生成代码中引用运行时类型的全限定名。
 
-版本与语言级别统一由 `build/common.props` 管理（`LangVersion=10.0`，产品版本见 `build/version.props`）；`SourceGenerator` 自身覆盖为 `LangVersion=latest`。
+版本与语言级别统一由 `build/common.props` 管理（`LangVersion=13.0`，产品版本见 `build/version.props`）；`SourceGenerator` 自身覆盖为 `LangVersion=latest`。
 
 ## 2. 依赖关系图
 
@@ -30,6 +30,7 @@ Extensions.Reflection ◄──┐   │
     ├── Extensions.Windsor ────────────── (Castle.Windsor)
     ├── Extensions.LightInject ────────── (LightInject)
     ├── Extensions.Hosting ────────────── (MS.Hosting)  → 也依赖 DependencyInjection
+    ├── Extensions.CastleCompat ───────── (Castle.Core)  → 也依赖 DependencyInjection
     ├── Extensions.AspectScope
     ├── Extensions.DataValidation ─────── (仅依赖 Abstractions + Reflection)
     ├── Extensions.DataAnnotations ────── → 也依赖 DataValidation
@@ -68,7 +69,7 @@ SourceGenerator（独立 Roslyn 分析器，无项目引用）
 - 反射器类：`MethodReflector`（含 `Static`/`Call`/`OpenGeneric` 变体）、`ConstructorReflector`、`FieldReflector`、`PropertyReflector`、`TypeReflector`、`ParameterReflector`、`CustomAttributeReflector`，均派生自 `MemberReflector<T>` — `MethodReflector.cs:10`、`MemberReflector.cs:7`
 - 缓存：`ReflectorCacheUtils<TMember,TReflector>` 用 `ConcurrentDictionary.GetOrAdd` 保证每个反射器只编译一次 — `Internals/ReflectorUtils.cs:8`
 - IL 辅助：`Emit/ILGeneratorExtensions.cs`（`EmitLoadArg`/`EmitLdRef`/`EmitStRef`/类型转换等）
-- 依赖：现代 TFM 无外部依赖；仅 `netstandard2.0` 需 `System.Threading.Tasks.Extensions`、`System.Reflection.Emit.Lightweight`、`System.Runtime.CompilerServices.Unsafe`
+- 依赖：所有目标框架（net6.0+）均无外部依赖
 
 ## 4. 运行时核心层
 
@@ -113,6 +114,7 @@ SourceGenerator（独立 Roslyn 分析器，无项目引用）
 | `Extensions.Windsor` | Castle Windsor | `IWindsorContainer.AddAspectCoreFacility(...)`（Facility 形式） | `Castle.Windsor 6.0.0` |
 | `Extensions.LightInject` | LightInject | `IServiceContainer.RegisterDynamicProxy(...)`（`Decorate` 形式） | `LightInject 6.6.4` |
 | `Extensions.Hosting` | 泛型主机 | `IHostBuilder.UseServiceContext()` / `UseDynamicProxy()` / `ConfigureDynamicProxy()` | `Microsoft.Extensions.Hosting`（并依赖 `DependencyInjection`） |
+| `Extensions.CastleCompat` | Castle DynamicProxy 迁移 | Castle DynamicProxy 兼容层(shim)，为存量 Castle 代码提供渐进迁移到 AspectCore 的适配 | `Castle.Core 5.2.1`（并依赖 `Core` + `DependencyInjection`） |
 
 入口位置：`ServiceCollectionExtensions.cs:20`、`Autofac/ContainerBuilderExtensions.cs:16`、`Windsor/FacilityExtensions.cs:11`、`LightInject/ContainerBuilderExtensions.cs:32`、`Hosting/HostBuilderExtensions.cs:12`。
 
@@ -130,7 +132,7 @@ SourceGenerator（独立 Roslyn 分析器，无项目引用）
 
 ## 7. 测试、示例、基准（非发行）
 
-- `tests/`：`AspectCore.Core.Tests`（含 `EngineParity/` 双引擎一致性测试）、`AspectCore.E2E.Tests`、各容器适配测试、`AspectCore.Extensions.Reflection.Test` 等。详见 [测试策略](../testing/testing-strategy.md)。
+- `tests/`：`AspectCore.Core.Tests`（含 `EngineParity/` 双引擎一致性测试）、`AspectCore.E2E.Tests`、各容器适配测试、`AspectCore.Extensions.Reflection.Test`、`AspectCore.Extensions.CastleCompat.Tests`，以及 NativeAOT 端到端验证项目 `AspectCore.NativeAot.E2E`（可执行程序，非 xUnit）等。详见 [测试策略](../testing/testing-strategy.md)。
 - `sample/`：AspectScope、Autofac、DataAnnotations、DependencyInjection 控制台示例。
 - `benchmark/`、`benchmarks/`：Core 与 Reflection 的基准项目。
 

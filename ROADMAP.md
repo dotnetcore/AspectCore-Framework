@@ -139,8 +139,13 @@ AspectCore 不再把增长重点放在“更大的 IoC 容器”或“更复杂�
 
 | 风险 | 等级 | 说明 | 缓解策略 |
 |------|------|------|----------|
+| **NativeAOT 过时风险** | 最高 | 若 12–18 个月内无法提供端到端 NativeAOT 支持，将与平台方向不兼容 | P0-3 为最高优先级；在 NativeAOT 路径上彻底移除 `DynamicMethod`；建立 NativeAOT CI 门禁 |
 | NativeAOT 体验不可信 | 最高 | 只要用户遇到运行时崩溃或不可解释的 publish failure，就很难相信 Source Generator 路径 | 把失败前移到 `ACSGxxx` 诊断；NativeAOT E2E 必须 publish + run；明确 DynamicProxy 非 AOT |
+| **Metalama 免费层扩张** | 高 | Metalama 若扩大免费层功能，将侵蚀 AspectCore"免费 + 开源"的差异化优势 | 强化开源社区治理、双引擎一致性、与 MSDI 深度集成等 Metalama 不具备的优势；保持完全开源 |
 | 迁移成本过高 | 高 | Castle/Windsor 用户不是因为框架名迁移，而是因为 AOT、性能和现代 C# 需求迁移 | analyzer/CLI 输出迁移报告；保留兼容垫片；提供 before/after sample |
+| **Castle Source Generator 发布** | 中 | Castle v6.0 若发布 Source Generator，将缩小 AspectCore 在编译时方向的差距 | 加快 P0-3（NativeAOT）落地，强化双引擎一致性与现代 C# 特性适配，在 Castle 之前占据 NativeAOT 的生态位 |
+| **社区可持续性** | 中 | 团队规模小，节奏激进，存在 burnout 风险 | 建立贡献者指南与自动化 CI/CD 降低维护成本；优先保障 P0 事项，P1 事项可吸纳社区贡献；避免在非核心方向过度消耗 |
+| **Keyed 服务缺口损害信任** | 中 | `NotImplementedException` 被作为"预期行为"测试，传递出"功能不完整"的负面信号 | P0-1 + P0-2 立即修复；修复后发布公告，主动恢复用户信心 |
 | 横切包范围失控 | 中 | 官方包过多会变成维护负担，并把项目拖向应用框架 | 第一批只做基础设施包；复用成熟生态；高风险语义延后 |
 | benchmark 不可复现 | 中 | 宣传性能但无可复现结果会损害信任 | BenchmarkDotNet 工程、环境说明、结果归档、CI 编译门禁 |
 
@@ -148,11 +153,33 @@ AspectCore 不再把增长重点放在“更大的 IoC 容器”或“更复杂�
 
 ## 五、决策原则
 
-1. **平台方向优先**：NativeAOT / trimming / Source Generator 是主线。
-2. **迁移价值优先**：优先承接已有 Castle/Windsor 用户的真实迁移成本。
-3. **生态复用优先**：OpenTelemetry、Polly、Microsoft.Extensions.* 这类成熟标准优先，不自造协议。
-4. **可诊断优先**：无法支持的场景必须有清晰诊断、文档和替代路径。
-5. **兼容优先**：默认运行时行为不轻易改变；Source Generator / NativeAOT 以显式 opt-in 和 `Strict` 模式推进。
+| 阶段 | 时间窗口 | 事项 | 优先级 |
+|------|----------|------|--------|
+| **短期** | 第 1–2 周 | P0-1：修复 keyed 服务解析缺口 | P0 |
+| | | P0-2：keyed 服务拦截集成测试 | P0 |
+| **中期** | 第 1–3 个月 | P0-3：端到端 NativeAOT 支持 | P0 |
+| | | P1-2：Windsor 迁移指南与工具 | P1 |
+| | | P1-3：对标竞品基准测试套件 | P1 |
+| **长期** | 第 3–12 个月 | 持续跟进 C# 最新特性适配 | P2 |
+| | | 扩展生态集成（更多 DI 容器、框架） | P2 |
+| | | 社区治理与贡献者体系建设 | P2 |
+
+> **优先级说明**：P0 = 必须立即完成，阻塞核心竞争力或损害用户信任；P1 = 应在中期内完成，强化差异化优势；P2 = 长期投入，视社区资源与市场反馈动态调整。
+
+---
+
+## 六、优先级决策原则
+
+当资源有限时，按以下顺序取舍：
+
+1. **用户信任优先**：已暴露的功能缺口（如 keyed 服务）必须先于新特性修复。
+2. **平台方向优先**：NativeAOT / trimming / Source Generator 是主线；NativeAOT 是 .NET 平台的确定性方向，与之兼容是生存前提。
+3. **迁移价值优先**：优先承接已有 Castle/Windsor 用户的真实迁移成本。
+4. **差异化优先**：选择能放大 AspectCore 独特优势（双引擎一致性、现代 C# 适配、开源免费）的投入。
+5. **生态复用优先**：OpenTelemetry、Polly、Microsoft.Extensions.* 这类成熟标准优先，不自造协议。
+6. **可诊断优先**：无法支持的场景必须有清晰诊断、文档和替代路径。
+7. **可验证优先**：每项工作必须有明确的验收标准与 CI 门禁，避免"完成了但无法证明"。
+8. **兼容优先**：默认运行时行为不轻易改变；Source Generator / NativeAOT 以显式 opt-in 和 `Strict` 模式推进。
 
 ---
 

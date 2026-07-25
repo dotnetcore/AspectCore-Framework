@@ -1,6 +1,6 @@
 # AGENTS.md — AspectCore-Framework
 
-Project-level AI context for the AspectCore-Framework repository. Generated from the current code tree (commit `d7750bf`, version `2.7.0`). Keep this file lean; link to external docs instead of inlining them.
+Project-level AI context for the AspectCore-Framework repository. Generated from the current code tree (version `3.0.0-rc.1`). Keep this file lean; link to external docs instead of inlining them.
 
 ---
 
@@ -12,14 +12,14 @@ Project-level AI context for the AspectCore-Framework repository. Generated from
 - **Source Generator** (compile-time, Roslyn `IIncrementalGenerator`) — lives in `AspectCore.SourceGenerator`.
 
 **Tech stack (concrete):**
-- **.NET target frameworks (libraries):** `net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0` (AspNetCore drops netstandard; SourceGenerator is `netstandard2.0` only).
+- **.NET target frameworks (libraries):** `net10.0;net9.0;net8.0;net6.0` (SourceGenerator is `netstandard2.0` only, as required by Roslyn).
 - **.NET target frameworks (tests):** `net10.0;net9.0;net8.0;net6.0`.
-- **C# language version:** `10.0` for `src/` (set in `build/common.props`); `13.0` for tests.
+- **C# language version:** `13.0` for `src/` (set in `build/common.props`); `13.0` for tests.
 - **Test framework:** xUnit `2.9.2` + `Microsoft.NET.Test.Sdk 17.12.0`.
 - **Coverage:** `coverlet.msbuild 6.0.2` (Cobertura), thresholds enforced in CI (unit 95%, E2E 80%).
 - **DI integrations:** MsDI, Autofac `[7.0.0, 8.0.0)`, Castle.Windsor `6.0.0`, LightInject `6.6.4`, plus Generic Host and ASP.NET Core adapters.
 - **Benchmarks:** BenchmarkDotNet `0.14.0`.
-- **Version source of truth:** `build/version.props` (`VersionMajor=2`, `VersionMinor=7`, `VersionPatch=0`).
+- **Version source of truth:** `build/version.props` (`VersionMajor=3`, `VersionMinor=0`, `VersionPatch=0`, `VersionQuality=rc.1`).
 
 ---
 
@@ -41,7 +41,8 @@ Project-level AI context for the AspectCore-Framework repository. Generated from
 | `src/AspectCore.Extensions.Configuration/` | Configuration injection via `Microsoft.Extensions.Configuration`. | – |
 | `src/AspectCore.Extensions.DataAnnotations/` | DataAnnotations-based validation extension. | – |
 | `src/AspectCore.Extensions.DataValidation/` | Data validation extension. | – |
-| `tests/` | 9 xUnit test projects. `tests/Directory.Build.props` injects `coverlet.msbuild`. | – |
+| `src/AspectCore.Extensions.CastleCompat/` | Castle DynamicProxy compatibility shim for gradual migration to AspectCore. Depends on `Castle.Core`. Targets `net10.0;net9.0;net8.0`. | – |
+| `tests/` | 10 xUnit test projects + `AspectCore.NativeAot.E2E` (a `PublishAot` executable, not xUnit). `tests/Directory.Build.props` injects `coverlet.msbuild`. | – |
 | `sample/` | 4 runnable sample projects (DI console, AspectScope, Autofac, DataAnnotations). | – |
 | `benchmark/` `benchmarks/` | BenchmarkDotNet projects. | – |
 | `docs/` | Architecture, guide, getting-started, development, testing docs (bilingual; `docs/en/` for English). | `docs/README.md` |
@@ -67,7 +68,7 @@ for project in $(find ./src -name "*.csproj"); do
 done
 
 # Build with explicit version (CI release flow)
-dotnet build --configuration Release ./src/AspectCore.Core/AspectCore.Core.csproj -p:Version=2.7.0
+dotnet build --configuration Release ./src/AspectCore.Core/AspectCore.Core.csproj -p:Version=3.0.0-rc.1
 
 # Format check (PR CI gate — currently warns, does not fail)
 dotnet format AspectCore-Framework.sln --verify-no-changes
@@ -81,13 +82,13 @@ dotnet format AspectCore-Framework.sln
 # Pack all src projects (CI build flow, includes source/symbols)
 for project in $(find ./src -name "*.csproj"); do
   dotnet pack --configuration Release --no-build "$project" \
-    -p:PackageVersion=2.7.0 --include-source --output ./artifacts/packages
+    -p:PackageVersion=3.0.0-rc.1 --include-source --output ./artifacts/packages
 done
 
 # Pack single project
 dotnet pack --configuration Release --no-build \
   ./src/AspectCore.Core/AspectCore.Core.csproj \
-  -p:PackageVersion=2.7.0 --output ./artifacts/packages
+  -p:PackageVersion=3.0.0-rc.1 --output ./artifacts/packages
 ```
 
 **Run a sample:**
@@ -150,7 +151,7 @@ dotnet test ./tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj \
 
 ## 6. Code Style Guidelines
 
-Formatting is enforced by `dotnet format` (no `.editorconfig`; uses .NET SDK defaults). `src/Directory.Build.props` enables .NET analyzers at informational level (non-blocking). `LangVersion=10.0` for `src/`.
+Formatting is enforced by `dotnet format` (no `.editorconfig`; uses .NET SDK defaults). `src/Directory.Build.props` enables .NET analyzers at informational level (non-blocking). `LangVersion=13.0` for `src/`.
 
 **Namespaces — block-scoped, not file-scoped:**
 ```csharp
@@ -206,6 +207,7 @@ public async Task Invoke(AspectContext context, AspectDelegate next)
 - ✅ **Always do** — run `dotnet format` locally before pushing to avoid the CI lint gate.
 - ✅ **Always do** — put new public interfaces/attributes in `AspectCore.Abstractions`; implementations in `Core` or the relevant extension.
 - ✅ **Always do** — use Conventional Commits and the fixed committer identity (`Haoyang Liu`).
+- ✅ **Always do** — after changing code functionality, check whether `AGENTS.md`, `README`, `ROADMAP`, and `docs/` have drifted from the new behavior; if so, update the affected docs in the same change so documentation stays in sync with the code.
 - ⚠️ **Ask first** — bumping `build/version.props` (release flow auto-bumps minor only; patch bumps need explicit approval).
 - ⚠️ **Ask first** — changing target frameworks or `LangVersion` in `build/common.props` (affects all packages and CI matrix).
 - ⚠️ **Ask first** — adding a new DI container integration or a new top-level package.

@@ -23,6 +23,7 @@ AspectCore is split into multiple NuGet packages by responsibility: the core lib
 | `AspectCore.Extensions.Configuration` | Injects configuration values from `IConfiguration`: `AddConfigurationInject()`. |
 | `AspectCore.Extensions.DataValidation` | Data-validation infrastructure (abstractions and interceptors). |
 | `AspectCore.Extensions.DataAnnotations` | A validation implementation based on `System.ComponentModel.DataAnnotations`: `AddDataAnnotations(...)`. |
+| `AspectCore.Extensions.CastleCompat` | A Castle DynamicProxy compatibility shim that provides gradual-migration adaptation from existing Castle code to AspectCore. |
 
 ## Compile-time engine
 
@@ -36,11 +37,12 @@ The Source Generator is a separate engine from the runtime DynamicProxy. For the
 
 | Package category | Target frameworks |
 |--------|----------|
-| Core libraries and most integration packages (`AspectCore.Abstractions`, `AspectCore.Core`, `AspectCore.Extensions.Reflection`, `AspectCore.Extensions.DependencyInjection`, Autofac/Windsor/LightInject/Hosting, Configuration, DataAnnotations, etc.) | `net9.0`, `net8.0`, `net7.0`, `net6.0`, `netstandard2.1`, `netstandard2.0` |
-| `AspectCore.Extensions.AspNetCore` | `net9.0`, `net8.0`, `net7.0`, `net6.0` (no netstandard) |
+| Core libraries and most integration packages (`AspectCore.Abstractions`, `AspectCore.Core`, `AspectCore.Extensions.Reflection`, `AspectCore.Extensions.DependencyInjection`, Autofac/Windsor/LightInject/Hosting, Configuration, DataAnnotations, etc.) | `net10.0`, `net9.0`, `net8.0`, `net6.0` |
+| `AspectCore.Extensions.AspNetCore` | `net10.0`, `net9.0`, `net8.0`, `net6.0` |
+| `AspectCore.Extensions.CastleCompat` | `net10.0`, `net9.0`, `net8.0` |
 | `AspectCore.SourceGenerator` | `netstandard2.0` (analyzer convention) |
 
-> The framework lists above come from the `TargetFrameworks` in each package's `.csproj`. The core libraries cover older runtimes through `netstandard2.0`/`netstandard2.1`; `AspectCore.Extensions.AspNetCore` targets only `net6.0` and above.
+> The framework lists above come from the `TargetFrameworks` in each package's `.csproj`. The core libraries and integration packages support `net6.0` at minimum; `AspectCore.SourceGenerator`, as a Roslyn analyzer, must target `netstandard2.0` so the compiler can load it.
 
 ## Install commands
 

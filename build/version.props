@@ -3,7 +3,7 @@
     <VersionMajor>3</VersionMajor>
     <VersionMinor>0</VersionMinor>
     <VersionPatch>0</VersionPatch>
-    <VersionQuality>beta.1</VersionQuality>
+    <VersionQuality>rc.1</VersionQuality>
     <VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
     <VersionSuffix Condition="'$(VersionQuality)' != ''">$(VersionQuality)</VersionSuffix>
   </PropertyGroup>

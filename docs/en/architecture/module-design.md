@@ -12,7 +12,7 @@ AspectCore follows unidirectional dependencies: **contracts at the bottom, imple
 - Integration/feature packages depend only on `Core` or `Abstractions`, without horizontal coupling among themselves (`AspNetCore` and `DataAnnotations` are deliberate composition exceptions).
 - The compile-time engine (`SourceGenerator`) is independent of the runtime, and only references fully qualified names of runtime types within its generated code.
 
-Versioning and language level are managed uniformly by `build/common.props` (`LangVersion=10.0`, product version in `build/version.props`); `SourceGenerator` itself overrides this to `LangVersion=latest`.
+Versioning and language level are managed uniformly by `build/common.props` (`LangVersion=13.0`, product version in `build/version.props`); `SourceGenerator` itself overrides this to `LangVersion=latest`.
 
 ## 2. Dependency Graph
 
@@ -30,6 +30,7 @@ Extensions.Reflection ◄──┐   │
     ├── Extensions.Windsor ────────────── (Castle.Windsor)
     ├── Extensions.LightInject ────────── (LightInject)
     ├── Extensions.Hosting ────────────── (MS.Hosting)  -> also depends on DependencyInjection
+    ├── Extensions.CastleCompat ───────── (Castle.Core)  -> also depends on DependencyInjection
     ├── Extensions.AspectScope
     ├── Extensions.DataValidation ─────── (depends only on Abstractions + Reflection)
     ├── Extensions.DataAnnotations ────── -> also depends on DataValidation
@@ -68,7 +69,7 @@ A standalone library that uses `DynamicMethod` + IL emit to compile cached deleg
 - Reflector classes: `MethodReflector` (with `Static`/`Call`/`OpenGeneric` variants), `ConstructorReflector`, `FieldReflector`, `PropertyReflector`, `TypeReflector`, `ParameterReflector`, `CustomAttributeReflector`, all derived from `MemberReflector<T>` — `MethodReflector.cs:10`, `MemberReflector.cs:7`
 - Caching: `ReflectorCacheUtils<TMember,TReflector>` uses `ConcurrentDictionary.GetOrAdd` to ensure each reflector is compiled only once — `Internals/ReflectorUtils.cs:8`
 - IL helpers: `Emit/ILGeneratorExtensions.cs` (`EmitLoadArg`/`EmitLdRef`/`EmitStRef`/type conversions, etc.)
-- Dependencies: modern TFMs have no external dependencies; only `netstandard2.0` needs `System.Threading.Tasks.Extensions`, `System.Reflection.Emit.Lightweight`, and `System.Runtime.CompilerServices.Unsafe`
+- Dependencies: all target frameworks (net6.0+) have no external dependencies
 
 ## 4. Runtime Core Layer
 
@@ -113,6 +114,7 @@ These packages weave AspectCore's proxies into different containers; all depend 
 | `Extensions.Windsor` | Castle Windsor | `IWindsorContainer.AddAspectCoreFacility(...)` (in Facility form) | `Castle.Windsor 6.0.0` |
 | `Extensions.LightInject` | LightInject | `IServiceContainer.RegisterDynamicProxy(...)` (in `Decorate` form) | `LightInject 6.6.4` |
 | `Extensions.Hosting` | Generic Host | `IHostBuilder.UseServiceContext()` / `UseDynamicProxy()` / `ConfigureDynamicProxy()` | `Microsoft.Extensions.Hosting` (and depends on `DependencyInjection`) |
+| `Extensions.CastleCompat` | Castle DynamicProxy migration | A Castle DynamicProxy compatibility shim that provides gradual-migration adaptation from existing Castle code to AspectCore | `Castle.Core 5.2.1` (and depends on `Core` + `DependencyInjection`) |
 
 Entry points: `ServiceCollectionExtensions.cs:20`, `Autofac/ContainerBuilderExtensions.cs:16`, `Windsor/FacilityExtensions.cs:11`, `LightInject/ContainerBuilderExtensions.cs:32`, `Hosting/HostBuilderExtensions.cs:12`.
 
@@ -130,7 +132,7 @@ Entry points: `AspectScope/ServiceContainerExtensions.cs:9`, `DataAnnotations/Se
 
 ## 7. Tests, Samples, Benchmarks (Non-shipping)
 
-- `tests/`: `AspectCore.Core.Tests` (including the `EngineParity/` dual-engine consistency tests), `AspectCore.E2E.Tests`, various container adapter tests, `AspectCore.Extensions.Reflection.Test`, etc. For details, see [Testing Strategy](../testing/testing-strategy.md).
+- `tests/`: `AspectCore.Core.Tests` (including the `EngineParity/` dual-engine consistency tests), `AspectCore.E2E.Tests`, various container adapter tests, `AspectCore.Extensions.Reflection.Test`, `AspectCore.Extensions.CastleCompat.Tests`, and the NativeAOT end-to-end verification project `AspectCore.NativeAot.E2E` (an executable, not xUnit), etc. For details, see [Testing Strategy](../testing/testing-strategy.md).
 - `sample/`: AspectScope, Autofac, DataAnnotations, and DependencyInjection console samples.
 - `benchmark/`, `benchmarks/`: benchmark projects for Core and Reflection.
 

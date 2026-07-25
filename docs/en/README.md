@@ -1,6 +1,6 @@
 # AspectCore Documentation
 
-> AspectCore is a cross-platform AOP (Aspect-Oriented Programming) framework for .NET Core and .NET Framework, providing dynamic-proxy interception, dependency-injection integration, web application support, data validation, and more.
+> AspectCore is a cross-platform AOP (Aspect-Oriented Programming) framework for .NET 6+, providing dynamic-proxy interception, dependency-injection integration, web application support, data validation, and more.
 
 This is the complete AspectCore documentation. English lives here; the Chinese version is under [`../`](../README.md)（中文文档见 [`../`](../README.md)）.
 
@@ -31,7 +31,7 @@ Feature documentation for day-to-day development.
 Design documents for contributors and advanced users.
 
 - [Overview](./architecture/overview.md) — layering and runtime flows
-- [Module & Package Design](./architecture/module-design.md) — responsibilities and dependency direction across the 14 packages
+- [Module & Package Design](./architecture/module-design.md) — responsibilities and dependency direction across the 15 packages
 - [DynamicProxy Runtime Engine](./architecture/dynamic-proxy.md) — runtime proxying based on Reflection.Emit
 - [Source Generator Compile-Time Engine](./architecture/source-generator.md) — compile-time proxying based on Roslyn
 - [Engine Comparison & Selection](./architecture/engine-comparison.md) — DynamicProxy vs SourceGenerator vs Auto

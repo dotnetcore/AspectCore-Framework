@@ -6,24 +6,24 @@
 
 | 目录 | 用途 |
 |------|------|
-| `src/` | 14 个可发布的源码包（核心 + 扩展 + 编译时引擎） |
-| `tests/` | xUnit 测试项目：单元、双引擎一致性、E2E、反射、各容器集成 |
+| `src/` | 15 个可发布的源码包（核心 + 扩展 + 编译时引擎） |
+| `tests/` | xUnit 测试项目：单元、双引擎一致性、E2E、反射、各容器集成；另含 NativeAOT 端到端验证项目 |
 | `sample/` | 可运行的示例项目 |
 | `benchmark/` | 早期的 BenchmarkDotNet 基准项目（Core、Reflection） |
 | `benchmarks/` | 新的统一基准项目 `AspectCore.Benchmarks` |
 | `docs/` | 本文档（中文为主，英文见 `docs/en/`） |
-| `build/` | 版本、签名、公共包属性与 Cake 构建脚本 |
+| `build/` | 版本、签名与公共包属性(props) |
 | `.github/` | CI 工作流与覆盖率脚本 |
 
-根目录还包含解决方案与工作区文件：`AspectCore-Framework.sln`、`NuGet.config`、`LICENSE`、`README.md`、`build.cake`/`build.ps1`。
+根目录还包含解决方案与工作区文件：`AspectCore-Framework.sln`、`NuGet.config`、`LICENSE`、`README.md`。构建通过 dotnet CLI 驱动（见 [本地构建](./building.md)），没有 Cake/PowerShell 构建脚本。
 
 ## 2. `src/` — 源码包
 
-`src/` 下共 14 个包（不含 `Directory.Build.props`）。按角色可分为三类；各包的职责与依赖方向见 [模块与包结构设计](../architecture/module-design.md)。
+`src/` 下共 15 个包（不含 `Directory.Build.props`）。按角色可分为三类；各包的职责与依赖方向见 [模块与包结构设计](../architecture/module-design.md)。
 
 - 核心：`AspectCore.Abstractions`、`AspectCore.Core`、`AspectCore.Extensions.Reflection`
 - 编译时引擎：`AspectCore.SourceGenerator`（`netstandard2.0`，供 Roslyn 加载）
-- 扩展与集成：`AspectCore.Extensions.DependencyInjection`、`AspectCore.Extensions.Autofac`、`AspectCore.Extensions.Windsor`、`AspectCore.Extensions.LightInject`、`AspectCore.Extensions.Hosting`、`AspectCore.Extensions.AspNetCore`、`AspectCore.Extensions.Configuration`、`AspectCore.Extensions.DataValidation`、`AspectCore.Extensions.DataAnnotations`、`AspectCore.Extensions.AspectScope`
+- 扩展与集成：`AspectCore.Extensions.DependencyInjection`、`AspectCore.Extensions.Autofac`、`AspectCore.Extensions.Windsor`、`AspectCore.Extensions.LightInject`、`AspectCore.Extensions.Hosting`、`AspectCore.Extensions.AspNetCore`、`AspectCore.Extensions.Configuration`、`AspectCore.Extensions.DataValidation`、`AspectCore.Extensions.DataAnnotations`、`AspectCore.Extensions.AspectScope`、`AspectCore.Extensions.CastleCompat`（Castle DynamicProxy 兼容层，用于向 AspectCore 渐进迁移）
 
 `src/Directory.Build.props` 对所有源码项目启用 .NET 分析器（提示性，不阻断构建）。
 
@@ -37,6 +37,8 @@
 | `AspectCore.E2E.Tests` | 端到端场景测试，用例集中在 `Scenarios/`，公共支撑在 `Fixtures/`（`TestHost.cs`、`TestServices.cs`） |
 | `AspectCore.Extensions.Reflection.Test` | 反射扩展测试 |
 | `AspectCore.Extensions.Autofac.Test`、`AspectCore.Extensions.Windsor.Test`、`AspectCore.Extensions.LightInject.Test`、`AspectCore.Extensions.Hosting.Tests`、`AspectCore.Extensions.DependencyInjection.Test`、`AspectCore.Extensions.Configuration.Tests` | 各容器 / 宿主 / 配置的集成测试 |
+| `AspectCore.Extensions.CastleCompat.Tests` | Castle DynamicProxy 兼容层的迁移兼容测试（xUnit） |
+| `AspectCore.NativeAot.E2E` | NativeAOT 端到端验证项目（可执行程序 `OutputType=Exe`、`PublishAot=true`，非 xUnit 单测），验证 Source Generator 路径在原生二进制下的拦截行为 |
 
 `tests/Directory.Build.props` 为所有测试项目统一引入 `coverlet.msbuild` 覆盖率采集。
 
@@ -58,7 +60,7 @@
 
 ## 6. `build/` — 构建配置
 
-集中管理版本、签名与公共包属性：`version.props`（产品版本 2.7.0）、`common.props`（包元数据 + `LangVersion=10.0`）、`sign.props` + `aspectcore.snk`（强名称签名），以及 Cake 脚本（`index.cake`、`util.cake`、`version.cake`）。详见 [本地构建](./building.md)。
+集中管理版本、签名与公共包属性：`version.props`（产品版本 3.0.0-rc.1）、`common.props`（包元数据 + `LangVersion=13.0`）、`sign.props` + `aspectcore.snk`（强名称签名）。构建由 dotnet CLI 直接驱动、复用这些 props，无 Cake 脚本。详见 [本地构建](./building.md)。
 
 ## 7. `.github/` — CI
 
@@ -71,7 +73,7 @@ CI 详情见 [测试策略](../testing/testing-strategy.md) 与 [贡献指南](.
 
 ## 相关文档
 
-- [模块与包结构设计](../architecture/module-design.md) — 14 个包的职责边界与依赖方向
+- [模块与包结构设计](../architecture/module-design.md) — 15 个包的职责边界与依赖方向
 - [本地构建](./building.md) — 还原、编译、目标框架与构建属性
 - [测试策略](../testing/testing-strategy.md) — 测试分类与覆盖率门槛
 - [文档首页](../README.md)

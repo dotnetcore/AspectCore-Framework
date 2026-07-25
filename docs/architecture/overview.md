@@ -105,6 +105,6 @@ Source Generator 在**编译时**扫描带 `[AspectCoreGenerateProxy]` 的类型
 
 ## 7. 延伸阅读
 
-- [模块与包结构设计](./module-design.md)：逐层说明 14 个包的职责与依赖。
+- [模块与包结构设计](./module-design.md)：逐层说明 15 个包的职责与依赖。
 - [两套引擎对比与选型](./engine-comparison.md)：何时用哪套引擎，`Strict`/`AllowRuntimeFallback`/`Auto` 的行为。
 - [C# 语言特性适配](./language-features.md)：各 C# 版本特性在 AOP Emit 中是否需要适配。

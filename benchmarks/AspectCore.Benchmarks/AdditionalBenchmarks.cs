@@ -297,8 +297,14 @@ public class LargeStructBenchmarks : ProxyBenchmarkBase
         _sourceGenProxy = (LargeStructService)SourceGenProxyGen.CreateClassProxy(typeof(LargeStructService), typeof(LargeStructService), Array.Empty<object>());
         _data = new LargeStruct
         {
-            Field1 = 1, Field2 = 2, Field3 = 3, Field4 = 4,
-            Field5 = 5, Field6 = 6, Field7 = 7, Field8 = 8
+            Field1 = 1,
+            Field2 = 2,
+            Field3 = 3,
+            Field4 = 4,
+            Field5 = 5,
+            Field6 = 6,
+            Field7 = 7,
+            Field8 = 8
         };
     }
 

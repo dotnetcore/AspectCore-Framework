@@ -28,7 +28,7 @@ AspectCore 是一个由 MSBuild、NuGet、TargetFramework 和宿主框架共同�
 - 只补一条测试 → `--filter` 精确到那个测试类
 
 **常见错误：**
-- 仓库多目标框架（`net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0`），只按单一 TFM 写 API → 错误
+- 仓库多目标框架（`net10.0;net9.0;net8.0;net6.0`），只按单一 TFM 写 API → 错误
 - 改了 `build/common.props` 却只编一个项目 → 错误
 
 ---
@@ -53,9 +53,9 @@ AspectCore 是一个由 MSBuild、NuGet、TargetFramework 和宿主框架共同�
 
 ### 4.2 再看 SDK 与目标框架约定
 - 无 `global.json`，SDK 未钉死
-- `src/` 的 `LangVersion=10.0`（`build/common.props`）
+- `src/` 的 `LangVersion=13.0`（`build/common.props`）
 - 测试项目 `LangVersion=13.0`
-- 库目标框架：`net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0`（详见 AGENTS.md）
+- 库目标框架：`net10.0;net9.0;net8.0;net6.0`（详见 AGENTS.md）
 
 ### 4.3 识别测试框架与质量工具链
 - xUnit `2.9.2` + `Microsoft.NET.Test.Sdk 17.12.0`
@@ -181,8 +181,8 @@ dotnet test tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj \
 - 改了公共接口，却只跑单个测试项目 → 漏回归
 
 ### 9.3 忽略仓库的目标框架约定
-- 项目同时面向 `net9.0` 和 `netstandard2.0`，却直接使用只存在于新 TFM 的 API
-- 应使用 `#if NET9_0_OR_GREATER` 条件编译，或抽象接口做适配
+- 项目同时面向 `net8.0` 和 `net6.0`，却直接使用只存在于新 TFM 的 API
+- 应使用 `#if NET8_0_OR_GREATER` 条件编译，或抽象接口做适配
 
 ### 9.4 在热路径里机械使用 LINQ、异常或字符串操作
 - 热路径里的 LINQ 链式枚举 → 每次调用分配枚举器
