@@ -1,6 +1,6 @@
 # AspectCore 文档
 
-> AspectCore 是面向 .NET Core 与 .NET Framework 的跨平台 AOP（面向切面编程）框架，提供动态代理拦截、依赖注入集成、Web 应用支持、数据校验等能力。
+> AspectCore 是面向 .NET 6+ 的跨平台 AOP（面向切面编程）框架，提供动态代理拦截、依赖注入集成、Web 应用支持、数据校验等能力。
 
 本目录是 AspectCore 的完整文档。中文为主，英文版本见 [`en/`](./en/README.md)（English documentation lives under [`en/`](./en/README.md)）。
 
@@ -31,7 +31,7 @@
 面向贡献者与深度使用者的设计文档。
 
 - [总体架构](./architecture/overview.md) — 分层与运行流程
-- [模块与包结构设计](./architecture/module-design.md) — 14 个包的职责边界与依赖方向
+- [模块与包结构设计](./architecture/module-design.md) — 15 个包的职责边界与依赖方向
 - [DynamicProxy 运行时引擎](./architecture/dynamic-proxy.md) — 基于 Reflection.Emit 的运行时代理
 - [Source Generator 编译时引擎](./architecture/source-generator.md) — 基于 Roslyn 的编译时代理
 - [两套引擎对比与选型](./architecture/engine-comparison.md) — DynamicProxy vs SourceGenerator vs Auto

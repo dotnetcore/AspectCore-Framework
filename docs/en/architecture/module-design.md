@@ -30,6 +30,7 @@ Extensions.Reflection ◄──┐   │
     ├── Extensions.Windsor ────────────── (Castle.Windsor)
     ├── Extensions.LightInject ────────── (LightInject)
     ├── Extensions.Hosting ────────────── (MS.Hosting)  -> also depends on DependencyInjection
+    ├── Extensions.CastleCompat ───────── (Castle.Core)  -> also depends on DependencyInjection
     ├── Extensions.AspectScope
     ├── Extensions.DataValidation ─────── (depends only on Abstractions + Reflection)
     ├── Extensions.DataAnnotations ────── -> also depends on DataValidation
@@ -113,6 +114,7 @@ These packages weave AspectCore's proxies into different containers; all depend 
 | `Extensions.Windsor` | Castle Windsor | `IWindsorContainer.AddAspectCoreFacility(...)` (in Facility form) | `Castle.Windsor 6.0.0` |
 | `Extensions.LightInject` | LightInject | `IServiceContainer.RegisterDynamicProxy(...)` (in `Decorate` form) | `LightInject 6.6.4` |
 | `Extensions.Hosting` | Generic Host | `IHostBuilder.UseServiceContext()` / `UseDynamicProxy()` / `ConfigureDynamicProxy()` | `Microsoft.Extensions.Hosting` (and depends on `DependencyInjection`) |
+| `Extensions.CastleCompat` | Castle DynamicProxy migration | A Castle DynamicProxy compatibility shim that provides gradual-migration adaptation from existing Castle code to AspectCore | `Castle.Core 5.2.1` (and depends on `Core` + `DependencyInjection`) |
 
 Entry points: `ServiceCollectionExtensions.cs:20`, `Autofac/ContainerBuilderExtensions.cs:16`, `Windsor/FacilityExtensions.cs:11`, `LightInject/ContainerBuilderExtensions.cs:32`, `Hosting/HostBuilderExtensions.cs:12`.
 
@@ -130,7 +132,7 @@ Entry points: `AspectScope/ServiceContainerExtensions.cs:9`, `DataAnnotations/Se
 
 ## 7. Tests, Samples, Benchmarks (Non-shipping)
 
-- `tests/`: `AspectCore.Core.Tests` (including the `EngineParity/` dual-engine consistency tests), `AspectCore.E2E.Tests`, various container adapter tests, `AspectCore.Extensions.Reflection.Test`, etc. For details, see [Testing Strategy](../testing/testing-strategy.md).
+- `tests/`: `AspectCore.Core.Tests` (including the `EngineParity/` dual-engine consistency tests), `AspectCore.E2E.Tests`, various container adapter tests, `AspectCore.Extensions.Reflection.Test`, `AspectCore.Extensions.CastleCompat.Tests`, and the NativeAOT end-to-end verification project `AspectCore.NativeAot.E2E` (an executable, not xUnit), etc. For details, see [Testing Strategy](../testing/testing-strategy.md).
 - `sample/`: AspectScope, Autofac, DataAnnotations, and DependencyInjection console samples.
 - `benchmark/`, `benchmarks/`: benchmark projects for Core and Reflection.
 

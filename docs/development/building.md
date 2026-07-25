@@ -64,7 +64,7 @@ dotnet test tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj -f net8.0
 | `AspectCore.Abstractions`、`AspectCore.Core`、`AspectCore.Extensions.Reflection` | `net10.0;net9.0;net8.0;net6.0` | 核心包多目标，最低支持 `net6.0` |
 | `AspectCore.SourceGenerator` | `netstandard2.0` | 编译时引擎需以 `netstandard2.0` 供 Roslyn 加载；`LangVersion=latest` |
 | `AspectCore.Extensions.AspNetCore` | `net10.0;net9.0;net8.0;net6.0` | 仅 `net6.0` 及以上 |
-| 容器/宿主等扩展包 | 以各 `*.csproj` 为准（多为 `net10.0;net9.0;net8.0;net6.0`） | 详见 [项目结构](./project-structure.md) 与 [模块与包结构设计](../architecture/module-design.md) |
+| 容器/宿主等扩展包 | 以各 `*.csproj` 为准：大多为 `net10.0;net9.0;net8.0;net6.0`，其中 `AspectCore.Extensions.CastleCompat` 例外为 `net10.0;net9.0;net8.0`（不含 `net6.0`） | 详见 [项目结构](./project-structure.md) 与 [模块与包结构设计](../architecture/module-design.md) |
 | 测试项目 | 多为 `net10.0;net9.0;net8.0;net6.0` 或 `net9.0;net8.0;net6.0` | 具体差异见 [测试策略](../testing/testing-strategy.md) |
 
 多目标构建会为每个目标框架各产出一份程序集；因此本地缺少某个运行时会导致该目标框架的编译或测试步骤失败。
@@ -86,5 +86,5 @@ dotnet test tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj -f net8.0
 - [项目结构](./project-structure.md) — 源码、测试、示例、基准目录布局
 - [贡献指南](./contributing.md) — 分支、提交、PR 流程
 - [运行测试](../testing/running-tests.md) — 测试筛选与覆盖率采集
-- [模块与包结构设计](../architecture/module-design.md) — 14 个包的职责与依赖方向
+- [模块与包结构设计](../architecture/module-design.md) — 15 个包的职责与依赖方向
 - [文档首页](../README.md)

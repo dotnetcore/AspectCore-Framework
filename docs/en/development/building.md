@@ -64,7 +64,7 @@ Different projects choose target frameworks by purpose; the authoritative source
 | `AspectCore.Abstractions`, `AspectCore.Core`, `AspectCore.Extensions.Reflection` | `net10.0;net9.0;net8.0;net6.0` | The core packages multi-target, with `net6.0` as the minimum |
 | `AspectCore.SourceGenerator` | `netstandard2.0` | The compile-time engine must target `netstandard2.0` for Roslyn to load; `LangVersion=latest` |
 | `AspectCore.Extensions.AspNetCore` | `net10.0;net9.0;net8.0;net6.0` | `net6.0` and above only |
-| Container/host and other extension packages | Per each `*.csproj` (mostly `net10.0;net9.0;net8.0;net6.0`) | See [Project structure](./project-structure.md) and [Module and package structure design](../architecture/module-design.md) |
+| Container/host and other extension packages | Per each `*.csproj`: most are `net10.0;net9.0;net8.0;net6.0`, except `AspectCore.Extensions.CastleCompat` at `net10.0;net9.0;net8.0` (no `net6.0`) | See [Project structure](./project-structure.md) and [Module and package structure design](../architecture/module-design.md) |
 | Test projects | Mostly `net10.0;net9.0;net8.0;net6.0` or `net9.0;net8.0;net6.0` | For the specific differences, see [Testing strategy](../testing/testing-strategy.md) |
 
 A multi-target build produces one assembly per target framework; therefore, missing a runtime locally will cause the compile or test step for that target framework to fail.
@@ -86,5 +86,5 @@ Build configuration is centralized in the `build/` directory and two `Directory.
 - [Project structure](./project-structure.md) — the layout of the source, test, sample, and benchmark directories
 - [Contributing guide](./contributing.md) — branch, commit, and PR process
 - [Running tests](../testing/running-tests.md) — test filtering and coverage collection
-- [Module and package structure design](../architecture/module-design.md) — the responsibilities and dependency directions of the 14 packages
+- [Module and package structure design](../architecture/module-design.md) — the responsibilities and dependency directions of the 15 packages
 - [Docs home](../README.md)

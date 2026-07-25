@@ -6,24 +6,24 @@ This document explains the top-level directory layout of the AspectCore reposito
 
 | Directory | Purpose |
 |------|------|
-| `src/` | The 14 publishable source packages (core + extensions + compile-time engine) |
-| `tests/` | xUnit test projects: unit, dual-engine parity, E2E, reflection, and per-container integration |
+| `src/` | The 15 publishable source packages (core + extensions + compile-time engine) |
+| `tests/` | xUnit test projects: unit, dual-engine parity, E2E, reflection, and per-container integration; plus a NativeAOT end-to-end verification project |
 | `sample/` | Runnable sample projects |
 | `benchmark/` | The early BenchmarkDotNet benchmark projects (Core, Reflection) |
 | `benchmarks/` | The new unified benchmark project `AspectCore.Benchmarks` |
 | `docs/` | This documentation (primarily Chinese; English is under `docs/en/`) |
-| `build/` | Version, signing, common package properties, and Cake build scripts |
+| `build/` | Version, signing, and common package properties (props) |
 | `.github/` | CI workflows and the coverage script |
 
-The root also contains the solution and workspace files: `AspectCore-Framework.sln`, `NuGet.config`, `LICENSE`, `README.md`, `build.cake`/`build.ps1`.
+The root also contains the solution and workspace files: `AspectCore-Framework.sln`, `NuGet.config`, `LICENSE`, `README.md`. Builds are driven through the dotnet CLI (see [Local build](./building.md)); there are no Cake/PowerShell build scripts.
 
 ## 2. `src/` — source packages
 
-There are 14 packages under `src/` (excluding `Directory.Build.props`). They fall into three roles; the responsibilities and dependency directions of each package are in [Module and package structure design](../architecture/module-design.md).
+There are 15 packages under `src/` (excluding `Directory.Build.props`). They fall into three roles; the responsibilities and dependency directions of each package are in [Module and package structure design](../architecture/module-design.md).
 
 - Core: `AspectCore.Abstractions`, `AspectCore.Core`, `AspectCore.Extensions.Reflection`
 - Compile-time engine: `AspectCore.SourceGenerator` (`netstandard2.0`, loaded by Roslyn)
-- Extensions and integrations: `AspectCore.Extensions.DependencyInjection`, `AspectCore.Extensions.Autofac`, `AspectCore.Extensions.Windsor`, `AspectCore.Extensions.LightInject`, `AspectCore.Extensions.Hosting`, `AspectCore.Extensions.AspNetCore`, `AspectCore.Extensions.Configuration`, `AspectCore.Extensions.DataValidation`, `AspectCore.Extensions.DataAnnotations`, `AspectCore.Extensions.AspectScope`
+- Extensions and integrations: `AspectCore.Extensions.DependencyInjection`, `AspectCore.Extensions.Autofac`, `AspectCore.Extensions.Windsor`, `AspectCore.Extensions.LightInject`, `AspectCore.Extensions.Hosting`, `AspectCore.Extensions.AspNetCore`, `AspectCore.Extensions.Configuration`, `AspectCore.Extensions.DataValidation`, `AspectCore.Extensions.DataAnnotations`, `AspectCore.Extensions.AspectScope`, `AspectCore.Extensions.CastleCompat` (a Castle DynamicProxy compatibility shim for gradual migration to AspectCore)
 
 `src/Directory.Build.props` enables .NET analyzers for all source projects (advisory, not blocking the build).
 
@@ -37,6 +37,8 @@ Each project under `tests/` corresponds to a category of test target; for test c
 | `AspectCore.E2E.Tests` | End-to-end scenario tests, with cases concentrated in `Scenarios/` and shared support in `Fixtures/` (`TestHost.cs`, `TestServices.cs`) |
 | `AspectCore.Extensions.Reflection.Test` | Reflection-extension tests |
 | `AspectCore.Extensions.Autofac.Test`, `AspectCore.Extensions.Windsor.Test`, `AspectCore.Extensions.LightInject.Test`, `AspectCore.Extensions.Hosting.Tests`, `AspectCore.Extensions.DependencyInjection.Test`, `AspectCore.Extensions.Configuration.Tests` | Integration tests for each container / host / configuration |
+| `AspectCore.Extensions.CastleCompat.Tests` | Migration-compatibility tests for the Castle DynamicProxy compatibility shim (xUnit) |
+| `AspectCore.NativeAot.E2E` | NativeAOT end-to-end verification project (an executable with `OutputType=Exe`, `PublishAot=true`, not an xUnit test), verifying Source Generator interception behavior in a native binary |
 
 `tests/Directory.Build.props` uniformly brings in `coverlet.msbuild` coverage collection for all test projects.
 
@@ -58,7 +60,7 @@ The repository has two benchmark directories:
 
 ## 6. `build/` — build configuration
 
-Centralized management of version, signing, and common package properties: `version.props` (product version 3.0.0-rc.1), `common.props` (package metadata + `LangVersion=13.0`), `sign.props` + `aspectcore.snk` (strong-name signing), and the Cake scripts (`index.cake`, `util.cake`, `version.cake`). For details, see [Local build](./building.md).
+Centralized management of version, signing, and common package properties: `version.props` (product version 3.0.0-rc.1), `common.props` (package metadata + `LangVersion=13.0`), `sign.props` + `aspectcore.snk` (strong-name signing). Builds are driven directly by the dotnet CLI, reusing these props; there is no Cake script. For details, see [Local build](./building.md).
 
 ## 7. `.github/` — CI
 
@@ -71,7 +73,7 @@ For CI details, see [Testing strategy](../testing/testing-strategy.md) and [Cont
 
 ## Related docs
 
-- [Module and package structure design](../architecture/module-design.md) — the responsibility boundaries and dependency directions of the 14 packages
+- [Module and package structure design](../architecture/module-design.md) — the responsibility boundaries and dependency directions of the 15 packages
 - [Local build](./building.md) — restore, compile, target frameworks, and build properties
 - [Testing strategy](../testing/testing-strategy.md) — test categories and coverage thresholds
 - [Docs home](../README.md)

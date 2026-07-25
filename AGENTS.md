@@ -41,7 +41,8 @@ Project-level AI context for the AspectCore-Framework repository. Generated from
 | `src/AspectCore.Extensions.Configuration/` | Configuration injection via `Microsoft.Extensions.Configuration`. | – |
 | `src/AspectCore.Extensions.DataAnnotations/` | DataAnnotations-based validation extension. | – |
 | `src/AspectCore.Extensions.DataValidation/` | Data validation extension. | – |
-| `tests/` | 9 xUnit test projects. `tests/Directory.Build.props` injects `coverlet.msbuild`. | – |
+| `src/AspectCore.Extensions.CastleCompat/` | Castle DynamicProxy compatibility shim for gradual migration to AspectCore. Depends on `Castle.Core`. Targets `net10.0;net9.0;net8.0`. | – |
+| `tests/` | 10 xUnit test projects + `AspectCore.NativeAot.E2E` (a `PublishAot` executable, not xUnit). `tests/Directory.Build.props` injects `coverlet.msbuild`. | – |
 | `sample/` | 4 runnable sample projects (DI console, AspectScope, Autofac, DataAnnotations). | – |
 | `benchmark/` `benchmarks/` | BenchmarkDotNet projects. | – |
 | `docs/` | Architecture, guide, getting-started, development, testing docs (bilingual; `docs/en/` for English). | `docs/README.md` |

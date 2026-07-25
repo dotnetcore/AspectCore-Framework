@@ -23,6 +23,7 @@ AspectCore 按职责拆分成多个 NuGet 包：核心库负责 AOP 与容器，
 | `AspectCore.Extensions.Configuration` | 从 `IConfiguration` 注入配置值：`AddConfigurationInject()`。 |
 | `AspectCore.Extensions.DataValidation` | 数据校验基础设施（抽象与拦截器）。 |
 | `AspectCore.Extensions.DataAnnotations` | 基于 `System.ComponentModel.DataAnnotations` 的校验实现：`AddDataAnnotations(...)`。 |
+| `AspectCore.Extensions.CastleCompat` | Castle DynamicProxy 兼容层(shim)，为存量 Castle 代码提供向 AspectCore 渐进迁移的适配。 |
 
 ## 编译期引擎
 
@@ -38,6 +39,7 @@ Source Generator 是运行时 DynamicProxy 之外的另一套引擎。两者的�
 |--------|----------|
 | 核心库与大部分集成包（`AspectCore.Abstractions`、`AspectCore.Core`、`AspectCore.Extensions.Reflection`、`AspectCore.Extensions.DependencyInjection`、Autofac/Windsor/LightInject/Hosting、Configuration、DataAnnotations 等） | `net10.0`、`net9.0`、`net8.0`、`net6.0` |
 | `AspectCore.Extensions.AspNetCore` | `net10.0`、`net9.0`、`net8.0`、`net6.0` |
+| `AspectCore.Extensions.CastleCompat` | `net10.0`、`net9.0`、`net8.0` |
 | `AspectCore.SourceGenerator` | `netstandard2.0`（analyzer 约定） |
 
 > 以上框架列表来自各包 `.csproj` 的 `TargetFrameworks`。核心库与集成包最低支持 `net6.0`；`AspectCore.SourceGenerator` 作为 Roslyn 分析器需以 `netstandard2.0` 供编译器加载。

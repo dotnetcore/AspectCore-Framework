@@ -30,6 +30,7 @@ Extensions.Reflection ◄──┐   │
     ├── Extensions.Windsor ────────────── (Castle.Windsor)
     ├── Extensions.LightInject ────────── (LightInject)
     ├── Extensions.Hosting ────────────── (MS.Hosting)  → 也依赖 DependencyInjection
+    ├── Extensions.CastleCompat ───────── (Castle.Core)  → 也依赖 DependencyInjection
     ├── Extensions.AspectScope
     ├── Extensions.DataValidation ─────── (仅依赖 Abstractions + Reflection)
     ├── Extensions.DataAnnotations ────── → 也依赖 DataValidation
@@ -113,6 +114,7 @@ SourceGenerator（独立 Roslyn 分析器，无项目引用）
 | `Extensions.Windsor` | Castle Windsor | `IWindsorContainer.AddAspectCoreFacility(...)`（Facility 形式） | `Castle.Windsor 6.0.0` |
 | `Extensions.LightInject` | LightInject | `IServiceContainer.RegisterDynamicProxy(...)`（`Decorate` 形式） | `LightInject 6.6.4` |
 | `Extensions.Hosting` | 泛型主机 | `IHostBuilder.UseServiceContext()` / `UseDynamicProxy()` / `ConfigureDynamicProxy()` | `Microsoft.Extensions.Hosting`（并依赖 `DependencyInjection`） |
+| `Extensions.CastleCompat` | Castle DynamicProxy 迁移 | Castle DynamicProxy 兼容层(shim)，为存量 Castle 代码提供渐进迁移到 AspectCore 的适配 | `Castle.Core 5.2.1`（并依赖 `Core` + `DependencyInjection`） |
 
 入口位置：`ServiceCollectionExtensions.cs:20`、`Autofac/ContainerBuilderExtensions.cs:16`、`Windsor/FacilityExtensions.cs:11`、`LightInject/ContainerBuilderExtensions.cs:32`、`Hosting/HostBuilderExtensions.cs:12`。
 
@@ -130,7 +132,7 @@ SourceGenerator（独立 Roslyn 分析器，无项目引用）
 
 ## 7. 测试、示例、基准（非发行）
 
-- `tests/`：`AspectCore.Core.Tests`（含 `EngineParity/` 双引擎一致性测试）、`AspectCore.E2E.Tests`、各容器适配测试、`AspectCore.Extensions.Reflection.Test` 等。详见 [测试策略](../testing/testing-strategy.md)。
+- `tests/`：`AspectCore.Core.Tests`（含 `EngineParity/` 双引擎一致性测试）、`AspectCore.E2E.Tests`、各容器适配测试、`AspectCore.Extensions.Reflection.Test`、`AspectCore.Extensions.CastleCompat.Tests`，以及 NativeAOT 端到端验证项目 `AspectCore.NativeAot.E2E`（可执行程序，非 xUnit）等。详见 [测试策略](../testing/testing-strategy.md)。
 - `sample/`：AspectScope、Autofac、DataAnnotations、DependencyInjection 控制台示例。
 - `benchmark/`、`benchmarks/`：Core 与 Reflection 的基准项目。
 

@@ -105,6 +105,6 @@ At **compile time**, the Source Generator scans types marked with `[AspectCoreGe
 
 ## 7. Further Reading
 
-- [Module and Package Structure Design](./module-design.md): explains the responsibilities and dependencies of the 14 packages layer by layer.
+- [Module and Package Structure Design](./module-design.md): explains the responsibilities and dependencies of the 15 packages layer by layer.
 - [Engine Comparison and Selection](./engine-comparison.md): when to use which engine, and the behavior of `Strict`/`AllowRuntimeFallback`/`Auto`.
 - [C# Language Feature Adaptation](./language-features.md): whether each C# version's features need adaptation in AOP Emit.
