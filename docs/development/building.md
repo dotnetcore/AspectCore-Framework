@@ -7,7 +7,7 @@
 仓库根目录没有 `global.json`，因此不锁定具体 SDK 版本，但目标框架决定了你需要安装的 SDK：
 
 - 测试项目 `AspectCore.Core.Tests` 与 `AspectCore.E2E.Tests` 目标框架为 `net10.0;net9.0;net8.0;net6.0`。要编译并运行完整测试，需要安装 **.NET 10 SDK**。
-- 源码包最低目标框架为 `net6.0`（部分包还包含 `netstandard2.0`/`netstandard2.1`），运行多目标构建时需要相应的 .NET 6/7/8/9 运行时。
+- 源码包最低目标框架为 `net6.0`，其余目标为 `net8.0`/`net9.0`/`net10.0`（`AspectCore.SourceGenerator` 例外，为 `netstandard2.0` 的 Roslyn 分析器），运行多目标构建时需要相应的 .NET 6/8/9/10 运行时。
 - CI 通过 `actions/setup-dotnet` 显式安装以下 SDK：`6.0.x`、`8.0.x`、`9.0.x`、`10.0.x`（见 `.github/workflows/build-ci.yml` 与 `.github/workflows/build-pr-ci.yml`）。本地对齐这几个版本即可覆盖所有目标框架。
 
 验证本地 SDK：
@@ -61,10 +61,10 @@ dotnet test tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj -f net8.0
 
 | 项目 | 目标框架 | 说明 |
 |------|----------|------|
-| `AspectCore.Abstractions`、`AspectCore.Core`、`AspectCore.Extensions.Reflection` | `net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0` | 核心包多目标，兼容 .NET Framework（经 netstandard2.0） |
+| `AspectCore.Abstractions`、`AspectCore.Core`、`AspectCore.Extensions.Reflection` | `net10.0;net9.0;net8.0;net6.0` | 核心包多目标，最低支持 `net6.0` |
 | `AspectCore.SourceGenerator` | `netstandard2.0` | 编译时引擎需以 `netstandard2.0` 供 Roslyn 加载；`LangVersion=latest` |
-| `AspectCore.Extensions.AspNetCore` | `net9.0;net8.0;net7.0;net6.0` | 仅 `net6.0` 及以上 |
-| 容器/宿主等扩展包 | 以各 `*.csproj` 为准（多为 `net6.0` 及以上，含 netstandard 目标） | 详见 [项目结构](./project-structure.md) 与 [模块与包结构设计](../architecture/module-design.md) |
+| `AspectCore.Extensions.AspNetCore` | `net10.0;net9.0;net8.0;net6.0` | 仅 `net6.0` 及以上 |
+| 容器/宿主等扩展包 | 以各 `*.csproj` 为准（多为 `net10.0;net9.0;net8.0;net6.0`） | 详见 [项目结构](./project-structure.md) 与 [模块与包结构设计](../architecture/module-design.md) |
 | 测试项目 | 多为 `net10.0;net9.0;net8.0;net6.0` 或 `net9.0;net8.0;net6.0` | 具体差异见 [测试策略](../testing/testing-strategy.md) |
 
 多目标构建会为每个目标框架各产出一份程序集；因此本地缺少某个运行时会导致该目标框架的编译或测试步骤失败。
@@ -73,8 +73,8 @@ dotnet test tests/AspectCore.Core.Tests/AspectCore.Core.Tests.csproj -f net8.0
 
 构建配置集中在 `build/` 目录与两个 `Directory.Build.props`，各 `*.csproj` 通过 `Import` 引入：
 
-- `build/version.props` — 产品版本。当前 `VersionMajor=2`、`VersionMinor=7`、`VersionPatch=0`，`VersionQuality` 为空，因此 `VersionPrefix=2.7.0`。CI 在无 Git tag 时追加 `-preview-<时间戳>`。
-- `build/common.props` — 公共包元数据（`Authors=Lemon`、`Product=AspectCore Framework`、仓库地址等），并 `Import` 了 `sign.props` 与 `version.props`。其中设置 `LangVersion=10.0`；注释说明：10.0 是最低目标框架 `net6.0` 支持的最新稳定 C# 版本。核心包源码即在此约束下编写。
+- `build/version.props` — 产品版本。当前 `VersionMajor=3`、`VersionMinor=0`、`VersionPatch=0`、`VersionQuality=rc.1`，因此 `VersionPrefix=3.0.0`、`VersionSuffix=rc.1`。CI 在无 Git tag 时追加 `-preview-<时间戳>`。
+- `build/common.props` — 公共包元数据（`Authors=Lemon`、`Product=AspectCore Framework`、仓库地址等），并 `Import` 了 `sign.props` 与 `version.props`。其中设置 `LangVersion=13.0`；注释说明：13.0 启用了 NativeAOT AOP 支持所需的默认接口方法、静态抽象成员等现代特性，同时保持与最低目标框架 `net6.0` 的兼容。核心包源码即在此约束下编写。
 - `build/sign.props` 与 `build/aspectcore.snk` — 强名称签名配置与密钥。
 - `src/Directory.Build.props` — 对 `src/` 下所有项目启用 .NET 分析器（`EnableNETAnalyzers=true`、`AnalysisLevel=latest`、`AnalysisMode=Default`、`EnforceExtendedAnalyzerRules=true`）。这些是提示性诊断，不作为硬性失败门槛。
 - `tests/Directory.Build.props` — 为所有测试项目统一引入 `coverlet.msbuild`（版本 `6.0.2`，`PrivateAssets=all`），用于覆盖率采集。

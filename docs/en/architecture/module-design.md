@@ -12,7 +12,7 @@ AspectCore follows unidirectional dependencies: **contracts at the bottom, imple
 - Integration/feature packages depend only on `Core` or `Abstractions`, without horizontal coupling among themselves (`AspNetCore` and `DataAnnotations` are deliberate composition exceptions).
 - The compile-time engine (`SourceGenerator`) is independent of the runtime, and only references fully qualified names of runtime types within its generated code.
 
-Versioning and language level are managed uniformly by `build/common.props` (`LangVersion=10.0`, product version in `build/version.props`); `SourceGenerator` itself overrides this to `LangVersion=latest`.
+Versioning and language level are managed uniformly by `build/common.props` (`LangVersion=13.0`, product version in `build/version.props`); `SourceGenerator` itself overrides this to `LangVersion=latest`.
 
 ## 2. Dependency Graph
 
@@ -68,7 +68,7 @@ A standalone library that uses `DynamicMethod` + IL emit to compile cached deleg
 - Reflector classes: `MethodReflector` (with `Static`/`Call`/`OpenGeneric` variants), `ConstructorReflector`, `FieldReflector`, `PropertyReflector`, `TypeReflector`, `ParameterReflector`, `CustomAttributeReflector`, all derived from `MemberReflector<T>` — `MethodReflector.cs:10`, `MemberReflector.cs:7`
 - Caching: `ReflectorCacheUtils<TMember,TReflector>` uses `ConcurrentDictionary.GetOrAdd` to ensure each reflector is compiled only once — `Internals/ReflectorUtils.cs:8`
 - IL helpers: `Emit/ILGeneratorExtensions.cs` (`EmitLoadArg`/`EmitLdRef`/`EmitStRef`/type conversions, etc.)
-- Dependencies: modern TFMs have no external dependencies; only `netstandard2.0` needs `System.Threading.Tasks.Extensions`, `System.Reflection.Emit.Lightweight`, and `System.Runtime.CompilerServices.Unsafe`
+- Dependencies: all target frameworks (net6.0+) have no external dependencies
 
 ## 4. Runtime Core Layer
 

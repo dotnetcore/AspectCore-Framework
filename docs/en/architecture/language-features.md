@@ -13,8 +13,8 @@ AspectCore has two AOP engines:
 
 Current status:
 
-- `LangVersion` is set to `10.0` (core library); the Source Generator uses `latest`
-- Supports `net6.0` ~ `net9.0` + `netstandard2.0/2.1`
+- `LangVersion` is set to `13.0` (core library); the Source Generator uses `latest`
+- Supports `net6.0` ~ `net10.0` (`AspectCore.SourceGenerator` targets `netstandard2.0`)
 - The two engines follow different paths in method body generation: DynamicProxy dispatches to the `AspectActivator.Invoke*` family of methods via the `ReturnKind` enum; the Source Generator generates different inline code depending on sync/async
 
 ### 1.1 The Core AOP Emit Flow
@@ -70,7 +70,6 @@ The Emit process of the compile-time Source Generator:
 - `ReturnKind` adds `AsyncEnumerable`; DynamicProxy and Source Generator call `IAspectActivator.InvokeAsyncEnumerable<T>` respectively.
 - The async stream stays lazy: the interceptor chain and the target method execute on first enumeration; when the stream completes, is canceled, or an exception occurs during enumeration, the `AspectContext` is released.
 - `IAsyncDisposable.DisposeAsync()` returns a `ValueTask`, and interception is already completed via the existing `ValueTask` proxy path.
-- The `netstandard2.0` target introduces `Microsoft.Bcl.AsyncInterfaces` to expose the C# 8 async interfaces.
 
 **Verification coverage**
 

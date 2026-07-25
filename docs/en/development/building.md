@@ -7,7 +7,7 @@ This document explains how to restore, compile, and test AspectCore locally, and
 The repository root has no `global.json`, so it does not pin a specific SDK version, but the target frameworks determine which SDKs you need to install:
 
 - The test projects `AspectCore.Core.Tests` and `AspectCore.E2E.Tests` target `net10.0;net9.0;net8.0;net6.0`. To compile and run the full test suite, you need the **.NET 10 SDK** installed.
-- The source packages target `net6.0` at minimum (some packages also include `netstandard2.0`/`netstandard2.1`); running a multi-target build requires the corresponding .NET 6/7/8/9 runtimes.
+- The source packages target `net6.0` at minimum, with additional targets `net8.0`/`net9.0`/`net10.0` (except `AspectCore.SourceGenerator`, which is a `netstandard2.0` Roslyn analyzer); running a multi-target build requires the corresponding .NET 6/8/9/10 runtimes.
 - CI explicitly installs the following SDKs via `actions/setup-dotnet`: `6.0.x`, `8.0.x`, `9.0.x`, `10.0.x` (see `.github/workflows/build-ci.yml` and `.github/workflows/build-pr-ci.yml`). Aligning locally with these versions covers all target frameworks.
 
 Verify your local SDKs:
@@ -61,10 +61,10 @@ Different projects choose target frameworks by purpose; the authoritative source
 
 | Project | Target frameworks | Notes |
 |------|----------|------|
-| `AspectCore.Abstractions`, `AspectCore.Core`, `AspectCore.Extensions.Reflection` | `net9.0;net8.0;net7.0;net6.0;netstandard2.1;netstandard2.0` | The core packages multi-target, compatible with .NET Framework (via netstandard2.0) |
+| `AspectCore.Abstractions`, `AspectCore.Core`, `AspectCore.Extensions.Reflection` | `net10.0;net9.0;net8.0;net6.0` | The core packages multi-target, with `net6.0` as the minimum |
 | `AspectCore.SourceGenerator` | `netstandard2.0` | The compile-time engine must target `netstandard2.0` for Roslyn to load; `LangVersion=latest` |
-| `AspectCore.Extensions.AspNetCore` | `net9.0;net8.0;net7.0;net6.0` | `net6.0` and above only |
-| Container/host and other extension packages | Per each `*.csproj` (mostly `net6.0` and above, including netstandard targets) | See [Project structure](./project-structure.md) and [Module and package structure design](../architecture/module-design.md) |
+| `AspectCore.Extensions.AspNetCore` | `net10.0;net9.0;net8.0;net6.0` | `net6.0` and above only |
+| Container/host and other extension packages | Per each `*.csproj` (mostly `net10.0;net9.0;net8.0;net6.0`) | See [Project structure](./project-structure.md) and [Module and package structure design](../architecture/module-design.md) |
 | Test projects | Mostly `net10.0;net9.0;net8.0;net6.0` or `net9.0;net8.0;net6.0` | For the specific differences, see [Testing strategy](../testing/testing-strategy.md) |
 
 A multi-target build produces one assembly per target framework; therefore, missing a runtime locally will cause the compile or test step for that target framework to fail.
@@ -73,8 +73,8 @@ A multi-target build produces one assembly per target framework; therefore, miss
 
 Build configuration is centralized in the `build/` directory and two `Directory.Build.props`, imported by each `*.csproj` via `Import`:
 
-- `build/version.props` — the product version. Currently `VersionMajor=2`, `VersionMinor=7`, `VersionPatch=0`, with `VersionQuality` empty, so `VersionPrefix=2.7.0`. When there is no Git tag, CI appends `-preview-<timestamp>`.
-- `build/common.props` — common package metadata (`Authors=Lemon`, `Product=AspectCore Framework`, repository URL, etc.), and it `Import`s `sign.props` and `version.props`. It sets `LangVersion=10.0`; the comment explains: 10.0 is the latest stable C# version supported by the lowest target framework `net6.0`. The core package source is written under this constraint.
+- `build/version.props` — the product version. Currently `VersionMajor=3`, `VersionMinor=0`, `VersionPatch=0`, `VersionQuality=rc.1`, so `VersionPrefix=3.0.0` and `VersionSuffix=rc.1`. When there is no Git tag, CI appends `-preview-<timestamp>`.
+- `build/common.props` — common package metadata (`Authors=Lemon`, `Product=AspectCore Framework`, repository URL, etc.), and it `Import`s `sign.props` and `version.props`. It sets `LangVersion=13.0`; the comment explains: 13.0 enables the Default Interface Methods, static abstract members, and other modern features needed for NativeAOT AOP support, while remaining compatible with the lowest target framework `net6.0`. The core package source is written under this constraint.
 - `build/sign.props` and `build/aspectcore.snk` — strong-name signing configuration and key.
 - `src/Directory.Build.props` — enables .NET analyzers for all projects under `src/` (`EnableNETAnalyzers=true`, `AnalysisLevel=latest`, `AnalysisMode=Default`, `EnforceExtendedAnalyzerRules=true`). These are advisory diagnostics, not a hard failure gate.
 - `tests/Directory.Build.props` — uniformly brings in `coverlet.msbuild` (version `6.0.2`, `PrivateAssets=all`) for all test projects, used for coverage collection.

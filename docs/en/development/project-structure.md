@@ -58,7 +58,7 @@ The repository has two benchmark directories:
 
 ## 6. `build/` — build configuration
 
-Centralized management of version, signing, and common package properties: `version.props` (product version 2.7.0), `common.props` (package metadata + `LangVersion=10.0`), `sign.props` + `aspectcore.snk` (strong-name signing), and the Cake scripts (`index.cake`, `util.cake`, `version.cake`). For details, see [Local build](./building.md).
+Centralized management of version, signing, and common package properties: `version.props` (product version 3.0.0-rc.1), `common.props` (package metadata + `LangVersion=13.0`), `sign.props` + `aspectcore.snk` (strong-name signing), and the Cake scripts (`index.cake`, `util.cake`, `version.cake`). For details, see [Local build](./building.md).
 
 ## 7. `.github/` — CI
 

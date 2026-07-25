@@ -58,7 +58,7 @@
 
 ## 6. `build/` — 构建配置
 
-集中管理版本、签名与公共包属性：`version.props`（产品版本 2.7.0）、`common.props`（包元数据 + `LangVersion=10.0`）、`sign.props` + `aspectcore.snk`（强名称签名），以及 Cake 脚本（`index.cake`、`util.cake`、`version.cake`）。详见 [本地构建](./building.md)。
+集中管理版本、签名与公共包属性：`version.props`（产品版本 3.0.0-rc.1）、`common.props`（包元数据 + `LangVersion=13.0`）、`sign.props` + `aspectcore.snk`（强名称签名），以及 Cake 脚本（`index.cake`、`util.cake`、`version.cake`）。详见 [本地构建](./building.md)。
 
 ## 7. `.github/` — CI
 

@@ -71,24 +71,6 @@ AspectCore 是一个开源的 .NET AOP（面向切面编程）框架，采用双
 - [x] 上述场景均有对应测试用例并全部通过。
 - [x] 测试在 CI 中作为门禁，keyed 相关变更必须通过全部用例。
 
-### P1-1：将 Source Generator 设为默认引擎并提供 Auto 回退
-
-**背景**：Source Generator 目前仅为可选项，多数用户仍在使用运行时 DynamicProxy。将编译时引擎设为默认，可显著降低运行时开销、改善 NativeAOT 兼容性，并与 MSDI 的编译时方向保持一致。
-
-**具体行动**：
-1. 引入引擎选择策略：`Auto`（默认）、`Runtime`、`SourceGenerator`。
-2. `Auto` 模式行为：
-   - 优先使用 Source Generator（若目标项目已启用并成功生成代理）。
-   - 当 Source Generator 不可用（如项目未启用、生成失败、或目标框架不支持）时，自动回退到运行时 DynamicProxy。
-   - 回退时记录可诊断的警告信息，便于用户排查。
-3. 更新文档与示例，将默认配置指向 `Auto`。
-4. 提供显式选择 `Runtime`/`SourceGenerator` 的配置入口，满足需要确定性行为的场景。
-
-**验收标准**：
-- 新用户零配置即获得 Source Generator 优先的体验。
-- `Auto` 回退路径有明确日志，不静默降级。
-- 现有运行时用户升级后行为不变（回退到 Runtime）。
-
 ---
 
 ## 三、中期优先级（1–3 个月）
@@ -164,7 +146,7 @@ AspectCore 是一个开源的 .NET AOP（面向切面编程）框架，采用双
 |------|------|------|----------|
 | **NativeAOT 过时风险** | 最高 | 若 12–18 个月内无法提供端到端 NativeAOT 支持，将与平台方向不兼容 | P0-3 为最高优先级；在 NativeAOT 路径上彻底移除 `DynamicMethod`；建立 NativeAOT CI 门禁 |
 | **Metalama 免费层扩张** | 高 | Metalama 若扩大免费层功能，将侵蚀 AspectCore"免费 + 开源"的差异化优势 | 强化开源社区治理、双引擎一致性、与 MSDI 深度集成等 Metalama 不具备的优势；保持完全开源 |
-| **Castle Source Generator 发布** | 中 | Castle v6.0 若发布 Source Generator，将缩小 AspectCore 在编译时方向的差距 | 加快 P1-1（Source Generator 默认化）与 P0-3（NativeAOT）落地，在 Castle 之前占据编译时 + NativeAOT 的生态位 |
+| **Castle Source Generator 发布** | 中 | Castle v6.0 若发布 Source Generator，将缩小 AspectCore 在编译时方向的差距 | 加快 P0-3（NativeAOT）落地，强化双引擎一致性与现代 C# 特性适配，在 Castle 之前占据 NativeAOT 的生态位 |
 | **社区可持续性** | 中 | 团队规模小，节奏激进，存在 burnout 风险 | 建立贡献者指南与自动化 CI/CD 降低维护成本；优先保障 P0 事项，P1 事项可吸纳社区贡献；避免在非核心方向过度消耗 |
 | **Keyed 服务缺口损害信任** | 中 | `NotImplementedException` 被作为"预期行为"测试，传递出"功能不完整"的负面信号 | P0-1 + P0-2 立即修复；修复后发布公告，主动恢复用户信心 |
 
@@ -176,7 +158,6 @@ AspectCore 是一个开源的 .NET AOP（面向切面编程）框架，采用双
 |------|----------|------|--------|
 | **短期** | 第 1–2 周 | P0-1：修复 keyed 服务解析缺口 | P0 |
 | | | P0-2：keyed 服务拦截集成测试 | P0 |
-| | | P1-1：Source Generator 默认引擎 + Auto 回退 | P1 |
 | **中期** | 第 1–3 个月 | P0-3：端到端 NativeAOT 支持 | P0 |
 | | | P1-2：Windsor 迁移指南与工具 | P1 |
 | | | P1-3：对标竞品基准测试套件 | P1 |

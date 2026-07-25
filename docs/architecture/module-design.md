@@ -12,7 +12,7 @@ AspectCore 遵循单向依赖：**契约在最底层，实现居中，集成在�
 - 集成/特性包只依赖 `Core` 或 `Abstractions`，互不横向耦合（`AspNetCore`、`DataAnnotations` 是刻意的组合例外）。
 - 编译时引擎（`SourceGenerator`）独立于运行时，仅在生成代码中引用运行时类型的全限定名。
 
-版本与语言级别统一由 `build/common.props` 管理（`LangVersion=10.0`，产品版本见 `build/version.props`）；`SourceGenerator` 自身覆盖为 `LangVersion=latest`。
+版本与语言级别统一由 `build/common.props` 管理（`LangVersion=13.0`，产品版本见 `build/version.props`）；`SourceGenerator` 自身覆盖为 `LangVersion=latest`。
 
 ## 2. 依赖关系图
 
@@ -68,7 +68,7 @@ SourceGenerator（独立 Roslyn 分析器，无项目引用）
 - 反射器类：`MethodReflector`（含 `Static`/`Call`/`OpenGeneric` 变体）、`ConstructorReflector`、`FieldReflector`、`PropertyReflector`、`TypeReflector`、`ParameterReflector`、`CustomAttributeReflector`，均派生自 `MemberReflector<T>` — `MethodReflector.cs:10`、`MemberReflector.cs:7`
 - 缓存：`ReflectorCacheUtils<TMember,TReflector>` 用 `ConcurrentDictionary.GetOrAdd` 保证每个反射器只编译一次 — `Internals/ReflectorUtils.cs:8`
 - IL 辅助：`Emit/ILGeneratorExtensions.cs`（`EmitLoadArg`/`EmitLdRef`/`EmitStRef`/类型转换等）
-- 依赖：现代 TFM 无外部依赖；仅 `netstandard2.0` 需 `System.Threading.Tasks.Extensions`、`System.Reflection.Emit.Lightweight`、`System.Runtime.CompilerServices.Unsafe`
+- 依赖：所有目标框架（net6.0+）均无外部依赖
 
 ## 4. 运行时核心层
 

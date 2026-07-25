@@ -13,8 +13,8 @@ AspectCore 拥有两套 AOP 引擎：
 
 当前状态：
 
-- `LangVersion` 设为 `10.0`（核心库），Source Generator 使用 `latest`
-- 支持 `net6.0` ~ `net9.0` + `netstandard2.0/2.1`
+- `LangVersion` 设为 `13.0`（核心库），Source Generator 使用 `latest`
+- 支持 `net6.0` ~ `net10.0`（`AspectCore.SourceGenerator` 为 `netstandard2.0`）
 - 两套引擎在方法体生成上有不同路径：DynamicProxy 通过 `ReturnKind` 枚举分发到 `AspectActivator.Invoke*` 系列方法；Source Generator 根据同步/异步生成不同的内联代码
 
 ### 1.1 AOP Emit 核心流程
@@ -70,7 +70,6 @@ AspectCore 拥有两套 AOP 引擎：
 - `ReturnKind` 新增 `AsyncEnumerable`；DynamicProxy 和 Source Generator 分别调用 `IAspectActivator.InvokeAsyncEnumerable<T>`。
 - 异步流保持惰性：拦截器链和目标方法在首次枚举时执行；流完成、取消或枚举期间发生异常时，`AspectContext` 都会释放。
 - `IAsyncDisposable.DisposeAsync()` 返回 `ValueTask`，已通过既有 `ValueTask` 代理路径完成拦截。
-- `netstandard2.0` 目标引入 `Microsoft.Bcl.AsyncInterfaces`，以公开 C# 8 异步接口。
 
 **验证覆盖**
 
