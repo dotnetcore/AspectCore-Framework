@@ -11,14 +11,18 @@ export DOTNET_ROLL_FORWARD=Major
 
 readonly UNIT_TEST_MODE="unit"
 readonly E2E_TEST_MODE="e2e"
+readonly NATIVEAOT_UNIT_TEST_MODE="nativeaot-unit"
+readonly NATIVEAOT_E2E_TEST_MODE="nativeaot-e2e"
 readonly UT_THRESHOLD=95
 readonly E2E_THRESHOLD=80
+readonly NATIVEAOT_UT_THRESHOLD=100
+readonly NATIVEAOT_E2E_THRESHOLD=95
 
 usage() {
   cat >&2 <<EOF
 Usage:
-  $0 collect {${UNIT_TEST_MODE}|${E2E_TEST_MODE}} --output <result-file>
-  $0 assert {${UNIT_TEST_MODE}|${E2E_TEST_MODE}} --input <result-file>
+  $0 collect {${UNIT_TEST_MODE}|${E2E_TEST_MODE}|${NATIVEAOT_UNIT_TEST_MODE}|${NATIVEAOT_E2E_TEST_MODE}} --output <result-file>
+  $0 assert {${UNIT_TEST_MODE}|${E2E_TEST_MODE}|${NATIVEAOT_UNIT_TEST_MODE}|${NATIVEAOT_E2E_TEST_MODE}} --input <result-file>
 EOF
   exit 2
 }
@@ -33,24 +37,217 @@ mode_metadata() {
     "$E2E_TEST_MODE")
       printf '%s|%s|%s|%s\n' "E2E Test" "$E2E_THRESHOLD" "*E2E*.csproj" ""
       ;;
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s|%s|%s|%s\n' "NativeAOT Unit Test" "$NATIVEAOT_UT_THRESHOLD" "AspectCore.Core.Tests.csproj" ""
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s|%s|%s|%s\n' "NativeAOT E2E Test" "$NATIVEAOT_E2E_THRESHOLD" "AspectCore.E2E.Tests.csproj" ""
+      ;;
     *)
       usage
       ;;
   esac
 }
 
+nativeaot_mode() {
+  local mode="$1"
+  [[ "$mode" == "$NATIVEAOT_UNIT_TEST_MODE" || "$mode" == "$NATIVEAOT_E2E_TEST_MODE" ]]
+}
+
+nativeaot_filter() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "FullyQualifiedName~SourceGeneratorDiagnosticTests"
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s\n' "FullyQualifiedName~NativeAotSourceGeneratedScenarios"
+      ;;
+    *)
+      printf '%s\n' ""
+      ;;
+  esac
+}
+
+nativeaot_include_filter() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "[AspectCore.SourceGenerator]*"
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s\n' "[AspectCore.Core]*%2c[AspectCore.Abstractions]*"
+      ;;
+    *)
+      printf '%s\n' ""
+      ;;
+  esac
+}
+
+target_framework() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "net10.0"
+      ;;
+    *)
+      printf '%s\n' "net9.0"
+      ;;
+  esac
+}
+
+nativeaot_scope_files() {
+  local mode="$1"
+
+  case "$mode" in
+    "$NATIVEAOT_UNIT_TEST_MODE")
+      printf '%s\n' "Emit/NativeAotSignatureDiagnostic.cs"
+      ;;
+    "$NATIVEAOT_E2E_TEST_MODE")
+      printf '%s\n' \
+        "AspectCore.Core/DynamicProxy/AspectContextFactory.cs" \
+        "AspectCore.Core/DynamicProxy/SourceGeneratedAspectContext.cs"
+      ;;
+  esac
+}
+
+coverage_from_cobertura() {
+  local coverage_file="$1"
+  shift
+
+  python3 - "$coverage_file" "$@" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+coverage_file = sys.argv[1]
+scope_files = set(sys.argv[2:])
+root = ET.parse(coverage_file).getroot()
+covered = 0
+valid = 0
+matched = set()
+
+
+def matches_scope(filename, scope):
+    return filename == scope or filename.endswith("/" + scope) or filename.endswith("\\" + scope)
+
+
+for cls in root.findall(".//class"):
+    filename = cls.attrib.get("filename", "")
+    if scope_files:
+        matched_scope = next((scope for scope in scope_files if matches_scope(filename, scope)), None)
+        if matched_scope is None:
+            continue
+        matched.add(filename)
+    else:
+        matched.add(filename)
+    for line in cls.findall("./lines/line"):
+        valid += 1
+        if int(line.attrib.get("hits", "0")) > 0:
+            covered += 1
+
+print(f"  Scope matched classes: {len(matched)}", file=sys.stderr)
+for filename in sorted(matched):
+    print(f"    {filename}", file=sys.stderr)
+
+if valid == 0:
+    print("0.00")
+else:
+    print(f"{covered * 100 / valid:.2f}")
+PY
+}
+
+coverage_passed() {
+  local coverage="$1"
+  local threshold="$2"
+
+  python3 - "$coverage" "$threshold" <<'PY'
+import sys
+
+coverage = float(sys.argv[1])
+threshold = float(sys.argv[2])
+sys.exit(0 if coverage + 1e-9 >= threshold else 1)
+PY
+}
+
+coverage_is_zero() {
+  local coverage="$1"
+
+  python3 - "$coverage" <<'PY'
+import sys
+
+coverage = float(sys.argv[1])
+sys.exit(0 if coverage == 0 else 1)
+PY
+}
+
+coverage_is_number() {
+  local coverage="$1"
+
+  python3 - "$coverage" <<'PY'
+import sys
+
+try:
+    float(sys.argv[1])
+except ValueError:
+    sys.exit(1)
+sys.exit(0)
+PY
+}
+
+integer_average() {
+  python3 - "$@" <<'PY'
+import sys
+
+values = [float(v) for v in sys.argv[1:]]
+if not values:
+    print("0")
+else:
+    print(str(int(sum(values) // len(values))))
+PY
+}
+
+decimal_average() {
+  python3 - "$@" <<'PY'
+import sys
+
+values = [float(v) for v in sys.argv[1:]]
+if not values:
+    print("0.00")
+else:
+    print(f"{sum(values) / len(values):.2f}")
+PY
+}
+
+root_line_rate() {
+  local coverage_file="$1"
+
+  python3 - "$coverage_file" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+root = ET.parse(sys.argv[1]).getroot()
+print(float(root.attrib.get("line-rate", "0")) * 100)
+PY
+}
+
 run_coverage() {
   local project="$1"
   local label="$2"
+  local mode="$3"
   local project_dir
   local project_name
   local source_assembly
   local include_filter
   local coverage_file
-  local line_rate
+  local filter
   local coverage_pct
   local test_log
   local test_status
+  local dotnet_args
+  local framework
 
   echo "Measuring: $label..." >&2
 
@@ -69,13 +266,24 @@ run_coverage() {
   if [[ "$project_name" == *"E2E"* ]]; then
     include_filter="[AspectCore.Core]*%2c[AspectCore.Abstractions]*"
   fi
+  if nativeaot_mode "$mode"; then
+    include_filter=$(nativeaot_include_filter "$mode")
+    filter=$(nativeaot_filter "$mode")
+  else
+    filter=""
+  fi
 
   # Do not use --no-build: coverlet.msbuild needs to instrument assemblies.
   # Capture the pipeline status explicitly because this function's output is
   # consumed through command substitution by collect_coverage.
   set +e
   test_log=$(mktemp)
-  dotnet test "$project" --configuration Release -f net9.0 \
+  framework=$(target_framework "$mode")
+  dotnet_args=("$project" --configuration Release -f "$framework")
+  if [[ -n "$filter" ]]; then
+    dotnet_args+=(--filter "$filter")
+  fi
+  dotnet test "${dotnet_args[@]}" \
     /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura \
     /p:CoverletOutput=./TestResults/ \
     "/p:Include=${include_filter}" \
@@ -92,9 +300,14 @@ run_coverage() {
 
   coverage_file=$(find "$project_dir/TestResults" -name "*.cobertura.xml" -print -quit)
   if [[ -n "$coverage_file" && -f "$coverage_file" ]]; then
-    line_rate=$(grep -o 'line-rate="[^"]*"' "$coverage_file" | head -1 | cut -d'"' -f2)
-    if [[ -n "$line_rate" ]]; then
-      coverage_pct=$(echo "$line_rate * 100" | bc | cut -d. -f1)
+    if nativeaot_mode "$mode"; then
+      mapfile -t scope_files < <(nativeaot_scope_files "$mode")
+      coverage_pct=$(coverage_from_cobertura "$coverage_file" "${scope_files[@]}")
+    else
+      coverage_pct=$(root_line_rate "$coverage_file")
+      coverage_pct=$(printf '%.0f\n' "$coverage_pct")
+    fi
+    if [[ -n "$coverage_pct" ]]; then
       echo "  Coverage: ${coverage_pct}%" >&2
       printf '%s\n' "$coverage_pct"
       return
@@ -115,10 +328,10 @@ collect_coverage() {
   local exclude_pattern
   local coverage
   local coverage_count=0
-  local coverage_sum=0
   local coverage_average=0
   local find_arguments
   local test_project
+  local coverages=()
 
   metadata=$(mode_metadata "$mode")
   IFS='|' read -r heading threshold project_pattern exclude_pattern <<< "$metadata"
@@ -129,21 +342,25 @@ collect_coverage() {
 
   echo "=== ${heading} Coverage Collection ==="
   while IFS= read -r test_project; do
-    if ! coverage=$(run_coverage "$test_project" "$(basename "$(dirname "$test_project")")"); then
+    if ! coverage=$(run_coverage "$test_project" "$(basename "$(dirname "$test_project")")" "$mode"); then
       echo "FAIL: Test execution failed for ${test_project}." >&2
       return 1
     fi
 
-    if [[ "$coverage" == "0" || -z "$coverage" ]]; then
+    if [[ -z "$coverage" ]] || coverage_is_zero "$coverage"; then
       continue
     fi
 
     coverage_count=$((coverage_count + 1))
-    coverage_sum=$((coverage_sum + coverage))
+    coverages+=("$coverage")
   done < <(find "${find_arguments[@]}" | sort)
 
   if [[ "$coverage_count" -gt 0 ]]; then
-    coverage_average=$((coverage_sum / coverage_count))
+    if nativeaot_mode "$mode"; then
+      coverage_average=$(decimal_average "${coverages[@]}")
+    else
+      coverage_average=$(integer_average "${coverages[@]}")
+    fi
   fi
 
   mkdir -p "$(dirname "$output_file")"
@@ -205,8 +422,8 @@ assert_coverage() {
     projects=$(result_value projects "$input_file")
   fi
 
-  if [[ "$result_mode" == "$mode" && "$threshold" == "$expected_threshold" && "$coverage" =~ ^[0-9]+$ && "$projects" =~ ^[1-9][0-9]*$ ]]; then
-    if (( coverage >= threshold )); then
+  if [[ "$result_mode" == "$mode" && "$threshold" == "$expected_threshold" && "$projects" =~ ^[1-9][0-9]*$ ]]; then
+    if coverage_is_number "$coverage" && coverage_passed "$coverage" "$threshold"; then
       passed=true
     fi
   fi
@@ -225,7 +442,7 @@ assert_coverage() {
     return 0
   fi
 
-  if [[ "$coverage" =~ ^[0-9]+$ ]]; then
+  if coverage_is_number "$coverage"; then
     echo "FAIL: ${heading} coverage ${coverage}% is below threshold ${expected_threshold}%"
   else
     echo "FAIL: ${heading} coverage result is missing or invalid."

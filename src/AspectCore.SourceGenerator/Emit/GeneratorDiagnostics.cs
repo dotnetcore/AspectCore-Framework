@@ -77,6 +77,22 @@ internal static class GeneratorDiagnostics
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
+    private static readonly DiagnosticDescriptor UnsupportedByRefLikeParameterDescriptor = new(
+        id: "ACSG010",
+        title: "AspectCore SourceGenerator 暂不支持 byref-like 参数",
+        messageFormat: "成员 '{0}' 包含 byref-like 参数 '{1}'，当前版本的 Source Generator 暂不支持生成代理。byref-like 类型（如 Span<T>、ReadOnlySpan<T>）无法进入 AspectCore 的 object[] 参数管道。",
+        category: "AspectCore.SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
+    private static readonly DiagnosticDescriptor UnsupportedByRefLikeReturnDescriptor = new(
+        id: "ACSG011",
+        title: "AspectCore SourceGenerator 暂不支持 byref-like 返回值",
+        messageFormat: "成员 '{0}' 返回 byref-like 类型 '{1}'，当前版本的 Source Generator 暂不支持生成代理。byref-like 类型（如 Span<T>、ReadOnlySpan<T>）无法进入 AspectCore 的 object ReturnValue 管道。",
+        category: "AspectCore.SourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
     private static readonly DiagnosticDescriptor OpenGenericMethodNativeAotFallbackDescriptor = new(
         id: "ACSG0101",
         title: "Open generic method falls back to reflection for NativeAOT",
@@ -115,6 +131,20 @@ internal static class GeneratorDiagnostics
             parameter.Locations.FirstOrDefault() ?? method.Locations.FirstOrDefault(),
             method.ToDisplayString(),
             parameter.Name);
+
+    public static Diagnostic UnsupportedByRefLikeParameter(IMethodSymbol method, IParameterSymbol parameter)
+        => Diagnostic.Create(
+            UnsupportedByRefLikeParameterDescriptor,
+            parameter.Locations.FirstOrDefault() ?? method.Locations.FirstOrDefault(),
+            method.ToDisplayString(),
+            parameter.Name);
+
+    public static Diagnostic UnsupportedByRefLikeReturn(IMethodSymbol method)
+        => Diagnostic.Create(
+            UnsupportedByRefLikeReturnDescriptor,
+            method.Locations.FirstOrDefault(),
+            method.ToDisplayString(),
+            method.ReturnType.ToDisplayString());
 
     public static Diagnostic OpenGenericMethodNativeAotFallback(INamedTypeSymbol type, IMethodSymbol method)
         => Diagnostic.Create(

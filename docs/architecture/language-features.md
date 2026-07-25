@@ -154,7 +154,7 @@ ref struct（如 `Span<T>`、`ReadOnlySpan<T>`）有 CLR 强制限制：不能�
 
 - 只有**未命中拦截的直连路径**能正确传递 ref struct 参数/返回值（IL 直接透传、SG 直接调用）。
 - 一旦方法进入**拦截路径**，两套引擎都会把参数装进 `object[]`：DynamicProxy 的 `EmitInitializeMetaData` 对每个参数 `EmitConvertToObject`（`ILEmitVisitor.cs`），SG 的 `EmitArgumentsArray` 生成 `new object[]{...}`（`ProxyEmitter.cs`）。ref struct 无法装箱到 `object`，因此运行时会抛 `InvalidProgramException`（例如对带拦截器的 `int Length(Span<int>)` 实测即抛此异常）。
-- SG 目前只对 `params` 的 byref-like 参数显式报告 ACSG009（见 3.2.2）；非 `params` 的 `Span<T>` 参数在被拦截方法里没有专门诊断，会在运行时失败。
+- SG 会在生成阶段提前诊断：`params` byref-like 参数报告 ACSG009，普通 byref-like 参数报告 ACSG010，byref-like 返回值报告 ACSG011。这样 Source Generator / NativeAOT 路径不会把这些签名拖到运行时失败。
 
 **结论**：ref struct 代理目标已被安全拒绝；但「被拦截方法的 byref-like 参数/返回值」尚未支持，是已知限制。
 
@@ -678,7 +678,7 @@ P0（已全部完成）          P1（功能缺失）            P2（注解/低
 **现状**：ref struct 不能装箱、不能作为类字段。分两种场景：
 
 - **代理目标类型**：✅ 已拒绝——入口检查 `type.IsByRefLike`（DynamicProxy）/ 报 ACSG008（SG），提前报错。
-- **被拦截方法的 byref-like 参数/返回值**：❌ 仍不支持——拦截路径把参数装进 `object[]`，`Span<T>` 等无法装箱，运行时抛 `InvalidProgramException`；仅未拦截的直连路径可透传。详见 3.1.5。
+- **被拦截方法的 byref-like 参数/返回值**：❌ 仍不支持——拦截路径把参数装进 `object[]`，`Span<T>` 等无法装箱；SG 路径提前报告 ACSG009/ACSG010/ACSG011，仅未拦截的直连路径可透传。详见 3.1.5。
 
 ### 6.6 ✅ ref 返回方法 — 已适配
 
