@@ -242,7 +242,7 @@ public class AspectContextInvocationAdapterTests
     }
 
     [Fact]
-    public void ReturnValue_Get_Returns_Context_ReturnValue()
+    public async Task ReturnValue_Get_Returns_Context_ReturnValue()
     {
         var context = CreateRealAspectContext(out _);
         // The context has ReturnValue=30 from the backing invocation
@@ -255,13 +255,13 @@ public class AspectContextInvocationAdapterTests
             // Don't proceed - just read ReturnValue
         });
         var adapter = new CastleInterceptorAdapter(castleInterceptor);
-        adapter.Invoke(context, next).GetAwaiter().GetResult();
+        await adapter.Invoke(context, next);
 
         Assert.Equal(30, captured.ReturnValue);
     }
 
     [Fact]
-    public void ReturnValue_Set_Updates_Context_ReturnValue()
+    public async Task ReturnValue_Set_Updates_Context_ReturnValue()
     {
         var context = CreateRealAspectContext(out _);
         AspectDelegate next = ctx => Task.CompletedTask;
@@ -273,7 +273,7 @@ public class AspectContextInvocationAdapterTests
             inv.ReturnValue = 99;
         });
         var adapter = new CastleInterceptorAdapter(castleInterceptor);
-        adapter.Invoke(context, next).GetAwaiter().GetResult();
+        await adapter.Invoke(context, next);
 
         Assert.Equal(99, context.ReturnValue);
     }
@@ -387,7 +387,7 @@ public class AspectContextInvocationAdapterTests
     }
 
     [Fact]
-    public void Proceed_Called_Twice_Throws_InvalidOperationException()
+    public async Task Proceed_Called_Twice_Throws_InvalidOperationException()
     {
         var context = CreateRealAspectContext(out _);
         AspectDelegate next = ctx => Task.CompletedTask;
@@ -398,11 +398,11 @@ public class AspectContextInvocationAdapterTests
             Assert.Throws<InvalidOperationException>(() => inv.Proceed());
         });
         var adapter = new CastleInterceptorAdapter(castleInterceptor);
-        adapter.Invoke(context, next).GetAwaiter().GetResult();
+        await adapter.Invoke(context, next);
     }
 
     [Fact]
-    public void Proceed_Synchronous_Faulted_Task_Propagates_Exception()
+    public async Task Proceed_Synchronous_Faulted_Task_Propagates_Exception()
     {
         var context = CreateRealAspectContext(out _);
         AspectDelegate next = _ => Task.FromException(new InvalidOperationException("test error"));
@@ -412,7 +412,7 @@ public class AspectContextInvocationAdapterTests
             Assert.Throws<InvalidOperationException>(() => inv.Proceed());
         });
         var adapter = new CastleInterceptorAdapter(castleInterceptor);
-        adapter.Invoke(context, next).GetAwaiter().GetResult();
+        await adapter.Invoke(context, next);
     }
 
     [Fact]
@@ -456,7 +456,7 @@ public class AspectContextInvocationAdapterTests
     // ── CaptureProceedInfo Tests ────────────────────────────────────────
 
     [Fact]
-    public void CaptureProceedInfo_Invoke_Calls_Proceed()
+    public async Task CaptureProceedInfo_Invoke_Calls_Proceed()
     {
         var context = CreateRealAspectContext(out _);
         var nextCalled = false;
@@ -472,13 +472,13 @@ public class AspectContextInvocationAdapterTests
             info.Invoke();
         });
         var adapter = new CastleInterceptorAdapter(castleInterceptor);
-        adapter.Invoke(context, next).GetAwaiter().GetResult();
+        await adapter.Invoke(context, next);
 
         Assert.True(nextCalled);
     }
 
     [Fact]
-    public void CaptureProceedInfo_Double_Invoke_Throws()
+    public async Task CaptureProceedInfo_Double_Invoke_Throws()
     {
         var context = CreateRealAspectContext(out _);
         AspectDelegate next = ctx => Task.CompletedTask;
@@ -490,7 +490,7 @@ public class AspectContextInvocationAdapterTests
             Assert.Throws<InvalidOperationException>(() => info.Invoke());
         });
         var adapter = new CastleInterceptorAdapter(castleInterceptor);
-        adapter.Invoke(context, next).GetAwaiter().GetResult();
+        await adapter.Invoke(context, next);
     }
 
     // ── CastleInterceptorAdapter Constructor Tests ──────────────────────

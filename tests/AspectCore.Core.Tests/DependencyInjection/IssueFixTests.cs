@@ -96,7 +96,7 @@ namespace AspectCore.Core.Tests.DependencyInjection
         #region Issue #271: Singleton concurrent construction returns same instance
 
         [Fact]
-        public void Issue271_Singleton_ConcurrentResolution_ReturnsSameInstance()
+        public async Task Issue271_Singleton_ConcurrentResolution_ReturnsSameInstance()
         {
             // Arrange: a singleton service with a slow constructor
             var context = new ServiceContext();
@@ -126,7 +126,7 @@ namespace AspectCore.Core.Tests.DependencyInjection
                     results[index] = resolver.Resolve(typeof(ISlowSingletonService));
                 });
             }
-            Task.WaitAll(tasks);
+            await Task.WhenAll(tasks);
 
             // Assert: all threads should get the same instance
             var firstResult = results[0];
