@@ -1,7 +1,7 @@
 ## AspectCore Framework
 [![Build](https://github.com/dotnetcore/AspectCore-Framework/actions/workflows/build-ci.yml/badge.svg)](https://github.com/dotnetcore/AspectCore-Framework/actions/workflows/build-ci.yml)
 [![Member project of .NET Core Community](https://img.shields.io/badge/member%20project%20of-NCC-9e20c9.svg)](https://github.com/dotnetcore)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dotnetcore/AspectCore/blob/dev/LICENSE)  
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dotnetcore/AspectCore-Framework/blob/master/LICENSE)  
 AspectCore is an Aspect-Oriented Programming based cross platform framework for .NET 6+.
   
 Core support for aspect-interceptor, dependency injection integration, web applications, data validation, and more.
