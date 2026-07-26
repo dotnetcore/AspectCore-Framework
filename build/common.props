@@ -4,9 +4,10 @@
   <PropertyGroup>
     <Authors>Lemon</Authors>
     <Product>AspectCore Framework</Product>
-    <PackageIconUrl>https://avatars1.githubusercontent.com/u/19426425?v=3&amp;s=200</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/dotnetcore/AspectCore-Framework</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/dotnetcore/AspectCore-Framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/dotnetcore/AspectCore-Framework</RepositoryUrl>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -18,4 +19,8 @@
          needed for NativeAOT AOP support while remaining compatible with net6.0 as the lowest TFM -->
     <LangVersion>13.0</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)../icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
 </Project>

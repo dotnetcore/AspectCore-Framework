@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to bump to (e.g. 2.6.0). Only used by manual trigger.'
+        description: 'Version to bump to (e.g. 3.0.0). Only used by manual trigger.'
         required: true
-        default: '2.6.0'
+        default: '3.0.0'
 
 permissions:
   contents: write
@@ -16,7 +16,200 @@ permissions:
   id-token: write
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Quality gates. These MUST pass before any package is published or any
+  # GitHub Release is created. Every downstream publish job depends on the
+  # `quality-gate` aggregation job via `needs:`, so a failure in any gate
+  # short-circuits the whole release: no NuGet/MyGet push, no GitHub Release.
+  #
+  # The gates mirror the PR CI pipeline (.github/workflows/build-pr-ci.yml) and
+  # reuse the exact same coverage script (.github/scripts/check-coverage.sh)
+  # so thresholds stay identical and cannot drift:
+  #   Unit 95% / E2E 80% / NativeAOT Unit 100% / NativeAOT E2E 95%.
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint (Release gate)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Lint (dotnet format)
+      shell: bash
+      run: |
+        dotnet format AspectCore-Framework.sln --verify-no-changes --verbosity diagnostic
+
+  unit-coverage:
+    name: Unit Coverage (Release gate)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Collect unit test coverage
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh collect unit --output coverage-results/unit.env
+    - name: Assert unit coverage (min 95%)
+      shell: bash
+      run: |
+        ./.github/scripts/check-coverage.sh assert unit --input coverage-results/unit.env
+
+  e2e-coverage:
+    name: E2E Coverage (Release gate)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Collect E2E test coverage
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh collect e2e --output coverage-results/e2e.env
+    - name: Assert E2E coverage (min 80%)
+      shell: bash
+      run: |
+        ./.github/scripts/check-coverage.sh assert e2e --input coverage-results/e2e.env
+
+  nativeaot-coverage:
+    name: NativeAOT Coverage (Release gate)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Collect NativeAOT unit coverage
+      shell: bash
+      run: |
+        chmod +x ./.github/scripts/check-coverage.sh
+        ./.github/scripts/check-coverage.sh collect nativeaot-unit --output coverage-results/nativeaot-unit.env
+    - name: Collect NativeAOT E2E coverage
+      shell: bash
+      run: |
+        ./.github/scripts/check-coverage.sh collect nativeaot-e2e --output coverage-results/nativeaot-e2e.env
+    - name: Assert NativeAOT unit coverage (min 100%)
+      shell: bash
+      run: |
+        ./.github/scripts/check-coverage.sh assert nativeaot-unit --input coverage-results/nativeaot-unit.env
+    - name: Assert NativeAOT E2E coverage (min 95%)
+      shell: bash
+      run: |
+        ./.github/scripts/check-coverage.sh assert nativeaot-e2e --input coverage-results/nativeaot-e2e.env
+
+  nativeaot-verify:
+    name: NativeAOT Publish + Run (Release gate)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Restore dependencies
+      run: dotnet restore AspectCore-Framework.sln
+    - name: Build solution
+      run: dotnet build AspectCore-Framework.sln -c Release --no-restore
+    - name: Publish NativeAOT E2E (self-contained AOT binary)
+      run: dotnet publish tests/AspectCore.NativeAot.E2E/AspectCore.NativeAot.E2E.csproj -c Release -r linux-x64 -o ./publish-aot --no-restore
+    - name: Run NativeAOT E2E binary
+      run: ./publish-aot/AspectCore.NativeAot.E2E
+
+  codeql:
+    name: CodeQL (Release gate)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+    - name: Build for CodeQL
+      shell: bash
+      run: |
+        for project in $(find ./src -name "*.csproj"); do
+          dotnet build --configuration Release $project
+        done
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:csharp"
+
+  quality-gate:
+    name: Quality Gate (all checks passed)
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - unit-coverage
+      - e2e-coverage
+      - nativeaot-coverage
+      - nativeaot-verify
+      - codeql
+    steps:
+    - name: All quality gates passed
+      run: echo "All release quality gates passed. Proceeding to package and publish."
+
   build-and-test:
+    # Publishing is gated: this job (and therefore NuGet/MyGet push and the
+    # GitHub Release created within it) only runs after every quality gate
+    # succeeds. If quality-gate fails, this job is skipped and nothing ships.
+    needs: quality-gate
     permissions:
       id-token: write
       contents: write
@@ -197,8 +390,12 @@ jobs:
         generate_release_notes: true
 
   update-version:
+    # Runs only after a successful publish (build-and-test). Combined with the
+    # quality-gate chain, the version bump PR is never opened when a release
+    # was blocked by a failing gate or a failed publish.
     # For tag pushes: only bump version for stable releases (not pre-releases like beta/rc/alpha)
-    # For manual trigger: always run
+    # For manual trigger: always run (subject to build-and-test success)
+    needs: build-and-test
     if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.ref_name, '-') }}
     runs-on: ubuntu-latest
     steps:

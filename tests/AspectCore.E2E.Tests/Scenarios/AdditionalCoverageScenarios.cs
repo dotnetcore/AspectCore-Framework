@@ -286,17 +286,25 @@ public class AdditionalCoverageScenarios
         using var host = new TestHost();
         host.Add<IAsyncService, AsyncService>();
 
+        InterceptorLog.Clear();
         var service = host.Resolve<IAsyncService>(config =>
         {
             config.Interceptors.AddDelegate(async (ctx, next) =>
             {
+                InterceptorLog.Entries.Add("Chain.Before");
                 await ctx.Invoke(next);
+                InterceptorLog.Entries.Add("Chain.After");
             }, Predicates.Implement(typeof(IAsyncService)));
         });
 
         await service.ChainAsync();
-        // If we get here without exception, the chain worked
-        Assert.True(true);
+
+        // A Task (void-result) async method must flow through the interceptor
+        // chain: the Before entry is recorded, the inner invocation is awaited,
+        // then the After entry is recorded in order.
+        Assert.Equal(
+            new[] { "Chain.Before", "Chain.After" },
+            InterceptorLog.Entries.ToArray());
     }
 
     [Fact]
