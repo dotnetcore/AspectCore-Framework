@@ -12,6 +12,7 @@
 - [安装](./getting-started/installation.md) — NuGet 包与目标框架
 - [快速上手](./getting-started/quick-start.md) — 五分钟跑通第一个拦截器
 - [核心概念](./getting-started/concepts.md) — 拦截器、代理、切面上下文等术语
+- [NativeAOT 上手](./getting-started/nativeaot.md) — 把使用 AspectCore 的应用发布成 NativeAOT 原生二进制
 
 ### 📖 使用指南（guide）
 面向日常开发的功能说明。
@@ -26,6 +27,8 @@
 - [数据校验](./guide/data-validation.md) — DataAnnotations 校验拦截
 - [反射扩展](./guide/reflection-extensions.md) — AspectCore.Extensions.Reflection 高性能反射
 - [常见场景](./guide/common-scenarios.md) — 日志、缓存、重试、性能监控等
+- [从 2.x 升级到 3.0](./guide/upgrade-to-3.0.md) — 升级前提、破坏性变更、升级步骤与常见问题
+- [Source Generator 诊断目录](./guide/source-generator-diagnostics.md) — ACSGxxx 诊断的含义、触发条件与修复
 
 ### 🏛 架构设计（architecture）
 面向贡献者与深度使用者的设计文档。
@@ -46,10 +49,17 @@
 - [贡献指南](./development/contributing.md) — 分支、提交、PR 流程
 - [开发规范](./development/development-guidelines.md) — 工程结构识别、命令粒度、测试、性能、设计原则
 - [Code Review 规范](./development/code-review-guidelines.md) — Review 维度、BLOCKING 问题、自查清单
+- [GA 发布流程](./development/release-process.md) — 正式版发布的步骤与门禁
 
 ### ✅ 测试（testing）
 - [测试策略](./testing/testing-strategy.md) — 单元、双引擎一致性、E2E、覆盖率门槛
 - [运行测试](./testing/running-tests.md) — 如何运行与筛选测试
+
+### 📦 发布说明（release-notes）
+每个大版本的发布记录。
+
+- [v3.0.0 变更日志](./release-notes/v3.0.0-changelog.md) — 结构化变更清单（特性 / 性能 / 修复 / 破坏性变更 / 工程）
+- [v3.0.0 发布叙事](./release-notes/v3.0.0.md) — 发布背景与研发过程的叙事版本
 
 ## 版本说明
 
