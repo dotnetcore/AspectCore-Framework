@@ -27,6 +27,8 @@ Source Generator 是 AspectCore 的编译时代理引擎，基于 Roslyn 增量�
 - `IsProxyableClassProperty`（`:470`）：同上（属性版）。
 - 自动发现（程序集级）额外跳过含事件成员的类型、以及已显式标注的类型。
 
+程序集级自动发现的**接口**没有可推断的实现类型，默认生成**无目标 stub 代理**（成员返回 `default`，见下方「接口 stub」）。需要带实现的完整接口代理时，仍须在接口或实现类型上显式标注 `[AspectCoreGenerateProxy(typeof(Impl))]`。
+
 ## 3. 诊断（ACSGxxx）
 
 生成器在遇到不支持的情况时报告诊断（`Emit/GeneratorDiagnostics.cs`，类别 `AspectCore.SourceGenerator`）：
