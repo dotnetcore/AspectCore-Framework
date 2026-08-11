@@ -139,18 +139,7 @@ public class AssemblyLevelAutoProxyTests
             """;
 
         var references = CreateReferences();
-
-        var libCompilation = CSharpCompilation.Create(
-            assemblyName: "AutoProxyLib",
-            syntaxTrees: new[] { CSharpSyntaxTree.ParseText(libSource, new CSharpParseOptions(LanguageVersion.CSharp13)) },
-            references: references,
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-        using var ms = new MemoryStream();
-        var emitResult = libCompilation.Emit(ms);
-        Assert.True(emitResult.Success, string.Join("\n", emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
-        ms.Position = 0;
-        var libReference = MetadataReference.CreateFromStream(ms);
+        var libReference = CompileLibrary(libSource, "AutoProxyLib");
 
         // Main compilation does NOT declare the assembly-level attribute; it only references the lib.
         const string mainSource = """
@@ -176,6 +165,113 @@ public class AssemblyLevelAutoProxyTests
         Assert.DoesNotContain(generatedSources, s => s.HintName.Contains("MainService"));
         Assert.Empty(generatorDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error));
         Assert.Empty(outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
+    }
+
+    [Fact]
+    public void ReferencedAssemblyWithAssemblyLevelAttribute_SkipsInternalTypes()
+    {
+        const string libSource = """
+            using AspectCore.DynamicProxy;
+
+            [assembly: AspectCoreGenerateProxy]
+
+            namespace Lib
+            {
+                public class PublicService
+                {
+                    public virtual void Foo() {}
+                }
+
+                internal class InternalService
+                {
+                    public virtual void Bar() {}
+                }
+
+                internal interface IInternalService
+                {
+                    void Baz();
+                }
+            }
+            """;
+
+        var references = CreateReferences();
+        var libReference = CompileLibrary(libSource, "AutoProxyLibWithInternal");
+
+        const string mainSource = """
+            namespace Main
+            {
+                public class MainService { public virtual void Foo() {} }
+            }
+            """;
+
+        var mainCompilation = CSharpCompilation.Create(
+            assemblyName: "AutoProxyMainWithInternal",
+            syntaxTrees: new[] { CSharpSyntaxTree.ParseText(mainSource, new CSharpParseOptions(LanguageVersion.CSharp13)) },
+            references: references.Concat(new[] { libReference }),
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new AspectCoreProxyGenerator().AsSourceGenerator());
+        driver = driver.RunGeneratorsAndUpdateCompilation(mainCompilation, out var outputCompilation, out var generatorDiagnostics);
+        var generatedSources = driver.GetRunResult().Results[0].GeneratedSources;
+
+        // Public types of the referenced assembly are auto-discovered...
+        Assert.Contains(generatedSources, s => s.HintName.Contains("PublicService"));
+        // ...but internal types are NOT reachable from the consumer's generated code — proxying
+        // them would emit CS0122 in the consuming project (regression for the referenced-assembly
+        // assembly-level auto-discovery path).
+        Assert.DoesNotContain(generatedSources, s => s.HintName.Contains("InternalService"));
+        Assert.DoesNotContain(generatedSources, s => s.HintName.Contains("IInternalService"));
+        Assert.Empty(generatorDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error));
+        Assert.Empty(outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error));
+    }
+
+    [Fact]
+    public void AssemblyLevelAttribute_SkipsInternalTypesInCurrentAssembly()
+    {
+        const string source = """
+            using AspectCore.DynamicProxy;
+
+            [assembly: AspectCoreGenerateProxy]
+
+            namespace AutoProxy
+            {
+                internal class InternalService
+                {
+                    public virtual void Foo() {}
+                }
+
+                public class PublicService
+                {
+                    public virtual void Foo() {}
+                }
+            }
+            """;
+
+        var (driver, generatorDiagnostics, compilationErrors) = RunGenerator(source);
+        var generatedSources = driver.GetRunResult().Results[0].GeneratedSources;
+
+        // The generated proxy class is always public (ProxyEmitter hardcodes it), so internal
+        // source types would produce CS0060 (inconsistent accessibility) — they are excluded from
+        // auto-discovery just like in referenced assemblies. Public types are still auto-discovered.
+        Assert.DoesNotContain(generatedSources, s => s.HintName.Contains("InternalService"));
+        Assert.Contains(generatedSources, s => s.HintName.Contains("PublicService"));
+        Assert.Empty(generatorDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error));
+        Assert.Empty(compilationErrors);
+    }
+
+    private static MetadataReference CompileLibrary(string libSource, string assemblyName)
+    {
+        var libCompilation = CSharpCompilation.Create(
+            assemblyName: assemblyName,
+            syntaxTrees: new[] { CSharpSyntaxTree.ParseText(libSource, new CSharpParseOptions(LanguageVersion.CSharp13)) },
+            references: CreateReferences(),
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        using var ms = new MemoryStream();
+        var emitResult = libCompilation.Emit(ms);
+        Assert.True(emitResult.Success, string.Join("\n", emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
+        // CreateFromImage keeps the bytes alive independently of the stream lifetime.
+        return MetadataReference.CreateFromImage(ms.ToArray());
     }
 
     private static (GeneratorDriver Driver, ImmutableArray<Diagnostic> GeneratorDiagnostics, ImmutableArray<Diagnostic> CompilationErrors) RunGenerator(string source)

@@ -120,8 +120,13 @@ public sealed class AspectCoreProxyGenerator : IIncrementalGenerator
         if (type.IsRefLikeType)
             return false;
 
-        // Generated proxy code lives in the same assembly, so public/internal is reachable
-        if (type.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal))
+        // The generated proxy class is always public (ProxyEmitter hardcodes it), so auto-proxying
+        // is only possible for public source types. Internal types — even within the current
+        // compilation — would produce CS0060 (inconsistent accessibility): a public proxy cannot
+        // derive from or implement a less-accessible type. Referenced assemblies additionally only
+        // expose their public types to the consumer's generated code. The explicit path shares this
+        // limitation.
+        if (type.DeclaredAccessibility != Accessibility.Public)
             return false;
 
         // Skip types with events (event proxying is not supported by either engine)
